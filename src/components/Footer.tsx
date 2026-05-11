@@ -55,7 +55,16 @@ export default function Footer() {
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} NJ Realty Bot. All rights reserved.</p>
-          <p className="mt-1">Powered by InBot AI</p>
+          <p className="mt-2">
+            Powered with{" "}
+            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-400 font-semibold transition">
+              Vale
+            </a>
+            {" "}from{" "}
+            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-400 font-semibold transition">
+              InBot AI
+            </a>
+          </p>
         </div>
       </div>
     </footer>
