@@ -53,18 +53,25 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} NJ Realty Bot. All rights reserved.</p>
-          <p className="mt-2">
+        {/* Powered by Vale — prominent banner */}
+        <div className="mt-10 rounded-xl border border-gold/30 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 px-6 py-5 text-center">
+          <p className="text-base font-bold text-white">
             Powered with{" "}
-            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-400 font-semibold transition">
+            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-300 underline underline-offset-2 transition">
               Vale
             </a>
             {" "}from{" "}
-            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-400 font-semibold transition">
+            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-300 underline underline-offset-2 transition">
               InBot AI
             </a>
           </p>
+          <p className="mt-1 text-xs text-gray-400">
+            AI-powered real estate technology — lead generation, MLS search & WhatsApp automation
+          </p>
+        </div>
+
+        <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-gray-500">
+          <p>&copy; {new Date().getFullYear()} NJ Realty Bot. All rights reserved.</p>
         </div>
       </div>
     </footer>
