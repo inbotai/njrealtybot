@@ -56,7 +56,7 @@ export default function SearchBar({ className = "" }: { className?: string }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by city, zip code, or address..."
-          className="flex-1 rounded-l-lg border-0 px-5 py-4 text-gray-900 shadow-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gold"
+          className="flex-1 rounded-l-lg border-0 bg-white px-5 py-4 text-gray-900 shadow-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gold"
         />
         <button
           type="submit"

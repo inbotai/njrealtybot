@@ -108,7 +108,7 @@ export default function SearchPageClient() {
   const hasCity = !!(filters.city || filters.q);
 
   const inputClass =
-    "rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
+    "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
 
   return (
     <>
