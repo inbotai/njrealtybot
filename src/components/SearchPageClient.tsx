@@ -6,14 +6,44 @@ import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
-const propertyTypes = [
-  "Any", "Residential", "Condo", "Townhouse", "Multi Family", "Land",
+const propertySubTypes = [
+  "Any Type",
+  "Colonial", "Cape Cod", "Ranch", "Split Level", "Contemporary",
+  "Bi-Level", "Duplex", "Rowhouse", "Tudor", "Victorian",
+  "Raised Ranch", "Multi Family", "Townhouse", "Condo",
+  "Co-op", "Mobile Home", "Farm", "Other",
+];
+const priceRanges = [
+  { label: "No Min", value: "" },
+  { label: "$100K", value: "100000" },
+  { label: "$200K", value: "200000" },
+  { label: "$300K", value: "300000" },
+  { label: "$400K", value: "400000" },
+  { label: "$500K", value: "500000" },
+  { label: "$750K", value: "750000" },
+  { label: "$1M", value: "1000000" },
+  { label: "$1.5M", value: "1500000" },
+  { label: "$2M", value: "2000000" },
+  { label: "$3M", value: "3000000" },
+  { label: "$5M", value: "5000000" },
+];
+const maxPriceRanges = [
+  { label: "No Max", value: "" },
+  ...priceRanges.slice(1),
+  { label: "$10M", value: "10000000" },
+  { label: "$20M+", value: "20000000" },
+];
+const statusOptions = [
+  { label: "Active / For Sale", value: "Active" },
+  { label: "Sold", value: "Sold" },
+  { label: "Under Contract", value: "Under Contract" },
+  { label: "Coming Soon", value: "Coming Soon" },
 ];
 const sortOptions = [
-  { label: "Smart (Recommended)", value: "newest" },
-  { label: "Price: Low to High", value: "price_asc" },
-  { label: "Price: High to Low", value: "price_desc" },
-  { label: "Sq Ft", value: "sqft" },
+  { label: "Newest First", value: "newest" },
+  { label: "Price: Low → High", value: "price_asc" },
+  { label: "Price: High → Low", value: "price_desc" },
+  { label: "Largest (Sq Ft)", value: "sqft" },
 ];
 
 /** Categorize listings into priority sections */
@@ -51,7 +81,10 @@ export default function SearchPageClient() {
     maxPrice: searchParams.get("maxPrice") || "",
     beds: searchParams.get("beds") || "",
     baths: searchParams.get("baths") || "",
-    propertyType: searchParams.get("propertyType") || "Any",
+    minSqft: searchParams.get("minSqft") || "",
+    maxSqft: searchParams.get("maxSqft") || "",
+    propertyType: searchParams.get("propertyType") || "Any Type",
+    status: searchParams.get("status") || "Active",
     sort: searchParams.get("sort") || "newest",
     page: searchParams.get("page") || "1",
   });
@@ -60,7 +93,7 @@ export default function SearchPageClient() {
     setLoading(true);
     try {
       const params: Record<string, string> = {
-        status: "Active",
+        status: f.status || "Active",
         limit: "24",
         page: f.page,
         sort: f.sort || "newest",
@@ -71,7 +104,9 @@ export default function SearchPageClient() {
       if (f.maxPrice) params.maxPrice = f.maxPrice;
       if (f.beds) params.beds = f.beds;
       if (f.baths) params.baths = f.baths;
-      if (f.propertyType && f.propertyType !== "Any")
+      if (f.minSqft) params.minSqft = f.minSqft;
+      if (f.maxSqft) params.maxSqft = f.maxSqft;
+      if (f.propertyType && f.propertyType !== "Any Type")
         params.propertyType = f.propertyType;
 
       const data = await fetchListings(params);
@@ -86,7 +121,7 @@ export default function SearchPageClient() {
   useEffect(() => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => {
-      if (v && v !== "Any" && !(k === "page" && v === "1"))
+      if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
         params.set(k, v);
     });
     router.replace(`/search?${params.toString()}`, { scroll: false });
@@ -122,44 +157,60 @@ export default function SearchPageClient() {
           {results?.total?.toLocaleString() || 0} listings found
         </p>
 
-        {/* Filter bar */}
-        <div className="mb-8 flex flex-wrap gap-3">
+        {/* Filter bar — row 1 */}
+        <div className="mb-3 flex flex-wrap gap-3">
           <input
             type="text"
-            placeholder="City or Address..."
+            placeholder="City, Zip, or Address..."
             value={filters.city || filters.q}
             onChange={(e) => {
               const v = e.target.value;
               updateFilter("city", v);
               updateFilter("q", "");
             }}
-            className={`${inputClass} w-full sm:w-52`}
+            className={`${inputClass} w-full sm:w-56`}
           />
-          <input type="number" placeholder="Min Price" value={filters.minPrice}
-            onChange={(e) => updateFilter("minPrice", e.target.value)}
-            className={`${inputClass} w-32`} />
-          <input type="number" placeholder="Max Price" value={filters.maxPrice}
-            onChange={(e) => updateFilter("maxPrice", e.target.value)}
-            className={`${inputClass} w-32`} />
-          <select value={filters.beds} onChange={(e) => updateFilter("beds", e.target.value)}
+          <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
             className={inputClass}>
-            <option value="">Beds</option>
-            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={String(n)}>{n}+</option>)}
-          </select>
-          <select value={filters.baths} onChange={(e) => updateFilter("baths", e.target.value)}
-            className={inputClass}>
-            <option value="">Baths</option>
-            {[1, 2, 3, 4].map((n) => <option key={n} value={String(n)}>{n}+</option>)}
+            {statusOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <select value={filters.propertyType}
             onChange={(e) => updateFilter("propertyType", e.target.value)}
             className={inputClass}>
-            {propertyTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            {propertySubTypes.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
           <select value={filters.sort} onChange={(e) => updateFilter("sort", e.target.value)}
             className={inputClass}>
             {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
+        </div>
+        {/* Filter bar — row 2 */}
+        <div className="mb-8 flex flex-wrap gap-3">
+          <select value={filters.minPrice} onChange={(e) => updateFilter("minPrice", e.target.value)}
+            className={inputClass}>
+            {priceRanges.map((p) => <option key={`min-${p.value}`} value={p.value}>{p.label}</option>)}
+          </select>
+          <span className="self-center text-sm text-gray-400">to</span>
+          <select value={filters.maxPrice} onChange={(e) => updateFilter("maxPrice", e.target.value)}
+            className={inputClass}>
+            {maxPriceRanges.map((p) => <option key={`max-${p.value}`} value={p.value}>{p.label}</option>)}
+          </select>
+          <select value={filters.beds} onChange={(e) => updateFilter("beds", e.target.value)}
+            className={inputClass}>
+            <option value="">Beds</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option key={n} value={String(n)}>{n}+ Beds</option>)}
+          </select>
+          <select value={filters.baths} onChange={(e) => updateFilter("baths", e.target.value)}
+            className={inputClass}>
+            <option value="">Baths</option>
+            {[1, 2, 3, 4, 5, 6].map((n) => <option key={n} value={String(n)}>{n}+ Baths</option>)}
+          </select>
+          <input type="number" placeholder="Min Sqft" value={filters.minSqft}
+            onChange={(e) => updateFilter("minSqft", e.target.value)}
+            className={`${inputClass} w-28`} />
+          <input type="number" placeholder="Max Sqft" value={filters.maxSqft}
+            onChange={(e) => updateFilter("maxSqft", e.target.value)}
+            className={`${inputClass} w-28`} />
         </div>
 
         {/* Results */}
