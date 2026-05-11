@@ -1,65 +1,117 @@
-import Image from "next/image";
+import { fetchListings } from "@/lib/api";
+import ListingCard from "@/components/ListingCard";
+import SearchBar from "@/components/SearchBar";
+import MLSDisclaimer from "@/components/MLSDisclaimer";
+import Link from "next/link";
 
-export default function Home() {
+const features = [
+  {
+    icon: "\u{1F916}",
+    title: "AI-Powered Search",
+    desc: "Our intelligent assistant understands what you need and finds the perfect match instantly.",
+  },
+  {
+    icon: "\u{1F3E0}",
+    title: "50,000+ Listings",
+    desc: "Access every active listing in New Jersey from NJMLS and GSMLS in real-time.",
+  },
+  {
+    icon: "\u26A1",
+    title: "Instant Alerts",
+    desc: "Get notified the moment a property matching your criteria hits the market.",
+  },
+];
+
+export default async function HomePage() {
+  let listings: import("@/lib/api").Listing[] = [];
+  try {
+    const res = await fetchListings({
+      status: "Active",
+      sort: "newest",
+      limit: "6",
+    });
+    listings = res.data || [];
+  } catch {
+    /* API may be unavailable */
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      {/* Hero */}
+      <section className="relative bg-navy py-24 text-center text-white">
+        <div className="mx-auto max-w-4xl px-4">
+          <h1 className="text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">
+            Find Your Dream Home{" "}
+            <span className="text-gold">in New Jersey</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4 text-lg text-gray-300">
+            Search thousands of homes for sale across the Garden State
           </p>
+          <div className="mt-8 flex justify-center">
+            <SearchBar />
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </section>
+
+      {/* Featured Listings */}
+      {listings.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-16">
+          <div className="mb-8 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-navy">Featured Listings</h2>
+            <Link
+              href="/search"
+              className="text-sm font-medium text-gold hover:underline"
+            >
+              View All &rarr;
+            </Link>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Home Value CTA */}
+      <section className="bg-gold/10 py-16">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h2 className="text-3xl font-bold text-navy">
+            What&apos;s Your Home Worth?
+          </h2>
+          <p className="mt-3 text-gray-600">
+            Thinking of selling? Get a free, no-obligation home valuation from
+            our team.
+          </p>
+          <Link
+            href="/sell"
+            className="mt-6 inline-block rounded-lg bg-gold px-8 py-3 font-semibold text-navy transition hover:bg-yellow-500"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Get Free Valuation
+          </Link>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* Why NJ Realty Bot */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <h2 className="mb-10 text-center text-2xl font-bold text-navy">
+          Why NJ Realty Bot?
+        </h2>
+        <div className="grid gap-8 md:grid-cols-3">
+          {features.map((f) => (
+            <div
+              key={f.title}
+              className="rounded-xl bg-white p-8 text-center shadow-md"
+            >
+              <div className="text-4xl">{f.icon}</div>
+              <h3 className="mt-4 text-lg font-bold text-navy">{f.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <MLSDisclaimer />
+    </>
   );
 }
