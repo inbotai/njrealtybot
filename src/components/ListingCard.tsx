@@ -12,9 +12,26 @@ const statusColors: Record<string, string> = {
   "Coming Soon": "bg-purple-600",
 };
 
+const OUR_OFFICE = "REALTY ONE GROUP LEGEND";
+
+function isOurListing(listing: Listing): boolean {
+  return (listing.listing_office_name || "").toUpperCase().includes(OUR_OFFICE);
+}
+
+/** Determine which MLS logo to show based on mls_source_id */
+function getMlsLogo(listing: Listing): { src: string; alt: string } | null {
+  if (isOurListing(listing)) return null;
+  // GSMLS source ID
+  if (listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e") {
+    return { src: "/gsmls-logo.svg", alt: "GSMLS" };
+  }
+  return { src: "/njmls-idx-logo.svg", alt: "NJMLS IDX" };
+}
+
 export default function ListingCard({ listing }: { listing: Listing }) {
   const photo = listing.photo_count > 0 ? getPhotoUrl(listing.mls_number) : listing.primary_photo_url;
   const statusColor = statusColors[listing.mls_status] || "bg-gray-600";
+  const mlsLogo = getMlsLogo(listing);
 
   return (
     <Link
@@ -36,6 +53,9 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <span className={`absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold text-white ${statusColor}`}>
           {listing.mls_status}
         </span>
+        {mlsLogo && (
+          <img src={mlsLogo.src} alt={mlsLogo.alt} className="absolute bottom-2 right-2 h-6 w-auto opacity-90" />
+        )}
       </div>
 
       <div className="p-4">
@@ -53,13 +73,13 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           {listing.bathrooms_total != null && (
             <span className="font-medium">{listing.bathrooms_total} Baths</span>
           )}
-          {listing.living_area != null && (
+          {listing.living_area != null && listing.living_area > 100 && (
             <span className="font-medium">{listing.living_area.toLocaleString()} Sqft</span>
           )}
         </div>
 
         {listing.listing_office_name && (
-          <p className="mt-2 truncate text-[10px] text-gray-400">
+          <p className="mt-2 truncate text-xs text-gray-500">
             Listed by {listing.listing_office_name}
           </p>
         )}

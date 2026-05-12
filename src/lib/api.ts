@@ -9,6 +9,7 @@ export interface Listing {
   id: string;
   mls_number: string;
   mls_status: string;
+  mls_source_id?: string;
   property_type: string | null;
   list_price: number | null;
   street_number: string | null;

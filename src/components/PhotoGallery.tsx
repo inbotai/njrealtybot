@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { getPhotoUrl } from "@/lib/api";
 
-export default function PhotoGallery({ mlsNumber, photoCount, address }: {
-  mlsNumber: string; photoCount: number; address: string;
+export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }: {
+  mlsNumber: string; photoCount: number; address: string; isSold?: boolean;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = Math.min(photoCount, 25);
+  // NJMLS rule: sold listings may only show the first photo
+  const total = isSold ? Math.min(photoCount, 1) : Math.min(photoCount, 25);
 
   if (photoCount === 0) {
     return (

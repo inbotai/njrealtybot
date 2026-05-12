@@ -100,7 +100,8 @@ export default async function PropertyPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <PhotoGallery mlsNumber={listing.mls_number} photoCount={listing.photo_count} address={address} />
+        <PhotoGallery mlsNumber={listing.mls_number} photoCount={listing.photo_count} address={address}
+          isSold={listing.mls_status === "Sold"} />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
@@ -111,6 +112,12 @@ export default async function PropertyPage({ params }: Props) {
                 </h1>
                 <p className="mt-1 text-lg text-gray-600">{address}</p>
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
+                {/* MLS logo for listings from other brokers */}
+                {listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e" ? (
+                  <img src="/gsmls-logo.svg" alt="GSMLS" className="mt-2 h-6 w-auto" />
+                ) : (
+                  <img src="/njmls-idx-logo.svg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
+                )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <DemandBadge listingId={listing.id} />
                   <MatchScoreBadge listingId={listing.id} />
@@ -165,10 +172,27 @@ export default async function PropertyPage({ params }: Props) {
               </div>
             )}
 
-            <div className="mt-8 rounded-lg bg-gray-100 p-4 text-xs text-gray-500">
-              {listing.listing_agent_name && <p>Listing Agent: {listing.listing_agent_name}</p>}
-              {listing.listing_office_name && <p>Listing Office: {listing.listing_office_name}</p>}
-              {compliance?.disclaimer && <p className="mt-2">{compliance.disclaimer}</p>}
+            {/* Listing broker/agent info — required by NJMLS in prominent display */}
+            <div className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
+              <h3 className="text-sm font-bold text-gray-700">Listing Information</h3>
+              <div className="mt-2 space-y-1 text-sm text-gray-600">
+                {listing.listing_office_name && (
+                  <p><span className="font-semibold">Listing Office:</span> {listing.listing_office_name}
+                    {listing.listing_office_phone ? ` — ${listing.listing_office_phone}` : ""}</p>
+                )}
+                {listing.listing_agent_name && (
+                  <p><span className="font-semibold">Listing Agent:</span> {listing.listing_agent_name}
+                    {listing.listing_agent_phone ? ` — ${listing.listing_agent_phone}` : ""}
+                    {listing.listing_agent_email ? ` — ${listing.listing_agent_email}` : ""}</p>
+                )}
+              </div>
+              <p className="mt-3 text-xs text-gray-400">
+                Information deemed reliable but not guaranteed. Data provided for consumer&apos;s
+                personal, non-commercial use only.
+                {listing.mls_modification_timestamp && (
+                  <> Last updated: {new Date(listing.mls_modification_timestamp).toLocaleDateString("en-US")}.</>
+                )}
+              </p>
             </div>
           </div>
 
