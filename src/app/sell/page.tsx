@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LeadForm from "@/components/LeadForm";
+import HomeValuationTool from "@/components/HomeValuationTool";
 
 export const metadata: Metadata = {
   title: "Sell Your Home | Free Valuation",
@@ -78,11 +79,12 @@ export default function SellPage() {
             </div>
           </div>
 
-          {/* Form */}
-          <div>
+          {/* Valuation + Form */}
+          <div className="space-y-6">
+            <HomeValuationTool />
             <LeadForm
               leadType="listing_request"
-              title="Request Your Free Valuation"
+              title="Get a Detailed Analysis from an Agent"
             />
           </div>
         </div>

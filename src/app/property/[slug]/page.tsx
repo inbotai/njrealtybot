@@ -5,6 +5,8 @@ import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import LeadForm from "@/components/LeadForm";
 import ListingCard from "@/components/ListingCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
+import DemandBadge from "@/components/DemandBadge";
+import MatchScoreBadge from "@/components/MatchScoreBadge";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -115,6 +117,10 @@ export default async function PropertyPage({ params }: Props) {
                 </h1>
                 <p className="mt-1 text-lg text-gray-600">{address}</p>
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <DemandBadge listingId={listing.id} />
+                  <MatchScoreBadge listingId={listing.id} />
+                </div>
               </div>
               <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${
                 listing.mls_status === "Sold" ? "bg-red-600" : "bg-green-600"

@@ -145,3 +145,108 @@ export async function fetchOpenHouses(): Promise<OpenHouse[]> {
   const json = await res.json();
   return Array.isArray(json) ? json : json.openHouses || json.data || [];
 }
+
+// ── Intelligence API ────────────────────────────────────────
+
+export interface DemandSignal {
+  listingId: string;
+  totalViews: number;
+  uniqueVisitors: number;
+  viewsLast24h: number;
+  demandLevel: "low" | "moderate" | "high" | "very_high";
+  competitionWarning: string | null;
+  biddingWarProbability: number;
+}
+
+export interface DealOpportunity {
+  listingId: string;
+  mlsNumber: string;
+  address: string;
+  city: string;
+  listPrice: number;
+  predictedDrop: number;
+  predictedPrice: number;
+  probability: number;
+  signals: string[];
+  daysOnMarket: number;
+}
+
+export interface PricingEstimate {
+  estimatedValue: number;
+  lowRange: number;
+  highRange: number;
+  pricePerSqft: number;
+  confidence: string;
+  comparables: number;
+  methodology: string;
+}
+
+/** Record a listing view + get demand signals */
+export async function recordAndGetDemand(listingId: string, visitorId?: string): Promise<DemandSignal> {
+  // Fire-and-forget view recording
+  fetch(`${IDX_API}/api/idx/listings/${listingId}/view`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ visitorId }),
+  }).catch(() => {});
+  // Get demand
+  const res = await fetch(`${IDX_API}/api/idx/listings/${listingId}/demand`);
+  if (!res.ok) return { listingId, totalViews: 0, uniqueVisitors: 0, viewsLast24h: 0, demandLevel: "low", competitionWarning: null, biddingWarProbability: 0 };
+  return res.json();
+}
+
+/** Get deals / tunneling opportunities */
+export async function fetchDeals(city?: string, limit = 10): Promise<DealOpportunity[]> {
+  const params = new URLSearchParams();
+  if (city) params.set("city", city);
+  params.set("limit", String(limit));
+  const res = await fetch(`${IDX_API}/api/idx/deals?${params}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.deals || [];
+}
+
+/** Get personalized recommendations */
+export async function fetchRecommendations(visitorId: string, limit = 6): Promise<{ id: string; score: number; address: string; price: number }[]> {
+  const res = await fetch(`${IDX_API}/api/idx/recommendations?visitorId=${visitorId}&limit=${limit}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.recommendations || [];
+}
+
+/** Get match score for a listing */
+export async function fetchMatchScore(visitorId: string, listingId: string): Promise<number> {
+  const res = await fetch(`${IDX_API}/api/idx/match-score`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ visitorId, listingId }),
+  });
+  if (!res.ok) return 0;
+  const json = await res.json();
+  return json.score || 0;
+}
+
+/** Get pricing estimate */
+export async function fetchPricingEstimate(params: {
+  city: string; bedrooms?: number; bathrooms?: number; sqft?: number; yearBuilt?: number;
+}): Promise<PricingEstimate | null> {
+  const res = await fetch(`${IDX_API}/api/idx/pricing/estimate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+/** Generate CMA report */
+export async function fetchCMA(city: string, beds?: number): Promise<string> {
+  const res = await fetch(`${IDX_API}/api/idx/cma`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ city, beds }),
+  });
+  if (!res.ok) return "Unable to generate CMA for this area.";
+  const json = await res.json();
+  return json.report || "";
+}

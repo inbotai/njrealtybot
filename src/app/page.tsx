@@ -2,6 +2,7 @@ import { fetchListings } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
+import RecommendedSection from "@/components/RecommendedSection";
 import Link from "next/link";
 
 const features = [
@@ -111,6 +112,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <RecommendedSection />
       <MLSDisclaimer />
     </>
   );
