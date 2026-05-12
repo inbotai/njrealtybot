@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { fetchListing, fetchListings } from "@/lib/api";
 import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
-import LeadForm from "@/components/LeadForm";
 import ListingCard from "@/components/ListingCard";
+import ValeChatInline from "@/components/ValeChatInline";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import DemandBadge from "@/components/DemandBadge";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
@@ -196,9 +196,8 @@ export default async function PropertyPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <LeadForm leadType="showing_request" listingId={listing.id} title="Schedule a Showing" />
-            <LeadForm leadType="info_request" listingId={listing.id} title="Request Info" />
+          <div>
+            <ValeChatInline listingId={listing.id} />
           </div>
         </div>
 
