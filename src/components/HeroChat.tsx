@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { fetchListing, getPhotoUrl, type Listing } from "@/lib/api";
+import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
+import Link from "next/link";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -20,6 +23,7 @@ export default function HeroChat() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [listings, setListings] = useState<Listing[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,7 +59,18 @@ export default function HeroChat() {
         body: JSON.stringify({ sessionId: sid, message: q }),
       });
       const d = await r.json();
-      setMessages(prev => [...prev, { role: "assistant", text: d.reply || d.error || "Something went wrong." }]);
+      const reply = d.reply || d.error || "Something went wrong.";
+      setMessages(prev => [...prev, { role: "assistant", text: reply }]);
+      // Extract listing IDs from Vale's response [ID:uuid]
+      const ids = [...reply.matchAll(/\[ID:([a-f0-9-]{36})\]/gi)].map((m: any) => m[1]);
+      if (ids.length > 0) {
+        const fetched = await Promise.all(
+          ids.slice(0, 6).map((id: string) =>
+            fetchListing(id).then(d => d.listing).catch(() => null)
+          )
+        );
+        setListings(fetched.filter(Boolean) as Listing[]);
+      }
     } catch {
       setMessages(prev => [...prev, { role: "assistant", text: "Connection error. Try again." }]);
     }
@@ -119,6 +134,33 @@ export default function HeroChat() {
           Ask Vale
         </button>
       </div>
+
+      {/* Listing cards from Vale's response */}
+      {listings.length > 0 && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {listings.map(l => (
+            <Link key={l.id} href={`/property/${generateSlug(l)}`}
+              className="flex gap-3 rounded-xl bg-white p-3 shadow-md transition hover:shadow-lg"
+            >
+              {l.photo_count > 0 && (
+                <img src={getPhotoUrl(l.mls_number)} alt={formatAddress(l)}
+                  className="h-20 w-24 flex-shrink-0 rounded-lg object-cover" />
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-navy">
+                  {l.list_price ? formatPrice(l.list_price) : "Price TBD"}
+                </p>
+                <p className="truncate text-xs text-gray-600">{formatAddress(l)}</p>
+                {l.city && <p className="text-[10px] text-gray-400">{l.city}, NJ</p>}
+                <p className="mt-1 text-[10px] text-gray-500">
+                  {l.bedrooms_total ?? "?"} bed / {l.bathrooms_total ?? "?"} bath
+                  {l.living_area && l.living_area > 100 ? ` / ${l.living_area.toLocaleString()} sqft` : ""}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Suggestions — hide once conversation starts */}
       {!expanded && (
