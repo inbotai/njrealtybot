@@ -13,20 +13,28 @@ export default function Footer() {
   return (
     <footer className="mt-auto bg-navy text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Agent + Broker — prominent per MLS rules */}
+        {/* Broker + Agent — MOST PROMINENT per MLS co-branding rules */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
+            className="h-20 w-auto" />
+          <p className="mt-4 text-lg font-bold text-white">Julio Reynoso</p>
+          <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
+          <p className="mt-1 text-sm text-gray-400">(201) 873-5655 | julio@inbot.ai</p>
+        </div>
+
+        <div className="border-t border-white/10 pt-8 grid gap-8 md:grid-cols-3">
+          {/* NJ Realty Bot — smaller than broker */}
           <div>
-            <h3 className="text-lg font-bold text-white">
+            <h3 className="text-base font-bold text-white">
               <span className="text-gold">NJ</span> Realty Bot
             </h3>
-            <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
-              <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend" className="h-12 w-auto mb-2" />
-              <p className="text-sm font-semibold text-white">Julio Reynoso</p>
-              <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
-              <p className="mt-1 text-sm font-semibold text-gold">Realty One Group Legend</p>
-              <p className="mt-1 text-xs text-gray-400">Phone: (201) 873-5655</p>
-              <p className="text-xs text-gray-400">Email: julio@inbot.ai</p>
-            </div>
+            <p className="mt-2 text-sm">
+              Your AI-powered real estate platform for New Jersey.
+            </p>
+            <p className="mt-1 text-xs text-gray-500">
+              A technology platform operated by Julio Reynoso,
+              Realty One Group Legend.
+            </p>
           </div>
 
           {/* Links */}
@@ -45,9 +53,9 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="mb-3 font-semibold text-white">Contact Us</h4>
+            <h4 className="mb-3 font-semibold text-white">Contact</h4>
             <p className="text-sm">
-              Have questions about a listing or need help? Vale, our AI partner, is available 24/7 on every property page.
+              Vale, our AI partner, is available 24/7 on every property page.
             </p>
             <p className="mt-2 text-sm">
               Or reach Julio directly at{" "}
@@ -56,9 +64,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Powered by Vale banner */}
+        {/* Powered by Vale */}
         <div className="mt-10 rounded-xl border border-gold/30 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 px-6 py-5 text-center">
-          <p className="text-base font-bold text-white">
+          <p className="text-sm font-bold text-white">
             Powered with{" "}
             <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-300 underline underline-offset-2 transition">
               Vale
@@ -68,13 +76,10 @@ export default function Footer() {
               InBot AI
             </a>
           </p>
-          <p className="mt-1 text-xs text-gray-400">
-            AI-powered real estate technology — lead generation, MLS search &amp; WhatsApp automation
-          </p>
         </div>
 
         <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} NJ Realty Bot. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} NJ Realty Bot | Realty One Group Legend. All rights reserved.</p>
         </div>
       </div>
     </footer>
