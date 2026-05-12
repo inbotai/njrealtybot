@@ -4,7 +4,7 @@ import { fetchListing, fetchListings } from "@/lib/api";
 import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
-import PropertyChatTrigger from "@/components/PropertyChatTrigger";
+import PropertyPageVale from "@/components/PropertyPageVale";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -191,11 +191,7 @@ export default async function PropertyPage({ params }: Props) {
           </div>
 
           <div>
-            <PropertyChatTrigger
-              listingId={listing.id}
-              address={address}
-              price={listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
-            />
+            <PropertyPageVale listingId={listing.id} />
           </div>
         </div>
 
