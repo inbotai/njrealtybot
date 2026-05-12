@@ -1,54 +1,97 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+
+const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
 const suggestions = [
   "3 bedroom houses in Hoboken under 500k",
   "What's my home worth?",
   "Show me deals in Bergen County",
   "Condos near NYC with 2+ baths",
-  "Find me a house with a pool in Morris County",
+  "Find me a house with a pool",
 ];
+
+interface Message { role: "user" | "assistant"; text: string }
 
 export default function HeroChat() {
   const [query, setQuery] = useState("");
-  const [typing, setTyping] = useState(false);
-  const router = useRouter();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  function handleSubmit(text?: string) {
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function startSession() {
+    if (sessionId) return sessionId;
+    const vid = localStorage.getItem("vale_vid") || "";
+    const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitorId: vid || undefined }),
+    });
+    const d = await r.json();
+    if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
+    setSessionId(d.sessionId);
+    return d.sessionId;
+  }
+
+  async function send(text?: string) {
     const q = (text || query).trim();
-    if (!q) return;
-
-    // Route to search or sell based on intent
-    if (/worth|value|valuation|sell|vender|cma/i.test(q)) {
-      router.push("/sell");
-    } else if (/deal|bargain|price drop|under market/i.test(q)) {
-      router.push("/deals");
-    } else {
-      // Extract search params from natural language
-      const cityMatch = q.match(/in\s+([A-Za-z\s]+?)(?:\s+under|\s+with|\s+near|$)/i);
-      const priceMatch = q.match(/under\s+\$?([\d,]+)\s*(k|m)?/i);
-      const bedMatch = q.match(/(\d)\s*(?:bed|br|bedroom)/i);
-
-      const params = new URLSearchParams();
-      if (cityMatch) params.set("city", cityMatch[1].trim());
-      if (priceMatch) {
-        let price = parseInt(priceMatch[1].replace(/,/g, ""));
-        if (priceMatch[2]?.toLowerCase() === "k") price *= 1000;
-        if (priceMatch[2]?.toLowerCase() === "m") price *= 1000000;
-        params.set("maxPrice", String(price));
-      }
-      if (bedMatch) params.set("beds", bedMatch[1]);
-      params.set("q", q);
-
-      router.push(`/search?${params.toString()}`);
+    if (!q || loading) return;
+    setQuery("");
+    setExpanded(true);
+    setMessages(prev => [...prev, { role: "user", text: q }]);
+    setLoading(true);
+    try {
+      const sid = await startSession();
+      const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sid, message: q }),
+      });
+      const d = await r.json();
+      setMessages(prev => [...prev, { role: "assistant", text: d.reply || d.error || "Something went wrong." }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", text: "Connection error. Try again." }]);
     }
+    setLoading(false);
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      {/* Main input */}
+      {/* Chat area — expands when conversation starts */}
+      {expanded && (
+        <div className="mb-3 max-h-72 overflow-y-auto rounded-xl bg-white/10 backdrop-blur p-4 space-y-3">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                m.role === "user"
+                  ? "bg-indigo-600 text-white rounded-br-sm"
+                  : "bg-white text-gray-800 rounded-bl-sm"
+              }`}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 flex gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+      )}
+
+      {/* Input bar */}
       <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center pl-4">
           <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
@@ -64,30 +107,33 @@ export default function HeroChat() {
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
-          placeholder="Ask Vale anything... &quot;3 bed house in Hoboken under 500k&quot;"
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          placeholder={expanded ? "Ask a follow-up..." : "Ask Vale anything... \"3 bed house in Hoboken under 500k\""}
           className="flex-1 px-4 py-5 text-base text-gray-800 outline-none placeholder:text-gray-400"
         />
         <button
-          onClick={() => handleSubmit()}
-          className="bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          onClick={() => send()}
+          disabled={loading || !query.trim()}
+          className="bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
         >
-          Search
+          Ask Vale
         </button>
       </div>
 
-      {/* Smart suggestions */}
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
-        {suggestions.map(s => (
-          <button
-            key={s}
-            onClick={() => { setQuery(s); handleSubmit(s); }}
-            className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10 hover:text-white"
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      {/* Suggestions — hide once conversation starts */}
+      {!expanded && (
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {suggestions.map(s => (
+            <button
+              key={s}
+              onClick={() => { setQuery(s); send(s); }}
+              className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
