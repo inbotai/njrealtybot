@@ -36,14 +36,14 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Broker + Agent — right side */}
-        <div className="hidden items-center gap-3 sm:flex">
+        {/* Broker + Agent — right side, prominent */}
+        <div className="hidden items-center gap-3 md:flex">
           <div className="text-right">
-            <p className="text-xs font-semibold text-white">Julio Reynoso</p>
-            <p className="text-[10px] text-gray-400">Realty One Group Legend</p>
+            <p className="text-sm font-bold text-white">Julio Reynoso</p>
+            <p className="text-xs text-gray-300">Realty One Group Legend</p>
           </div>
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
-            className="h-9 w-auto" />
+            className="h-14 w-auto" />
         </div>
 
         {/* Mobile toggle */}
