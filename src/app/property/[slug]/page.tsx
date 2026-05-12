@@ -114,9 +114,9 @@ export default async function PropertyPage({ params }: Props) {
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
                 {/* MLS logo for listings from other brokers */}
                 {listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e" ? (
-                  <img src="/gsmls-logo.svg" alt="GSMLS" className="mt-2 h-6 w-auto" />
+                  <img src="/gsmls-logo.gif" alt="GSMLS" className="mt-2 h-6 w-auto" />
                 ) : (
-                  <img src="/njmls-idx-logo.svg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
+                  <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
                 )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <DemandBadge listingId={listing.id} />

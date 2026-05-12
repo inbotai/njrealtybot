@@ -8,7 +8,7 @@ export default function MLSDisclaimer() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* NJMLS Disclaimer */}
         <div className="flex items-start gap-4">
-          <img src="/njmls-idx-logo.svg" alt="NJMLS Internet Data Exchange" className="mt-1 h-10 w-auto flex-shrink-0" />
+          <img src="/njmls-idx-logo.jpg" alt="NJMLS Internet Data Exchange" className="mt-1 h-10 w-auto flex-shrink-0" />
           <div>
             <p className="text-xs leading-relaxed">
               The data relating to real estate for sale on this web site comes in part from
@@ -24,7 +24,7 @@ export default function MLSDisclaimer() {
 
         {/* GSMLS Disclaimer */}
         <div className="mt-4 flex items-start gap-4">
-          <img src="/gsmls-logo.svg" alt="GSMLS - Garden State MLS" className="mt-1 h-10 w-auto flex-shrink-0" />
+          <img src="/gsmls-logo.gif" alt="GSMLS - Garden State MLS" className="mt-1 h-10 w-auto flex-shrink-0" />
           <div>
             <p className="text-xs leading-relaxed">
               Some of the listing data on this website comes from the Garden State Multiple

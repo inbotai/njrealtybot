@@ -23,9 +23,9 @@ function getMlsLogo(listing: Listing): { src: string; alt: string } | null {
   if (isOurListing(listing)) return null;
   // GSMLS source ID
   if (listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e") {
-    return { src: "/gsmls-logo.svg", alt: "GSMLS" };
+    return { src: "/gsmls-logo.gif", alt: "GSMLS" };
   }
-  return { src: "/njmls-idx-logo.svg", alt: "NJMLS IDX" };
+  return { src: "/njmls-idx-logo.jpg", alt: "NJMLS IDX" };
 }
 
 export default function ListingCard({ listing }: { listing: Listing }) {
