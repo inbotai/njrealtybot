@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const quickLinks = [
   { href: "/search", label: "Search Homes" },
+  { href: "/deals", label: "Find Deals" },
   { href: "/sell", label: "Sell Your Home" },
   { href: "/open-houses", label: "Open Houses" },
   { href: "/about", label: "About Us" },
@@ -13,17 +14,18 @@ export default function Footer() {
     <footer className="mt-auto bg-navy text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-8 md:grid-cols-3">
-          {/* Brand */}
+          {/* Agent + Broker — prominent per MLS rules */}
           <div>
             <h3 className="text-lg font-bold text-white">
               <span className="text-gold">NJ</span> Realty Bot
             </h3>
-            <p className="mt-2 text-sm">
-              Your AI-powered real estate assistant for New Jersey.
-            </p>
-            <p className="mt-1 text-sm text-gray-400">
-              Brokered by Realty One Group Legend
-            </p>
+            <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
+              <p className="text-sm font-semibold text-white">Julio Reynoso</p>
+              <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
+              <p className="mt-1 text-sm font-semibold text-gold">Realty One Group Legend</p>
+              <p className="mt-1 text-xs text-gray-400">Phone: (201) 873-5655</p>
+              <p className="text-xs text-gray-400">Email: julio@inbot.ai</p>
+            </div>
           </div>
 
           {/* Links */}
@@ -40,20 +42,20 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Disclaimer */}
+          {/* Contact */}
           <div>
-            <h4 className="mb-3 font-semibold text-white">MLS Compliance</h4>
-            <p className="text-xs leading-relaxed text-gray-400">
-              The data relating to real estate for sale on this website comes in
-              part from the IDX Program of NJMLS. Information deemed reliable but
-              not guaranteed. The broker providing this data believes it to be
-              correct, but advises interested parties to confirm before relying on
-              it in a purchase decision.
+            <h4 className="mb-3 font-semibold text-white">Contact Us</h4>
+            <p className="text-sm">
+              Have questions about a listing or need help? Vale, our AI partner, is available 24/7 on every property page.
+            </p>
+            <p className="mt-2 text-sm">
+              Or reach Julio directly at{" "}
+              <a href="tel:+12018735655" className="text-gold hover:underline">(201) 873-5655</a>
             </p>
           </div>
         </div>
 
-        {/* Powered by Vale — prominent banner */}
+        {/* Powered by Vale banner */}
         <div className="mt-10 rounded-xl border border-gold/30 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 px-6 py-5 text-center">
           <p className="text-base font-bold text-white">
             Powered with{" "}
@@ -66,7 +68,7 @@ export default function Footer() {
             </a>
           </p>
           <p className="mt-1 text-xs text-gray-400">
-            AI-powered real estate technology — lead generation, MLS search & WhatsApp automation
+            AI-powered real estate technology — lead generation, MLS search &amp; WhatsApp automation
           </p>
         </div>
 

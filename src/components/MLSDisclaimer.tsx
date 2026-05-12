@@ -22,32 +22,37 @@ export default function MLSDisclaimer() {
           </div>
         </div>
 
-        {/* GSMLS Disclaimer */}
+        {/* GSMLS Disclaimer — exact mandatory text from IDX Display Guidelines */}
         <div className="mt-4 flex items-start gap-4">
           <img src="/gsmls-logo.gif" alt="GSMLS - Garden State MLS" className="mt-1 h-10 w-auto flex-shrink-0" />
           <div>
             <p className="text-xs leading-relaxed">
-              Some of the listing data on this website comes from the Garden State Multiple
-              Listing Service, LLC. Real estate listings held by brokerage firms other than
-              Realty One Group Legend are marked with the GSMLS logo. Information is provided
-              exclusively for consumers&apos; personal, non-commercial use and may not be used
-              for any purpose other than to identify prospective properties consumers may be
-              interested in purchasing. Data is deemed reliable but is not guaranteed accurate
-              by the GSMLS.
+              The data displayed relating to real estate for sale comes in part from the IDX
+              Program of Garden State Multiple Listing Service, L.L.C. Real estate listings
+              held by other brokerage firms are marked as IDX Listing.
             </p>
           </div>
         </div>
 
-        {/* Required notices */}
+        {/* N.J.A.C. 11:5.6.1 Disclosure — mandatory per GSMLS */}
+        <p className="mt-4 text-xs leading-relaxed">
+          Notice: The dissemination of listings displayed herein does not constitute the consent
+          required by N.J.A.C. 11:5.6.1(n) for the advertisement of listings exclusively for
+          sale by another broker. Any such consent must be obtained in writing from the listing broker.
+        </p>
+
+        {/* Consumer disclaimer — mandatory per both NJMLS and GSMLS */}
+        <p className="mt-3 text-xs leading-relaxed">
+          This information is being provided for Consumers&apos; personal, non-commercial use and
+          may not be used for any purpose other than to identify prospective properties Consumers
+          may be interested in purchasing.
+        </p>
+
+        {/* Accuracy + Copyright + Last Updated */}
         <div className="mt-4 space-y-1 text-[10px] text-gray-500">
-          <p>All information deemed reliable but not guaranteed. Last date updated: {lastUpdated}.</p>
-          <p>Source: New Jersey Multiple Listing Service, Inc. | Garden State Multiple Listing Service, LLC.</p>
+          <p>Information deemed reliable but not guaranteed. Last date updated: {lastUpdated}.</p>
           <p>&copy; {year} New Jersey Multiple Listing Service, Inc. All rights reserved.</p>
-          <p>
-            The information provided is for consumers&apos; personal, non-commercial use and may
-            not be used for any purpose other than to identify prospective properties consumers
-            may be interested in purchasing.
-          </p>
+          <p>Information deemed reliable but not guaranteed. Copyright &copy; {year} Garden State Multiple Listing Service, L.L.C. All rights reserved.</p>
         </div>
       </div>
     </section>

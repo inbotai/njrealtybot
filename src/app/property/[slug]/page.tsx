@@ -6,8 +6,6 @@ import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
 import ValeChatInline from "@/components/ValeChatInline";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
-import DemandBadge from "@/components/DemandBadge";
-import MatchScoreBadge from "@/components/MatchScoreBadge";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -118,10 +116,6 @@ export default async function PropertyPage({ params }: Props) {
                 ) : (
                   <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
                 )}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <DemandBadge listingId={listing.id} />
-                  <MatchScoreBadge listingId={listing.id} />
-                </div>
               </div>
               <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${
                 listing.mls_status === "Sold" ? "bg-red-600" : "bg-green-600"
