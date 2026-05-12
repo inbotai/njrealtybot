@@ -33,7 +33,7 @@ export default function ValeSidePanel() {
   if (!panelOpen) return null;
 
   return (
-    <aside className="hidden w-96 flex-shrink-0 flex-col border-l border-gray-200 bg-white md:flex animate-in slide-in-from-right duration-300">
+    <aside className="hidden w-96 flex-shrink-0 md:flex md:flex-col md:sticky md:top-0 md:h-screen border-l border-gray-200 bg-white">
       {/* Header */}
       <div className="flex items-center gap-3 bg-indigo-600 px-4 py-3">
         <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
