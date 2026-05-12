@@ -36,9 +36,25 @@ export default function HeroChat() {
     // Parse natural language into search params
     const params = new URLSearchParams();
 
-    // City extraction — find words after "in", "en", "near"
-    const cityMatch = q.match(/(?:in|en|near|cerca de)\s+([A-Za-z\s]+?)(?:\s+(?:under|with|below|con|menos|that|for)|$)/i);
-    if (cityMatch) params.set("city", cityMatch[1].trim());
+    // City extraction
+    // 1. Try "in/en/near [city]"
+    const cityPrep = q.match(/(?:in|en|near|cerca de)\s+([A-Za-z][A-Za-z\s]*?)(?:\s+(?:under|with|below|con|menos|that|for|under)|$)/i);
+    if (cityPrep) {
+      params.set("city", cityPrep[1].trim());
+    } else {
+      // 2. Fallback: find remaining words after removing known terms
+      const remaining = q.toLowerCase()
+        .replace(/\d+\s*(?:bed|br|bedroom|bath|ba|baño|dormitorio|habitaci)\w*/gi, "")
+        .replace(/(?:under|below|over|above|menos de|max)\s*\$?[\d,.]+\s*[km]?/gi, "")
+        .replace(/\$[\d,.]+[km]?/gi, "")
+        .replace(/\b(show|find|search|me|houses?|homes?|condos?|townhouse|apartment|property|properties|looking|for|with|the|and|busco|quiero|casa|casas|una|un|los|las|del|que|tiene|garage|pool|patio)\b/gi, "")
+        .trim();
+      if (remaining.length > 2) {
+        // Take the longest remaining word group as city
+        const cityGuess = remaining.replace(/\s+/g, " ").trim();
+        if (cityGuess) params.set("city", cityGuess);
+      }
+    }
 
     // Price
     const underPrice = q.match(/(?:under|below|menos de|max|up to)\s*\$?([\d,.]+)\s*(k|m)?/i);
