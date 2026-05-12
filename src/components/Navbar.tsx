@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import NavValeButton from "./NavValeButton";
 
 const links = [
   { href: "/", label: "Home" },
@@ -24,7 +25,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden gap-5 lg:flex">
+        <div className="hidden gap-5 lg:flex items-center">
           {links.map((l) => (
             <Link
               key={l.href}
@@ -34,6 +35,7 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          <NavValeButton />
         </div>
 
         {/* Broker + Agent — right side, prominent */}
