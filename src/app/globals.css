@@ -10,3 +10,30 @@
 body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Vale avatar animations */
+@keyframes vale-blink {
+  0%, 40%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(0.1); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes vale-look {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+@keyframes vale-nod {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-vale-blink .vale-eye { animation: vale-blink 0.4s ease-in-out; }
+.animate-vale-look { animation: vale-look 1.2s ease-in-out; }
+.animate-vale-nod { animation: vale-nod 0.8s ease-in-out; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }

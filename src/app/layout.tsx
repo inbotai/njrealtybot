@@ -50,11 +50,9 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
         <ValeProvider>
           <Navbar />
-          <div className="flex flex-1">
-            <main className="flex-1">{children}</main>
-            <ValeSidePanel />
-          </div>
+          <main className="flex-1">{children}</main>
           <Footer />
+          <ValeSidePanel />
         </ValeProvider>
       </body>
     </html>
