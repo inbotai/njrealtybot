@@ -1,5 +1,10 @@
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
+/** Build photo URL for a listing via the MLS proxy */
+export function getPhotoUrl(mlsNumber: string, index = 0): string {
+  return `${IDX_API}/api/idx/photos/${mlsNumber}/${index}`;
+}
+
 export interface Listing {
   id: string;
   mls_number: string;

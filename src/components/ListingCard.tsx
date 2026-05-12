@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
+import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
@@ -12,7 +13,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function ListingCard({ listing }: { listing: Listing }) {
-  const photo = listing.primary_photo_url;
+  const photo = listing.photo_count > 0 ? getPhotoUrl(listing.mls_number) : listing.primary_photo_url;
   const statusColor = statusColors[listing.mls_status] || "bg-gray-600";
 
   return (

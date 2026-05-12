@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchListing, fetchListings } from "@/lib/api";
+import { fetchListing, fetchListings, getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import LeadForm from "@/components/LeadForm";
 import ListingCard from "@/components/ListingCard";
@@ -101,12 +101,27 @@ export default async function PropertyPage({ params }: Props) {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Photo */}
         <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden rounded-xl bg-gray-200">
-          {listing.primary_photo_url ? (
-            <img src={listing.primary_photo_url} alt={address} className="h-full w-full object-cover" />
+          {listing.photo_count > 0 ? (
+            <img src={getPhotoUrl(listing.mls_number, 0)} alt={address} className="h-full w-full object-cover" loading="eager" />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-400 text-lg">No Photo Available</div>
           )}
         </div>
+        {/* Photo gallery thumbnails */}
+        {listing.photo_count > 1 && (
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
+            {Array.from({ length: Math.min(listing.photo_count, 10) }, (_, i) => (
+              <img key={i} src={getPhotoUrl(listing.mls_number, i)} alt={`Photo ${i + 1}`}
+                className="h-20 w-28 flex-shrink-0 rounded-lg object-cover cursor-pointer hover:opacity-80"
+                loading="lazy" />
+            ))}
+            {listing.photo_count > 10 && (
+              <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-sm text-gray-500">
+                +{listing.photo_count - 10} more
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
