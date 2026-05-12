@@ -1,36 +1,82 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useVale } from "./ValeProvider";
-import { getPhotoUrl, type Listing } from "@/lib/api";
-import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
-import Link from "next/link";
 import VoiceButton from "./VoiceButton";
 
 const suggestions = [
-  "3 bedroom houses in Hoboken under 500k",
-  "What's my home worth?",
-  "Show me deals in Bergen County",
-  "Condos near NYC with 2+ baths",
-  "Find me a house with a pool",
+  { label: "Houses in Hoboken", params: "city=Hoboken" },
+  { label: "Condos under 400k", params: "maxPrice=400000&propertyType=condo" },
+  { label: "3 bed in Jersey City", params: "city=Jersey+City&beds=3" },
+  { label: "What's my home worth?", href: "/sell" },
+  { label: "Find deals", href: "/deals" },
 ];
 
 export default function HeroChat() {
-  const { send, openPanel, listings, panelOpen, messages } = useVale();
   const [input, setInput] = useState("");
-  const hasConversation = messages.length > 0;
+  const router = useRouter();
+  const { send, openPanel } = useVale();
 
-  function handleSend(text?: string) {
+  function handleSearch(text?: string) {
     const q = (text || input).trim();
     if (!q) return;
     setInput("");
+
+    // Route to special pages
+    if (/worth|value|valuation|sell|vender|cma|cuanto vale/i.test(q)) {
+      router.push("/sell");
+      return;
+    }
+    if (/deal|bargain|price drop|ganga|oportunidad/i.test(q)) {
+      router.push("/deals");
+      return;
+    }
+
+    // Parse natural language into search params
+    const params = new URLSearchParams();
+
+    // City extraction — find words after "in", "en", "near"
+    const cityMatch = q.match(/(?:in|en|near|cerca de)\s+([A-Za-z\s]+?)(?:\s+(?:under|with|below|con|menos|that|for)|$)/i);
+    if (cityMatch) params.set("city", cityMatch[1].trim());
+
+    // Price
+    const underPrice = q.match(/(?:under|below|menos de|max|up to)\s*\$?([\d,.]+)\s*(k|m)?/i);
+    if (underPrice) {
+      let price = parseFloat(underPrice[1].replace(/,/g, ""));
+      if (underPrice[2]?.toLowerCase() === "k") price *= 1000;
+      if (underPrice[2]?.toLowerCase() === "m") price *= 1000000;
+      params.set("maxPrice", String(price));
+    }
+
+    // Beds
+    const bedMatch = q.match(/(\d)\+?\s*(?:bed|br|bedroom|dormitorio|habitaci)/i);
+    if (bedMatch) params.set("beds", bedMatch[1]);
+
+    // Baths
+    const bathMatch = q.match(/(\d)\+?\s*(?:bath|ba|baño)/i);
+    if (bathMatch) params.set("baths", bathMatch[1]);
+
+    // Property type
+    if (/\bcondo/i.test(q)) params.set("propertyType", "condo");
+    else if (/\btownho/i.test(q)) params.set("propertyType", "townhouse");
+    else if (/\bland\b|lot\b|terreno/i.test(q)) params.set("propertyType", "land");
+    else if (/\bmulti.?fam/i.test(q)) params.set("propertyType", "multi-family");
+
+    // Always pass the original query for Vale context
+    params.set("q", q);
+
+    // Navigate to search page
+    router.push(`/search?${params.toString()}`);
+
+    // Open Vale with context
     openPanel();
     send(q);
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      {/* Input bar */}
+      {/* Search input */}
       <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center pl-4">
           <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
@@ -46,63 +92,42 @@ export default function HeroChat() {
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-          placeholder='Ask Vale anything... "3 bed house in Hoboken under 500k"'
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
+          placeholder='Ask Vale... "3 bed house in Hoboken under 500k"'
           className="flex-1 px-4 py-5 text-base text-gray-800 outline-none placeholder:text-gray-400"
         />
         <VoiceButton
-          onTranscript={(text) => { setInput(text); handleSend(text); }}
+          onTranscript={(text) => { setInput(text); handleSearch(text); }}
           className="px-2"
         />
         <button
-          onClick={() => handleSend()}
+          onClick={() => handleSearch()}
           disabled={!input.trim()}
           className="bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
         >
-          Ask Vale
+          Search
         </button>
       </div>
 
-      {/* Suggestions */}
-      {!hasConversation && (
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {suggestions.map(s => (
-            <button
-              key={s}
-              onClick={() => handleSend(s)}
-              className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10 hover:text-white"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Listing cards from Vale's response — show in hero area */}
-      {listings.length > 0 && !panelOpen && (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.slice(0, 6).map(l => (
-            <Link key={l.id} href={`/property/${generateSlug(l)}`}
-              className="flex gap-3 rounded-xl bg-white p-3 shadow-md transition hover:shadow-lg"
-            >
-              {l.photo_count > 0 && (
-                <img src={getPhotoUrl(l.mls_number)} alt={formatAddress(l)}
-                  className="h-20 w-24 flex-shrink-0 rounded-lg object-cover" />
-              )}
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-navy">
-                  {l.list_price ? formatPrice(l.list_price) : "Price TBD"}
-                </p>
-                <p className="truncate text-xs text-gray-600">{formatAddress(l)}</p>
-                {l.city && <p className="text-[10px] text-gray-400">{l.city}, NJ</p>}
-                <p className="mt-1 text-[10px] text-gray-500">
-                  {l.bedrooms_total ?? "?"} bed / {l.bathrooms_total ?? "?"} bath
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* Quick suggestions */}
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {suggestions.map(s => (
+          <button
+            key={s.label}
+            onClick={() => {
+              if (s.href) {
+                router.push(s.href);
+              } else {
+                router.push(`/search?${s.params}`);
+                openPanel();
+              }
+            }}
+            className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10 hover:text-white"
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

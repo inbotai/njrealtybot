@@ -4,7 +4,6 @@ import MLSDisclaimer from "@/components/MLSDisclaimer";
 import RecommendedSection from "@/components/RecommendedSection";
 import HeroChat from "@/components/HeroChat";
 import AIStats from "@/components/AIStats";
-import ValeListingsGrid from "@/components/ValeListingsGrid";
 import Link from "next/link";
 
 const aiFeatures = [
@@ -87,9 +86,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Vale's search results — full cards in main content */}
-      <ValeListingsGrid />
 
       {/* New Listings */}
       {active.length > 0 && (
