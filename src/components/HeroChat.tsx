@@ -5,6 +5,7 @@ import { useVale } from "./ValeProvider";
 import { getPhotoUrl, type Listing } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import Link from "next/link";
+import VoiceButton from "./VoiceButton";
 
 const suggestions = [
   "3 bedroom houses in Hoboken under 500k",
@@ -48,6 +49,10 @@ export default function HeroChat() {
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
           placeholder='Ask Vale anything... "3 bed house in Hoboken under 500k"'
           className="flex-1 px-4 py-5 text-base text-gray-800 outline-none placeholder:text-gray-400"
+        />
+        <VoiceButton
+          onTranscript={(text) => { setInput(text); handleSend(text); }}
+          className="px-2"
         />
         <button
           onClick={() => handleSend()}

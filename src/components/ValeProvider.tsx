@@ -40,7 +40,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ValeMessage[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [listings, setListingsState] = useState<Listing[]>([]);
   const [currentListingId, setCurrentListingId] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);

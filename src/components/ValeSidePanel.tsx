@@ -5,6 +5,7 @@ import { useVale } from "./ValeProvider";
 import { getPhotoUrl, type Listing } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import Link from "next/link";
+import VoiceButton from "./VoiceButton";
 
 const suggestions = [
   "3 bed house in Hoboken under 500k",
@@ -15,7 +16,7 @@ const suggestions = [
 ];
 
 export default function ValeSidePanel() {
-  const { messages, loading, listings, send } = useVale();
+  const { messages, loading, listings, send, panelOpen } = useVale();
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -29,8 +30,10 @@ export default function ValeSidePanel() {
     setInput("");
   }
 
+  if (!panelOpen) return null;
+
   return (
-    <aside className="hidden w-96 flex-shrink-0 flex-col border-l border-gray-200 bg-white md:flex">
+    <aside className="hidden w-96 flex-shrink-0 flex-col border-l border-gray-200 bg-white md:flex animate-in slide-in-from-right duration-300">
       {/* Header */}
       <div className="flex items-center gap-3 bg-indigo-600 px-4 py-3">
         <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
@@ -132,6 +135,9 @@ export default function ValeSidePanel() {
             placeholder="Ask about properties..."
             className="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-400"
             disabled={loading}
+          />
+          <VoiceButton
+            onTranscript={(text) => { setInput(text); send(text); }}
           />
           <button
             onClick={handleSend}
