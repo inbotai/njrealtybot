@@ -20,6 +20,7 @@ export default function Footer() {
               <span className="text-gold">NJ</span> Realty Bot
             </h3>
             <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
+              <img src="/realty-one-group-logo.svg" alt="Realty One Group" className="h-10 w-auto mb-2" />
               <p className="text-sm font-semibold text-white">Julio Reynoso</p>
               <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
               <p className="mt-1 text-sm font-semibold text-gold">Realty One Group Legend</p>
