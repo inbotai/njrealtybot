@@ -20,12 +20,16 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-gold">NJ</span> Realty Bot
-          </span>
-          <span className="hidden text-[10px] leading-tight text-gray-400 sm:block">
-            Julio Reynoso | Realty One Group Legend
-          </span>
+          <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
+            className="hidden h-9 w-auto sm:block" />
+          <div className="flex flex-col">
+            <span className="text-lg font-bold tracking-tight">
+              <span className="text-gold">NJ</span> Realty Bot
+            </span>
+            <span className="text-[10px] leading-tight text-gray-400">
+              Julio Reynoso | Realty One Group Legend
+            </span>
+          </div>
         </Link>
 
         {/* Desktop */}
