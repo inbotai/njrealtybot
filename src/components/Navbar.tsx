@@ -18,7 +18,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         <Link href="/" className="text-xl font-bold tracking-tight">
           <span className="text-gold">NJ</span> Realty Bot
         </Link>
@@ -43,7 +43,7 @@ export default function Navbar() {
             <p className="text-xs text-gray-300">Realty One Group Legend</p>
           </div>
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
-            className="h-14 w-auto" />
+            className="h-16 w-auto" />
         </div>
 
         {/* Mobile toggle */}

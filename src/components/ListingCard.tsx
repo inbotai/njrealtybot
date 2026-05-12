@@ -65,6 +65,9 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <p className="mt-1 text-sm text-gray-600 truncate">
           {formatAddress(listing)}
         </p>
+        {listing.city && (
+          <p className="text-xs text-gray-500">{listing.city}, {listing.state_or_province || "NJ"}</p>
+        )}
 
         <div className="mt-3 flex gap-3 text-xs text-gray-500">
           {listing.bedrooms_total != null && (
