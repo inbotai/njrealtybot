@@ -89,6 +89,24 @@ export default function SearchPageClient() {
     page: searchParams.get("page") || "1",
   });
 
+  // Sync filters from URL params when they change (e.g. navigating from hero)
+  useEffect(() => {
+    setFilters({
+      q: searchParams.get("q") || "",
+      city: searchParams.get("city") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      beds: searchParams.get("beds") || "",
+      baths: searchParams.get("baths") || "",
+      minSqft: searchParams.get("minSqft") || "",
+      maxSqft: searchParams.get("maxSqft") || "",
+      propertyType: searchParams.get("propertyType") || "Any Type",
+      status: searchParams.get("status") || "Active",
+      sort: searchParams.get("sort") || "newest",
+      page: searchParams.get("page") || "1",
+    });
+  }, [searchParams]);
+
   const doSearch = useCallback(async (f: typeof filters) => {
     setLoading(true);
     try {
