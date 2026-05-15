@@ -118,23 +118,24 @@ export default function SearchPageClient() {
     }
   }, []);
 
-  // Run search on mount with initial URL params
-  const didMount = useRef(false);
+  // filters is the source of truth: search + sync URL whenever it changes
+  const lastPushedUrl = useRef("");
   useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      doSearch(filters);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    doSearch(filters);
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => {
+      if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
+        params.set(k, v);
+    });
+    lastPushedUrl.current = params.toString();
+    router.replace(`/search?${params.toString()}`, { scroll: false });
+  }, [filters, doSearch, router]);
 
-  // Sync filters from URL params when they change after mount (e.g. browser back/forward)
-  const prevParams = useRef(searchParams.toString());
+  // Sync from external URL changes (hero navigation, browser back/forward)
   useEffect(() => {
     const current = searchParams.toString();
-    if (current === prevParams.current) return;
-    prevParams.current = current;
-    const fromUrl = {
+    if (current === lastPushedUrl.current) return;
+    setFilters({
       q: searchParams.get("q") || "",
       city: searchParams.get("city") || "",
       minPrice: searchParams.get("minPrice") || "",
@@ -147,28 +148,15 @@ export default function SearchPageClient() {
       status: searchParams.get("status") || "Active",
       sort: searchParams.get("sort") || "newest",
       page: searchParams.get("page") || "1",
-    };
-    setFilters(fromUrl);
-    doSearch(fromUrl);
-  }, [searchParams, doSearch]);
+    });
+  }, [searchParams]);
 
   function updateFilter(key: string, value: string) {
-    const next = { ...filters, [key]: value, page: "1" };
-    pushFiltersToUrl(next);
+    setFilters(prev => ({ ...prev, [key]: value, page: "1" }));
   }
 
   function goToPage(page: number) {
-    const next = { ...filters, page: String(page) };
-    pushFiltersToUrl(next);
-  }
-
-  function pushFiltersToUrl(f: typeof filters) {
-    const params = new URLSearchParams();
-    Object.entries(f).forEach(([k, v]) => {
-      if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
-        params.set(k, v);
-    });
-    router.replace(`/search?${params.toString()}`, { scroll: false });
+    setFilters(prev => ({ ...prev, page: String(page) }));
   }
 
   const allListings: Listing[] = results?.data || [];
@@ -199,8 +187,7 @@ export default function SearchPageClient() {
             placeholder="City, Zip, or Address..."
             value={filters.city || filters.q}
             onChange={(e) => {
-              const next = { ...filters, city: e.target.value, q: "", page: "1" };
-              pushFiltersToUrl(next);
+              setFilters(prev => ({ ...prev, city: e.target.value, q: "", page: "1" }));
             }}
             className={`${inputClass} w-full sm:w-56`}
           />
