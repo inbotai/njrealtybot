@@ -97,8 +97,10 @@ export default function SearchPageClient() {
       page: f.page,
       sort: f.sort || "newest",
     };
-    if (f.q) params.q = f.q;
+    // When city is already extracted, don't send q (raw query text) —
+    // the API would try to full-text match "3 bed in Clifton" and find nothing.
     if (f.city) params.city = f.city;
+    else if (f.q) params.q = f.q;
     if (f.minPrice) params.minPrice = f.minPrice;
     if (f.maxPrice) params.maxPrice = f.maxPrice;
     if (f.beds) params.beds = f.beds;
