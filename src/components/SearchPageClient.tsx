@@ -89,24 +89,6 @@ export default function SearchPageClient() {
     page: searchParams.get("page") || "1",
   });
 
-  // Sync filters from URL params when they change (e.g. navigating from hero)
-  useEffect(() => {
-    setFilters({
-      q: searchParams.get("q") || "",
-      city: searchParams.get("city") || "",
-      minPrice: searchParams.get("minPrice") || "",
-      maxPrice: searchParams.get("maxPrice") || "",
-      beds: searchParams.get("beds") || "",
-      baths: searchParams.get("baths") || "",
-      minSqft: searchParams.get("minSqft") || "",
-      maxSqft: searchParams.get("maxSqft") || "",
-      propertyType: searchParams.get("propertyType") || "Any Type",
-      status: searchParams.get("status") || "Active",
-      sort: searchParams.get("sort") || "newest",
-      page: searchParams.get("page") || "1",
-    });
-  }, [searchParams]);
-
   const doSearch = useCallback(async (f: typeof filters) => {
     setLoading(true);
     try {
@@ -136,22 +118,43 @@ export default function SearchPageClient() {
     }
   }, []);
 
+  // Sync filters from URL params and execute search
   useEffect(() => {
+    const fromUrl = {
+      q: searchParams.get("q") || "",
+      city: searchParams.get("city") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      beds: searchParams.get("beds") || "",
+      baths: searchParams.get("baths") || "",
+      minSqft: searchParams.get("minSqft") || "",
+      maxSqft: searchParams.get("maxSqft") || "",
+      propertyType: searchParams.get("propertyType") || "Any Type",
+      status: searchParams.get("status") || "Active",
+      sort: searchParams.get("sort") || "newest",
+      page: searchParams.get("page") || "1",
+    };
+    setFilters(fromUrl);
+    doSearch(fromUrl);
+  }, [searchParams, doSearch]);
+
+  function updateFilter(key: string, value: string) {
+    const next = { ...filters, [key]: value, page: "1" };
+    pushFiltersToUrl(next);
+  }
+
+  function goToPage(page: number) {
+    const next = { ...filters, page: String(page) };
+    pushFiltersToUrl(next);
+  }
+
+  function pushFiltersToUrl(f: typeof filters) {
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => {
+    Object.entries(f).forEach(([k, v]) => {
       if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
         params.set(k, v);
     });
     router.replace(`/search?${params.toString()}`, { scroll: false });
-    doSearch(filters);
-  }, [filters, router, doSearch]);
-
-  function updateFilter(key: string, value: string) {
-    setFilters((prev) => ({ ...prev, [key]: value, page: "1" }));
-  }
-
-  function goToPage(page: number) {
-    setFilters((prev) => ({ ...prev, page: String(page) }));
   }
 
   const allListings: Listing[] = results?.data || [];
@@ -182,9 +185,8 @@ export default function SearchPageClient() {
             placeholder="City, Zip, or Address..."
             value={filters.city || filters.q}
             onChange={(e) => {
-              const v = e.target.value;
-              updateFilter("city", v);
-              updateFilter("q", "");
+              const next = { ...filters, city: e.target.value, q: "", page: "1" };
+              pushFiltersToUrl(next);
             }}
             className={`${inputClass} w-full sm:w-56`}
           />

@@ -10,6 +10,7 @@ const links = [
   { href: "/sell", label: "Sell Your Home" },
   { href: "/deals", label: "Deals" },
   { href: "/open-houses", label: "Open Houses" },
+  { href: "/chat", label: "Chat with Vale" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
