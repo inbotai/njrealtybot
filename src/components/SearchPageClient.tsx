@@ -35,7 +35,7 @@ const maxPriceRanges = [
   { label: "$20M+", value: "20000000" },
 ];
 const statusOptions = [
-  { label: "Active / For Sale", value: "Active" },
+  { label: "Active", value: "Active" },
   { label: "Sold", value: "Sold" },
   { label: "Under Contract", value: "Under Contract" },
   { label: "Coming Soon", value: "Coming Soon" },
@@ -151,6 +151,13 @@ export default function SearchPageClient() {
   const currentPage = Number(filters.page);
   const totalPages = results?.totalPages || 1;
   const hasCity = !!(filters.city || filters.q);
+  const typeLabels: Record<string, string> = {
+    Rental: "Rentals",
+    Commercial: "Commercial Properties",
+    Land: "Land & Lots",
+    "Multi-Family": "Multi-Family Properties",
+  };
+  const typeLabel = typeLabels[filters.propertyType] || "Homes for Sale";
 
   const inputClass =
     "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
@@ -160,8 +167,8 @@ export default function SearchPageClient() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         <h1 className="mb-2 text-2xl font-bold text-navy">
           {hasCity
-            ? `Homes for Sale in ${filters.city || filters.q}`
-            : "Search Homes in New Jersey"}
+            ? `${typeLabel} in ${filters.city || filters.q}`
+            : `Search ${typeLabel} in New Jersey`}
         </h1>
         <p className="mb-6 text-sm text-gray-500">
           {results?.total?.toLocaleString() || 0} listings found
