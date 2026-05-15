@@ -6,12 +6,13 @@ import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
-const propertySubTypes = [
-  "Any Type",
-  "Colonial", "Cape Cod", "Ranch", "Split Level", "Contemporary",
-  "Bi-Level", "Duplex", "Rowhouse", "Tudor", "Victorian",
-  "Raised Ranch", "Multi Family", "Townhouse", "Condo",
-  "Co-op", "Mobile Home", "Farm", "Other",
+const listingTypes = [
+  { label: "All Types", value: "" },
+  { label: "For Sale", value: "Residential" },
+  { label: "For Rent", value: "Rental" },
+  { label: "Multi-Family", value: "Multi-Family" },
+  { label: "Commercial", value: "Commercial" },
+  { label: "Land", value: "Land" },
 ];
 const priceRanges = [
   { label: "No Min", value: "" },
@@ -83,7 +84,7 @@ export default function SearchPageClient() {
     baths: searchParams.get("baths") || "",
     minSqft: searchParams.get("minSqft") || "",
     maxSqft: searchParams.get("maxSqft") || "",
-    propertyType: searchParams.get("propertyType") || "Any Type",
+    propertyType: searchParams.get("propertyType") || "",
     status: searchParams.get("status") || "Active",
     sort: searchParams.get("sort") || "newest",
     page: searchParams.get("page") || "1",
@@ -107,8 +108,7 @@ export default function SearchPageClient() {
     if (f.baths) params.baths = f.baths;
     if (f.minSqft) params.minSqft = f.minSqft;
     if (f.maxSqft) params.maxSqft = f.maxSqft;
-    if (f.propertyType && f.propertyType !== "Any Type")
-      params.propertyType = f.propertyType;
+    if (f.propertyType) params.propertyType = f.propertyType;
 
     fetchListings(params)
       .then(data => setResults(data))
@@ -119,7 +119,7 @@ export default function SearchPageClient() {
   function syncUrl(f: typeof filters) {
     const params = new URLSearchParams();
     Object.entries(f).forEach(([k, v]) => {
-      if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
+      if (v && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
         params.set(k, v);
     });
     router.replace(`/search?${params.toString()}`, { scroll: false });
@@ -188,7 +188,7 @@ export default function SearchPageClient() {
           <select value={filters.propertyType}
             onChange={(e) => updateFilter("propertyType", e.target.value)}
             className={inputClass}>
-            {propertySubTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            {listingTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
           <select value={filters.sort} onChange={(e) => updateFilter("sort", e.target.value)}
             className={inputClass}>

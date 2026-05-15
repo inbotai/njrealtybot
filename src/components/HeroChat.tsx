@@ -73,11 +73,11 @@ export default function HeroChat() {
     const bathMatch = q.match(/(\d)\+?\s*(?:bath|ba|baño)/i);
     if (bathMatch) params.set("baths", bathMatch[1]);
 
-    // Property type
-    if (/\bcondo/i.test(q)) params.set("propertyType", "condo");
-    else if (/\btownho/i.test(q)) params.set("propertyType", "townhouse");
-    else if (/\bland\b|lot\b|terreno/i.test(q)) params.set("propertyType", "land");
-    else if (/\bmulti.?fam/i.test(q)) params.set("propertyType", "multi-family");
+    // Listing type (sale vs rent vs commercial vs land)
+    if (/\brent(al|s|ing)?\b|\bfor rent\b|\balquil/i.test(q)) params.set("propertyType", "Rental");
+    else if (/\bcommercial\b|\boffice\s*space\b|\boficina/i.test(q)) params.set("propertyType", "Commercial");
+    else if (/\bland\b|\blot\b|\bterreno/i.test(q)) params.set("propertyType", "Land");
+    else if (/\bmulti.?fam/i.test(q)) params.set("propertyType", "Multi-Family");
 
     // Always pass the original query for Vale context
     params.set("q", q);
