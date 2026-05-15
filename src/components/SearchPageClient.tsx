@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
@@ -89,76 +89,62 @@ export default function SearchPageClient() {
     page: searchParams.get("page") || "1",
   });
 
-  const doSearch = useCallback(async (f: typeof filters) => {
+  function doSearch(f: typeof filters) {
     setLoading(true);
-    try {
-      const params: Record<string, string> = {
-        status: f.status || "Active",
-        limit: "24",
-        page: f.page,
-        sort: f.sort || "newest",
-      };
-      if (f.q) params.q = f.q;
-      if (f.city) params.city = f.city;
-      if (f.minPrice) params.minPrice = f.minPrice;
-      if (f.maxPrice) params.maxPrice = f.maxPrice;
-      if (f.beds) params.beds = f.beds;
-      if (f.baths) params.baths = f.baths;
-      if (f.minSqft) params.minSqft = f.minSqft;
-      if (f.maxSqft) params.maxSqft = f.maxSqft;
-      if (f.propertyType && f.propertyType !== "Any Type")
-        params.propertyType = f.propertyType;
+    const params: Record<string, string> = {
+      status: f.status || "Active",
+      limit: "24",
+      page: f.page,
+      sort: f.sort || "newest",
+    };
+    if (f.q) params.q = f.q;
+    if (f.city) params.city = f.city;
+    if (f.minPrice) params.minPrice = f.minPrice;
+    if (f.maxPrice) params.maxPrice = f.maxPrice;
+    if (f.beds) params.beds = f.beds;
+    if (f.baths) params.baths = f.baths;
+    if (f.minSqft) params.minSqft = f.minSqft;
+    if (f.maxSqft) params.maxSqft = f.maxSqft;
+    if (f.propertyType && f.propertyType !== "Any Type")
+      params.propertyType = f.propertyType;
 
-      const data = await fetchListings(params);
-      setResults(data);
-    } catch {
-      setResults(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    fetchListings(params)
+      .then(data => setResults(data))
+      .catch(() => setResults(null))
+      .finally(() => setLoading(false));
+  }
 
-  // filters is the source of truth: search + sync URL whenever it changes
-  const lastPushedUrl = useRef("");
-  useEffect(() => {
-    doSearch(filters);
+  function syncUrl(f: typeof filters) {
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => {
+    Object.entries(f).forEach(([k, v]) => {
       if (v && v !== "Any Type" && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
         params.set(k, v);
     });
-    lastPushedUrl.current = params.toString();
     router.replace(`/search?${params.toString()}`, { scroll: false });
-  }, [filters, doSearch, router]);
+  }
 
-  // Sync from external URL changes (hero navigation, browser back/forward)
+  // Search on mount with URL params — no effects watching state
+  const didMount = useRef(false);
   useEffect(() => {
-    // Compare sorted params to avoid order-dependent mismatches
-    const sortParams = (p: URLSearchParams) =>
-      [...p.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join("&");
-    if (sortParams(searchParams) === sortParams(new URLSearchParams(lastPushedUrl.current))) return;
-    setFilters({
-      q: searchParams.get("q") || "",
-      city: searchParams.get("city") || "",
-      minPrice: searchParams.get("minPrice") || "",
-      maxPrice: searchParams.get("maxPrice") || "",
-      beds: searchParams.get("beds") || "",
-      baths: searchParams.get("baths") || "",
-      minSqft: searchParams.get("minSqft") || "",
-      maxSqft: searchParams.get("maxSqft") || "",
-      propertyType: searchParams.get("propertyType") || "Any Type",
-      status: searchParams.get("status") || "Active",
-      sort: searchParams.get("sort") || "newest",
-      page: searchParams.get("page") || "1",
-    });
-  }, [searchParams]);
+    if (!didMount.current) {
+      didMount.current = true;
+      doSearch(filters);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function updateFilter(key: string, value: string) {
-    setFilters(prev => ({ ...prev, [key]: value, page: "1" }));
+    const next = { ...filters, [key]: value, page: "1" };
+    setFilters(next);
+    doSearch(next);
+    syncUrl(next);
   }
 
   function goToPage(page: number) {
-    setFilters(prev => ({ ...prev, page: String(page) }));
+    const next = { ...filters, page: String(page) };
+    setFilters(next);
+    doSearch(next);
+    syncUrl(next);
   }
 
   const allListings: Listing[] = results?.data || [];
@@ -189,7 +175,10 @@ export default function SearchPageClient() {
             placeholder="City, Zip, or Address..."
             value={filters.city || filters.q}
             onChange={(e) => {
-              setFilters(prev => ({ ...prev, city: e.target.value, q: "", page: "1" }));
+              const next = { ...filters, city: e.target.value, q: "", page: "1" };
+              setFilters(next);
+              doSearch(next);
+              syncUrl(next);
             }}
             className={`${inputClass} w-full sm:w-56`}
           />
