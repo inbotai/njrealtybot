@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
@@ -118,8 +118,22 @@ export default function SearchPageClient() {
     }
   }, []);
 
-  // Sync filters from URL params and execute search
+  // Run search on mount with initial URL params
+  const didMount = useRef(false);
   useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      doSearch(filters);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync filters from URL params when they change after mount (e.g. browser back/forward)
+  const prevParams = useRef(searchParams.toString());
+  useEffect(() => {
+    const current = searchParams.toString();
+    if (current === prevParams.current) return;
+    prevParams.current = current;
     const fromUrl = {
       q: searchParams.get("q") || "",
       city: searchParams.get("city") || "",
