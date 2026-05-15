@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
@@ -125,15 +125,28 @@ export default function SearchPageClient() {
     router.replace(`/search?${params.toString()}`, { scroll: false });
   }
 
-  // Search on mount with URL params — no effects watching state
-  const didMount = useRef(false);
+  // Search on mount + when URL changes externally (hero, back/forward).
+  // Safe from loops: this effect never calls router.replace.
+  const paramsKey = searchParams.toString();
   useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      doSearch(filters);
-    }
+    const fromUrl = {
+      q: searchParams.get("q") || "",
+      city: searchParams.get("city") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      beds: searchParams.get("beds") || "",
+      baths: searchParams.get("baths") || "",
+      minSqft: searchParams.get("minSqft") || "",
+      maxSqft: searchParams.get("maxSqft") || "",
+      propertyType: searchParams.get("propertyType") || "Any Type",
+      status: searchParams.get("status") || "Active",
+      sort: searchParams.get("sort") || "newest",
+      page: searchParams.get("page") || "1",
+    };
+    setFilters(fromUrl);
+    doSearch(fromUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [paramsKey]);
 
   function updateFilter(key: string, value: string) {
     const next = { ...filters, [key]: value, page: "1" };
