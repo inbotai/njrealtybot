@@ -133,8 +133,10 @@ export default function SearchPageClient() {
 
   // Sync from external URL changes (hero navigation, browser back/forward)
   useEffect(() => {
-    const current = searchParams.toString();
-    if (current === lastPushedUrl.current) return;
+    // Compare sorted params to avoid order-dependent mismatches
+    const sortParams = (p: URLSearchParams) =>
+      [...p.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join("&");
+    if (sortParams(searchParams) === sortParams(new URLSearchParams(lastPushedUrl.current))) return;
     setFilters({
       q: searchParams.get("q") || "",
       city: searchParams.get("city") || "",
