@@ -16,10 +16,19 @@ function SearchFallback() {
   );
 }
 
-export default function SearchPage() {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  // Key forces React to remount SearchPageClient when URL params change
+  // (e.g. hero navigates from Morristown to Wayne while already on /search)
+  const key = JSON.stringify(params);
+
   return (
     <Suspense fallback={<SearchFallback />}>
-      <SearchPageClient />
+      <SearchPageClient key={key} />
     </Suspense>
   );
 }
