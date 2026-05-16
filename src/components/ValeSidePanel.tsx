@@ -38,9 +38,7 @@ export default function ValeSidePanel() {
     if (assistantMsgs.length > 0) {
       const reply = assistantMsgs[assistantMsgs.length - 1].text
         .replace(/\[ID:[a-f0-9-]+\]/gi, "").trim();
-      // Show only first 2 sentences
-      const short = reply.split(/[.!?]\s+/).slice(0, 2).join(". ") + (reply.includes(".") ? "." : "");
-      setLastReply(short.length > 200 ? short.slice(0, 200) + "..." : short);
+      setLastReply(reply);
       setShowBubble(true);
     }
   }, [messages]);
@@ -80,10 +78,15 @@ export default function ValeSidePanel() {
       {showBubble && lastReply && (
         <div className="mb-2 rounded-xl bg-white p-3 shadow-lg border border-gray-200 relative animate-fade-in">
           <button onClick={() => setShowBubble(false)}
-            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-gray-200 text-[10px] text-gray-500 hover:bg-gray-300 flex items-center justify-center">
+            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-gray-200 text-[10px] text-gray-500 hover:bg-gray-300 flex items-center justify-center z-10">
             ✕
           </button>
-          <p className="text-sm text-gray-700 leading-relaxed">{lastReply}</p>
+          <div className="max-h-60 overflow-y-auto pr-1">
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{lastReply}</p>
+          </div>
+          <a href="/chat" className="mt-2 block text-center text-xs font-medium text-indigo-600 hover:text-indigo-800">
+            Open full chat &rarr;
+          </a>
           {/* Bubble arrow */}
           <div className="absolute -bottom-2 right-8 w-4 h-4 bg-white border-b border-r border-gray-200 transform rotate-45" />
         </div>
