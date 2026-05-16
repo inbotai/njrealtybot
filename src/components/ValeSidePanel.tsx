@@ -25,12 +25,17 @@ const idleAnimations = [
 ];
 
 export default function ValeSidePanel() {
-  const { messages, loading, panelOpen, send } = useVale();
+  const { messages, loading, panelOpen, send, closePanel } = useVale();
   const [input, setInput] = useState("");
   const [lastReply, setLastReply] = useState("");
   const [showBubble, setShowBubble] = useState(false);
   const [idleAnim, setIdleAnim] = useState("");
   const pathname = usePathname();
+
+  // Close panel on homepage
+  useEffect(() => {
+    if (pathname === "/") closePanel();
+  }, [pathname, closePanel]);
 
   // Track latest reply
   useEffect(() => {
