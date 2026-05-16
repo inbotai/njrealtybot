@@ -245,6 +245,24 @@ export async function fetchPricingEstimate(params: {
   return res.json();
 }
 
+/** AI-powered search query parser */
+export async function parseSearchQuery(q: string): Promise<{
+  city?: string; beds?: number; baths?: number;
+  minPrice?: number; maxPrice?: number; propertyType?: string;
+}> {
+  try {
+    const res = await fetch(`${IDX_API}/api/idx/parse-search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q }),
+    });
+    if (!res.ok) return {};
+    return res.json();
+  } catch {
+    return {};
+  }
+}
+
 /** Generate CMA report */
 export async function fetchCMA(city: string, beds?: number): Promise<string> {
   const res = await fetch(`${IDX_API}/api/idx/cma`, {

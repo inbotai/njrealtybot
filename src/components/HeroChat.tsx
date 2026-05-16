@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVale } from "./ValeProvider";
+import { parseSearchQuery } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
 
 const suggestions = [
   { label: "Houses in Hoboken", params: "city=Hoboken" },
-  { label: "Condos under 400k", params: "maxPrice=400000&propertyType=condo" },
+  { label: "Rentals in Jersey City", params: "city=Jersey+City&propertyType=Rental" },
   { label: "3 bed in Jersey City", params: "city=Jersey+City&beds=3" },
   { label: "What's my home worth?", href: "/sell" },
   { label: "Find deals", href: "/deals" },
@@ -15,12 +16,13 @@ const suggestions = [
 
 export default function HeroChat() {
   const [input, setInput] = useState("");
+  const [searching, setSearching] = useState(false);
   const router = useRouter();
   const { send, openPanel } = useVale();
 
-  function handleSearch(text?: string) {
+  async function handleSearch(text?: string) {
     const q = (text || input).trim();
-    if (!q) return;
+    if (!q || searching) return;
     setInput("");
 
     // Route to special pages
@@ -33,81 +35,18 @@ export default function HeroChat() {
       return;
     }
 
-    // Parse natural language into search params
+    // AI parses the query into structured search params
+    setSearching(true);
+    const parsed = await parseSearchQuery(q);
+    setSearching(false);
+
     const params = new URLSearchParams();
-
-    // City extraction
-    // 1. Try "in/en/near [city]"
-    const cityPrep = q.match(/(?:in|en|near|cerca de)\s+([A-Za-z][A-Za-z\s]*?)(?:\s+(?:under|with|below|con|menos|that|for|under)|$)/i);
-    if (cityPrep) {
-      params.set("city", cityPrep[1].trim());
-    } else {
-      // 2. Fallback: find remaining words after removing known terms
-      const remaining = q.toLowerCase()
-        .replace(/\d+\s*(?:bed|br|bedroom|bath|ba|baño|dormitorio|habitaci)\w*/gi, "")
-        .replace(/(?:under|below|over|above|menos de|max)\s*\$?[\d,.]+\s*[km]?/gi, "")
-        .replace(/\$[\d,.]+[km]?/gi, "")
-        .replace(/\b(show|find|search|me|houses?|homes?|condos?|townhouse|apartment|property|properties|looking|for|with|the|and|busco|quiero|casa|casas|una|un|los|las|del|que|tiene|garage|pool|patio|menos|dolares|dollars|mil|cientos?|millon|millones|precio|price|bajo|under|below|over|above|max|min|hasta|entre|desde|tres|cuatro|cinco|seis|dos|medio)\b/gi, "")
-        .trim();
-      if (remaining.length > 2) {
-        // Take the longest remaining word group as city
-        const cityGuess = remaining.replace(/\s+/g, " ").trim();
-        if (cityGuess) params.set("city", cityGuess);
-      }
-    }
-
-    // Price — numeric or written Spanish
-    const spanishNums: Record<string, number> = {
-      cien: 100000, "cien mil": 100000, "doscientos mil": 200000, "tres cientos mil": 300000,
-      "trescientos mil": 300000, "cuatro cientos mil": 400000, "cuatrocientos mil": 400000,
-      "quinientos mil": 500000, "medio millon": 500000, "seiscientos mil": 600000,
-      "setecientos mil": 700000, "ochocientos mil": 800000, "novecientos mil": 900000,
-      "un millon": 1000000, "millon": 1000000, "dos millones": 2000000,
-    };
-    let priceFound = false;
-    // Try Spanish written numbers first
-    for (const [word, val] of Object.entries(spanishNums)) {
-      if (q.toLowerCase().includes(word)) {
-        if (/menos|bajo|under|below|max/i.test(q)) params.set("maxPrice", String(val));
-        else if (/mas|sobre|over|above|min/i.test(q)) params.set("minPrice", String(val));
-        else params.set("maxPrice", String(val));
-        priceFound = true;
-        break;
-      }
-    }
-    // Try numeric price
-    if (!priceFound) {
-      const priceMatch = q.match(/\$?\s*([\d]{2,}[,\d]*)\s*(k|m|mil|dolares|dollars)?/i);
-      if (priceMatch) {
-        let price = parseFloat(priceMatch[1].replace(/,/g, ""));
-        const suffix = (priceMatch[2] || "").toLowerCase();
-        if (suffix === "k" || suffix === "mil") price *= 1000;
-        if (suffix === "m") price *= 1000000;
-        if (price >= 50000) {
-          // Detect direction: under/menos → maxPrice, over/mas → minPrice, else maxPrice
-          if (/mas\s+de|sobre|over|above|min|desde/i.test(q)) params.set("minPrice", String(price));
-          else params.set("maxPrice", String(price));
-          priceFound = true;
-        }
-      }
-    }
-
-    // Beds
-    const bedMatch = q.match(/(\d)\+?\s*(?:bed|br|bedroom|dormitorio|habitaci)/i);
-    if (bedMatch) params.set("beds", bedMatch[1]);
-
-    // Baths
-    const bathMatch = q.match(/(\d)\+?\s*(?:bath|ba|baño)/i);
-    if (bathMatch) params.set("baths", bathMatch[1]);
-
-    // Listing type (sale vs rent vs commercial vs land)
-    if (/\brent(al|s|ing)?\b|\bfor rent\b|\balquil/i.test(q)) params.set("propertyType", "Rental");
-    else if (/\bcommercial\b|\boffice\s*space\b|\boficina/i.test(q)) params.set("propertyType", "Commercial");
-    else if (/\bland\b|\blot\b|\bterreno/i.test(q)) params.set("propertyType", "Land");
-    else if (/\bmulti.?fam/i.test(q)) params.set("propertyType", "Multi-Family");
-
-    // Always pass the original query for Vale context
-    params.set("q", q);
+    if (parsed.city) params.set("city", parsed.city);
+    if (parsed.beds) params.set("beds", String(parsed.beds));
+    if (parsed.baths) params.set("baths", String(parsed.baths));
+    if (parsed.minPrice) params.set("minPrice", String(parsed.minPrice));
+    if (parsed.maxPrice) params.set("maxPrice", String(parsed.maxPrice));
+    if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
 
     // Navigate to search page
     router.push(`/search?${params.toString()}`);
@@ -145,10 +84,10 @@ export default function HeroChat() {
         />
         <button
           onClick={() => handleSearch()}
-          disabled={!input.trim()}
+          disabled={!input.trim() || searching}
           className="bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
         >
-          Search
+          {searching ? "..." : "Search"}
         </button>
       </div>
 
