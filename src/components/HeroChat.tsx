@@ -50,6 +50,10 @@ export default function HeroChat() {
     if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
     if (parsed.q) params.set("q", parsed.q);
 
+    // Sort by price when price filter is set
+    if (parsed.maxPrice) params.set("sort", "price_desc");
+    else if (parsed.minPrice) params.set("sort", "price_asc");
+
     // Navigate to search page
     router.push(`/search?${params.toString()}`);
   }
