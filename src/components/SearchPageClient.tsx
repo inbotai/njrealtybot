@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchListings, type Listing, type ListingsResponse } from "@/lib/api";
+import { fetchListings, parseSearchQuery, type Listing, type ListingsResponse } from "@/lib/api";
+import VoiceButton from "./VoiceButton";
 import ListingCard from "@/components/ListingCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
@@ -163,9 +164,68 @@ export default function SearchPageClient() {
   const inputClass =
     "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
 
+  const [heroInput, setHeroInput] = useState("");
+  const [heroSearching, setHeroSearching] = useState(false);
+
+  async function handleHeroSearch(text?: string) {
+    const q = (text || heroInput).trim();
+    if (!q || heroSearching) return;
+    setHeroInput("");
+    setHeroSearching(true);
+    const parsed = await parseSearchQuery(q);
+    setHeroSearching(false);
+
+    const next = { ...filters, page: "1" };
+    if (parsed.city) next.city = parsed.city;
+    if (parsed.county) next.county = parsed.county;
+    if (parsed.beds) next.beds = String(parsed.beds);
+    if (parsed.baths) next.baths = String(parsed.baths);
+    if (parsed.minPrice) next.minPrice = String(parsed.minPrice);
+    if (parsed.maxPrice) next.maxPrice = String(parsed.maxPrice);
+    if (parsed.propertyType) next.propertyType = parsed.propertyType;
+    if (parsed.q) next.q = parsed.q;
+    if (parsed.maxPrice) next.sort = "price_desc";
+    else if (parsed.minPrice) next.sort = "price_asc";
+
+    setFilters(next);
+    doSearch(next);
+    syncUrl(next);
+  }
+
   return (
     <>
       <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Hero search bar */}
+        <div className="mb-6 flex overflow-hidden rounded-xl bg-white shadow-md border border-gray-200">
+          <div className="flex items-center pl-4">
+            <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
+              <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+              <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+              <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+              <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+              <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+              <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={heroInput}
+            onChange={e => setHeroInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleHeroSearch(); } }}
+            placeholder='Ask Vale... "3 bed house under 500k in Hoboken"'
+            className="flex-1 px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-gray-400"
+            disabled={heroSearching}
+          />
+          <VoiceButton onTranscript={(text) => handleHeroSearch(text)} className="px-2" />
+          <button
+            onClick={() => handleHeroSearch()}
+            disabled={!heroInput.trim() || heroSearching}
+            className="bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
+          >
+            {heroSearching ? "..." : "Search"}
+          </button>
+        </div>
+
         <h1 className="mb-2 text-2xl font-bold text-navy">
           {hasCity
             ? `${typeLabel} in ${locationName}`
