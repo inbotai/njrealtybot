@@ -46,7 +46,7 @@ export default function Navbar() {
             <p className="text-xs text-gray-300">Realty One Group Legend</p>
           </div>
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
-            className="h-16 w-auto" />
+            className="h-[74px] w-auto" />
         </div>
 
         {/* Mobile toggle */}
