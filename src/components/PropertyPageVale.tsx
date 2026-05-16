@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 import { useVale } from "./ValeProvider";
 
-/** Activates Vale's side panel with this property's context */
+/** Activates Vale with this property's context — starts new session */
 export default function PropertyPageVale({ listingId }: { listingId: string }) {
-  const { setCurrentListing, openPanel } = useVale();
+  const { setCurrentListing, openPanel, startNewSession } = useVale();
 
   useEffect(() => {
     setCurrentListing(listingId);
     openPanel();
+    startNewSession(listingId);
     return () => setCurrentListing(null);
-  }, [listingId, setCurrentListing, openPanel]);
+  }, [listingId, setCurrentListing, openPanel, startNewSession]);
 
-  // No visible UI — Vale appears in the side panel
   return null;
 }

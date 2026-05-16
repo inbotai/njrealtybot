@@ -26,6 +26,7 @@ interface ValeContextType extends ValeState {
   closePanel: () => void;
   setCurrentListing: (id: string | null) => void;
   setListings: (listings: Listing[]) => void;
+  startNewSession: (listingId?: string) => Promise<void>;
 }
 
 const ValeContext = createContext<ValeContextType | null>(null);
@@ -45,9 +46,17 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
   const [currentListingId, setCurrentListingId] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);
 
-  // Start or resume session
+  const lastListingRef = useRef<string | null>(null);
+
+  // Start or resume session — starts new if listing context changed
   const ensureSession = useCallback(async (listingId?: string | null): Promise<string> => {
+    // If we have a session but the listing changed, start a new one
+    if (sessionRef.current && listingId && listingId !== lastListingRef.current) {
+      sessionRef.current = null;
+    }
     if (sessionRef.current) return sessionRef.current;
+
+    lastListingRef.current = listingId || null;
     const vid = localStorage.getItem("vale_vid") || "";
     const body: any = {};
     if (vid) body.visitorId = vid;
@@ -106,10 +115,18 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
   const setCurrentListing = useCallback((id: string | null) => setCurrentListingId(id), []);
   const setListings = useCallback((l: Listing[]) => setListingsState(l), []);
 
+  // Force a new session with a specific listing context
+  const startNewSession = useCallback(async (listingId?: string) => {
+    sessionRef.current = null;
+    lastListingRef.current = null;
+    setListingsState([]);
+    await ensureSession(listingId || null);
+  }, [ensureSession]);
+
   return (
     <ValeContext.Provider value={{
       messages, sessionId, loading, panelOpen, listings, currentListingId,
-      send, togglePanel, openPanel, closePanel, setCurrentListing, setListings,
+      send, togglePanel, openPanel, closePanel, setCurrentListing, setListings, startNewSession,
     }}>
       {children}
     </ValeContext.Provider>
