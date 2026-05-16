@@ -47,7 +47,7 @@ export default function HeroChat() {
         .replace(/\d+\s*(?:bed|br|bedroom|bath|ba|baño|dormitorio|habitaci)\w*/gi, "")
         .replace(/(?:under|below|over|above|menos de|max)\s*\$?[\d,.]+\s*[km]?/gi, "")
         .replace(/\$[\d,.]+[km]?/gi, "")
-        .replace(/\b(show|find|search|me|houses?|homes?|condos?|townhouse|apartment|property|properties|looking|for|with|the|and|busco|quiero|casa|casas|una|un|los|las|del|que|tiene|garage|pool|patio)\b/gi, "")
+        .replace(/\b(show|find|search|me|houses?|homes?|condos?|townhouse|apartment|property|properties|looking|for|with|the|and|busco|quiero|casa|casas|una|un|los|las|del|que|tiene|garage|pool|patio|menos|dolares|dollars|mil|cientos?|millon|millones|precio|price|bajo|under|below|over|above|max|min|hasta|entre|desde|tres|cuatro|cinco|seis|dos|medio)\b/gi, "")
         .trim();
       if (remaining.length > 2) {
         // Take the longest remaining word group as city
@@ -56,13 +56,38 @@ export default function HeroChat() {
       }
     }
 
-    // Price
-    const underPrice = q.match(/(?:under|below|menos de|max|up to)\s*\$?([\d,.]+)\s*(k|m)?/i);
-    if (underPrice) {
-      let price = parseFloat(underPrice[1].replace(/,/g, ""));
-      if (underPrice[2]?.toLowerCase() === "k") price *= 1000;
-      if (underPrice[2]?.toLowerCase() === "m") price *= 1000000;
-      params.set("maxPrice", String(price));
+    // Price — numeric or written Spanish
+    const spanishNums: Record<string, number> = {
+      cien: 100000, "cien mil": 100000, "doscientos mil": 200000, "tres cientos mil": 300000,
+      "trescientos mil": 300000, "cuatro cientos mil": 400000, "cuatrocientos mil": 400000,
+      "quinientos mil": 500000, "medio millon": 500000, "seiscientos mil": 600000,
+      "setecientos mil": 700000, "ochocientos mil": 800000, "novecientos mil": 900000,
+      "un millon": 1000000, "millon": 1000000, "dos millones": 2000000,
+    };
+    let priceFound = false;
+    // Try Spanish written numbers first
+    for (const [word, val] of Object.entries(spanishNums)) {
+      if (q.toLowerCase().includes(word)) {
+        if (/menos|bajo|under|below|max/i.test(q)) params.set("maxPrice", String(val));
+        else if (/mas|sobre|over|above|min/i.test(q)) params.set("minPrice", String(val));
+        else params.set("maxPrice", String(val));
+        priceFound = true;
+        break;
+      }
+    }
+    // Try numeric price
+    if (!priceFound) {
+      const priceMatch = q.match(/(?:under|below|menos de|max|up to|de)?\s*\$?([\d]{3,}[,\d]*)\s*(k|m|mil|dolares|dollars)?/i);
+      if (priceMatch) {
+        let price = parseFloat(priceMatch[1].replace(/,/g, ""));
+        const suffix = (priceMatch[2] || "").toLowerCase();
+        if (suffix === "k" || suffix === "mil") price *= 1000;
+        if (suffix === "m") price *= 1000000;
+        if (price >= 10000) {
+          params.set("maxPrice", String(price));
+          priceFound = true;
+        }
+      }
     }
 
     // Beds
