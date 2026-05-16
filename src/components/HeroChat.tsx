@@ -52,10 +52,6 @@ export default function HeroChat() {
 
     // Navigate to search page
     router.push(`/search?${params.toString()}`);
-
-    // Open Vale with context
-    openPanel();
-    send(q);
   }
 
   return (
