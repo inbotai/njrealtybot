@@ -25,7 +25,10 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
+    // Detect browser language — support Spanish and English
+    const browserLang = navigator.language || "en-US";
+    const isSpanish = browserLang.startsWith("es");
+    recognition.lang = isSpanish ? "es-US" : "en-US";
     recognition.interimResults = false;
     recognition.continuous = false;
 
