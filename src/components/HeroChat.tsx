@@ -77,14 +77,16 @@ export default function HeroChat() {
     }
     // Try numeric price
     if (!priceFound) {
-      const priceMatch = q.match(/(?:under|below|menos de|max|up to|de)?\s*\$?([\d]{3,}[,\d]*)\s*(k|m|mil|dolares|dollars)?/i);
+      const priceMatch = q.match(/\$?\s*([\d]{2,}[,\d]*)\s*(k|m|mil|dolares|dollars)?/i);
       if (priceMatch) {
         let price = parseFloat(priceMatch[1].replace(/,/g, ""));
         const suffix = (priceMatch[2] || "").toLowerCase();
         if (suffix === "k" || suffix === "mil") price *= 1000;
         if (suffix === "m") price *= 1000000;
-        if (price >= 10000) {
-          params.set("maxPrice", String(price));
+        if (price >= 50000) {
+          // Detect direction: under/menos → maxPrice, over/mas → minPrice, else maxPrice
+          if (/mas\s+de|sobre|over|above|min|desde/i.test(q)) params.set("minPrice", String(price));
+          else params.set("maxPrice", String(price));
           priceFound = true;
         }
       }
