@@ -247,8 +247,8 @@ export async function fetchPricingEstimate(params: {
 
 /** AI-powered search query parser */
 export async function parseSearchQuery(q: string): Promise<{
-  city?: string; beds?: number; baths?: number;
-  minPrice?: number; maxPrice?: number; propertyType?: string;
+  city?: string; county?: string; beds?: number; baths?: number;
+  minPrice?: number; maxPrice?: number; propertyType?: string; q?: string;
 }> {
   try {
     const res = await fetch(`${IDX_API}/api/idx/parse-search`, {

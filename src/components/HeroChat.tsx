@@ -42,11 +42,13 @@ export default function HeroChat() {
 
     const params = new URLSearchParams();
     if (parsed.city) params.set("city", parsed.city);
+    if (parsed.county) params.set("county", parsed.county);
     if (parsed.beds) params.set("beds", String(parsed.beds));
     if (parsed.baths) params.set("baths", String(parsed.baths));
     if (parsed.minPrice) params.set("minPrice", String(parsed.minPrice));
     if (parsed.maxPrice) params.set("maxPrice", String(parsed.maxPrice));
     if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
+    if (parsed.q) params.set("q", parsed.q);
 
     // Navigate to search page
     router.push(`/search?${params.toString()}`);

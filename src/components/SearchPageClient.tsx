@@ -78,6 +78,7 @@ export default function SearchPageClient() {
   const [filters, setFilters] = useState({
     q: searchParams.get("q") || "",
     city: searchParams.get("city") || "",
+    county: searchParams.get("county") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
     beds: searchParams.get("beds") || "",
@@ -98,10 +99,9 @@ export default function SearchPageClient() {
       page: f.page,
       sort: f.sort || "newest",
     };
-    // When city is already extracted, don't send q (raw query text) —
-    // the API would try to full-text match "3 bed in Clifton" and find nothing.
     if (f.city) params.city = f.city;
-    else if (f.q) params.q = f.q;
+    if (f.county) params.county = f.county;
+    if (f.q) params.q = f.q;
     if (f.minPrice) params.minPrice = f.minPrice;
     if (f.maxPrice) params.maxPrice = f.maxPrice;
     if (f.beds) params.beds = f.beds;
@@ -150,7 +150,8 @@ export default function SearchPageClient() {
   const { upcoming, newListings, active } = categorize(allListings);
   const currentPage = Number(filters.page);
   const totalPages = results?.totalPages || 1;
-  const hasCity = !!(filters.city || filters.q);
+  const locationName = filters.city || filters.county || filters.q;
+  const hasCity = !!locationName;
   const typeLabels: Record<string, string> = {
     Rental: "Rentals",
     Commercial: "Commercial Properties",
@@ -167,7 +168,7 @@ export default function SearchPageClient() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         <h1 className="mb-2 text-2xl font-bold text-navy">
           {hasCity
-            ? `${typeLabel} in ${filters.city || filters.q}`
+            ? `${typeLabel} in ${locationName}`
             : `Search ${typeLabel} in New Jersey`}
         </h1>
         <p className="mb-6 text-sm text-gray-500">
@@ -179,7 +180,7 @@ export default function SearchPageClient() {
           <input
             type="text"
             placeholder="City, Zip, or Address..."
-            value={filters.city || filters.q}
+            value={locationName}
             onChange={(e) => {
               const next = { ...filters, city: e.target.value, q: "", page: "1" };
               setFilters(next);
