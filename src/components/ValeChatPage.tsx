@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Listing } from "@/lib/api";
 import { getPhotoUrl } from "@/lib/api";
@@ -71,6 +72,7 @@ function ChatListingCard({ listing }: { listing: Listing }) {
 }
 
 export default function ValeChatPage() {
+  const searchParams = useSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,6 +80,7 @@ export default function ValeChatPage() {
   const sessionRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const autoSent = useRef(false);
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -165,6 +168,17 @@ export default function ValeChatPage() {
     },
     [loading, ensureSession]
   );
+
+  // Auto-send query from URL param (e.g. /chat?q=cma+for+123+main+st)
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q && !autoSent.current) {
+      autoSent.current = true;
+      // Wait for session to be ready, then send
+      const timer = setTimeout(() => send(q), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, send]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

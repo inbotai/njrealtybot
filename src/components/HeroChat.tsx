@@ -25,9 +25,9 @@ export default function HeroChat() {
     if (!q || searching) return;
     setInput("");
 
-    // Route to special pages
-    if (/worth|value|valuation|sell|vender|cma|cuanto vale/i.test(q)) {
-      router.push("/sell");
+    // CMA / valuation requests → send to Vale chat
+    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(q)) {
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
       return;
     }
     if (/deal|bargain|price drop|ganga|oportunidad/i.test(q)) {
