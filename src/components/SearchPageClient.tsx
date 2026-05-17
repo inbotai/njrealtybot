@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, parseSearchQuery, type Listing, type ListingsResponse } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
@@ -127,6 +127,25 @@ export default function SearchPageClient() {
     syncUrl(next);
   }
 
+  // Debounced city input — type freely, search after 600ms pause
+  const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.q);
+  const cityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleCityChange = useCallback((value: string) => {
+    setCityInput(value);
+    if (cityTimer.current) clearTimeout(cityTimer.current);
+    cityTimer.current = setTimeout(() => {
+      const next = { ...filters, city: value, county: "", q: "", page: "1" };
+      setFilters(next);
+      doSearch(next);
+      syncUrl(next);
+    }, 600);
+  }, [filters]);
+
+  // Sync cityInput when filters change externally (hero search, mount)
+  useEffect(() => {
+    setCityInput(filters.city || filters.county || filters.q);
+  }, [filters.city, filters.county, filters.q]);
+
   const allListings: Listing[] = results?.data || [];
   const { upcoming, newListings, active } = categorize(allListings);
   const currentPage = Number(filters.page);
@@ -220,13 +239,8 @@ export default function SearchPageClient() {
           <input
             type="text"
             placeholder="City, Zip, or Address..."
-            value={locationName}
-            onChange={(e) => {
-              const next = { ...filters, city: e.target.value, county: "", q: "", page: "1" };
-              setFilters(next);
-              doSearch(next);
-              syncUrl(next);
-            }}
+            value={cityInput}
+            onChange={(e) => handleCityChange(e.target.value)}
             className={`${inputClass} w-full sm:w-56`}
           />
           <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
