@@ -42,6 +42,14 @@ export default function HeroChat() {
     const parsed = await parseSearchQuery(q);
     setSearching(false);
 
+    // If parser extracted no search params, it's a general question → send to chat
+    const hasSearchParams = parsed.city || parsed.county || parsed.beds || parsed.baths
+      || parsed.minPrice || parsed.maxPrice || parsed.propertyType || parsed.q;
+    if (!hasSearchParams) {
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
+      return;
+    }
+
     const params = new URLSearchParams();
     if (parsed.city) params.set("city", parsed.city);
     if (parsed.county) params.set("county", parsed.county);
