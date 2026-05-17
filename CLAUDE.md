@@ -33,6 +33,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | CMA-001 | 37 Summit Ave not found for CMA | Property not in MLS | Added NJ MOD-IV public records lookup |
 | CMA-002 | CMA showed comparable addresses in free tier | No restriction | Prompt: hide addresses in quick estimate |
 | WA-001 | Vale side panel interfered with search | Hero opened Vale + search | Removed Vale send from hero |
+| CMA-003 | CMA from search page hero went to search instead of chat | Search page hero missing CMA detection | Added same CMA regex to search page hero |
 
 ### Adding New Bugs
 
