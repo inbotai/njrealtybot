@@ -186,9 +186,10 @@ export default function ValeChatPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-80px)] max-w-3xl flex-col px-4">
+    <div className="fixed inset-0 top-[72px] z-30 flex flex-col bg-gray-50">
+     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-hidden px-4">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-200 py-4">
+      <div className="flex items-center gap-3 border-b border-gray-200 py-3">
         <div className="relative">
           <svg viewBox="0 0 200 200" className="h-10 w-10 drop-shadow">
             <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
@@ -306,6 +307,7 @@ export default function ValeChatPage() {
           Send
         </button>
       </form>
+     </div>
     </div>
   );
 }
