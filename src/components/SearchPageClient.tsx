@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, parseSearchQuery, type Listing, type ListingsResponse } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
@@ -127,23 +127,29 @@ export default function SearchPageClient() {
     syncUrl(next);
   }
 
-  // Debounced city input — type freely, search after 600ms pause
+  // Debounced city input — type freely, search after pause
   const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.q);
   const cityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleCityChange = useCallback((value: string) => {
+  const cityFocused = useRef(false);
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
+  function handleCityChange(value: string) {
     setCityInput(value);
     if (cityTimer.current) clearTimeout(cityTimer.current);
     cityTimer.current = setTimeout(() => {
-      const next = { ...filters, city: value, county: "", q: "", page: "1" };
+      const next = { ...filtersRef.current, city: value, county: "", q: "", page: "1" };
       setFilters(next);
       doSearch(next);
       syncUrl(next);
-    }, 600);
-  }, [filters]);
+    }, 800);
+  }
 
-  // Sync cityInput when filters change externally (hero search, mount)
+  // Sync cityInput when filters change externally (hero search, mount) — but not while typing
   useEffect(() => {
-    setCityInput(filters.city || filters.county || filters.q);
+    if (!cityFocused.current) {
+      setCityInput(filters.city || filters.county || filters.q);
+    }
   }, [filters.city, filters.county, filters.q]);
 
   const allListings: Listing[] = results?.data || [];
@@ -241,6 +247,8 @@ export default function SearchPageClient() {
             placeholder="City, Zip, or Address..."
             value={cityInput}
             onChange={(e) => handleCityChange(e.target.value)}
+            onFocus={() => { cityFocused.current = true; }}
+            onBlur={() => { cityFocused.current = false; }}
             className={`${inputClass} w-full sm:w-56`}
           />
           <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
