@@ -176,6 +176,13 @@ export default function SearchPageClient() {
     const q = (text || heroInput).trim();
     if (!q || heroSearching) return;
     setHeroInput("");
+
+    // CMA / valuation requests → send to Vale chat
+    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(q)) {
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
+      return;
+    }
+
     setHeroSearching(true);
     const parsed = await parseSearchQuery(q);
     setHeroSearching(false);
