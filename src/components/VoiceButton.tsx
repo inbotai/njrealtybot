@@ -13,10 +13,12 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
   const [transcribing, setTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const autoStopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function toggle() {
     if (recording) {
-      // Stop recording
+      // Stop recording manually
+      if (autoStopTimer.current) clearTimeout(autoStopTimer.current);
       mediaRecorderRef.current?.stop();
       setRecording(false);
       return;
@@ -58,6 +60,14 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setRecording(true);
+
+      // Auto-stop after 6 seconds
+      autoStopTimer.current = setTimeout(() => {
+        if (mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+          setRecording(false);
+        }
+      }, 6000);
     } catch {
       alert("Microphone access denied. Please allow microphone access and try again.");
     }
