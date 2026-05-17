@@ -145,6 +145,20 @@ const TESTS: TestCase[] = [
     input: "city=Wayne",
     expect: { minResults: 1, hasCity: true },
   },
+  {
+    id: "PARSE-010",
+    description: "Paramus is a CITY, not Bergen County",
+    type: "parse",
+    input: "busco una casa en Paramus de menos de 500mil",
+    expect: { city: "Paramus", maxPrice: 500000 },
+  },
+  {
+    id: "PARSE-011",
+    description: "500mil should parse as 500000",
+    type: "parse",
+    input: "casa en Hoboken de menos de 500mil",
+    expect: { city: "Hoboken", maxPrice: 500000 },
+  },
 ];
 
 // ── Runner ─────────────────────────────────────────────────────
