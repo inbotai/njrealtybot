@@ -164,7 +164,7 @@ export default function ValeChatPage() {
         ]);
       }
       setLoading(false);
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 50);
     },
     [loading, ensureSession]
   );
