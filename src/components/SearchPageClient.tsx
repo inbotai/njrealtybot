@@ -178,7 +178,8 @@ export default function SearchPageClient() {
     setHeroInput("");
 
     // CMA / valuation requests → send to Vale chat
-    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(q)) {
+    const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
       router.push(`/chat?q=${encodeURIComponent(q)}`);
       return;
     }
