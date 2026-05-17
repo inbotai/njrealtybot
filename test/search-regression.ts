@@ -159,6 +159,20 @@ const TESTS: TestCase[] = [
     input: "casa en Hoboken de menos de 500mil",
     expect: { city: "Hoboken", maxPrice: 500000 },
   },
+  {
+    id: "PARSE-012",
+    description: "2 dormitorios en paramus should extract beds=2 and city",
+    type: "parse",
+    input: "2 dormitorios en paramus",
+    expect: { city: "Paramus", beds: 2 },
+  },
+  {
+    id: "SEARCH-008",
+    description: "beds=2 in Paramus should show 2bd first, then 3+",
+    type: "search",
+    input: "city=Paramus&beds=2",
+    expect: { minResults: 1 },
+  },
 ];
 
 // ── Runner ─────────────────────────────────────────────────────
