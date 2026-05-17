@@ -15,26 +15,6 @@ const listingTypes = [
   { label: "Commercial", value: "Commercial" },
   { label: "Land", value: "Land" },
 ];
-const priceRanges = [
-  { label: "No Min", value: "" },
-  { label: "$100K", value: "100000" },
-  { label: "$200K", value: "200000" },
-  { label: "$300K", value: "300000" },
-  { label: "$400K", value: "400000" },
-  { label: "$500K", value: "500000" },
-  { label: "$750K", value: "750000" },
-  { label: "$1M", value: "1000000" },
-  { label: "$1.5M", value: "1500000" },
-  { label: "$2M", value: "2000000" },
-  { label: "$3M", value: "3000000" },
-  { label: "$5M", value: "5000000" },
-];
-const maxPriceRanges = [
-  { label: "No Max", value: "" },
-  ...priceRanges.slice(1),
-  { label: "$10M", value: "10000000" },
-  { label: "$20M+", value: "20000000" },
-];
 const statusOptions = [
   { label: "Active", value: "Active" },
   { label: "Sold", value: "Sold" },
@@ -242,7 +222,7 @@ export default function SearchPageClient() {
             placeholder="City, Zip, or Address..."
             value={locationName}
             onChange={(e) => {
-              const next = { ...filters, city: e.target.value, q: "", page: "1" };
+              const next = { ...filters, city: e.target.value, county: "", q: "", page: "1" };
               setFilters(next);
               doSearch(next);
               syncUrl(next);
@@ -265,15 +245,21 @@ export default function SearchPageClient() {
         </div>
         {/* Filter bar — row 2 */}
         <div className="mb-8 flex flex-wrap gap-3">
-          <select value={filters.minPrice} onChange={(e) => updateFilter("minPrice", e.target.value)}
-            className={inputClass}>
-            {priceRanges.map((p) => <option key={`min-${p.value}`} value={p.value}>{p.label}</option>)}
-          </select>
+          <input type="text" placeholder="Min Price"
+            value={filters.minPrice ? `$${Number(filters.minPrice).toLocaleString()}` : ""}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/[^0-9]/g, "");
+              updateFilter("minPrice", raw);
+            }}
+            className={`${inputClass} w-32`} />
           <span className="self-center text-sm text-gray-400">to</span>
-          <select value={filters.maxPrice} onChange={(e) => updateFilter("maxPrice", e.target.value)}
-            className={inputClass}>
-            {maxPriceRanges.map((p) => <option key={`max-${p.value}`} value={p.value}>{p.label}</option>)}
-          </select>
+          <input type="text" placeholder="Max Price"
+            value={filters.maxPrice ? `$${Number(filters.maxPrice).toLocaleString()}` : ""}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/[^0-9]/g, "");
+              updateFilter("maxPrice", raw);
+            }}
+            className={`${inputClass} w-32`} />
           <select value={filters.beds} onChange={(e) => updateFilter("beds", e.target.value)}
             className={inputClass}>
             <option value="">Beds</option>
