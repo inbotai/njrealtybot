@@ -245,6 +245,19 @@ export async function fetchPricingEstimate(params: {
   return res.json();
 }
 
+/** Transcribe audio via Grok STT */
+export async function transcribeAudio(audioBlob: Blob): Promise<string> {
+  const formData = new FormData();
+  formData.append("audio", audioBlob, "audio.webm");
+  const res = await fetch(`${IDX_API}/api/idx/transcribe`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) return "";
+  const data = await res.json();
+  return data.text || "";
+}
+
 /** AI-powered search query parser */
 export async function parseSearchQuery(q: string): Promise<{
   city?: string; county?: string; beds?: number; baths?: number;
