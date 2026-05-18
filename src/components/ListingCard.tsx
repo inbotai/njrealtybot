@@ -29,7 +29,7 @@ function getMlsLogo(listing: Listing): { src: string; alt: string } | null {
 }
 
 export default function ListingCard({ listing }: { listing: Listing }) {
-  const photo = listing.photo_count > 0 ? getPhotoUrl(listing.mls_number) : listing.primary_photo_url;
+  const photo = listing.primary_photo_url || (listing.photo_count !== 0 ? getPhotoUrl(listing.mls_number) : null);
   const statusColor = statusColors[listing.mls_status] || "bg-gray-600";
   const mlsLogo = getMlsLogo(listing);
 
