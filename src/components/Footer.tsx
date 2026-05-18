@@ -17,7 +17,8 @@ export default function Footer() {
         <div className="mb-10 flex flex-col items-center text-center">
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
             className="h-20 w-auto" />
-          <p className="mt-4 text-lg font-bold text-white">Julio Reynoso</p>
+          <p className="mt-3 text-sm text-gray-400">600 Getty Avenue, Clifton NJ 07011</p>
+          <p className="mt-3 text-lg font-bold text-white">Julio Reynoso</p>
           <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
           <p className="mt-1 text-sm text-gray-400">(201) 873-5655 | julio@inbot.ai</p>
         </div>
