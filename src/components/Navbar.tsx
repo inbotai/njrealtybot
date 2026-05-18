@@ -37,7 +37,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="group relative text-lg font-bold tracking-tight">
+        <Link href="/" className="group relative text-sm font-bold tracking-tight md:text-base">
           <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">NJ</span>
           <span className="text-white"> Realty </span>
           <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">Bot</span>
