@@ -87,7 +87,7 @@ export default function HeroChat() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
-          placeholder='Ask Vale... "3 bed house in Hoboken under 500k"'
+          placeholder="Search properties, request a CMA, sell your home, or click the mic to speak"
           className="flex-1 px-4 py-5 text-base text-gray-800 outline-none placeholder:text-gray-400"
         />
         <VoiceButton

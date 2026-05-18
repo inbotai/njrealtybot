@@ -233,7 +233,7 @@ export default function SearchPageClient() {
             value={heroInput}
             onChange={e => setHeroInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleHeroSearch(); } }}
-            placeholder='Ask Vale... "3 bed house under 500k in Hoboken"'
+            placeholder="Search properties, request a CMA, sell your home, or click the mic to speak"
             className="flex-1 px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-gray-400"
             disabled={heroSearching}
           />
