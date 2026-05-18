@@ -243,10 +243,20 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3">
                     <div className="font-medium">{sl.address || "—"}</div>
                     <div className="text-xs text-gray-400">{sl.city}, {sl.county}</div>
+                    {sl.source === "neighbor_sold" && sl.notes && (
+                      <div className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-700">
+                        {sl.notes.split("|").slice(1).join(" ")}
+                      </div>
+                    )}
                   </td>
-                  <td className="px-4 py-3">{sl.owner_name || "—"}</td>
                   <td className="px-4 py-3">
-                    <div className="font-medium">${(sl.list_price || 0).toLocaleString()}</div>
+                    <div>{sl.owner_name || "—"}</div>
+                    <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                      sl.source === "expired_listing" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
+                    }`}>{sl.source === "expired_listing" ? "Expired" : "Neighbor"}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {sl.list_price ? <div className="font-medium">${sl.list_price.toLocaleString()}</div> : null}
                     {sl.assessed_value && <div className="text-xs text-gray-400">Assessed: ${sl.assessed_value.toLocaleString()}</div>}
                   </td>
                   <td className="px-4 py-3 text-xs">
