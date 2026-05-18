@@ -13,18 +13,33 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
   const [transcribing, setTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const autoStopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const silenceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const maxTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const rafRef = useRef<number>(0);
+
+  function cleanup() {
+    if (silenceTimer.current) clearTimeout(silenceTimer.current);
+    if (maxTimer.current) clearTimeout(maxTimer.current);
+    cancelAnimationFrame(rafRef.current);
+    silenceTimer.current = null;
+    maxTimer.current = null;
+  }
+
+  function stopRecording() {
+    cleanup();
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    setRecording(false);
+  }
 
   async function toggle() {
     if (recording) {
-      // Stop recording manually
-      if (autoStopTimer.current) clearTimeout(autoStopTimer.current);
-      mediaRecorderRef.current?.stop();
-      setRecording(false);
+      stopRecording();
       return;
     }
 
-    // Start recording
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream, {
@@ -39,41 +54,72 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
       };
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks to release microphone
+        cleanup();
         stream.getTracks().forEach((t) => t.stop());
 
         const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-        if (audioBlob.size < 1000) return; // Too short
+        if (audioBlob.size < 1000) return;
 
         setTranscribing(true);
         try {
           const text = await transcribeAudio(audioBlob);
-          if (text.trim()) {
-            onTranscript(text.trim());
-          }
-        } catch {
-          // Fallback silently
-        }
+          if (text.trim()) onTranscript(text.trim());
+        } catch { /* silent */ }
         setTranscribing(false);
       };
+
+      // Set up silence detection via Web Audio API
+      const audioCtx = new AudioContext();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const SILENCE_THRESHOLD = 15; // volume level considered "silence"
+      const SILENCE_DURATION = 4000; // 4 sec of silence to auto-stop
+      let lastSoundTime = Date.now();
+      let speechDetected = false;
+
+      function checkVolume() {
+        if (mediaRecorder.state !== "recording") return;
+        analyser.getByteFrequencyData(dataArray);
+        const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+        if (avg > SILENCE_THRESHOLD) {
+          lastSoundTime = Date.now();
+          speechDetected = true;
+        }
+
+        // Only auto-stop after speech was detected then silence for 4 sec
+        if (speechDetected && Date.now() - lastSoundTime > SILENCE_DURATION) {
+          console.log("[voice] Silence detected, auto-stopping");
+          stopRecording();
+          audioCtx.close();
+          return;
+        }
+
+        rafRef.current = requestAnimationFrame(checkVolume);
+      }
 
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setRecording(true);
+      checkVolume();
 
-      // Auto-stop after 15 seconds
-      autoStopTimer.current = setTimeout(() => {
+      // Hard max: 30 seconds
+      maxTimer.current = setTimeout(() => {
         if (mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-          setRecording(false);
+          stopRecording();
+          audioCtx.close();
         }
-      }, 15000);
+      }, 30000);
+
     } catch {
       alert("Microphone access denied. Please allow microphone access and try again.");
     }
   }
-
-  const isActive = recording || transcribing;
 
   return (
     <button
