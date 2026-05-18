@@ -31,7 +31,8 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState("");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [tab, setTab] = useState<"leads" | "sessions">("leads");
+  const [sellerLeads, setSellerLeads] = useState<any[]>([]);
+  const [tab, setTab] = useState<"leads" | "sessions" | "sellers">("leads");
   const [loading, setLoading] = useState(false);
 
   // Simple password check — not production auth, just basic access control
@@ -57,16 +58,13 @@ export default function AdminDashboard() {
     try {
       if (tab === "leads") {
         const res = await fetch(`${IDX_API}/api/idx/admin/leads?limit=50`);
-        if (res.ok) {
-          const data = await res.json();
-          setLeads(data.leads || []);
-        }
-      } else {
+        if (res.ok) { setLeads((await res.json()).leads || []); }
+      } else if (tab === "sessions") {
         const res = await fetch(`${IDX_API}/api/idx/admin/sessions?limit=50`);
-        if (res.ok) {
-          const data = await res.json();
-          setSessions(data.sessions || []);
-        }
+        if (res.ok) { setSessions((await res.json()).sessions || []); }
+      } else if (tab === "sellers") {
+        const res = await fetch(`${IDX_API}/api/idx/admin/seller-leads?limit=50`);
+        if (res.ok) { setSellerLeads((await res.json()).leads || []); }
       }
     } catch { /* silent */ }
     setLoading(false);
@@ -122,6 +120,10 @@ export default function AdminDashboard() {
         <button onClick={() => setTab("sessions")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === "sessions" ? "bg-white shadow text-navy" : "text-gray-500"}`}>
           WhatsApp Sessions ({sessions.length})
+        </button>
+        <button onClick={() => setTab("sellers")}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === "sellers" ? "bg-white shadow text-navy" : "text-gray-500"}`}>
+          Seller Leads ({sellerLeads.length})
         </button>
       </div>
 
@@ -214,6 +216,65 @@ export default function AdminDashboard() {
               ))}
               {sessions.length === 0 && (
                 <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No WhatsApp sessions yet</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Seller Leads Table */}
+      {tab === "sellers" && (
+        <div className="overflow-x-auto rounded-xl bg-white shadow">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-left text-xs text-gray-500 uppercase">
+              <tr>
+                <th className="px-4 py-3">Address</th>
+                <th className="px-4 py-3">Owner</th>
+                <th className="px-4 py-3">Price</th>
+                <th className="px-4 py-3">Details</th>
+                <th className="px-4 py-3">Original Agent</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {sellerLeads.map((sl: any) => (
+                <tr key={sl.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <div className="font-medium">{sl.address || "—"}</div>
+                    <div className="text-xs text-gray-400">{sl.city}, {sl.county}</div>
+                  </td>
+                  <td className="px-4 py-3">{sl.owner_name || "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium">${(sl.list_price || 0).toLocaleString()}</div>
+                    {sl.assessed_value && <div className="text-xs text-gray-400">Assessed: ${sl.assessed_value.toLocaleString()}</div>}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {sl.bedrooms && <span>{sl.bedrooms}bd</span>}
+                    {sl.bathrooms && <span>/{sl.bathrooms}ba</span>}
+                    {sl.sqft && <span> | {sl.sqft}sqft</span>}
+                    {sl.year_built && <span> | {sl.year_built}</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-xs">{sl.original_agent || "—"}</div>
+                    <div className="text-xs text-gray-400">{sl.original_office || ""}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      sl.status === "new" ? "bg-green-100 text-green-800" :
+                      sl.status === "contacted" ? "bg-blue-100 text-blue-800" :
+                      sl.status === "converted" ? "bg-purple-100 text-purple-800" :
+                      "bg-gray-100 text-gray-600"}`}>
+                      {sl.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">
+                    {new Date(sl.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                  </td>
+                </tr>
+              ))}
+              {sellerLeads.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No seller leads yet — expired listings are scanned every 4 hours</td></tr>
               )}
             </tbody>
           </table>
