@@ -76,7 +76,6 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <div className="text-right">
             <p className="text-[19px] font-bold text-white leading-tight">Realty One Group Legend</p>
-            <p className="text-[11px] text-gray-400">+1 (973) 772-0660</p>
             <p className="text-xs text-gray-300">Julio Reynoso</p>
           </div>
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
