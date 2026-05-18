@@ -245,6 +245,25 @@ export async function fetchPricingEstimate(params: {
   return res.json();
 }
 
+/** Fetch market report for a city */
+export async function fetchMarketReport(city: string): Promise<any> {
+  const res = await fetch(`${IDX_API}/api/idx/market/${encodeURIComponent(city)}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+/** Fetch list of cities with market data */
+export async function fetchMarketCities(): Promise<{ city: string; count: number }[]> {
+  const res = await fetch(`${IDX_API}/api/idx/market-cities`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.cities || [];
+}
+
 /** Transcribe audio via Grok STT */
 export async function transcribeAudio(audioBlob: Blob): Promise<string> {
   const formData = new FormData();
