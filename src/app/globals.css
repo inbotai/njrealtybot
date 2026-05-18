@@ -37,3 +37,8 @@ body {
 .animate-vale-look { animation: vale-look 1.2s ease-in-out; }
 .animate-vale-nod { animation: vale-nod 0.8s ease-in-out; }
 .animate-fade-in { animation: fade-in 0.3s ease-out; }
+
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
