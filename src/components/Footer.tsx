@@ -18,6 +18,7 @@ export default function Footer() {
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
             className="h-20 w-auto" />
           <p className="mt-3 text-sm text-gray-400">600 Getty Avenue, Clifton NJ 07011</p>
+          <p className="text-sm text-gray-400"><a href="tel:+19737720660" className="hover:text-gold transition">+1 (973) 772-0660</a></p>
           <p className="mt-3 text-lg font-bold text-white">Julio Reynoso</p>
           <p className="text-sm text-gray-300">Licensed Real Estate Agent</p>
           <p className="mt-1 text-sm text-gray-400">(201) 873-5655 | julio@inbot.ai</p>
