@@ -37,7 +37,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold tracking-tight">
+        <Link href="/" className="text-lg font-bold tracking-tight">
           <span className="text-gold">NJ</span> Realty Bot
         </Link>
 
