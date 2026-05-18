@@ -61,13 +61,13 @@ export default function VoiceButton({ onTranscript, className = "" }: VoiceButto
       mediaRecorder.start();
       setRecording(true);
 
-      // Auto-stop after 6 seconds
+      // Auto-stop after 15 seconds
       autoStopTimer.current = setTimeout(() => {
         if (mediaRecorder.state === "recording") {
           mediaRecorder.stop();
           setRecording(false);
         }
-      }, 6000);
+      }, 15000);
     } catch {
       alert("Microphone access denied. Please allow microphone access and try again.");
     }
