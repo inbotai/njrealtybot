@@ -127,22 +127,15 @@ export default function SearchPageClient() {
     syncUrl(next);
   }
 
-  // Debounced city input — type freely, search after pause
+  // City input — search on Enter or blur, NOT on every keystroke
   const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.q);
-  const cityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cityFocused = useRef(false);
-  const filtersRef = useRef(filters);
-  filtersRef.current = filters;
 
-  function handleCityChange(value: string) {
-    setCityInput(value);
-    if (cityTimer.current) clearTimeout(cityTimer.current);
-    cityTimer.current = setTimeout(() => {
-      const next = { ...filtersRef.current, city: value, county: "", q: "", page: "1" };
-      setFilters(next);
-      doSearch(next);
-      syncUrl(next);
-    }, 800);
+  function submitCity(value: string) {
+    const next = { ...filters, city: value, county: "", q: "", page: "1" };
+    setFilters(next);
+    doSearch(next);
+    syncUrl(next);
   }
 
   // Sync cityInput when filters change externally (hero search, mount) — but not while typing
@@ -260,11 +253,12 @@ export default function SearchPageClient() {
         <div className="mb-3 flex flex-wrap gap-3">
           <input
             type="text"
-            placeholder="City, Zip, or Address..."
+            placeholder="City, Zip, or Address — press Enter"
             value={cityInput}
-            onChange={(e) => handleCityChange(e.target.value)}
+            onChange={(e) => setCityInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") submitCity(cityInput); }}
+            onBlur={() => { cityFocused.current = false; if (cityInput !== (filters.city || filters.county || filters.q)) submitCity(cityInput); }}
             onFocus={() => { cityFocused.current = true; }}
-            onBlur={() => { cityFocused.current = false; }}
             className={`${inputClass} w-full sm:w-56`}
           />
           <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
