@@ -72,14 +72,14 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Agent branding */}
+        {/* Agent branding — NJ law: brokerage name must be larger than agent name */}
         <div className="hidden items-center gap-3 md:flex">
           <div className="text-right">
-            <p className="text-sm font-bold text-white">Julio Reynoso</p>
-            <p className="text-xs text-gray-300">Realty One Group Legend</p>
+            <p className="text-base font-bold text-white leading-tight">Realty One Group Legend</p>
+            <p className="text-xs text-gray-300">Julio Reynoso</p>
           </div>
           <img src="/realty-one-group-legend-logo.webp" alt="Realty One Group Legend"
-            className="h-14 w-auto" />
+            className="h-16 w-auto" />
         </div>
 
         {/* Mobile toggle */}
