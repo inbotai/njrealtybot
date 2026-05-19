@@ -5,6 +5,7 @@ import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
 import PropertyPageVale from "@/components/PropertyPageVale";
+import MortgageCalculator from "@/components/MortgageCalculator";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -278,9 +279,16 @@ export default async function PropertyPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Vale chat sidebar */}
-          <div>
+          {/* Sidebar: Vale chat + Mortgage calculator */}
+          <div className="space-y-6">
             <PropertyPageVale listingId={listing.id} />
+            {listing.list_price && !isSold && (
+              <MortgageCalculator
+                listPrice={listing.list_price}
+                annualTaxes={listing.tax_annual_amount ?? null}
+                hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
+              />
+            )}
           </div>
         </div>
 
