@@ -29,7 +29,7 @@ export default function MortgageCalculator({ listPrice, annualTaxes, hoaMonthly 
   const [downPct, setDownPct] = useState(20);
   const [rate, setRate] = useState(6.875);
   const [termYears, setTermYears] = useState(30);
-  const [taxes, setTaxes] = useState(annualTaxes ?? Math.round(listPrice * 0.018));
+  const [taxes, setTaxes] = useState(annualTaxes ?? 0);
   const [insurance, setInsurance] = useState(Math.round(listPrice * 0.004));
   const [hoa, setHoa] = useState(hoaMonthly ?? 0);
 

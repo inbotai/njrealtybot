@@ -78,18 +78,12 @@ export default async function PropertyPage({ params }: Props) {
   ].filter((d) => d.value != null);
 
   // ── Tax & Financial info ──────────────────────────────────
-  // NJ average effective property tax rate is ~2.2%. Use as estimate when MLS has no data.
-  const estimatedAnnualTax = listing.list_price ? Math.round(listing.list_price * 0.022) : null;
-  const hasMlsTax = listing.tax_annual_amount != null && listing.tax_annual_amount > 0;
-
+  // Only show actual MLS data — NEVER estimate taxes (legal liability).
   const financials = [
-    hasMlsTax ? {
+    listing.tax_annual_amount != null && listing.tax_annual_amount > 0 && {
       label: "Annual Property Taxes",
-      value: `${formatPrice(listing.tax_annual_amount!)}${listing.tax_year ? ` (${listing.tax_year})` : ""}`,
-    } : estimatedAnnualTax ? {
-      label: "Est. Annual Property Taxes",
-      value: `~${formatPrice(estimatedAnnualTax)} (estimated based on NJ avg rate)`,
-    } : null,
+      value: `${formatPrice(listing.tax_annual_amount)}${listing.tax_year ? ` (${listing.tax_year})` : ""}`,
+    },
     listing.association_fee != null && listing.association_fee > 0 && {
       label: "HOA / Association Fee",
       value: `${formatPrice(listing.association_fee)}${listing.association_fee_frequency ? ` / ${listing.association_fee_frequency}` : ""}`,
@@ -123,6 +117,7 @@ export default async function PropertyPage({ params }: Props) {
     feats.appliances && `Appliances: ${feats.appliances}`,
     feats.interior && `Interior: ${feats.interior}`,
     feats.basement && `Basement: ${feats.basement}`,
+    feats.fireplace && `Fireplace: ${feats.fireplace}`,
   ].filter(Boolean) as string[];
   if (interiorItems.length > 0) featureGroups.push({ title: "Interior", items: interiorItems });
 
@@ -130,14 +125,26 @@ export default async function PropertyPage({ params }: Props) {
     feats.exterior && `Exterior: ${feats.exterior}`,
     feats.garage_parking && `Parking: ${feats.garage_parking}`,
     feats.pool && `Pool: ${feats.pool}`,
+    feats.lot_description && `Lot: ${feats.lot_description}`,
+    feats.waterfront && `Waterfront: ${feats.waterfront}`,
+    feats.views && `Views: ${feats.views}`,
+    feats.flood_plain && `Flood Plain: ${feats.flood_plain}`,
   ].filter(Boolean) as string[];
-  if (exteriorItems.length > 0) featureGroups.push({ title: "Exterior", items: exteriorItems });
+  if (exteriorItems.length > 0) featureGroups.push({ title: "Exterior & Lot", items: exteriorItems });
 
   const utilityItems = [
     feats.water && `Water: ${feats.water}`,
     feats.sewer && `Sewer: ${feats.sewer}`,
   ].filter(Boolean) as string[];
   if (utilityItems.length > 0) featureGroups.push({ title: "Utilities", items: utilityItems });
+
+  const otherItems = [
+    feats.ownership && `Ownership: ${feats.ownership}`,
+    feats.association && `Association: ${feats.association}`,
+    feats.lifestyle && `Lifestyle: ${feats.lifestyle}`,
+    feats.misc && `Other: ${feats.misc}`,
+  ].filter(Boolean) as string[];
+  if (otherItems.length > 0) featureGroups.push({ title: "Other Details", items: otherItems });
 
   const jsonLd = {
     "@context": "https://schema.org",
