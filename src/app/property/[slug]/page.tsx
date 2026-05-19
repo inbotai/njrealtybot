@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchListing, fetchListings } from "@/lib/api";
+import { fetchListing, fetchListings, fetchPhotoCount } from "@/lib/api";
 import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
@@ -48,6 +48,9 @@ export default async function PropertyPage({ params }: Props) {
   const { listing, openHouses = [], compliance } = data;
   const address = formatAddress(listing);
   const isSold = listing.mls_status === "Sold";
+
+  // Discover real photo count from RETS (L_PictureCount is unreliable)
+  const realPhotoCount = await fetchPhotoCount(listing.mls_number);
 
   // Similar properties
   let similar: import("@/lib/api").Listing[] = [];
@@ -168,8 +171,8 @@ export default async function PropertyPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <PhotoGallery mlsNumber={listing.mls_number} photoCount={listing.photo_count} address={address}
-          isSold={listing.mls_status === "Sold"} />
+        <PhotoGallery mlsNumber={listing.mls_number} photoCount={realPhotoCount || listing.photo_count} address={address}
+          isSold={isSold} />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">

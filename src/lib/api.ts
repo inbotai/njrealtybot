@@ -5,6 +5,18 @@ export function getPhotoUrl(mlsNumber: string, index = 0): string {
   return `${IDX_API}/api/idx/photos/${mlsNumber}/${index}`;
 }
 
+/** Discover real photo count via RETS (L_PictureCount is unreliable) */
+export async function fetchPhotoCount(mlsNumber: string): Promise<number> {
+  try {
+    const res = await fetch(`${IDX_API}/api/idx/photos/${mlsNumber}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return 0;
+    const json = await res.json();
+    return json.count || 0;
+  } catch { return 0; }
+}
+
 export interface Listing {
   id: string;
   mls_number: string;
