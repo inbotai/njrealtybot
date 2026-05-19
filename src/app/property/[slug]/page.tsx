@@ -59,12 +59,17 @@ export default async function PropertyPage({ params }: Props) {
   } catch { /* ignore */ }
 
   // ── Key details grid ──────────────────────────────────────
+  // MLS sometimes returns bogus sqft values (e.g. "7" = total rooms, not sqft).
+  // Filter out anything under 200 sqft which is physically impossible for a home.
+  const validSqft = listing.living_area && listing.living_area >= 200 ? listing.living_area : null;
+  const validLot = listing.lot_size_area && listing.lot_size_area >= 100 ? listing.lot_size_area : null;
+
   const details = [
     { label: "Bedrooms", value: listing.bedrooms_total },
     { label: "Bathrooms", value: listing.bathrooms_total },
     { label: "Half Baths", value: listing.bathrooms_half },
-    { label: "Sq Ft", value: listing.living_area && listing.living_area >= 100 ? listing.living_area.toLocaleString() : null },
-    { label: "Lot Size", value: listing.lot_size_area && listing.lot_size_area >= 100 ? `${Number(listing.lot_size_area).toLocaleString()} sqft` : null },
+    { label: "Sq Ft", value: validSqft ? validSqft.toLocaleString() : null },
+    { label: "Lot Size", value: validLot ? `${Number(validLot).toLocaleString()} sqft` : null },
     { label: "Year Built", value: listing.year_built },
     { label: "Stories", value: listing.stories },
     { label: "Property Type", value: [listing.property_type, listing.property_sub_type].filter(Boolean).join(" — ") || null },
@@ -73,11 +78,18 @@ export default async function PropertyPage({ params }: Props) {
   ].filter((d) => d.value != null);
 
   // ── Tax & Financial info ──────────────────────────────────
+  // NJ average effective property tax rate is ~2.2%. Use as estimate when MLS has no data.
+  const estimatedAnnualTax = listing.list_price ? Math.round(listing.list_price * 0.022) : null;
+  const hasMlsTax = listing.tax_annual_amount != null && listing.tax_annual_amount > 0;
+
   const financials = [
-    listing.tax_annual_amount != null && {
-      label: "Annual Taxes",
-      value: `${formatPrice(listing.tax_annual_amount)}${listing.tax_year ? ` (${listing.tax_year})` : ""}`,
-    },
+    hasMlsTax ? {
+      label: "Annual Property Taxes",
+      value: `${formatPrice(listing.tax_annual_amount!)}${listing.tax_year ? ` (${listing.tax_year})` : ""}`,
+    } : estimatedAnnualTax ? {
+      label: "Est. Annual Property Taxes",
+      value: `~${formatPrice(estimatedAnnualTax)} (estimated based on NJ avg rate)`,
+    } : null,
     listing.association_fee != null && listing.association_fee > 0 && {
       label: "HOA / Association Fee",
       value: `${formatPrice(listing.association_fee)}${listing.association_fee_frequency ? ` / ${listing.association_fee_frequency}` : ""}`,
