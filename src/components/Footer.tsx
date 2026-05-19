@@ -80,6 +80,22 @@ export default function Footer() {
           </p>
         </div>
 
+        {/* Equal Housing Opportunity — required by NAR, HUD, and NJ LAD */}
+        <div className="mt-8 flex flex-col items-center gap-3 border-t border-white/10 pt-6">
+          <div className="flex items-center gap-4">
+            <img src="/equal-housing-opportunity.svg" alt="Equal Housing Opportunity" className="h-10 w-auto" />
+            <img src="/realtor-logo.svg" alt="REALTOR®" className="h-8 w-auto" />
+          </div>
+          <p className="max-w-2xl text-center text-[11px] leading-relaxed text-gray-500">
+            We are pledged to the letter and spirit of U.S. policy for the achievement
+            of equal housing opportunity throughout the Nation. We encourage and support
+            an affirmative advertising and marketing program in which there are no barriers
+            to obtaining housing because of race, color, religion, sex, handicap, familial
+            status, national origin, sexual orientation, gender identity, or any other
+            protected class under federal, state, or local law.
+          </p>
+        </div>
+
         <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} NJ Realty Bot | Realty One Group Legend. All rights reserved.</p>
         </div>

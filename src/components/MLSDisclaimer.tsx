@@ -54,6 +54,18 @@ export default function MLSDisclaimer() {
           <p>&copy; {year} New Jersey Multiple Listing Service, Inc. All rights reserved.</p>
           <p>Information deemed reliable but not guaranteed. Copyright &copy; {year} Garden State Multiple Listing Service, L.L.C. All rights reserved.</p>
         </div>
+
+        {/* Equal Housing Opportunity */}
+        <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-4">
+          <img src="/equal-housing-opportunity.svg" alt="Equal Housing Opportunity" className="h-8 w-auto flex-shrink-0" />
+          <p className="text-[10px] leading-relaxed text-gray-500">
+            Equal Housing Opportunity. All real estate advertised herein is subject to the
+            Federal Fair Housing Act, the New Jersey Law Against Discrimination, and applicable
+            state and local fair housing laws, which make it illegal to advertise any preference,
+            limitation, or discrimination based on race, color, religion, sex, handicap, familial
+            status, national origin, sexual orientation, gender identity, or any other protected class.
+          </p>
+        </div>
       </div>
     </section>
   );

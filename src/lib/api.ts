@@ -42,11 +42,16 @@ export interface Listing {
   tax_annual_amount?: number | null;
   tax_year?: number | null;
   association_fee?: number | null;
+  association_fee_frequency?: string | null;
   features?: Record<string, string>;
   listing_agent_phone?: string | null;
   listing_agent_email?: string | null;
   listing_office_phone?: string | null;
   original_list_price?: number | null;
+  close_price?: number | null;
+  close_date?: string | null;
+  property_sub_type?: string | null;
+  directions?: string | null;
   listing_photos?: ListingPhoto[];
 }
 
