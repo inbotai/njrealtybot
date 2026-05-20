@@ -65,6 +65,19 @@ export interface Listing {
   property_sub_type?: string | null;
   directions?: string | null;
   listing_photos?: ListingPhoto[];
+  public_records?: {
+    tax_annual?: number;
+    assessed_value?: number;
+    land_assessment?: number;
+    improvement_value?: number;
+    lot_acres?: number;
+    lot_sqft?: number;
+    year_built?: number;
+    building_description?: string;
+    last_sale_price?: number;
+    property_class?: string;
+    county?: string;
+  } | null;
 }
 
 export interface ListingPhoto {

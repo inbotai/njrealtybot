@@ -61,18 +61,22 @@ export default async function PropertyPage({ params }: Props) {
     }
   } catch { /* ignore */ }
 
+  // ── Public records enrichment ──────────────────────────────
+  const pr = listing.public_records;
+
   // ── Key details grid ──────────────────────────────────────
-  // MLS sometimes returns bogus sqft values (e.g. "7" = total rooms, not sqft).
-  // Filter out anything under 200 sqft which is physically impossible for a home.
   const validSqft = listing.living_area && listing.living_area >= 200 ? listing.living_area : null;
-  const validLot = listing.lot_size_area && listing.lot_size_area >= 100 ? listing.lot_size_area : null;
+  const lotSqft = (listing.lot_size_area && listing.lot_size_area >= 100 ? listing.lot_size_area : null) || pr?.lot_sqft;
+  const lotDisplay = pr?.lot_acres
+    ? `${pr.lot_acres} acres (${Number(pr.lot_sqft).toLocaleString()} sqft)`
+    : lotSqft ? `${Number(lotSqft).toLocaleString()} sqft` : null;
 
   const details = [
     { label: "Bedrooms", value: listing.bedrooms_total },
     { label: "Bathrooms", value: listing.bathrooms_total },
     { label: "Half Baths", value: listing.bathrooms_half },
     { label: "Sq Ft", value: validSqft ? validSqft.toLocaleString() : null },
-    { label: "Lot Size", value: validLot ? `${Number(validLot).toLocaleString()} sqft` : null },
+    { label: "Lot Size", value: lotDisplay },
     { label: "Year Built", value: listing.year_built },
     { label: "Stories", value: listing.stories },
     { label: "Property Type", value: [listing.property_type, listing.property_sub_type].filter(Boolean).join(" — ") || null },
@@ -81,11 +85,26 @@ export default async function PropertyPage({ params }: Props) {
   ].filter((d) => d.value != null);
 
   // ── Tax & Financial info ──────────────────────────────────
-  // Only show actual MLS data — NEVER estimate taxes (legal liability).
+  // Use public records tax (authoritative) if available, fall back to MLS
+  const annualTax = pr?.tax_annual || ((listing.tax_annual_amount ?? 0) > 0 ? listing.tax_annual_amount : null) || null;
+  const taxSource = pr?.tax_annual ? "NJ Public Records" : listing.tax_year ? `${listing.tax_year}` : null;
+
   const financials = [
-    listing.tax_annual_amount != null && listing.tax_annual_amount > 0 && {
+    annualTax && {
       label: "Annual Property Taxes",
-      value: `${formatPrice(listing.tax_annual_amount)}${listing.tax_year ? ` (${listing.tax_year})` : ""}`,
+      value: `${formatPrice(annualTax)}${taxSource ? ` (${taxSource})` : ""}`,
+    },
+    pr?.assessed_value && {
+      label: "Tax Assessment",
+      value: formatPrice(pr.assessed_value),
+    },
+    pr?.land_assessment && {
+      label: "Land Assessment",
+      value: formatPrice(pr.land_assessment),
+    },
+    pr?.last_sale_price && pr.last_sale_price > 0 && {
+      label: "Last Sale Price",
+      value: formatPrice(pr.last_sale_price),
     },
     listing.association_fee != null && listing.association_fee > 0 && {
       label: "HOA / Association Fee",
@@ -307,7 +326,7 @@ export default async function PropertyPage({ params }: Props) {
             {listing.list_price && !isSold && (
               <MortgageCalculator
                 listPrice={listing.list_price}
-                annualTaxes={listing.tax_annual_amount ?? null}
+                annualTaxes={annualTax ?? null}
                 hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
               />
             )}
