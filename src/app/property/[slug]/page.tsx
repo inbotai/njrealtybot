@@ -132,39 +132,43 @@ export default async function PropertyPage({ params }: Props) {
   const feats = listing.features || {};
   const featureGroups: { title: string; items: string[] }[] = [];
 
+  // Filter out "None" values — they add no information
+  const feat = (label: string, val: string | undefined | null): string | false =>
+    val && val.toLowerCase() !== "none" ? `${label}: ${val}` : false;
+
   const interiorItems = [
-    feats.heating && `Heating: ${feats.heating}`,
-    feats.cooling && `Cooling: ${feats.cooling}`,
-    feats.flooring && `Flooring: ${feats.flooring}`,
-    feats.appliances && `Appliances: ${feats.appliances}`,
-    feats.interior && `Interior: ${feats.interior}`,
-    feats.basement && `Basement: ${feats.basement}`,
-    feats.fireplace && `Fireplace: ${feats.fireplace}`,
+    feat("Heating", feats.heating),
+    feat("Cooling", feats.cooling),
+    feat("Flooring", feats.flooring),
+    feat("Appliances", feats.appliances),
+    feat("Interior", feats.interior),
+    feat("Basement", feats.basement),
+    feat("Fireplace", feats.fireplace),
   ].filter(Boolean) as string[];
   if (interiorItems.length > 0) featureGroups.push({ title: "Interior", items: interiorItems });
 
   const exteriorItems = [
-    feats.exterior && `Exterior: ${feats.exterior}`,
-    feats.garage_parking && `Parking: ${feats.garage_parking}`,
-    feats.pool && `Pool: ${feats.pool}`,
-    feats.lot_description && `Lot: ${feats.lot_description}`,
-    feats.waterfront && `Waterfront: ${feats.waterfront}`,
-    feats.views && `Views: ${feats.views}`,
-    feats.flood_plain && `Flood Plain: ${feats.flood_plain}`,
+    feat("Exterior", feats.exterior),
+    feat("Parking", feats.garage_parking),
+    feat("Pool", feats.pool),
+    feat("Lot", feats.lot_description),
+    feat("Waterfront", feats.waterfront),
+    feat("Views", feats.views),
+    feat("Flood Plain", feats.flood_plain),
   ].filter(Boolean) as string[];
   if (exteriorItems.length > 0) featureGroups.push({ title: "Exterior & Lot", items: exteriorItems });
 
   const utilityItems = [
-    feats.water && `Water: ${feats.water}`,
-    feats.sewer && `Sewer: ${feats.sewer}`,
+    feat("Water", feats.water),
+    feat("Sewer", feats.sewer),
   ].filter(Boolean) as string[];
   if (utilityItems.length > 0) featureGroups.push({ title: "Utilities", items: utilityItems });
 
   const otherItems = [
-    feats.ownership && `Ownership: ${feats.ownership}`,
-    feats.association && `Association: ${feats.association}`,
-    feats.lifestyle && `Lifestyle: ${feats.lifestyle}`,
-    feats.misc && `Other: ${feats.misc}`,
+    feat("Ownership", feats.ownership),
+    feat("Association", feats.association),
+    feat("Lifestyle", feats.lifestyle),
+    feat("Other", feats.misc),
   ].filter(Boolean) as string[];
   if (otherItems.length > 0) featureGroups.push({ title: "Other Details", items: otherItems });
 
@@ -263,8 +267,9 @@ export default async function PropertyPage({ params }: Props) {
                       <h3 className="mb-2 text-sm font-bold text-navy">{group.title}</h3>
                       <ul className="space-y-1.5">
                         {group.items.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                            <span className="mt-0.5 text-gold">&#10003;</span> {item}
+                          <li key={i} className="flex items-start gap-2 text-sm text-gray-600 break-words">
+                            <span className="mt-0.5 text-gold shrink-0">&#10003;</span>
+                            <span className="break-all sm:break-words">{item}</span>
                           </li>
                         ))}
                       </ul>
