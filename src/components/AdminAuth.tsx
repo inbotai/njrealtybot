@@ -30,7 +30,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const login = (password: string): boolean => {
     // Accept a few passwords for flexibility
-    const valid = ["njrb2026", "vale2026"].includes(password.trim().toLowerCase());
+    const valid = password.trim() === "Vale2026!@1";
     if (valid) {
       sessionStorage.setItem("njrb_admin", ADMIN_HASH);
       setIsAdmin(true);
