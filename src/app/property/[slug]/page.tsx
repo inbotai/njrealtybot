@@ -318,18 +318,22 @@ export default async function PropertyPage({ params }: Props) {
                 )}
               </p>
             </div>
+
+            {/* Mortgage Calculator */}
+            {listing.list_price && !isSold && (
+              <div className="mt-8">
+                <MortgageCalculator
+                  listPrice={listing.list_price}
+                  annualTaxes={annualTax ?? null}
+                  hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Sidebar: Vale chat + Mortgage calculator */}
+          {/* Sidebar: Vale chat */}
           <div className="space-y-6">
             <PropertyPageVale listingId={listing.id} />
-            {listing.list_price && !isSold && (
-              <MortgageCalculator
-                listPrice={listing.list_price}
-                annualTaxes={annualTax ?? null}
-                hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
-              />
-            )}
           </div>
         </div>
 
