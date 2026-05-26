@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useVale } from "./ValeProvider";
 import VoiceButton from "./VoiceButton";
@@ -17,19 +17,12 @@ function getContextMessage(pathname: string): string {
   return "";
 }
 
-/** Idle animations for Vale's avatar */
-const idleAnimations = [
-  "animate-vale-blink",
-  "animate-vale-look",
-  "animate-vale-nod",
-];
-
 export default function ValeSidePanel() {
   const { messages, loading, panelOpen, send, closePanel } = useVale();
   const [input, setInput] = useState("");
-  const [lastReply, setLastReply] = useState("");
-  const [showBubble, setShowBubble] = useState(false);
-  const [idleAnim, setIdleAnim] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
 
   // Close panel on homepage
@@ -37,36 +30,18 @@ export default function ValeSidePanel() {
     if (pathname === "/") closePanel();
   }, [pathname, closePanel]);
 
-  // Track latest reply
+  // Auto-scroll on new messages
   useEffect(() => {
-    const assistantMsgs = messages.filter(m => m.role === "assistant");
-    if (assistantMsgs.length > 0) {
-      const reply = assistantMsgs[assistantMsgs.length - 1].text
-        .replace(/\[ID:[a-f0-9-]+\]/gi, "").trim();
-      setLastReply(reply);
-      setShowBubble(true);
-    }
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   // Show context message when navigating
   useEffect(() => {
     const msg = getContextMessage(pathname);
-    if (msg && panelOpen) {
-      setLastReply(msg);
-      setShowBubble(true);
+    if (msg && panelOpen && messages.length === 0) {
+      // Context messages are handled by the provider
     }
-  }, [pathname, panelOpen]);
-
-  // Idle animation loop — subtle movements every 5-8 seconds
-  useEffect(() => {
-    if (!panelOpen) return;
-    const interval = setInterval(() => {
-      const anim = idleAnimations[Math.floor(Math.random() * idleAnimations.length)];
-      setIdleAnim(anim);
-      setTimeout(() => setIdleAnim(""), 1500);
-    }, 5000 + Math.random() * 3000);
-    return () => clearInterval(interval);
-  }, [panelOpen]);
+  }, [pathname, panelOpen, messages.length]);
 
   const handleSend = useCallback((text?: string) => {
     const q = (text || input).trim();
@@ -77,82 +52,131 @@ export default function ValeSidePanel() {
 
   if (!panelOpen) return null;
 
+  const panelWidth = expanded ? 480 : 400;
+
   return (
-    <div className="hidden md:block fixed bottom-4 right-4 z-40" style={{ width: 320 }}>
-      {/* Speech bubble */}
-      {showBubble && lastReply && (
-        <div className="mb-2 rounded-xl bg-white p-3 shadow-lg border border-gray-200 relative animate-fade-in">
-          <button onClick={() => setShowBubble(false)}
-            className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-gray-200 text-[10px] text-gray-500 hover:bg-gray-300 flex items-center justify-center z-10">
-            ✕
-          </button>
-          <div className="max-h-60 overflow-y-auto pr-1">
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{lastReply}</p>
-          </div>
-          <a href="/chat" className="mt-2 block text-center text-xs font-medium text-indigo-600 hover:text-indigo-800">
-            Open full chat &rarr;
-          </a>
-          {/* Bubble arrow */}
-          <div className="absolute -bottom-2 right-8 w-4 h-4 bg-white border-b border-r border-gray-200 transform rotate-45" />
-        </div>
-      )}
-
-      {/* Loading bubble */}
-      {loading && (
-        <div className="mb-2 rounded-xl bg-white p-3 shadow-lg border border-gray-200 animate-fade-in">
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1">
-              <span className="h-2 w-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="h-2 w-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="h-2 w-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "300ms" }} />
-            </div>
-            <span className="text-xs text-gray-400">Searching...</span>
-          </div>
-        </div>
-      )}
-
-      {/* Input bar */}
-      <div className="mb-2 flex gap-1.5 rounded-xl bg-white p-2 shadow-lg border border-gray-200">
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-          placeholder="Ask Vale..."
-          className="flex-1 px-2 py-1.5 text-xs outline-none"
-          disabled={loading}
-        />
-        <VoiceButton onTranscript={(text) => handleSend(text)} className="px-1" />
-        <button onClick={() => handleSend()} disabled={loading || !input.trim()}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-40">
-          Send
-        </button>
-      </div>
-
-      {/* Vale avatar — animated */}
-      <div className="flex items-end justify-end">
-        <button
-          onClick={() => setShowBubble(b => !b)}
-          className={`group relative transition-transform duration-300 hover:scale-110 ${idleAnim}`}
-          aria-label="Talk to Vale"
-        >
-          <svg viewBox="0 0 200 200" className="h-16 w-16 drop-shadow-lg">
-            {/* Body */}
+    <div
+      className="hidden md:flex fixed bottom-0 right-0 z-40 flex-col bg-white border-l border-gray-200 shadow-2xl transition-all duration-300"
+      style={{ width: panelWidth, height: "calc(100vh - 72px)", top: 72 }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white">
+        <div className="relative">
+          <svg viewBox="0 0 200 200" className="h-10 w-10 drop-shadow">
             <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
             <circle cx="100" cy="105" r="52" fill="#4f46e5" />
-            {/* Eyes — blink animation via CSS */}
-            <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" className="vale-eye" />
-            <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" className="vale-eye" />
-            {/* Smile */}
+            <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+            <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
             <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
-            {/* Crown */}
             <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          {/* Online indicator */}
-          <span className="absolute bottom-0 right-0 flex h-4 w-4">
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex h-4 w-4 rounded-full bg-green-500 border-2 border-white" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white" />
           </span>
-        </button>
+        </div>
+        <div className="flex-1">
+          <h2 className="text-lg font-bold text-gray-900">Vale</h2>
+          <p className="text-sm text-gray-500">AI Real Estate Assistant</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+            aria-label={expanded ? "Shrink panel" : "Expand panel"}
+            title={expanded ? "Shrink" : "Expand"}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              {expanded
+                ? <><path d="M4 14h6v6" /><path d="M20 10h-6V4" /><path d="M14 10l7-7" /><path d="M3 21l7-7" /></>
+                : <><path d="M15 3h6v6" /><path d="M9 21H3v-6" /><path d="M21 3l-7 7" /><path d="M3 21l7-7" /></>
+              }
+            </svg>
+          </button>
+          <button
+            onClick={closePanel}
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+            aria-label="Close panel"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-5 py-4">
+        {messages.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <svg viewBox="0 0 200 200" className="h-16 w-16 mx-auto mb-4 opacity-60">
+              <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+              <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+              <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+              <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+              <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+            </svg>
+            <p className="text-base font-medium text-gray-700 mb-1">Hi, I&apos;m Vale!</p>
+            <p className="text-sm text-gray-500">Ask me about properties, market trends, or schedule a showing.</p>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                msg.role === "user"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-800"
+              }`}>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {msg.text.replace(/\[ID:[a-f0-9-]+\]/gi, "").trim()}
+                </p>
+              </div>
+            </div>
+          ))}
+
+          {/* Loading indicator */}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="rounded-2xl bg-gray-100 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-sm text-gray-400">Searching...</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+      </div>
+
+      {/* Input area */}
+      <div className="border-t border-gray-200 px-4 py-3 bg-white">
+        <div className="flex items-center gap-2">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            placeholder="Search homes, ask about market trends..."
+            className="flex-1 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-gray-400"
+            disabled={loading}
+          />
+          <VoiceButton onTranscript={(text) => handleSend(text)} className="rounded-xl border border-gray-300 bg-white p-3 text-gray-500 hover:bg-gray-50" />
+          <button onClick={() => handleSend()} disabled={loading || !input.trim()}
+            className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 transition">
+            Send
+          </button>
+        </div>
+        <p className="mt-2 text-center text-xs text-gray-400">
+          Powered by <span className="font-medium text-indigo-500">Vale</span> from InBot AI
+        </p>
       </div>
     </div>
   );

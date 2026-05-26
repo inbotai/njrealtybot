@@ -36,23 +36,54 @@ export default function ValeChatWidget() {
         </button>
       )}
 
-      {/* Chat iframe */}
+      {/* Chat panel — larger, Claude-style */}
       {open && (
-        <div className="fixed right-4 bottom-4 z-50 flex flex-col overflow-hidden rounded-2xl shadow-2xl"
-          style={{ width: 380, height: 580 }}
+        <div className="fixed right-0 bottom-0 z-50 flex flex-col bg-white border-l border-gray-200 shadow-2xl"
+          style={{ width: 420, height: "100vh" }}
         >
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50"
-            aria-label="Close chat"
-          >
-            ✕
-          </button>
+          {/* Header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white">
+            <div className="relative">
+              <svg viewBox="0 0 200 200" className="h-9 w-9 drop-shadow">
+                <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+                <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+                <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+                <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
+              </span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-gray-900">Vale</h2>
+              <p className="text-sm text-gray-500">AI Real Estate Assistant</p>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+              aria-label="Close chat"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* iframe */}
           <iframe
             src={widgetUrl}
-            className="h-full w-full border-0"
+            className="flex-1 w-full border-0"
             title="Chat with Vale"
           />
+
+          <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+            <p className="text-center text-xs text-gray-400">
+              Powered by <span className="font-medium text-indigo-500">Vale</span> from InBot AI
+            </p>
+          </div>
         </div>
       )}
     </>
