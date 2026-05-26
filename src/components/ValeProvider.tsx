@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
 import type { Listing } from "@/lib/api";
+import { useAdmin } from "./AdminAuth";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -37,7 +38,10 @@ export function useVale() {
   return ctx;
 }
 
+const ADMIN_API_TOKEN = "njrb-admin-2026-xk9";
+
 export default function ValeProvider({ children }: { children: ReactNode }) {
+  const { isAdmin } = useAdmin();
   const [messages, setMessages] = useState<ValeMessage[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,9 +65,11 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
     const body: any = {};
     if (vid) body.visitorId = vid;
     if (listingId) body.listingId = listingId;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (isAdmin) headers["X-Admin-Token"] = ADMIN_API_TOKEN;
     const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
     });
     const d = await r.json();
@@ -81,9 +87,11 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const sid = await ensureSession(currentListingId);
+      const msgHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (isAdmin) msgHeaders["X-Admin-Token"] = ADMIN_API_TOKEN;
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: msgHeaders,
         body: JSON.stringify({ sessionId: sid, message: text }),
       });
       const d = await r.json();
