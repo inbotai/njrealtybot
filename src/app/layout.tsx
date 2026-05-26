@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ValeProvider from "@/components/ValeProvider";
 import ValeSidePanel from "@/components/ValeSidePanel";
+import { AdminProvider } from "@/components/AdminAuth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -20,8 +21,7 @@ export const metadata: Metadata = {
     "NJ real estate",
     "AI real estate",
     "NJ Realty Bot",
-    "Realty One Group Legend",
-    "Julio Reynoso",
+    "AI property search NJ",
   ],
   openGraph: {
     type: "website",
@@ -48,12 +48,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
-        <ValeProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <ValeSidePanel />
-        </ValeProvider>
+        <AdminProvider>
+          <ValeProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ValeSidePanel />
+          </ValeProvider>
+        </AdminProvider>
       </body>
     </html>
   );
