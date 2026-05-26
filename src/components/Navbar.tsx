@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
 const mainLinks = [
-  { href: "/search", label: "Buy" },
+  // { href: "/search", label: "Buy" },  // Disabled until IDX listings are ready
   { href: "/sell", label: "Sell" },
   { href: "/market", label: "Market" },
   { href: "/chat", label: "Vale AI" },
