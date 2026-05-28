@@ -4,7 +4,7 @@ import LeadForm from "@/components/LeadForm";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with NJ Realty Bot. Ask about homes for sale, schedule a showing, or get a free home valuation.",
+    "Get in touch with Garden State AI. Ask about homes for sale, schedule a showing, or get a free home valuation.",
 };
 
 export default function ContactPage() {
@@ -43,8 +43,8 @@ export default function ContactPage() {
 
           <div className="rounded-xl bg-white p-6 shadow-md">
             <h3 className="font-bold text-navy">Email</h3>
-            <a href="mailto:info@njrealtybot.com" className="mt-1 block text-sm text-gray-600 hover:text-gold">
-              info@njrealtybot.com
+            <a href="mailto:info@gardenstate.ai" className="mt-1 block text-sm text-gray-600 hover:text-gold">
+              info@gardenstate.ai
             </a>
           </div>
         </div>

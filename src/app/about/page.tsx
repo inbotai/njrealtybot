@@ -4,16 +4,16 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about NJ Realty Bot and how we use AI to help you find your perfect home in New Jersey.",
+    "Learn about Garden State AI and how we use AI to help you find your perfect home in New Jersey.",
 };
 
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="text-3xl font-bold text-navy">About NJ Realty Bot</h1>
+      <h1 className="text-3xl font-bold text-navy">About Garden State AI</h1>
 
       <p className="mt-6 leading-relaxed text-gray-600">
-        NJ Realty Bot is an AI-powered real estate platform designed to make
+        Garden State AI is an AI-powered real estate platform designed to make
         finding your next home in New Jersey faster, smarter, and easier. We
         combine cutting-edge artificial intelligence with comprehensive MLS data
         to deliver the most relevant property matches instantly.
@@ -24,7 +24,7 @@ export default function AboutPage() {
         <p className="mt-3 leading-relaxed text-gray-600">
           Julio is a licensed New Jersey real estate agent with deep knowledge
           of the local market. Whether you&apos;re buying your first home,
-          investing in property, or selling, Julio and the NJ Realty Bot team
+          investing in property, or selling, Julio and the Garden State AI team
           provide personalized guidance every step of the way.
         </p>
       </div>
@@ -34,7 +34,7 @@ export default function AboutPage() {
           Realty One Group Legend
         </h2>
         <p className="mt-3 leading-relaxed text-gray-600">
-          NJ Realty Bot is proudly brokered by Realty One Group Legend, one of
+          Garden State AI is proudly brokered by Realty One Group Legend, one of
           the fastest-growing real estate brands in the country. With a
           commitment to innovation and client success, Realty One Group Legend
           provides the support and resources needed to deliver an exceptional

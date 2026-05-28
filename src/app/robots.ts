@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://njrealtybot.com/sitemap.xml",
+    sitemap: "https://gardenstate.ai/sitemap.xml",
   };
 }

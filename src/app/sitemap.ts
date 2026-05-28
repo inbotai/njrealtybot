@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { fetchListings } from "@/lib/api";
 import { generateSlug } from "@/lib/utils";
 
-const BASE_URL = "https://njrealtybot.com";
+const BASE_URL = "https://gardenstate.ai";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [

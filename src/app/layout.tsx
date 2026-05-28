@@ -11,8 +11,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
   title: {
-    default: "NJ Realty Bot | The First AI-Powered Real Estate Platform in New Jersey",
-    template: "%s | NJ Realty Bot",
+    default: "Garden State AI | The Most Advanced Real Estate AI in NJ",
+    template: "%s | Garden State AI",
   },
   description:
     "Search 50,000+ homes for sale in New Jersey. AI-powered real estate search with instant market analysis, price predictions, and Vale — your 24/7 AI real estate partner.",
@@ -20,20 +20,20 @@ export const metadata: Metadata = {
     "New Jersey homes for sale",
     "NJ real estate",
     "AI real estate",
-    "NJ Realty Bot",
+    "Garden State AI",
     "AI property search NJ",
   ],
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "NJ Realty Bot",
-    title: "NJ Realty Bot | The First AI-Powered Real Estate Platform in New Jersey",
+    siteName: "Garden State AI",
+    title: "Garden State AI | The Most Advanced Real Estate AI in NJ",
     description:
       "Search 50,000+ homes for sale in New Jersey. AI-powered search with Vale, your 24/7 real estate AI partner.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NJ Realty Bot | AI-Powered Real Estate in NJ",
+    title: "Garden State AI | The Most Advanced Real Estate AI in NJ",
     description:
       "Search 50,000+ homes for sale in New Jersey with Vale AI.",
   },

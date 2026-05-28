@@ -106,7 +106,7 @@ export default function AdminDashboard() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-navy">NJ Realty Bot — Dashboard</h1>
+        <h1 className="text-2xl font-bold text-navy">Garden State AI — Dashboard</h1>
         <button onClick={() => { localStorage.removeItem("admin_auth"); setAuthed(false); }}
           className="text-sm text-gray-500 hover:text-red-600">Logout</button>
       </div>

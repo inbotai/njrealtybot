@@ -12,7 +12,7 @@ export default function Footer() {
     <footer className="mt-auto bg-navy text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-8 md:grid-cols-3">
-          {/* NJ Realty Bot */}
+          {/* Garden State AI */}
           <div>
             <h3 className="text-base font-bold text-white">
               <span className="text-gold">NJ</span> Realty <span className="text-indigo-400">Bot</span>
@@ -65,7 +65,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} NJ Realty Bot. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Garden State AI. All rights reserved.</p>
         </div>
       </div>
     </footer>

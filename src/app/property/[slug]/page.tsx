@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const price = listing.list_price ? formatPrice(listing.list_price) : "";
     const beds = listing.bedrooms_total ?? "?";
     const baths = listing.bathrooms_total ?? "?";
-    const title = `${address} | ${beds} Beds ${baths} Baths | ${price} | NJ Realty Bot`;
+    const title = `${address} | ${beds} Beds ${baths} Baths | ${price} | Garden State AI`;
     return {
       title,
       description: listing.public_remarks?.slice(0, 160) || `View details for ${address}`,
@@ -176,7 +176,7 @@ export default async function PropertyPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: address,
-    url: `https://njrealtybot.com/property/${slug}`,
+    url: `https://gardenstate.ai/property/${slug}`,
     description: listing.public_remarks,
     image: listing.primary_photo_url,
     offers: { "@type": "Offer", price: listing.list_price, priceCurrency: "USD" },

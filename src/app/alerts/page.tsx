@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "property value tracker NJ", "real estate alerts New Jersey",
   ],
   openGraph: {
-    title: "Neighborhood Price Alerts | NJ Realty Bot",
+    title: "Neighborhood Price Alerts | Garden State AI",
     description: "Get instant alerts when homes sell near you. Free for NJ homeowners.",
   },
 };
