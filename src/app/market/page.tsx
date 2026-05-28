@@ -3,8 +3,8 @@ import Link from "next/link";
 import { fetchMarketCities } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "NJ Real Estate Market Reports by City",
-  description: "Real estate market reports for every city in New Jersey. Active listings, recent sales, pricing trends, and free home valuations.",
+  title: "NJ Real Estate Market & Investment Reports by City",
+  description: "Real estate market and investment reports for every city in NJ. Investment scores, tax data, appreciation, rental yields, and free valuations.",
 };
 
 export default async function MarketIndexPage() {

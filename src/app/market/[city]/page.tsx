@@ -9,9 +9,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const name = decodeURIComponent(city).replace(/-/g, " ");
   return {
-    title: `${name} NJ Real Estate Market Report | Homes for Sale`,
-    description: `${name}, NJ housing market: average home prices, recent sales, active listings, and market trends. Free home valuation available.`,
-    keywords: [`${name} homes for sale`, `${name} NJ real estate`, `${name} market report`, `sell house ${name} NJ`],
+    title: `${name} NJ Real Estate Market & Investment Report`,
+    description: `${name}, NJ: home prices, investment score, tax data, appreciation trends, rental yield, recent sales. Free AI valuation.`,
+    keywords: [`${name} homes for sale`, `${name} NJ real estate`, `${name} investment report`, `${name} property taxes`, `sell house ${name} NJ`],
   };
 }
 
@@ -30,9 +30,10 @@ export default async function MarketPage({ params }: Props) {
     );
   }
 
-  const { stats } = report;
+  const { stats, investment } = report;
   const trendIcon = stats.trend === "up" ? "📈" : stats.trend === "down" ? "📉" : "➡️";
   const trendLabel = stats.trend === "up" ? "Prices Trending Up" : stats.trend === "down" ? "Prices Trending Down" : "Prices Stable";
+  const inv = investment || {} as any;
 
   return (
     <>
@@ -63,6 +64,53 @@ export default async function MarketPage({ params }: Props) {
           </p>
         )}
       </section>
+
+      {/* Investment Analysis */}
+      {(inv.investScore || inv.avgTax || inv.appreciation !== null) && (
+        <section className="border-b py-10 bg-gradient-to-r from-indigo-50 to-white">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="text-2xl font-bold text-navy text-center">Investment Analysis</h2>
+            <p className="mt-1 text-center text-sm text-gray-500">Based on tax records, sales trends, and market data</p>
+            <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {inv.investScore !== null && (
+                <div className="rounded-xl bg-white p-4 shadow-sm text-center">
+                  <p className={`text-3xl font-bold ${inv.investScore >= 70 ? "text-green-600" : inv.investScore >= 50 ? "text-yellow-600" : "text-red-600"}`}>{inv.investScore}</p>
+                  <p className="mt-1 text-xs text-gray-500">Investment Score</p>
+                  <p className="text-[10px] text-gray-400">{inv.investScore >= 70 ? "Strong Buy" : inv.investScore >= 50 ? "Hold / Moderate" : "Caution"}</p>
+                </div>
+              )}
+              {inv.appreciation !== null && (
+                <div className="rounded-xl bg-white p-4 shadow-sm text-center">
+                  <p className={`text-3xl font-bold ${inv.appreciation >= 0 ? "text-green-600" : "text-red-600"}`}>{inv.appreciation > 0 ? "+" : ""}{inv.appreciation}%</p>
+                  <p className="mt-1 text-xs text-gray-500">Price Appreciation</p>
+                  <p className="text-[10px] text-gray-400">Last 3 months vs prior 3</p>
+                </div>
+              )}
+              {inv.estMonthlyRent && (
+                <div className="rounded-xl bg-white p-4 shadow-sm text-center">
+                  <p className="text-3xl font-bold text-navy">${inv.estMonthlyRent.toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-gray-500">Est. Monthly Rent</p>
+                  {inv.estAnnualYield !== null && <p className="text-[10px] text-gray-400">Net yield: {inv.estAnnualYield}%/yr</p>}
+                </div>
+              )}
+              {inv.avgTax && (
+                <div className="rounded-xl bg-white p-4 shadow-sm text-center">
+                  <p className="text-3xl font-bold text-navy">${inv.avgTax.toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-gray-500">Avg Annual Tax</p>
+                  {inv.medianTax && <p className="text-[10px] text-gray-400">Median: ${inv.medianTax.toLocaleString()}</p>}
+                </div>
+              )}
+            </div>
+            {(inv.singleFamilyPct || inv.avgLotSqft) && (
+              <div className="mt-4 flex justify-center gap-6 text-xs text-gray-500">
+                {inv.singleFamilyPct !== null && <span>Single Family: {inv.singleFamilyPct}%</span>}
+                {inv.multiFamilyPct !== null && inv.multiFamilyPct > 0 && <span>Multi-Family: {inv.multiFamilyPct}%</span>}
+                {inv.avgLotSqft && <span>Avg Lot: {inv.avgLotSqft.toLocaleString()} sqft</span>}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="mx-auto max-w-5xl px-4 py-12">
         {/* Recent Sales */}
