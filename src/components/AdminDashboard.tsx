@@ -243,17 +243,18 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3">
                     <div className="font-medium">{sl.address || "—"}</div>
                     <div className="text-xs text-gray-400">{sl.city}, {sl.county}</div>
-                    {sl.source === "neighbor_sold" && sl.notes && (
-                      <div className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-700">
-                        {sl.notes.split("|").slice(1).join(" ")}
-                      </div>
+                    {sl.notes && (
+                      <div className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-700">{sl.notes}</div>
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <div>{sl.owner_name || "—"}</div>
                     <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                      sl.source === "expired_listing" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
-                    }`}>{sl.source === "expired_listing" ? "Expired" : "Neighbor"}</span>
+                      { expired_listing: "bg-red-50 text-red-700", stale_listing: "bg-orange-50 text-orange-700",
+                        price_drop: "bg-yellow-50 text-yellow-700", overpriced: "bg-purple-50 text-purple-700",
+                        neighbor_sold: "bg-amber-50 text-amber-700" }[sl.source] || "bg-gray-50 text-gray-700"
+                    }`}>{{ expired_listing: "Expired", stale_listing: "Stale 90d+", price_drop: "Price Drop",
+                        overpriced: "Overpriced", neighbor_sold: "Neighbor" }[sl.source as string] || sl.source}</span>
                   </td>
                   <td className="px-4 py-3">
                     {sl.list_price ? <div className="font-medium">${sl.list_price.toLocaleString()}</div> : null}
