@@ -51,13 +51,13 @@ export default function HomePage() {
       <div className="relative mx-auto max-w-md px-4 text-center">
         {/* Logo */}
         <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">NJ</span>
-          <span className="text-white"> Realty </span>
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">Bot</span>
+          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
+          <span className="text-white"> State </span>
+          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
         </h1>
 
         <p className="mt-4 text-lg text-gray-300">
-          The Most Intelligent AI in NJ for Properties
+          The Most Advanced Real Estate AI in NJ
         </p>
 
         {/* Login form */}

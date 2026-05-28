@@ -15,10 +15,10 @@ export default function Footer() {
           {/* Garden State AI */}
           <div>
             <h3 className="text-base font-bold text-white">
-              <span className="text-gold">NJ</span> Realty <span className="text-indigo-400">Bot</span>
+              <span className="text-gold">Garden</span> State <span className="text-indigo-400">AI</span>
             </h3>
             <p className="mt-2 text-sm">
-              The most intelligent AI in NJ for properties.
+              The Most Advanced Real Estate AI in NJ.
             </p>
           </div>
 
