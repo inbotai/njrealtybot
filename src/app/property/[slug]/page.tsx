@@ -49,6 +49,34 @@ export default async function PropertyPage({ params }: Props) {
   const address = formatAddress(listing);
   const isSold = listing.mls_status === "Sold";
 
+  // Days on market
+  const daysOnMarket = listing.list_date
+    ? Math.floor((Date.now() - new Date(listing.list_date).getTime()) / 86400_000) : null;
+  // Price reduced?
+  const priceReduced = listing.original_list_price && listing.list_price
+    && listing.original_list_price > listing.list_price;
+  const priceDropPct = priceReduced
+    ? Math.round((listing.original_list_price - listing.list_price) / listing.original_list_price * 100) : 0;
+
+  // AI Value Estimate (like Zestimate) — fetch from pricing API
+  let aiEstimate: { estimatedValue: number; lowRange: number; highRange: number; pricePerSqft: number; eqRatioEstimate?: number; confidence: string } | null = null;
+  try {
+    const estRes = await fetch(`https://inbot-idx-api-production.up.railway.app/api/idx/pricing/estimate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        city: listing.city, bedrooms: listing.bedrooms_total, bathrooms: listing.bathrooms_total,
+        address: listing.unparsed_address, listPrice: listing.list_price,
+      }),
+      next: { revalidate: 3600 },
+    } as any);
+    if (estRes.ok) aiEstimate = await estRes.json();
+  } catch { /* ignore */ }
+
+  // Est. monthly rent (0.6% of estimated value)
+  const estValue = aiEstimate?.estimatedValue || listing.list_price || 0;
+  const estMonthlyRent = estValue > 0 ? Math.round(estValue * 0.006) : null;
+
   // Discover real photo count from RETS (L_PictureCount is unreliable)
   const realPhotoCount = await fetchPhotoCount(listing.mls_number);
 
@@ -136,58 +164,25 @@ export default async function PropertyPage({ params }: Props) {
   const feat = (label: string, val: string | undefined | null): string | false =>
     val && val.toLowerCase() !== "none" ? `${label}: ${val}` : false;
 
-  const interiorItems = [
-    feat("Heating", feats.heating),
-    feat("Cooling", feats.cooling),
-    feat("Flooring", feats.flooring),
-    feat("Appliances", feats.appliances),
-    feat("Interior", feats.interior),
-    feat("Basement", feats.basement),
-    feat("Fireplace", feats.fireplace),
-  ].filter(Boolean) as string[];
+  const interiorItems = [feat("Heating", feats.heating), feat("Cooling", feats.cooling), feat("Flooring", feats.flooring),
+    feat("Appliances", feats.appliances), feat("Interior", feats.interior), feat("Basement", feats.basement),
+    feat("Fireplace", feats.fireplace)].filter(Boolean) as string[];
   if (interiorItems.length > 0) featureGroups.push({ title: "Interior", items: interiorItems });
-
-  const exteriorItems = [
-    feat("Exterior", feats.exterior),
-    feat("Parking", feats.garage_parking),
-    feat("Pool", feats.pool),
-    feat("Lot", feats.lot_description),
-    feat("Waterfront", feats.waterfront),
-    feat("Views", feats.views),
-    feat("Flood Plain", feats.flood_plain),
-  ].filter(Boolean) as string[];
+  const exteriorItems = [feat("Exterior", feats.exterior), feat("Parking", feats.garage_parking), feat("Pool", feats.pool),
+    feat("Lot", feats.lot_description), feat("Waterfront", feats.waterfront), feat("Views", feats.views),
+    feat("Flood Plain", feats.flood_plain)].filter(Boolean) as string[];
   if (exteriorItems.length > 0) featureGroups.push({ title: "Exterior & Lot", items: exteriorItems });
-
-  const utilityItems = [
-    feat("Water", feats.water),
-    feat("Sewer", feats.sewer),
-  ].filter(Boolean) as string[];
+  const utilityItems = [feat("Water", feats.water), feat("Sewer", feats.sewer)].filter(Boolean) as string[];
   if (utilityItems.length > 0) featureGroups.push({ title: "Utilities", items: utilityItems });
-
-  const otherItems = [
-    feat("Ownership", feats.ownership),
-    feat("Association", feats.association),
-    feat("Lifestyle", feats.lifestyle),
-    feat("Other", feats.misc),
-  ].filter(Boolean) as string[];
+  const otherItems = [feat("Ownership", feats.ownership), feat("Association", feats.association),
+    feat("Lifestyle", feats.lifestyle), feat("Other", feats.misc)].filter(Boolean) as string[];
   if (otherItems.length > 0) featureGroups.push({ title: "Other Details", items: otherItems });
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    name: address,
-    url: `https://gardenstate.ai/property/${slug}`,
-    description: listing.public_remarks,
-    image: listing.primary_photo_url,
+  const jsonLd = { "@context": "https://schema.org", "@type": "RealEstateListing", name: address,
+    url: `https://gardenstate.ai/property/${slug}`, description: listing.public_remarks, image: listing.primary_photo_url,
     offers: { "@type": "Offer", price: listing.list_price, priceCurrency: "USD" },
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: [listing.street_number, listing.street_name].filter(Boolean).join(" "),
-      addressLocality: listing.city,
-      addressRegion: listing.state_or_province,
-      postalCode: listing.postal_code,
-    },
-  };
+    address: { "@type": "PostalAddress", streetAddress: [listing.street_number, listing.street_name].filter(Boolean).join(" "),
+      addressLocality: listing.city, addressRegion: listing.state_or_province, postalCode: listing.postal_code } };
 
   return (
     <>
@@ -213,12 +208,52 @@ export default async function PropertyPage({ params }: Props) {
                   <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
                 )}
               </div>
-              <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${
-                isSold ? "bg-red-600" : "bg-green-600"
-              }`}>
-                {listing.mls_status}
-              </span>
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${isSold ? "bg-red-600" : "bg-green-600"}`}>
+                  {listing.mls_status}
+                </span>
+                {daysOnMarket !== null && !isSold && (
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                    {daysOnMarket === 0 ? "New today" : `${daysOnMarket}d on market`}
+                  </span>
+                )}
+                {priceReduced && (
+                  <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600">
+                    Price Reduced {priceDropPct}%
+                  </span>
+                )}
+              </div>
             </div>
+
+            {/* AI Value Estimate + $/sqft + Est. Rent (like Zillow Zestimate) */}
+            {aiEstimate && (
+              <div className="mt-4 rounded-xl bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 p-4">
+                <div className="flex flex-wrap items-center gap-6">
+                  <div>
+                    <p className="text-xs font-medium text-indigo-600">AI Value Estimate</p>
+                    <p className="text-2xl font-bold text-navy">{formatPrice(aiEstimate.estimatedValue)}</p>
+                    <p className="text-[10px] text-gray-400">{formatPrice(aiEstimate.lowRange)} — {formatPrice(aiEstimate.highRange)}</p>
+                  </div>
+                  {aiEstimate.pricePerSqft > 0 && (
+                    <div className="text-center">
+                      <p className="text-xs font-medium text-gray-500">$/Sqft</p>
+                      <p className="text-lg font-bold text-navy">${aiEstimate.pricePerSqft}</p>
+                    </div>
+                  )}
+                  {estMonthlyRent && (
+                    <div className="text-center">
+                      <p className="text-xs font-medium text-gray-500">Est. Rent</p>
+                      <p className="text-lg font-bold text-navy">{formatPrice(estMonthlyRent)}/mo</p>
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-gray-500">Confidence</p>
+                    <p className={`text-sm font-bold ${aiEstimate.confidence === "High" ? "text-green-600" : aiEstimate.confidence === "Medium" ? "text-yellow-600" : "text-gray-500"}`}>{aiEstimate.confidence}</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] text-gray-400">Powered by Garden State AI — based on comparable sales, tax records, and equalization ratios.</p>
+              </div>
+            )}
 
             {/* Key details grid */}
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
