@@ -56,7 +56,7 @@ export default async function PropertyPage({ params }: Props) {
   const priceReduced = listing.original_list_price && listing.list_price
     && listing.original_list_price > listing.list_price;
   const priceDropPct = priceReduced
-    ? Math.round((listing.original_list_price - listing.list_price) / listing.original_list_price * 100) : 0;
+    ? Math.round((listing.original_list_price! - listing.list_price!) / listing.original_list_price! * 100) : 0;
 
   // AI Value Estimate (like Zestimate) — fetch from pricing API
   let aiEstimate: { estimatedValue: number; lowRange: number; highRange: number; pricePerSqft: number; eqRatioEstimate?: number; confidence: string } | null = null;

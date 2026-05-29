@@ -252,7 +252,7 @@ export default function AdminDashboard() {
                     <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
                       { expired_listing: "bg-red-50 text-red-700", stale_listing: "bg-orange-50 text-orange-700",
                         price_drop: "bg-yellow-50 text-yellow-700", overpriced: "bg-purple-50 text-purple-700",
-                        neighbor_sold: "bg-amber-50 text-amber-700" }[sl.source] || "bg-gray-50 text-gray-700"
+                        neighbor_sold: "bg-amber-50 text-amber-700" }[sl.source as string] || "bg-gray-50 text-gray-700"
                     }`}>{{ expired_listing: "Expired", stale_listing: "Stale 90d+", price_drop: "Price Drop",
                         overpriced: "Overpriced", neighbor_sold: "Neighbor" }[sl.source as string] || sl.source}</span>
                   </td>
