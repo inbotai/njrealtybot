@@ -9,7 +9,7 @@ export default function NavValeButton() {
       onClick={togglePanel}
       className={`text-sm font-medium transition ${panelOpen ? "text-gold" : "text-gray-200 hover:text-gold"}`}
     >
-      Vale AI
+      Vale
     </button>
   );
 }

@@ -218,12 +218,63 @@ export default function ValeChatPage() {
             <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500 border border-white" />
           </span>
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-lg font-bold text-navy">Vale</h1>
           <p className="text-xs text-gray-500">
-            AI Real Estate Assistant &bull; Online
+            AI Real Estate Partner &bull; Online
           </p>
         </div>
+        <a
+          href="https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 rounded-lg bg-[#25D366]/10 px-3 py-1.5 text-xs font-medium text-[#128C7E] transition hover:bg-[#25D366]/20"
+        >
+          <svg viewBox="0 0 32 32" fill="currentColor" className="h-3.5 w-3.5">
+            <path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z" />
+          </svg>
+          <span className="hidden sm:inline">Use WhatsApp</span>
+          <span className="sm:hidden">WhatsApp</span>
+        </a>
+      </div>
+
+      {/* WhatsApp promo — MOBILE: full takeover CTA */}
+      <a
+        href="https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3 rounded-xl border border-[#25D366]/30 bg-[#25D366] px-4 py-3 md:hidden"
+      >
+        <svg viewBox="0 0 32 32" fill="white" className="h-8 w-8 flex-shrink-0">
+          <path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z" />
+        </svg>
+        <div className="flex-1">
+          <p className="text-sm font-bold text-white">Continue on WhatsApp</p>
+          <p className="text-xs text-white/80">
+            Instant CMAs, photos, appointments & alerts — all on your phone
+          </p>
+        </div>
+        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="h-5 w-5 flex-shrink-0">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </a>
+
+      {/* WhatsApp promo — DESKTOP: subtle inline banner */}
+      <div className="hidden md:flex items-center gap-3 rounded-lg border border-[#25D366]/20 bg-gradient-to-r from-[#25D366]/5 to-transparent px-4 py-2.5">
+        <svg viewBox="0 0 32 32" fill="#25D366" className="h-5 w-5 flex-shrink-0">
+          <path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z" />
+        </svg>
+        <p className="flex-1 text-xs text-gray-600">
+          <span className="font-semibold text-gray-800">On the go?</span> Chat with Vale on WhatsApp — instant CMAs, property photos & market alerts, all in one app.
+        </p>
+        <a
+          href="https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="whitespace-nowrap rounded-md bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#20bd5a]"
+        >
+          Open WhatsApp
+        </a>
       </div>
 
       {/* Messages */}

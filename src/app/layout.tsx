@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ValeProvider from "@/components/ValeProvider";
 import ValeSidePanel from "@/components/ValeSidePanel";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { AdminProvider } from "@/components/AdminAuth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -54,6 +55,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
             <ValeSidePanel />
+            <WhatsAppWidget />
           </ValeProvider>
         </AdminProvider>
       </body>

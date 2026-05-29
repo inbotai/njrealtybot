@@ -6,7 +6,7 @@ import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
   { href: "/sell", label: "Sell" },
-  { href: "/chat", label: "Vale AI" },
+  { href: "/chat", label: "Vale" },
 ];
 
 const adminLinks = [
@@ -14,7 +14,7 @@ const adminLinks = [
   { href: "/sell", label: "Sell" },
   { href: "/alerts", label: "Alerts" },
   { href: "/market", label: "Market" },
-  { href: "/chat", label: "Vale AI" },
+  { href: "/chat", label: "Vale" },
 ];
 
 const moreLinks = [
