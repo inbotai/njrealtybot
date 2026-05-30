@@ -239,13 +239,13 @@ export default function HomePage() {
               <p className="text-xs text-gray-400">Enter current password first to verify</p>
               <input type="password" placeholder="Current password" value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
               <input type="password" placeholder="New password" value={newPw}
                 onChange={e => { setNewPw(e.target.value); setPwMsg(""); }}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
               <input type="password" placeholder="Confirm new password" value={confirmPw}
                 onChange={e => { setConfirmPw(e.target.value); setPwMsg(""); }}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
               {pwMsg && <p className={`text-xs ${pwMsg.includes("updated") ? "text-green-600" : "text-red-500"}`}>{pwMsg}</p>}
               <div className="flex gap-2">
                 <button type="submit" disabled={!password || !newPw}
