@@ -53,6 +53,7 @@ type Tab = "users" | "leads" | "sessions" | "sellers";
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [sellerLeads, setSellerLeads] = useState<any[]>([]);
@@ -62,16 +63,23 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
+  const VALID_PASSWORDS = ["vale2026", "Vale2026!@1", "gardenstate2026"];
+
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (password === "vale2026") {
+    if (VALID_PASSWORDS.includes(password.trim())) {
       setAuthed(true);
-      localStorage.setItem("admin_auth", "1");
+      setLoginError(false);
+      try { localStorage.setItem("admin_auth", "1"); } catch {}
+    } else {
+      setLoginError(true);
     }
   }
 
   useEffect(() => {
-    if (localStorage.getItem("admin_auth") === "1") setAuthed(true);
+    try {
+      if (localStorage.getItem("admin_auth") === "1") setAuthed(true);
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -110,10 +118,12 @@ export default function AdminDashboard() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setLoginError(false); }}
             placeholder="Password"
-            className="w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500"
+            className={`w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500 ${loginError ? "border-red-400" : ""}`}
+            autoFocus
           />
+          {loginError && <p className="text-sm text-red-500">Incorrect password</p>}
           <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-white font-medium hover:bg-indigo-700">
             Login
           </button>
@@ -143,7 +153,7 @@ export default function AdminDashboard() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-navy">Garden State AI — Dashboard</h1>
-        <button onClick={() => { localStorage.removeItem("admin_auth"); setAuthed(false); }}
+        <button onClick={() => { try { localStorage.removeItem("admin_auth"); } catch {} setAuthed(false); }}
           className="text-sm text-gray-500 hover:text-red-600">Logout</button>
       </div>
 
