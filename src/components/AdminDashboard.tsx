@@ -72,18 +72,39 @@ export default function AdminDashboard() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatPhone, setChatPhone] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState("");
 
-  const VALID_PASSWORDS = ["vale2026", "Vale2026!@1", "gardenstate2026"];
+  const DEFAULT_PASSWORDS = ["vale2026", "Vale2026!@1", "gardenstate2026"];
+
+  function getValidPasswords(): string[] {
+    try {
+      const custom = localStorage.getItem("admin_password");
+      return custom ? [custom, ...DEFAULT_PASSWORDS] : DEFAULT_PASSWORDS;
+    } catch { return DEFAULT_PASSWORDS; }
+  }
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (VALID_PASSWORDS.includes(password.trim())) {
+    if (getValidPasswords().includes(password.trim())) {
       setAuthed(true);
       setLoginError(false);
       try { localStorage.setItem("admin_auth", "1"); } catch {}
     } else {
       setLoginError(true);
     }
+  }
+
+  function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 6) { setPasswordMsg("Minimum 6 characters"); return; }
+    if (newPassword !== confirmPassword) { setPasswordMsg("Passwords don't match"); return; }
+    try { localStorage.setItem("admin_password", newPassword); } catch {}
+    setPasswordMsg("Password updated!");
+    setNewPassword(""); setConfirmPassword("");
+    setTimeout(() => { setShowChangePassword(false); setPasswordMsg(""); }, 1500);
   }
 
   useEffect(() => {
@@ -173,8 +194,12 @@ export default function AdminDashboard() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-navy">Garden State AI — Dashboard</h1>
-        <button onClick={() => { try { localStorage.removeItem("admin_auth"); } catch {} setAuthed(false); }}
-          className="text-sm text-gray-500 hover:text-red-600">Logout</button>
+        <div className="flex gap-3">
+          <button onClick={() => setShowChangePassword(true)}
+            className="text-sm text-gray-500 hover:text-indigo-600">Change Password</button>
+          <button onClick={() => { try { localStorage.removeItem("admin_auth"); } catch {} setAuthed(false); }}
+            className="text-sm text-gray-500 hover:text-red-600">Logout</button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -396,6 +421,30 @@ export default function AdminDashboard() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowChangePassword(false)}>
+          <form onSubmit={handleChangePassword} onClick={e => e.stopPropagation()}
+            className="w-96 space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-navy">Change Password</h3>
+            <input type="password" placeholder="New password" value={newPassword}
+              onChange={e => { setNewPassword(e.target.value); setPasswordMsg(""); }}
+              className="w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500" autoFocus />
+            <input type="password" placeholder="Confirm password" value={confirmPassword}
+              onChange={e => { setConfirmPassword(e.target.value); setPasswordMsg(""); }}
+              className="w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500" />
+            {passwordMsg && (
+              <p className={`text-sm ${passwordMsg === "Password updated!" ? "text-green-600" : "text-red-500"}`}>{passwordMsg}</p>
+            )}
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 rounded-lg bg-indigo-600 py-2 text-white font-medium hover:bg-indigo-700">Save</button>
+              <button type="button" onClick={() => setShowChangePassword(false)}
+                className="flex-1 rounded-lg border py-2 text-gray-600 hover:bg-gray-50">Cancel</button>
+            </div>
+          </form>
         </div>
       )}
 
