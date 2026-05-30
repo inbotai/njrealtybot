@@ -40,6 +40,13 @@ interface IdxUser {
   total_interactions: number;
 }
 
+interface ChatMessage {
+  session_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
 interface Stats {
   activeListings: number;
   totalLeads: number;
@@ -62,6 +69,9 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("users");
   const [loading, setLoading] = useState(false);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatPhone, setChatPhone] = useState<string | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
 
   const VALID_PASSWORDS = ["vale2026", "Vale2026!@1", "gardenstate2026"];
 
@@ -144,6 +154,16 @@ export default function AdminDashboard() {
     whatsapp_vale: "WhatsApp",
     idx_website: "Website Form",
   };
+
+  async function viewChat(phone: string) {
+    setChatLoading(true);
+    setChatPhone(phone);
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/admin/chat-by-phone/${encodeURIComponent(phone)}`);
+      if (res.ok) { setChatMessages((await res.json()).messages || []); }
+    } catch { setChatMessages([]); }
+    setChatLoading(false);
+  }
 
   function fmtDate(d: string) {
     return new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -273,6 +293,10 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   )}
+                  <button onClick={(e) => { e.stopPropagation(); viewChat(u.phone); }}
+                    className="mt-3 rounded-lg bg-indigo-600 px-4 py-1.5 text-xs text-white hover:bg-indigo-700">
+                    View WhatsApp Conversations
+                  </button>
                 </div>
               )}
             </div>
@@ -341,6 +365,7 @@ export default function AdminDashboard() {
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Started</th>
                 <th className="px-4 py-3">Last Message</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -360,13 +385,52 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(s.created_at)}</td>
                   <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(s.last_message_at)}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => viewChat(s.phone_number)}
+                      className="rounded bg-indigo-50 px-2 py-1 text-xs text-indigo-700 hover:bg-indigo-100">Chat</button>
+                  </td>
                 </tr>
               ))}
               {sessions.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No sessions yet</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No sessions yet</td></tr>
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Chat Viewer Modal */}
+      {chatPhone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setChatPhone(null)}>
+          <div className="mx-4 flex max-h-[80vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b px-5 py-3">
+              <div>
+                <h3 className="font-bold text-navy">WhatsApp Conversation</h3>
+                <p className="text-xs text-gray-400">{chatPhone}</p>
+              </div>
+              <button onClick={() => setChatPhone(null)} className="text-2xl text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{ minHeight: 200 }}>
+              {chatLoading ? (
+                <div className="flex h-32 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" /></div>
+              ) : chatMessages.length === 0 ? (
+                <p className="py-8 text-center text-gray-400">No messages recorded yet. New conversations will appear here after the next WhatsApp chat.</p>
+              ) : (
+                chatMessages.map((m, i) => (
+                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[80%] rounded-xl px-4 py-2 text-sm ${
+                      m.role === "user" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-800"
+                    }`}>
+                      <p className="whitespace-pre-wrap">{m.content}</p>
+                      <p className={`mt-1 text-[10px] ${m.role === "user" ? "text-indigo-200" : "text-gray-400"}`}>
+                        {fmtDate(m.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
 
