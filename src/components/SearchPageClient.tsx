@@ -132,7 +132,11 @@ export default function SearchPageClient() {
   const cityFocused = useRef(false);
 
   function submitCity(value: string) {
-    const next = { ...filters, city: value, county: "", q: "", page: "1" };
+    // Detect county searches: "Passaic County", "Bergen County", etc.
+    const countyMatch = value.match(/^(.+?)\s+county$/i);
+    const next = countyMatch
+      ? { ...filters, city: "", county: countyMatch[1].trim(), q: "", page: "1" }
+      : { ...filters, city: value, county: "", q: "", page: "1" };
     setFilters(next);
     doSearch(next);
     syncUrl(next);
