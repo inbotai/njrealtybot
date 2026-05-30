@@ -30,9 +30,13 @@ function WhatsAppFeature({ title, desc }: { title: string; desc: string }) {
 }
 
 export default function HomePage() {
-  const { isAdmin, login, logout } = useAdmin();
+  const { isAdmin, login, logout, changePassword } = useAdmin();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
   const router = useRouter();
 
   function handleLogin(e: React.FormEvent) {
@@ -42,6 +46,19 @@ export default function HomePage() {
       setTimeout(() => setError(""), 3000);
     } else {
       router.refresh();
+    }
+  }
+
+  function handleChangePw(e: React.FormEvent) {
+    e.preventDefault();
+    // Verify current password first
+    if (!login(password)) { setPwMsg("Current password is incorrect"); return; }
+    if (newPw.length < 4) { setPwMsg("Minimum 4 characters"); return; }
+    if (newPw !== confirmPw) { setPwMsg("Passwords don't match"); return; }
+    if (changePassword(newPw)) {
+      setPwMsg("Password updated!");
+      setNewPw(""); setConfirmPw(""); setPassword("");
+      setTimeout(() => { setShowChangePw(false); setPwMsg(""); }, 1500);
     }
   }
 
@@ -206,8 +223,39 @@ export default function HomePage() {
             >
               Login
             </button>
+            <button type="button" onClick={() => setShowChangePw(true)}
+              className="mt-3 text-xs text-gray-500 hover:text-gold transition">
+              Change Password
+            </button>
           </div>
         </form>
+
+        {/* Change Password Modal */}
+        {showChangePw && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowChangePw(false)}>
+            <form onSubmit={handleChangePw} onClick={e => e.stopPropagation()}
+              className="w-80 space-y-3 rounded-2xl bg-white p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-navy">Change Password</h3>
+              <p className="text-xs text-gray-400">Enter current password first to verify</p>
+              <input type="password" placeholder="Current password" value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+              <input type="password" placeholder="New password" value={newPw}
+                onChange={e => { setNewPw(e.target.value); setPwMsg(""); }}
+                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+              <input type="password" placeholder="Confirm new password" value={confirmPw}
+                onChange={e => { setConfirmPw(e.target.value); setPwMsg(""); }}
+                className="w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-indigo-500" />
+              {pwMsg && <p className={`text-xs ${pwMsg.includes("updated") ? "text-green-600" : "text-red-500"}`}>{pwMsg}</p>}
+              <div className="flex gap-2">
+                <button type="submit" disabled={!password || !newPw}
+                  className="flex-1 rounded-lg bg-indigo-600 py-2 text-sm text-white font-medium hover:bg-indigo-700 disabled:opacity-40">Save</button>
+                <button type="button" onClick={() => setShowChangePw(false)}
+                  className="flex-1 rounded-lg border py-2 text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* Lead capture — Mobile: WhatsApp is THE action */}
         <div className="mt-12 md:hidden">
