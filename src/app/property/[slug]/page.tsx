@@ -58,35 +58,25 @@ export default async function PropertyPage({ params }: Props) {
   const priceDropPct = priceReduced
     ? Math.round((listing.original_list_price! - listing.list_price!) / listing.original_list_price! * 100) : 0;
 
-  // AI Value Estimate (like Zestimate) — fetch from pricing API
-  let aiEstimate: { estimatedValue: number; lowRange: number; highRange: number; pricePerSqft: number; eqRatioEstimate?: number; confidence: string } | null = null;
-  try {
-    const estRes = await fetch(`https://inbot-idx-api-production.up.railway.app/api/idx/pricing/estimate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        city: listing.city, bedrooms: listing.bedrooms_total, bathrooms: listing.bathrooms_total,
-        address: listing.unparsed_address, listPrice: listing.list_price,
-      }),
-      next: { revalidate: 3600 },
-    } as any);
-    if (estRes.ok) aiEstimate = await estRes.json();
-  } catch { /* ignore */ }
-
-  // Est. monthly rent (0.6% of estimated value)
-  const estValue = aiEstimate?.estimatedValue || listing.list_price || 0;
+  // Fetch photo count + similar properties in PARALLEL (not sequential)
+  // AI estimate is NOT fetched server-side — it uses ScraperAPI which takes 20-40s
+  // Instead, use list_price as the value reference (instant)
+  const estValue = listing.list_price || 0;
   const estMonthlyRent = estValue > 0 ? Math.round(estValue * 0.006) : null;
+  // AI estimate fetched on-demand (CMA), not on page load (was 20-40s via ScraperAPI)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const aiEstimate: any = null;
 
-  // Discover real photo count from RETS (L_PictureCount is unreliable)
-  const realPhotoCount = await fetchPhotoCount(listing.mls_number);
+  const [realPhotoCount, similarRes] = await Promise.all([
+    fetchPhotoCount(listing.mls_number),
+    listing.city
+      ? fetchListings({ city: listing.city, status: "Active", limit: "5" }).catch(() => ({ data: [] }))
+      : Promise.resolve({ data: [] }),
+  ]);
 
-  // Similar properties
   let similar: import("@/lib/api").Listing[] = [];
   try {
-    if (listing.city) {
-      const res = await fetchListings({ city: listing.city, status: "Active", limit: "4" });
-      similar = (res.data || []).filter((l) => l.id !== listing.id).slice(0, 4);
-    }
+    similar = (similarRes.data || []).filter((l: any) => l.id !== listing.id).slice(0, 4);
   } catch { /* ignore */ }
 
   // ── Public records enrichment ──────────────────────────────
