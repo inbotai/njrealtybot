@@ -24,7 +24,31 @@ interface ChatSession {
   created_at: string;
   last_message_at: string;
   expired: boolean;
+  lead_captured: boolean;
 }
+
+interface IdxUser {
+  id: string;
+  phone: string;
+  full_name: string | null;
+  email: string | null;
+  favorite_towns: string[];
+  previous_searches: { type: string; query: string; result_summary?: string; timestamp: string }[];
+  lead_score: number;
+  first_interaction: string;
+  last_interaction: string;
+  total_interactions: number;
+}
+
+interface Stats {
+  activeListings: number;
+  totalLeads: number;
+  newLeads: number;
+  totalUsers: number;
+  activeSessions: number;
+}
+
+type Tab = "users" | "leads" | "sessions" | "sellers";
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
@@ -32,10 +56,12 @@ export default function AdminDashboard() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [sellerLeads, setSellerLeads] = useState<any[]>([]);
-  const [tab, setTab] = useState<"leads" | "sessions" | "sellers">("leads");
+  const [users, setUsers] = useState<IdxUser[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [tab, setTab] = useState<Tab>("users");
   const [loading, setLoading] = useState(false);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
-  // Simple password check — not production auth, just basic access control
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (password === "vale2026") {
@@ -56,7 +82,10 @@ export default function AdminDashboard() {
   async function loadData() {
     setLoading(true);
     try {
-      if (tab === "leads") {
+      if (tab === "users") {
+        const res = await fetch(`${IDX_API}/api/idx/admin/users`);
+        if (res.ok) { setUsers((await res.json()).users || []); }
+      } else if (tab === "leads") {
         const res = await fetch(`${IDX_API}/api/idx/admin/leads?limit=50`);
         if (res.ok) { setLeads((await res.json()).leads || []); }
       } else if (tab === "sessions") {
@@ -66,6 +95,9 @@ export default function AdminDashboard() {
         const res = await fetch(`${IDX_API}/api/idx/admin/seller-leads?limit=50`);
         if (res.ok) { setSellerLeads((await res.json()).leads || []); }
       }
+      // Always load stats
+      const statsRes = await fetch(`${IDX_API}/api/idx/admin/stats`);
+      if (statsRes.ok) setStats(await statsRes.json());
     } catch { /* silent */ }
     setLoading(false);
   }
@@ -103,28 +135,51 @@ export default function AdminDashboard() {
     idx_website: "Website Form",
   };
 
+  function fmtDate(d: string) {
+    return new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-navy">Garden State AI — Dashboard</h1>
         <button onClick={() => { localStorage.removeItem("admin_auth"); setAuthed(false); }}
           className="text-sm text-gray-500 hover:text-red-600">Logout</button>
       </div>
 
+      {/* Stats Cards */}
+      {stats && (
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="rounded-xl bg-white p-4 shadow">
+            <div className="text-2xl font-bold text-indigo-600">{users.length || stats.totalUsers || 0}</div>
+            <div className="text-xs text-gray-500">Total Users</div>
+          </div>
+          <div className="rounded-xl bg-white p-4 shadow">
+            <div className="text-2xl font-bold text-green-600">{stats.newLeads || 0}</div>
+            <div className="text-xs text-gray-500">New Leads</div>
+          </div>
+          <div className="rounded-xl bg-white p-4 shadow">
+            <div className="text-2xl font-bold text-blue-600">{stats.activeListings || 0}</div>
+            <div className="text-xs text-gray-500">Active Listings</div>
+          </div>
+          <div className="rounded-xl bg-white p-4 shadow">
+            <div className="text-2xl font-bold text-amber-600">{sessions.filter(s => !s.expired).length || stats.activeSessions || 0}</div>
+            <div className="text-xs text-gray-500">Active Sessions</div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1">
-        <button onClick={() => setTab("leads")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === "leads" ? "bg-white shadow text-navy" : "text-gray-500"}`}>
-          Leads ({leads.length})
-        </button>
-        <button onClick={() => setTab("sessions")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === "sessions" ? "bg-white shadow text-navy" : "text-gray-500"}`}>
-          WhatsApp Sessions ({sessions.length})
-        </button>
-        <button onClick={() => setTab("sellers")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === "sellers" ? "bg-white shadow text-navy" : "text-gray-500"}`}>
-          Seller Leads ({sellerLeads.length})
-        </button>
+        {(["users", "leads", "sessions", "sellers"] as Tab[]).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === t ? "bg-white shadow text-navy" : "text-gray-500"}`}>
+            {t === "users" ? `Users (${users.length})` :
+             t === "leads" ? `Leads (${leads.length})` :
+             t === "sessions" ? `Sessions (${sessions.length})` :
+             `Seller Leads (${sellerLeads.length})`}
+          </button>
+        ))}
       </div>
 
       {/* Refresh */}
@@ -135,6 +190,89 @@ export default function AdminDashboard() {
         </button>
       </div>
 
+      {/* Users Table */}
+      {tab === "users" && (
+        <div className="space-y-3">
+          {users.map((u) => (
+            <div key={u.id} className="rounded-xl bg-white shadow overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50"
+                onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold">
+                    {(u.full_name || "?")[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-navy">{u.full_name || "Unknown"}</div>
+                    <div className="text-xs text-gray-400">{u.phone} {u.email ? `| ${u.email}` : ""}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-gray-400">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-indigo-600">{u.total_interactions}</div>
+                    <div>interactions</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-600">{u.previous_searches?.length || 0}</div>
+                    <div>searches</div>
+                  </div>
+                  {u.favorite_towns?.length > 0 && (
+                    <div className="hidden md:flex gap-1">
+                      {u.favorite_towns.map(t => (
+                        <span key={t} className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] text-blue-700">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-right">
+                    <div>Last: {fmtDate(u.last_interaction)}</div>
+                    <div>First: {fmtDate(u.first_interaction)}</div>
+                  </div>
+                  <span className="text-lg">{expandedUser === u.id ? "−" : "+"}</span>
+                </div>
+              </div>
+
+              {/* Expanded: search history */}
+              {expandedUser === u.id && (
+                <div className="border-t bg-gray-50 px-5 py-4">
+                  <h3 className="mb-2 text-sm font-semibold text-gray-600">Search History</h3>
+                  {u.previous_searches?.length > 0 ? (
+                    <div className="space-y-2">
+                      {u.previous_searches.slice().reverse().map((s, i) => (
+                        <div key={i} className="flex items-center gap-3 rounded-lg bg-white px-4 py-2 text-sm">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                            s.type === "cma" ? "bg-purple-100 text-purple-700" :
+                            s.type === "search" ? "bg-blue-100 text-blue-700" :
+                            "bg-green-100 text-green-700"}`}>
+                            {s.type.toUpperCase()}
+                          </span>
+                          <span className="flex-1 font-medium">{s.query}</span>
+                          {s.result_summary && <span className="text-green-600 font-semibold">{s.result_summary}</span>}
+                          <span className="text-xs text-gray-400">{fmtDate(s.timestamp)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">No searches recorded yet</p>
+                  )}
+                  {u.favorite_towns?.length > 0 && (
+                    <div className="mt-3">
+                      <h3 className="mb-1 text-sm font-semibold text-gray-600">Favorite Towns</h3>
+                      <div className="flex gap-2">
+                        {u.favorite_towns.map(t => (
+                          <span key={t} className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          {users.length === 0 && (
+            <div className="rounded-xl bg-white p-8 text-center text-gray-400 shadow">No users yet — users are created when they interact via WhatsApp</div>
+          )}
+        </div>
+      )}
+
       {/* Leads Table */}
       {tab === "leads" && (
         <div className="overflow-x-auto rounded-xl bg-white shadow">
@@ -143,7 +281,7 @@ export default function AdminDashboard() {
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Message</th>
+                <th className="px-4 py-3">Interest</th>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Source</th>
                 <th className="px-4 py-3">Status</th>
@@ -159,7 +297,7 @@ export default function AdminDashboard() {
                     <div className="text-xs text-gray-400">{lead.email || ""}</div>
                   </td>
                   <td className="px-4 py-3 max-w-xs truncate text-gray-600">{lead.message || "—"}</td>
-                  <td className="px-4 py-3">{lead.lead_type}</td>
+                  <td className="px-4 py-3 text-xs">{lead.lead_type}</td>
                   <td className="px-4 py-3">
                     <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-700">
                       {sourceLabels[lead.source] || lead.source}
@@ -170,9 +308,7 @@ export default function AdminDashboard() {
                       {lead.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">
-                    {new Date(lead.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(lead.created_at)}</td>
                 </tr>
               ))}
               {leads.length === 0 && (
@@ -191,6 +327,7 @@ export default function AdminDashboard() {
               <tr>
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Lead</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Started</th>
                 <th className="px-4 py-3">Last Message</th>
@@ -202,20 +339,21 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3 font-mono text-xs">{s.phone_number}</td>
                   <td className="px-4 py-3 font-medium">{s.visitor_name || "—"}</td>
                   <td className="px-4 py-3">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.lead_captured ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {s.lead_captured ? "Captured" : "Not yet"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.expired ? "bg-gray-100 text-gray-500" : "bg-green-100 text-green-700"}`}>
                       {s.expired ? "Expired" : "Active"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">
-                    {new Date(s.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">
-                    {new Date(s.last_message_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(s.created_at)}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(s.last_message_at)}</td>
                 </tr>
               ))}
               {sessions.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">No WhatsApp sessions yet</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No sessions yet</td></tr>
               )}
             </tbody>
           </table>
@@ -232,7 +370,7 @@ export default function AdminDashboard() {
                 <th className="px-4 py-3">Owner</th>
                 <th className="px-4 py-3">Price</th>
                 <th className="px-4 py-3">Details</th>
-                <th className="px-4 py-3">Original Agent</th>
+                <th className="px-4 py-3">Agent</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Date</th>
               </tr>
@@ -243,49 +381,27 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3">
                     <div className="font-medium">{sl.address || "—"}</div>
                     <div className="text-xs text-gray-400">{sl.city}, {sl.county}</div>
-                    {sl.notes && (
-                      <div className="mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-700">{sl.notes}</div>
-                    )}
                   </td>
-                  <td className="px-4 py-3">
-                    <div>{sl.owner_name || "—"}</div>
-                    <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                      { expired_listing: "bg-red-50 text-red-700", stale_listing: "bg-orange-50 text-orange-700",
-                        price_drop: "bg-yellow-50 text-yellow-700", overpriced: "bg-purple-50 text-purple-700",
-                        neighbor_sold: "bg-amber-50 text-amber-700" }[sl.source as string] || "bg-gray-50 text-gray-700"
-                    }`}>{{ expired_listing: "Expired", stale_listing: "Stale 90d+", price_drop: "Price Drop",
-                        overpriced: "Overpriced", neighbor_sold: "Neighbor" }[sl.source as string] || sl.source}</span>
-                  </td>
+                  <td className="px-4 py-3">{sl.owner_name || "—"}</td>
                   <td className="px-4 py-3">
                     {sl.list_price ? <div className="font-medium">${sl.list_price.toLocaleString()}</div> : null}
-                    {sl.assessed_value && <div className="text-xs text-gray-400">Assessed: ${sl.assessed_value.toLocaleString()}</div>}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {sl.bedrooms && <span>{sl.bedrooms}bd</span>}
                     {sl.bathrooms && <span>/{sl.bathrooms}ba</span>}
                     {sl.sqft && <span> | {sl.sqft}sqft</span>}
-                    {sl.year_built && <span> | {sl.year_built}</span>}
                   </td>
+                  <td className="px-4 py-3 text-xs">{sl.original_agent || "—"}</td>
                   <td className="px-4 py-3">
-                    <div className="text-xs">{sl.original_agent || "—"}</div>
-                    <div className="text-xs text-gray-400">{sl.original_office || ""}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      sl.status === "new" ? "bg-green-100 text-green-800" :
-                      sl.status === "contacted" ? "bg-blue-100 text-blue-800" :
-                      sl.status === "converted" ? "bg-purple-100 text-purple-800" :
-                      "bg-gray-100 text-gray-600"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[sl.status] || "bg-gray-100"}`}>
                       {sl.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">
-                    {new Date(sl.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(sl.created_at)}</td>
                 </tr>
               ))}
               {sellerLeads.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No seller leads yet — expired listings are scanned every 4 hours</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No seller leads yet</td></tr>
               )}
             </tbody>
           </table>
