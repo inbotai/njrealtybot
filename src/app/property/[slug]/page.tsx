@@ -8,6 +8,9 @@ import PropertyPageVale from "@/components/PropertyPageVale";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
+// Vercel free tier: 10s default. Property pages need more for API enrichment.
+export const maxDuration = 30;
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
