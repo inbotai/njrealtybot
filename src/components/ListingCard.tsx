@@ -45,7 +45,6 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             alt={formatAddress(listing)}
             className="h-full w-full object-cover transition group-hover:scale-105"
             loading="lazy"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-gray-400">
