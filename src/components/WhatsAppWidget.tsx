@@ -9,7 +9,7 @@ export default function WhatsAppWidget() {
 
   useEffect(() => {
     const show = setTimeout(() => setShowTooltip(true), 4000);
-    const hide = setTimeout(() => setShowTooltip(false), 12000); // auto-dismiss after 8s visible
+    const hide = setTimeout(() => setShowTooltip(false), 8000); // auto-dismiss 4s after showing
     return () => { clearTimeout(show); clearTimeout(hide); };
   }, []);
 
