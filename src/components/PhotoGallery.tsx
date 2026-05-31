@@ -59,7 +59,6 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
               className={`h-20 w-28 flex-shrink-0 rounded-lg object-cover cursor-pointer transition ${
                 i === activeIndex ? "ring-2 ring-indigo-500 opacity-100" : "opacity-70 hover:opacity-100"
               }`}
-              loading="lazy"
             />
           ))}
         </div>
