@@ -26,6 +26,7 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
           src={getPhotoUrl(mlsNumber, activeIndex)}
           alt={`${address} — Photo ${activeIndex + 1}`}
           className="h-full w-full object-cover"
+          onError={(e) => { (e.target as HTMLImageElement).src = ""; (e.target as HTMLImageElement).className = "hidden"; }}
         />
         {/* Navigation arrows */}
         {total > 1 && (

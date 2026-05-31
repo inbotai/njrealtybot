@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchListing, fetchListings, fetchPhotoCount } from "@/lib/api";
+import { fetchListing, fetchListings } from "@/lib/api";
 import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
@@ -67,12 +67,11 @@ export default async function PropertyPage({ params }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const aiEstimate: any = null;
 
-  const [realPhotoCount, similarRes] = await Promise.all([
-    fetchPhotoCount(listing.mls_number),
-    listing.city
-      ? fetchListings({ city: listing.city, status: "Active", limit: "5" }).catch(() => ({ data: [] }))
-      : Promise.resolve({ data: [] }),
-  ]);
+  // Use listing.photo_count directly (fetchPhotoCount was 2s per call)
+  const realPhotoCount = listing.photo_count || 0;
+  const similarRes = listing.city
+    ? await fetchListings({ city: listing.city, status: "Active", limit: "5" }).catch(() => ({ data: [] as any[] }))
+    : { data: [] as any[] };
 
   let similar: import("@/lib/api").Listing[] = [];
   try {
