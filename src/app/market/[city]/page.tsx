@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchMarketReport, getPhotoUrl } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import IdxGate from "@/components/IdxGate";
 
 type Props = { params: Promise<{ city: string }> };
 
@@ -113,7 +114,8 @@ export default async function MarketPage({ params }: Props) {
       )}
 
       <div className="mx-auto max-w-5xl px-4 py-12">
-        {/* Recent Sales */}
+        {/* Recent Sales — gated behind IDX auth in Phase 1 */}
+        <IdxGate>
         {report.recentSales.length > 0 && (
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-navy">Recent Sales in {cityName}</h2>
@@ -125,8 +127,10 @@ export default async function MarketPage({ params }: Props) {
             </div>
           </section>
         )}
+        </IdxGate>
 
-        {/* Active Listings */}
+        {/* Active Listings — gated behind IDX auth in Phase 1 */}
+        <IdxGate>
         {report.activeListings.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center justify-between">
@@ -146,6 +150,7 @@ export default async function MarketPage({ params }: Props) {
             </div>
           </section>
         )}
+        </IdxGate>
 
         {/* CMA CTA */}
         <section className="rounded-2xl bg-gradient-to-r from-navy to-indigo-900 p-8 text-center text-white md:p-12">

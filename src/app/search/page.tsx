@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import SearchPageClient from "@/components/SearchPageClient";
+import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
   title: "Search Homes for Sale in New Jersey",
@@ -27,8 +28,10 @@ export default async function SearchPage({
   const key = JSON.stringify(params);
 
   return (
-    <Suspense fallback={<SearchFallback />}>
-      <SearchPageClient key={key} />
-    </Suspense>
+    <RequireAuth>
+      <Suspense fallback={<SearchFallback />}>
+        <SearchPageClient key={key} />
+      </Suspense>
+    </RequireAuth>
   );
 }

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useAdmin } from "@/components/AdminAuth";
 import { useRouter } from "next/navigation";
 import HeroChat from "@/components/HeroChat";
+import HeroSeller from "@/components/HeroSeller";
+import { submitLead } from "@/lib/api";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -188,122 +190,221 @@ export default function HomePage() {
     );
   }
 
-  // ── Not logged in: login page + WhatsApp promo ──
+  // ── Not logged in: seller-focused public homepage ──
+  return <PublicHomepage />;
+}
+
+/* ────────────────────────────────────────────────────────
+   Public homepage — seller lead machine (no IDX listings)
+   ──────────────────────────────────────────────────────── */
+
+const WA_LINK_SELL = "https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20know%20what%20my%20home%20is%20worth";
+
+const stats = [
+  { value: "50,000+", label: "Properties Analyzed" },
+  { value: "21", label: "NJ Counties" },
+  { value: "30 sec", label: "Instant Valuation" },
+  { value: "Free", label: "No Obligation" },
+];
+
+function PublicHomepage() {
+  const [waitlistPhone, setWaitlistPhone] = useState("");
+  const [waitlistName, setWaitlistName] = useState("");
+  const [waitlistSent, setWaitlistSent] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+
+  async function handleWaitlist(e: React.FormEvent) {
+    e.preventDefault();
+    if (!waitlistPhone.trim() || waitlistLoading) return;
+    setWaitlistLoading(true);
+    try {
+      await submitLead({
+        full_name: waitlistName.trim() || "Buyer Waitlist",
+        phone: waitlistPhone.trim(),
+        message: "Buyer waitlist signup from homepage",
+        lead_type: "buyer_waitlist",
+      });
+      setWaitlistSent(true);
+    } catch { /* fail silently */ }
+    setWaitlistLoading(false);
+  }
+
   return (
-    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-navy py-20 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
-      <div className="relative mx-auto max-w-md px-4 text-center">
-        {/* Logo */}
-        <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
-          <span className="text-white"> State </span>
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
-        </h1>
+    <>
+      {/* Hero — seller valuation */}
+      <section className="relative overflow-hidden bg-navy py-20 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
+        <div className="relative mx-auto max-w-4xl px-4 text-center">
+          <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+            Find Out What Your Home Is{" "}
+            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+              Worth
+            </span>
+          </h1>
+          <p className="mt-4 text-lg text-gray-300">
+            Free AI-powered valuation in 30 seconds. No obligation.
+          </p>
 
-        <p className="mt-4 text-lg text-gray-300">
-          The Most Advanced Real Estate AI in NJ
-        </p>
-
-        {/* Login form */}
-        <form onSubmit={handleLogin} className="mx-auto mt-10 max-w-sm">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <p className="text-sm font-medium text-gray-300 mb-4">Admin Login</p>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              placeholder="Enter password"
-              className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-gray-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-            />
-            {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
-            <button
-              type="submit"
-              disabled={!password.trim()}
-              className="mt-4 w-full rounded-lg bg-gold px-6 py-3 font-semibold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
-            >
-              Login
-            </button>
-            <button type="button" onClick={() => setShowChangePw(true)}
-              className="mt-3 text-xs text-gray-500 hover:text-gold transition">
-              Change Password
-            </button>
+          <div className="mt-10">
+            <HeroSeller />
           </div>
-        </form>
+        </div>
+      </section>
 
-        {/* Change Password Modal */}
-        {showChangePw && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowChangePw(false)}>
-            <form onSubmit={handleChangePw} onClick={e => e.stopPropagation()}
-              className="w-80 space-y-3 rounded-2xl bg-white p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-navy">Change Password</h3>
-              <p className="text-xs text-gray-400">Enter current password first to verify</p>
-              <input type="password" placeholder="Current password" value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
-              <input type="password" placeholder="New password" value={newPw}
-                onChange={e => { setNewPw(e.target.value); setPwMsg(""); }}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
-              <input type="password" placeholder="Confirm new password" value={confirmPw}
-                onChange={e => { setConfirmPw(e.target.value); setPwMsg(""); }}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500" />
-              {pwMsg && <p className={`text-xs ${pwMsg.includes("updated") ? "text-green-600" : "text-red-500"}`}>{pwMsg}</p>}
-              <div className="flex gap-2">
-                <button type="submit" disabled={!password || !newPw}
-                  className="flex-1 rounded-lg bg-indigo-600 py-2 text-sm text-white font-medium hover:bg-indigo-700 disabled:opacity-40">Save</button>
-                <button type="button" onClick={() => setShowChangePw(false)}
-                  className="flex-1 rounded-lg border py-2 text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+      {/* Stats strip */}
+      <section className="border-b bg-white py-10">
+        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-12 px-4">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-3xl font-bold text-navy">{s.value}</p>
+              <p className="mt-1 text-sm text-gray-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WhatsApp promo section */}
+      <section className="py-16 bg-white">
+        <div className="mx-auto max-w-4xl px-4">
+          <div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
+            {/* Left: messaging */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-1.5 text-sm font-semibold text-[#128C7E]">
+                {WA_ICON}
+                <span className="text-xs">Available 24/7</span>
               </div>
+              <h2 className="mt-4 text-2xl font-extrabold text-navy md:text-3xl">
+                Get Your Valuation on WhatsApp
+              </h2>
+              <p className="mt-3 text-gray-600">
+                Say your address and Vale sends a full CMA with comparable sales directly to your phone. Voice or text — Vale understands both.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                <WhatsAppFeature title="Instant home valuation" desc="Say your address and get an estimated value range in seconds" />
+                <WhatsAppFeature title="Full CMA report delivered" desc="Comparable sales, market trends, and pricing guidance — all in your chat" />
+                <WhatsAppFeature title="Neighborhood alerts" desc="Get notified when homes near you sell, so you always know your market" />
+                <WhatsAppFeature title="Talk to an agent anytime" desc="Vale connects you with a licensed agent when you're ready" />
+              </div>
+
+              <div className="mt-8">
+                <a
+                  href={WA_LINK_SELL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[#20bd5a] hover:shadow-lg"
+                >
+                  {WA_ICON}
+                  Get My Valuation on WhatsApp
+                </a>
+                <p className="mt-3 text-xs text-gray-400">
+                  +1 (201) 528-1095 — save the number to your contacts
+                </p>
+              </div>
+            </div>
+
+            {/* Right: phone mockup */}
+            <div className="w-72 flex-shrink-0">
+              <div className="rounded-3xl border-4 border-gray-200 bg-gray-50 p-4 shadow-xl">
+                <div className="flex items-center gap-2 rounded-t-xl bg-[#075E54] px-3 py-2">
+                  <div className="h-8 w-8 rounded-full bg-[#25D366] flex items-center justify-center">
+                    <svg viewBox="0 0 200 200" className="h-5 w-5">
+                      <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+                      <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+                      <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                      <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-white">Vale - Garden State AI</p>
+                    <p className="text-[10px] text-green-200">online</p>
+                  </div>
+                </div>
+                <div className="space-y-2 bg-[#ECE5DD] p-3 rounded-b-xl min-h-[280px]">
+                  <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
+                    What&apos;s my home worth? 37 Summit Ave, Bloomfield
+                  </div>
+                  <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
+                    <p className="font-semibold">Estimated Value: $485,000</p>
+                    <p className="mt-1 text-gray-500">Range: $460k - $510k</p>
+                    <p className="mt-1">Based on 12 recent sales in Bloomfield. Want me to send you the full CMA with comparable addresses?</p>
+                  </div>
+                  <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
+                    Yes please!
+                  </div>
+                  <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
+                    Sending your full CMA report now... Check your messages in a moment!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Buyer waitlist */}
+      <section className="bg-gray-50 py-16">
+        <div className="mx-auto max-w-lg px-4 text-center">
+          <h2 className="text-2xl font-bold text-navy">Looking to Buy?</h2>
+          <p className="mt-3 text-gray-600">
+            Our full property search is launching soon. Be the first to access new listings before they hit the market.
+          </p>
+          {waitlistSent ? (
+            <div className="mt-6 rounded-xl bg-green-50 border border-green-200 p-4">
+              <p className="font-semibold text-green-800">You&apos;re on the list!</p>
+              <p className="mt-1 text-sm text-green-600">We&apos;ll notify you as soon as the property search goes live.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlist} className="mt-6 space-y-3">
+              <input
+                type="text"
+                value={waitlistName}
+                onChange={(e) => setWaitlistName(e.target.value)}
+                placeholder="Your name (optional)"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              />
+              <input
+                type="tel"
+                value={waitlistPhone}
+                onChange={(e) => setWaitlistPhone(e.target.value)}
+                placeholder="Your phone or WhatsApp number"
+                required
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              />
+              <button
+                type="submit"
+                disabled={!waitlistPhone.trim() || waitlistLoading}
+                className="w-full rounded-lg bg-navy px-6 py-3 font-semibold text-white transition hover:bg-indigo-900 disabled:opacity-40"
+              >
+                {waitlistLoading ? "..." : "Join the Waitlist"}
+              </button>
+              <p className="text-xs text-gray-400">
+                We&apos;ll only use this to notify you when property search launches.
+              </p>
             </form>
-          </div>
-        )}
-
-        {/* Lead capture — Mobile: WhatsApp is THE action */}
-        <div className="mt-12 md:hidden">
-          <p className="text-sm text-gray-400 mb-4">
-            Looking to buy or sell in NJ? Vale is one tap away.
-          </p>
-          <a
-            href={WA_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3.5 text-base font-bold text-white transition hover:bg-[#20bd5a]"
-          >
-            {WA_ICON}
-            Open Vale on WhatsApp
-          </a>
-          <p className="mt-2 text-xs text-gray-500 text-center">
-            Search homes, get instant CMAs & schedule showings — all from your phone
-          </p>
+          )}
         </div>
+      </section>
 
-        {/* Lead capture — Desktop: both options */}
-        <div className="mt-12 hidden md:block">
-          <p className="text-sm text-gray-400 mb-4">
-            Looking to buy or sell in NJ? Talk to Vale, our AI partner.
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <a
-              href={WA_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#20bd5a] hover:shadow-lg"
-            >
-              {WA_ICON}
-              Chat with Vale on WhatsApp
-            </a>
-            <a
-              href="/chat"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-              </span>
-              Chat with Vale
-            </a>
+      {/* Testimonials — placeholder */}
+      <section className="py-16">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-center text-2xl font-bold text-navy">What Homeowners Say</h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {[
+              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner who used our valuation service." },
+              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner who sold with Garden State AI." },
+              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner about the CMA experience." },
+            ].map((t, i) => (
+              <div key={i} className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5">
+                <p className="text-sm text-gray-400 italic">&quot;{t.text}&quot;</p>
+                <p className="mt-3 text-sm font-semibold text-gray-400">{t.name}</p>
+                <p className="text-xs text-gray-300">{t.city}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

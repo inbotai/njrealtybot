@@ -5,8 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
-  { href: "/sell", label: "Sell" },
-  { href: "/open-houses", label: "Open Houses" },
+  { href: "/sell", label: "Home Value" },
+  { href: "/market", label: "Market" },
   { href: "/chat", label: "Vale" },
 ];
 

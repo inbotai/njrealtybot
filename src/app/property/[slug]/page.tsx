@@ -7,6 +7,7 @@ import ListingCard from "@/components/ListingCard";
 import PropertyPageVale from "@/components/PropertyPageVale";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
+import RequireAuth from "@/components/RequireAuth";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
@@ -177,6 +178,7 @@ export default async function PropertyPage({ params }: Props) {
       addressLocality: listing.city, addressRegion: listing.state_or_province, postalCode: listing.postal_code } };
 
   return (
+    <RequireAuth>
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
@@ -382,5 +384,6 @@ export default async function PropertyPage({ params }: Props) {
 
       <MLSDisclaimer />
     </>
+    </RequireAuth>
   );
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchOpenHouses } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
+import RequireAuth from "@/components/RequireAuth";
 import type { Listing } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default async function OpenHousesPage() {
   }
 
   return (
+    <RequireAuth>
     <>
       <div className="mx-auto max-w-7xl px-4 py-16">
         <h1 className="text-3xl font-bold text-navy">Upcoming Open Houses</h1>
@@ -87,5 +89,6 @@ export default async function OpenHousesPage() {
 
       <MLSDisclaimer />
     </>
+    </RequireAuth>
   );
 }

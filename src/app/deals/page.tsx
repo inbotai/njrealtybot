@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DealsPageClient from "@/components/DealsPageClient";
+import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
   title: "Hidden Deals | Properties Likely to Drop in Price",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function DealsPage() {
-  return <DealsPageClient />;
+  return <RequireAuth><DealsPageClient /></RequireAuth>;
 }

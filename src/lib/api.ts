@@ -102,11 +102,11 @@ export interface OpenHouse {
 
 export interface LeadData {
   full_name: string;
-  email: string;
+  email?: string;
   phone: string;
   message: string;
   listing_id?: string;
-  lead_type: "info_request" | "showing_request" | "listing_request";
+  lead_type: "info_request" | "showing_request" | "listing_request" | "buyer_waitlist";
 }
 
 export interface ListingsResponse {
