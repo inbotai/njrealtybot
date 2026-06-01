@@ -55,6 +55,26 @@ export default function MLSDisclaimer() {
           <p>Information deemed reliable but not guaranteed. Copyright &copy; {year} Garden State Multiple Listing Service, L.L.C. All rights reserved.</p>
         </div>
 
+        {/* GardenState.ai IDX Disclosure */}
+        <div className="mt-4 border-t border-white/10 pt-4 space-y-2 text-xs leading-relaxed">
+          <p>
+            Property listings provided by GardenState.ai through authorized access to GSMLS and NJMLS.
+          </p>
+          <p>
+            Broker of Record: [Full Broker Name] — Broker License: #XXXXXXX
+          </p>
+          <p>
+            Real Estate Agent: Julio Reynoso — Agent License: #XXXXXXX
+          </p>
+          <p>
+            GardenState.ai is an independent Artificial Intelligence platform.
+            We are not affiliated with, sponsored by, or part of Garden State MLS (GSMLS) or NJMLS.
+          </p>
+          <p>
+            All listings are displayed in accordance with IDX regulations of the State of New Jersey.
+          </p>
+        </div>
+
         {/* Equal Housing Opportunity */}
         <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-4">
           <img src="/equal-housing-opportunity.svg" alt="Equal Housing Opportunity" className="h-8 w-auto flex-shrink-0" />

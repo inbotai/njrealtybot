@@ -89,7 +89,15 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="mt-6 border-t border-white/10 pt-4 text-center text-xs text-gray-500">
+        {/* Platform disclaimer */}
+        <div className="mt-6 border-t border-white/10 pt-4 text-center text-[10px] text-gray-500 space-y-1">
+          <p>
+            GardenState.ai is an Artificial Intelligence platform for the real estate industry.
+            Property search and listing services are provided through IDX (GSMLS/NJMLS) by licensed real estate agents.
+          </p>
+          <p>
+            GardenState.ai is not a brokerage. All buying and selling services are handled by authorized agents.
+          </p>
           <p>&copy; {new Date().getFullYear()} Garden State AI. All rights reserved.</p>
         </div>
       </div>
