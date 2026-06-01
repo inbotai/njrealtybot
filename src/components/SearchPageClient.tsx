@@ -8,12 +8,15 @@ import ListingCard from "@/components/ListingCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
 const listingTypes = [
-  { label: "All Types", value: "" },
-  { label: "For Sale", value: "Residential" },
-  { label: "For Rent", value: "Rental" },
-  { label: "Multi-Family", value: "Multi-Family" },
-  { label: "Commercial", value: "Commercial" },
-  { label: "Land", value: "Land" },
+  { label: "All Types", value: "", sub: "" },
+  { label: "For Sale", value: "Residential", sub: "" },
+  { label: "Single Family", value: "Residential", sub: "Single Family" },
+  { label: "Condo / Co-Op", value: "Residential", sub: "Condo" },
+  { label: "Townhouse", value: "Residential", sub: "Townhouse" },
+  { label: "For Rent", value: "Rental", sub: "" },
+  { label: "Multi-Family", value: "Multi-Family", sub: "" },
+  { label: "Commercial", value: "Commercial", sub: "" },
+  { label: "Land", value: "Land", sub: "" },
 ];
 const statusOptions = [
   { label: "Active", value: "Active" },
@@ -67,6 +70,7 @@ export default function SearchPageClient() {
     minSqft: searchParams.get("minSqft") || "",
     maxSqft: searchParams.get("maxSqft") || "",
     propertyType: searchParams.get("propertyType") || "",
+    propertySubType: searchParams.get("propertySubType") || "",
     status: searchParams.get("status") || "Active",
     sort: searchParams.get("sort") || "newest",
     page: searchParams.get("page") || "1",
@@ -90,6 +94,7 @@ export default function SearchPageClient() {
     if (f.minSqft) params.minSqft = f.minSqft;
     if (f.maxSqft) params.maxSqft = f.maxSqft;
     if (f.propertyType) params.propertyType = f.propertyType;
+    if (f.propertySubType) params.propertySubType = f.propertySubType;
 
     fetchListings(params)
       .then(data => setResults(data))
@@ -127,6 +132,28 @@ export default function SearchPageClient() {
     syncUrl(next);
   }
 
+  // Price inputs — search on Enter or blur, NOT on every keystroke
+  const [minPriceInput, setMinPriceInput] = useState(filters.minPrice);
+  const [maxPriceInput, setMaxPriceInput] = useState(filters.maxPrice);
+  const [minPriceFocused, setMinPriceFocused] = useState(false);
+  const [maxPriceFocused, setMaxPriceFocused] = useState(false);
+
+  function submitPrices(nextMin?: string, nextMax?: string) {
+    const min = nextMin ?? minPriceInput;
+    const max = nextMax ?? maxPriceInput;
+    if (min === filters.minPrice && max === filters.maxPrice) return;
+    const next = { ...filters, minPrice: min, maxPrice: max, page: "1" };
+    setFilters(next);
+    doSearch(next);
+    syncUrl(next);
+  }
+
+  // Sync price inputs when filters change externally — but not while typing
+  useEffect(() => {
+    if (!minPriceFocused) setMinPriceInput(filters.minPrice);
+    if (!maxPriceFocused) setMaxPriceInput(filters.maxPrice);
+  }, [filters.minPrice, filters.maxPrice, minPriceFocused, maxPriceFocused]);
+
   // City input — search on Enter or blur, NOT on every keystroke
   const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.q);
   const cityFocused = useRef(false);
@@ -161,7 +188,12 @@ export default function SearchPageClient() {
     Land: "Land & Lots",
     "Multi-Family": "Multi-Family Properties",
   };
-  const typeLabel = typeLabels[filters.propertyType] || "Homes for Sale";
+  const subTypeLabels: Record<string, string> = {
+    "Single Family": "Single Family Homes",
+    "Condo": "Condos & Co-Ops",
+    "Townhouse": "Townhouses",
+  };
+  const typeLabel = subTypeLabels[filters.propertySubType] || typeLabels[filters.propertyType] || "Homes for Sale";
 
   const inputClass =
     "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
@@ -269,10 +301,16 @@ export default function SearchPageClient() {
             className={inputClass}>
             {statusOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
-          <select value={filters.propertyType}
-            onChange={(e) => updateFilter("propertyType", e.target.value)}
+          <select value={`${filters.propertyType}|${filters.propertySubType}`}
+            onChange={(e) => {
+              const [pt, pst] = e.target.value.split("|");
+              const next = { ...filters, propertyType: pt, propertySubType: pst || "", page: "1" };
+              setFilters(next);
+              doSearch(next);
+              syncUrl(next);
+            }}
             className={inputClass}>
-            {listingTypes.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {listingTypes.map((t) => <option key={t.label} value={`${t.value}|${t.sub}`}>{t.label}</option>)}
           </select>
           <select value={filters.sort} onChange={(e) => updateFilter("sort", e.target.value)}
             className={inputClass}>
@@ -281,20 +319,20 @@ export default function SearchPageClient() {
         </div>
         {/* Filter bar — row 2 */}
         <div className="mb-8 flex flex-wrap gap-3">
-          <input type="text" placeholder="Min Price"
-            value={filters.minPrice ? `$${Number(filters.minPrice).toLocaleString()}` : ""}
-            onChange={(e) => {
-              const raw = e.target.value.replace(/[^0-9]/g, "");
-              updateFilter("minPrice", raw);
-            }}
+          <input type="text" placeholder="Min Price" inputMode="numeric"
+            value={minPriceFocused ? minPriceInput : (minPriceInput ? `$${Number(minPriceInput).toLocaleString()}` : "")}
+            onChange={(e) => setMinPriceInput(e.target.value.replace(/[^0-9]/g, ""))}
+            onFocus={() => setMinPriceFocused(true)}
+            onBlur={() => { setMinPriceFocused(false); submitPrices(); }}
+            onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
             className={`${inputClass} w-32`} />
           <span className="self-center text-sm text-gray-400">to</span>
-          <input type="text" placeholder="Max Price"
-            value={filters.maxPrice ? `$${Number(filters.maxPrice).toLocaleString()}` : ""}
-            onChange={(e) => {
-              const raw = e.target.value.replace(/[^0-9]/g, "");
-              updateFilter("maxPrice", raw);
-            }}
+          <input type="text" placeholder="Max Price" inputMode="numeric"
+            value={maxPriceFocused ? maxPriceInput : (maxPriceInput ? `$${Number(maxPriceInput).toLocaleString()}` : "")}
+            onChange={(e) => setMaxPriceInput(e.target.value.replace(/[^0-9]/g, ""))}
+            onFocus={() => setMaxPriceFocused(true)}
+            onBlur={() => { setMaxPriceFocused(false); submitPrices(); }}
+            onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
             className={`${inputClass} w-32`} />
           <select value={filters.beds} onChange={(e) => updateFilter("beds", e.target.value)}
             className={inputClass}>

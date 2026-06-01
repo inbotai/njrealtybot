@@ -35,6 +35,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | WA-001 | Vale side panel interfered with search | Hero opened Vale + search | Removed Vale send from hero |
 | CMA-003 | CMA from search page hero went to search instead of chat | Search page hero missing CMA detection | Added same CMA regex to search page hero |
 | CMA-004 | "análisis de mercado" not detected as CMA | Accented á not matched by regex | Normalize accents before regex test |
+| UI-006 | Price input only accepts 1 digit | updateFilter fires doSearch on every keystroke | Local state + search on blur/Enter (same pattern as city input UI-001) |
 
 ### Adding New Bugs
 
