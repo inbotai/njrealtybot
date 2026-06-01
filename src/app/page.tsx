@@ -405,6 +405,13 @@ function PublicHomepage() {
           </div>
         </div>
       </section>
+
+      {/* Agent login — subtle link at bottom */}
+      <div className="py-6 text-center">
+        <a href="/admin" className="text-xs text-gray-400 hover:text-gold transition">
+          Agent Login
+        </a>
+      </div>
     </>
   );
 }
