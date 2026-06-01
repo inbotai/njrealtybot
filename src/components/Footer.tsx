@@ -45,7 +45,7 @@ export default function Footer() {
             <p className="mt-2 text-sm">
               <a href="tel:+12015281095" className="text-gold hover:underline">(201) 528-1095</a>
               {" | "}
-              <a href="mailto:julio@inbot.ai" className="text-gold hover:underline">julio@inbot.ai</a>
+              <a href="mailto:info@gardenstate.ai" className="text-gold hover:underline">info@gardenstate.ai</a>
             </p>
           </div>
         </div>
@@ -75,15 +75,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Powered by Vale */}
-        <div className="mt-4 rounded-xl border border-gold/30 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 px-6 py-5 text-center">
-          <p className="text-sm font-bold text-white">
-            Powered with{" "}
-            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-300 underline underline-offset-2 transition">
-              Vale
-            </a>
-            {" "}from{" "}
-            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-300 underline underline-offset-2 transition">
+        {/* Developed by */}
+        <div className="mt-4 text-center">
+          <p className="text-[10px] text-gray-600">
+            Developed by{" "}
+            <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 transition">
               InBot AI
             </a>
           </p>
