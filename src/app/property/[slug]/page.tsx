@@ -8,6 +8,8 @@ import PropertyPageVale from "@/components/PropertyPageVale";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import RequireAuth from "@/components/RequireAuth";
+import DemandBadge from "@/components/DemandBadge";
+import MatchScoreBadge from "@/components/MatchScoreBadge";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
@@ -216,6 +218,8 @@ export default async function PropertyPage({ params }: Props) {
                     Price Reduced {priceDropPct}%
                   </span>
                 )}
+                <DemandBadge listingId={listing.id} />
+                <MatchScoreBadge listingId={listing.id} />
               </div>
             </div>
 
