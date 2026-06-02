@@ -198,8 +198,6 @@ export default function HomePage() {
    Public homepage — seller lead machine (no IDX listings)
    ──────────────────────────────────────────────────────── */
 
-const WA_LINK_SELL = "https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20know%20what%20my%20home%20is%20worth";
-
 const stats = [
   { value: "50,000+", label: "Properties Analyzed" },
   { value: "21", label: "NJ Counties" },
@@ -264,85 +262,6 @@ function PublicHomepage() {
               <p className="mt-1 text-sm text-gray-500">{s.label}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* WhatsApp promo section */}
-      <section className="py-16 bg-white">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
-            {/* Left: messaging */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-1.5 text-sm font-semibold text-[#128C7E]">
-                {WA_ICON}
-                <span className="text-xs">Available 24/7</span>
-              </div>
-              <h2 className="mt-4 text-2xl font-extrabold text-navy md:text-3xl">
-                Get Your Valuation on WhatsApp
-              </h2>
-              <p className="mt-3 text-gray-600">
-                Say your address and Vale sends a full CMA with comparable sales directly to your phone. Voice or text — Vale understands both.
-              </p>
-
-              <div className="mt-6 space-y-4">
-                <WhatsAppFeature title="Instant home valuation" desc="Say your address and get an estimated value range in seconds" />
-                <WhatsAppFeature title="Full CMA report delivered" desc="Comparable sales, market trends, and pricing guidance — all in your chat" />
-                <WhatsAppFeature title="Neighborhood alerts" desc="Get notified when homes near you sell, so you always know your market" />
-                <WhatsAppFeature title="Talk to an agent anytime" desc="Vale connects you with a licensed agent when you're ready" />
-              </div>
-
-              <div className="mt-8">
-                <a
-                  href={WA_LINK_SELL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[#20bd5a] hover:shadow-lg"
-                >
-                  {WA_ICON}
-                  Get My Valuation on WhatsApp
-                </a>
-                <p className="mt-3 text-xs text-gray-400">
-                  +1 (201) 528-1095 — save the number to your contacts
-                </p>
-              </div>
-            </div>
-
-            {/* Right: phone mockup */}
-            <div className="w-72 flex-shrink-0">
-              <div className="rounded-3xl border-4 border-gray-200 bg-gray-50 p-4 shadow-xl">
-                <div className="flex items-center gap-2 rounded-t-xl bg-[#075E54] px-3 py-2">
-                  <div className="h-8 w-8 rounded-full bg-[#25D366] flex items-center justify-center">
-                    <svg viewBox="0 0 200 200" className="h-5 w-5">
-                      <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
-                      <circle cx="100" cy="105" r="52" fill="#4f46e5" />
-                      <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                      <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-white">Vale - Garden State AI</p>
-                    <p className="text-[10px] text-green-200">online</p>
-                  </div>
-                </div>
-                <div className="space-y-2 bg-[#ECE5DD] p-3 rounded-b-xl min-h-[280px]">
-                  <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
-                    What&apos;s my home worth? 37 Summit Ave, Bloomfield
-                  </div>
-                  <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
-                    <p className="font-semibold">Estimated Value: $485,000</p>
-                    <p className="mt-1 text-gray-500">Range: $460k - $510k</p>
-                    <p className="mt-1">Based on 12 recent sales in Bloomfield. Want me to send you the full CMA with comparable addresses?</p>
-                  </div>
-                  <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
-                    Yes please!
-                  </div>
-                  <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
-                    Sending your full CMA report now... Check your messages in a moment!
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
