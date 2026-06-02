@@ -21,6 +21,9 @@ const adminLinks = [
 
 const moreLinks = [
   { href: "/deals", label: "Deals" },
+  { href: "/match", label: "Matchmaker" },
+  { href: "/staging", label: "Staging" },
+  { href: "/renovate", label: "Renovation Simulator" },
   { href: "/open-houses", label: "Open Houses" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
