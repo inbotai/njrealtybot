@@ -208,10 +208,14 @@ const stats = [
 ];
 
 function PublicHomepage() {
+  const { login } = useAdmin();
   const [waitlistPhone, setWaitlistPhone] = useState("");
   const [waitlistName, setWaitlistName] = useState("");
   const [waitlistSent, setWaitlistSent] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [idxPassword, setIdxPassword] = useState("");
+  const [idxError, setIdxError] = useState("");
+  const [showIdxLogin, setShowIdxLogin] = useState(false);
 
   async function handleWaitlist(e: React.FormEvent) {
     e.preventDefault();
@@ -406,11 +410,40 @@ function PublicHomepage() {
         </div>
       </section>
 
-      {/* Agent login — subtle link at bottom */}
+      {/* Agent IDX login — subtle, expandable */}
       <div className="py-6 text-center">
-        <a href="/admin" className="text-xs text-gray-400 hover:text-gold transition">
-          Agent Login
-        </a>
+        {!showIdxLogin ? (
+          <button onClick={() => setShowIdxLogin(true)}
+            className="text-xs text-gray-400 hover:text-gray-600 transition">
+            Agent Access
+          </button>
+        ) : (
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (login(idxPassword)) {
+              window.location.reload();
+            } else {
+              setIdxError("Invalid password");
+              setTimeout(() => setIdxError(""), 3000);
+            }
+          }} className="mx-auto max-w-xs space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={idxPassword}
+                onChange={(e) => { setIdxPassword(e.target.value); setIdxError(""); }}
+                placeholder="Password"
+                autoFocus
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              />
+              <button type="submit" disabled={!idxPassword.trim()}
+                className="rounded-lg bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-indigo-900 disabled:opacity-40">
+                Enter
+              </button>
+            </div>
+            {idxError && <p className="text-xs text-red-500">{idxError}</p>}
+          </form>
+        )}
       </div>
     </>
   );
