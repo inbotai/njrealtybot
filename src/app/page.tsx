@@ -15,22 +15,6 @@ const WA_ICON = (
   </svg>
 );
 
-function WhatsAppFeature({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="flex gap-3">
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#25D366]/10">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth={2} className="h-5 w-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-navy">{title}</p>
-        <p className="text-xs text-gray-500">{desc}</p>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
   const { isAdmin, login, logout, changePassword } = useAdmin();
   const [password, setPassword] = useState("");
@@ -64,11 +48,11 @@ export default function HomePage() {
     }
   }
 
-  // ── Logged in: full homepage with hero search + WhatsApp promo ──
+  // ── Logged in: full homepage with search + services ──
   if (isAdmin) {
     return (
       <>
-        {/* Hero */}
+        {/* Hero — full search */}
         <section className="relative overflow-hidden bg-navy py-20 text-white">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
           <div className="relative mx-auto max-w-4xl px-4 text-center">
@@ -78,111 +62,99 @@ export default function HomePage() {
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
             </h1>
             <p className="mt-4 text-lg text-gray-300">
-              The Most Advanced Real Estate AI in New Jersey
+              Search homes, get instant valuations, or sell with AI on your side.
             </p>
 
-            {/* Search bar */}
             <div className="mt-10">
               <HeroChat />
             </div>
 
-            {/* Admin logout — subtle */}
             <button onClick={logout} className="mt-6 text-xs text-gray-500 hover:text-gray-300 transition">
               Logout
             </button>
           </div>
         </section>
 
-        {/* WhatsApp promo section */}
+        {/* WhatsApp CTA banner */}
+        <div className="bg-navy px-4 pb-6">
+          <div className="mx-auto max-w-4xl rounded-xl border border-[#25D366]/30 bg-gradient-to-r from-[#25D366]/15 via-[#25D366]/5 to-[#25D366]/15 px-6 py-5">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <div className="text-center sm:text-left">
+                <p className="text-sm font-bold text-white">Chat with Vale on WhatsApp for the best experience</p>
+                <p className="mt-1 text-xs text-gray-400">Instant valuations, property photos, market alerts &amp; more — right on your phone</p>
+              </div>
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#20bd5a] hover:shadow-lg">
+                {WA_ICON} Message Vale
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats strip */}
+        <section className="border-b bg-white py-10">
+          <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-12 px-4">
+            {[
+              { value: "60,000+", label: "MLS Listings" },
+              { value: "21", label: "NJ Counties" },
+              { value: "2", label: "MLS Feeds (NJMLS + GSMLS)" },
+              { value: "15 min", label: "Sync Frequency" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-3xl font-bold text-navy">{s.value}</p>
+                <p className="mt-1 text-sm text-gray-500">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Services */}
         <section className="py-16 bg-white">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="text-center text-2xl font-bold text-navy">Platform Features</h2>
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <a href="/search" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-xl">&#128269;</div>
+                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Property Search</h3>
+                <p className="mt-1 text-xs text-gray-500">60k+ listings from NJMLS &amp; GSMLS with AI-powered natural language search</p>
+              </a>
+              <a href="/sell" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 text-xl">&#127968;</div>
+                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Home Valuation</h3>
+                <p className="mt-1 text-xs text-gray-500">AI valuation in 30 seconds — public records + comps + Zillow/Redfin data</p>
+              </a>
+              <a href="/staging" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-xl">&#10024;</div>
+                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Virtual Staging</h3>
+                <p className="mt-1 text-xs text-gray-500">AI staging for empty rooms — $20/photo or free when sellers list with you</p>
+              </a>
+              <a href="/market" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-xl">&#128200;</div>
+                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Market Intelligence</h3>
+                <p className="mt-1 text-xs text-gray-500">City reports, investment scores, deal finder, demand tracking — all AI-powered</p>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* AI capabilities */}
+        <section className="py-16 bg-gray-50">
           <div className="mx-auto max-w-4xl px-4">
-            <div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
-              {/* Left: messaging */}
-              <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-1.5 text-sm font-semibold text-[#128C7E]">
-                  {WA_ICON}
-                  <span className="text-xs">Available 24/7</span>
+            <h2 className="text-center text-2xl font-bold text-navy">What Vale Can Do</h2>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {[
+                { title: "24/7 AI Assistant", desc: "Vale handles inquiries on web and WhatsApp — searches, valuations, showings, follow-ups. Never misses a lead." },
+                { title: "Persistent Memory", desc: "Vale remembers every client — name, preferences, search history. Returning visitors get a personalized greeting." },
+                { title: "Automated Lead Gen", desc: "6 sources: expired listings, stale homes, price drops, overpriced, neighbor alerts, website visitors." },
+                { title: "Smart Follow-Up", desc: "Auto WhatsApp reminders to leads that go quiet. Just Sold digests to keep buyers engaged." },
+                { title: "Voice + Text", desc: "Clients can send voice notes in English or Spanish. Vale transcribes and understands both." },
+                { title: "Demand Signals", desc: "See how many buyers are viewing each listing. Bidding war probability. Match scores per buyer." },
+              ].map((f) => (
+                <div key={f.title} className="rounded-xl bg-white p-5 shadow-sm">
+                  <h3 className="font-semibold text-navy">{f.title}</h3>
+                  <p className="mt-1 text-sm text-gray-600">{f.desc}</p>
                 </div>
-                <h2 className="mt-4 text-2xl font-extrabold text-navy md:text-3xl">
-                  Take Garden State AI to your WhatsApp
-                </h2>
-                <p className="mt-3 text-gray-600">
-                  Search homes, get instant CMAs, schedule showings and receive market alerts — all from one app. Send a voice message or type, Vale responds to everything.
-                </p>
-
-                <div className="mt-6 space-y-4">
-                  <WhatsAppFeature
-                    title="Voice or text — Vale understands both"
-                    desc="Send a voice note saying &quot;homes in Hoboken under 500k&quot; and get instant results"
-                  />
-                  <WhatsAppFeature
-                    title="Instant CMA reports"
-                    desc="Say your address and get a full valuation with comparable sales delivered to your chat"
-                  />
-                  <WhatsAppFeature
-                    title="Schedule showings on the go"
-                    desc="Tell Vale when you're free and the appointment is set — no calls, no emails"
-                  />
-                  <WhatsAppFeature
-                    title="Market alerts in real time"
-                    desc="New listings, price drops and sold homes near you — Vale notifies you instantly"
-                  />
-                </div>
-
-                {/* CTA */}
-                <div className="mt-8">
-                  <a
-                    href={WA_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[#20bd5a] hover:shadow-lg"
-                  >
-                    {WA_ICON}
-                    Open Vale on WhatsApp
-                  </a>
-                  <p className="mt-3 text-xs text-gray-400">
-                    +1 (201) 528-1095 — save the number to your contacts
-                  </p>
-                </div>
-              </div>
-
-              {/* Right: phone mockup */}
-              <div className="w-72 flex-shrink-0">
-                <div className="rounded-3xl border-4 border-gray-200 bg-gray-50 p-4 shadow-xl">
-                  {/* WhatsApp header */}
-                  <div className="flex items-center gap-2 rounded-t-xl bg-[#075E54] px-3 py-2">
-                    <div className="h-8 w-8 rounded-full bg-[#25D366] flex items-center justify-center">
-                      <svg viewBox="0 0 200 200" className="h-5 w-5">
-                        <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
-                        <circle cx="100" cy="105" r="52" fill="#4f46e5" />
-                        <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                        <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-white">Vale - Garden State AI</p>
-                      <p className="text-[10px] text-green-200">online</p>
-                    </div>
-                  </div>
-                  {/* Chat bubbles */}
-                  <div className="space-y-2 bg-[#ECE5DD] p-3 rounded-b-xl min-h-[280px]">
-                    <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
-                      What&apos;s my home worth? 37 Summit Ave, Bloomfield
-                    </div>
-                    <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
-                      <p className="font-semibold">Estimated Value: $485,000</p>
-                      <p className="mt-1 text-gray-500">Range: $460k - $510k</p>
-                      <p className="mt-1">Based on 12 recent sales in Bloomfield. Want me to send you the full CMA with comparable addresses?</p>
-                    </div>
-                    <div className="ml-auto max-w-[80%] rounded-lg bg-[#DCF8C6] px-3 py-1.5 text-xs text-gray-800">
-                      Yes please!
-                    </div>
-                    <div className="max-w-[85%] rounded-lg bg-white px-3 py-1.5 text-xs text-gray-800">
-                      Sending your full CMA report now... Check your messages in a moment!
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
