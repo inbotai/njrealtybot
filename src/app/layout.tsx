@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import NavbarIdx from "@/components/NavbarIdx";
 import Footer from "@/components/Footer";
+import FooterIdx from "@/components/FooterIdx";
 import ValeProvider from "@/components/ValeProvider";
 import ValeSidePanel from "@/components/ValeSidePanel";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
@@ -41,21 +44,24 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const hdrs = await headers();
+  const isIdx = hdrs.get("x-idx-subdomain") === "true";
+
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
         <AdminProvider>
           <ValeProvider>
-            <Navbar />
+            {isIdx ? <NavbarIdx /> : <Navbar />}
             <main className="flex-1">{children}</main>
-            <Footer />
+            {isIdx ? <FooterIdx /> : <Footer />}
             <ValeSidePanel />
-            <WhatsAppWidget />
+            {!isIdx && <WhatsAppWidget />}
           </ValeProvider>
         </AdminProvider>
       </body>

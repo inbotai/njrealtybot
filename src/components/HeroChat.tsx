@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVale } from "./ValeProvider";
 import { parseSearchQuery } from "@/lib/api";
+import { IDX_SUBDOMAIN } from "@/lib/config";
 import VoiceButton from "./VoiceButton";
 
 const suggestions = [
@@ -64,8 +65,15 @@ export default function HeroChat() {
     if (parsed.maxPrice) params.set("sort", "price_desc");
     else if (parsed.minPrice) params.set("sort", "price_asc");
 
-    // Navigate to search page
-    router.push(`/search?${params.toString()}`);
+    // Navigate to search page (or IDX subdomain if configured)
+    const searchUrl = IDX_SUBDOMAIN
+      ? `${IDX_SUBDOMAIN}/search?${params.toString()}`
+      : `/search?${params.toString()}`;
+    if (IDX_SUBDOMAIN) {
+      window.location.href = searchUrl;
+    } else {
+      router.push(searchUrl);
+    }
   }
 
   return (
