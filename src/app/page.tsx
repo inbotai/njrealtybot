@@ -292,6 +292,36 @@ function PublicHomepage() {
         </div>
       </section>
 
+      {/* Services */}
+      <section className="py-16 bg-white">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-center text-2xl font-bold text-navy">Our Services</h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            <a href="/sell" className="group rounded-xl border bg-white p-6 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-2xl">
+                <span>&#127968;</span>
+              </div>
+              <h3 className="mt-4 font-semibold text-navy group-hover:text-gold">Free Home Valuation</h3>
+              <p className="mt-2 text-sm text-gray-600">Get an AI-powered estimate in 30 seconds. No obligation.</p>
+            </a>
+            <a href="/staging" className="group rounded-xl border bg-white p-6 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 text-2xl">
+                <span>&#10024;</span>
+              </div>
+              <h3 className="mt-4 font-semibold text-navy group-hover:text-gold">Home Staging Services</h3>
+              <p className="mt-2 text-sm text-gray-600">AI virtual staging — see your home transformed. $20/photo, free when you list with us.</p>
+            </a>
+            <a href="/market" className="group rounded-xl border bg-white p-6 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl">
+                <span>&#128200;</span>
+              </div>
+              <h3 className="mt-4 font-semibold text-navy group-hover:text-gold">Market Reports</h3>
+              <p className="mt-2 text-sm text-gray-600">City-level trends, investment scores, and pricing data for every NJ market.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Buyer waitlist */}
       <section className="bg-gray-50 py-16">
         <div className="mx-auto max-w-lg px-4 text-center">
