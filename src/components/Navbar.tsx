@@ -12,9 +12,10 @@ const publicLinks = [
 
 const adminLinks = [
   { href: "/search", label: "Buy" },
+  { href: "/match", label: "Matchmaker" },
   { href: "/sell", label: "Sell" },
-  { href: "/open-houses", label: "Open Houses" },
-  { href: "/alerts", label: "Alerts" },
+  { href: "/staging", label: "Staging" },
+  { href: "/renovate", label: "Renovate" },
   { href: "/market", label: "Market" },
   { href: "/chat", label: "Vale" },
 ];
