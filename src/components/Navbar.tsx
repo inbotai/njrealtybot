@@ -5,27 +5,24 @@ import { useState, useRef, useEffect } from "react";
 import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
-  { href: "/sell", label: "Home Value" },
-  { href: "/market", label: "Market" },
+  { href: "/sell", label: "Sell" },
   { href: "/chat", label: "Vale" },
 ];
 
 const adminLinks = [
   { href: "/search", label: "Buy" },
-  { href: "/match", label: "Matchmaker" },
   { href: "/sell", label: "Sell" },
-  { href: "/staging", label: "Staging" },
-  { href: "/renovate", label: "Renovate" },
-  { href: "/market", label: "Market" },
   { href: "/chat", label: "Vale" },
 ];
 
 const moreLinks = [
-  { href: "/deals", label: "Deals" },
   { href: "/match", label: "Matchmaker" },
   { href: "/staging", label: "Staging" },
-  { href: "/renovate", label: "Renovation Simulator" },
+  { href: "/renovate", label: "Renovate" },
+  { href: "/deals", label: "Deals" },
+  { href: "/market", label: "Market" },
   { href: "/open-houses", label: "Open Houses" },
+  { href: "/alerts", label: "Alerts" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
