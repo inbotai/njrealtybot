@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import VoiceButton from "./VoiceButton";
+import MarketPoll from "./MarketPoll";
 
 const testimonials = [
   { name: "Maria G.", city: "Bloomfield", text: "Vale gave me an instant estimate and connected me with an agent the same day. Sold above asking!" },
@@ -178,6 +179,13 @@ export default function SellPageClient() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Seller Poll */}
+      <section className="py-16">
+        <div className="mx-auto max-w-sm px-4">
+          <MarketPoll segment="sellers" />
         </div>
       </section>
 

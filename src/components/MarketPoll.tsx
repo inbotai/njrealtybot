@@ -1,47 +1,64 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { polls, type Poll } from "@/data/polls";
+import { IDX_PUBLIC_ENABLED } from "@/lib/config";
 
-const STORAGE_KEY = "gsai_poll_vote";
-const options = [
-  { id: "hot", label: "Hot — great time to sell", icon: "🔥", color: "bg-red-500" },
-  { id: "warm", label: "Warm — steady market", icon: "☀️", color: "bg-yellow-500" },
-  { id: "cool", label: "Cooling down", icon: "🌤️", color: "bg-blue-400" },
-  { id: "cold", label: "Cold — tough for sellers", icon: "❄️", color: "bg-blue-600" },
-  { id: "unsure", label: "Not sure", icon: "🤔", color: "bg-gray-400" },
-];
+const STORAGE_PREFIX = "gsai_poll_";
+const COLORS = ["bg-red-500", "bg-yellow-500", "bg-blue-400", "bg-blue-600", "bg-gray-400", "bg-emerald-500", "bg-purple-500"];
 
-// Simple local vote tracking (no backend needed for MVP)
-function getVotes(): Record<string, number> {
-  // Seed with realistic NJ market sentiment distribution
-  return { hot: 34, warm: 47, cool: 12, cold: 3, unsure: 8 };
+interface MarketPollProps {
+  segment: "sellers" | "buyers" | "renters" | "investors";
 }
 
-export default function MarketPoll() {
+export default function MarketPoll({ segment }: MarketPollProps) {
+  if (!IDX_PUBLIC_ENABLED) return null;
+  const poll = polls.find(p => p.segment === segment);
+  if (!poll) return null;
+
+  return <PollCard poll={poll} />;
+}
+
+function PollCard({ poll }: { poll: Poll }) {
+  const storageKey = STORAGE_PREFIX + poll.id;
+
   const [voted, setVoted] = useState<string | null>(null);
-  const [votes, setVotes] = useState(getVotes());
+  const [votes, setVotes] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(storageKey);
     if (stored) setVoted(stored);
-  }, []);
+
+    const storedVotes = localStorage.getItem(storageKey + "_votes");
+    if (storedVotes) {
+      setVotes(JSON.parse(storedVotes));
+    } else {
+      const seed: Record<string, number> = {};
+      poll.options.forEach(o => { seed[o.id] = Math.floor(Math.random() * 15) + 5; });
+      setVotes(seed);
+      localStorage.setItem(storageKey + "_votes", JSON.stringify(seed));
+    }
+  }, [storageKey, poll.options]);
 
   function handleVote(id: string) {
     if (voted) return;
-    localStorage.setItem(STORAGE_KEY, id);
+    localStorage.setItem(storageKey, id);
     setVoted(id);
-    setVotes(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    const updated = { ...votes, [id]: (votes[id] || 0) + 1 };
+    setVotes(updated);
+    localStorage.setItem(storageKey + "_votes", JSON.stringify(updated));
   }
 
   const total = Object.values(votes).reduce((a, b) => a + b, 0);
 
   return (
     <div className="rounded-xl border bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-bold text-navy">How do you feel about the NJ market right now?</h3>
+      <h3 className="text-sm font-bold text-navy">{poll.question}</h3>
       <div className="mt-3 space-y-2">
-        {options.map(o => {
+        {poll.options.map((o, i) => {
           const count = votes[o.id] || 0;
           const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          const color = COLORS[i % COLORS.length];
           return (
             <button
               key={o.id}
@@ -52,7 +69,7 @@ export default function MarketPoll() {
               }`}
             >
               {voted && (
-                <div className={`absolute inset-y-0 left-0 ${o.color} opacity-10`} style={{ width: `${pct}%` }} />
+                <div className={`absolute inset-y-0 left-0 ${color} opacity-10`} style={{ width: `${pct}%` }} />
               )}
               <div className="relative flex items-center justify-between">
                 <span>{o.icon} {o.label}</span>

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fetchListings, parseSearchQuery, type Listing, type ListingsResponse } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
 import ListingCard from "@/components/ListingCard";
+import MarketPoll from "@/components/MarketPoll";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 
 const listingTypes = [
@@ -408,6 +409,17 @@ export default function SearchPageClient() {
             )}
           </>
         )}
+      </div>
+
+      {/* Contextual poll based on what user is searching */}
+      <div className="mx-auto max-w-sm px-4 py-8">
+        <MarketPoll
+          segment={
+            filters.propertyType === "Rental" ? "renters"
+              : filters.propertyType === "Multi-Family" || filters.propertyType === "Commercial" ? "investors"
+              : "buyers"
+          }
+        />
       </div>
 
       <MLSDisclaimer />
