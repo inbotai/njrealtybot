@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Listing } from "@/lib/api";
 import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
+import ListingActions from "@/components/ListingActions";
 
 const statusColors: Record<string, string> = {
   "For Sale": "bg-green-600",
@@ -54,6 +55,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <span className={`absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold text-white ${statusColor}`}>
           {listing.mls_status}
         </span>
+        <ListingActions listingId={listing.id} slug={generateSlug(listing)} address={formatAddress(listing)} />
         {mlsLogo && (
           <img src={mlsLogo.src} alt={mlsLogo.alt} className="absolute bottom-2 right-2 h-6 w-auto opacity-90" />
         )}

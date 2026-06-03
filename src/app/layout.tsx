@@ -10,6 +10,9 @@ import ValeProvider from "@/components/ValeProvider";
 import ValeSidePanel from "@/components/ValeSidePanel";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { AdminProvider } from "@/components/AdminAuth";
+import TrackingPixels from "@/components/TrackingPixels";
+import ExitIntent from "@/components/ExitIntent";
+import ProactiveVale from "@/components/ProactiveVale";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -62,6 +65,9 @@ export default async function RootLayout({
             {isIdx ? <FooterIdx /> : <Footer />}
             <ValeSidePanel />
             {!isIdx && <WhatsAppWidget />}
+            <ExitIntent />
+            <ProactiveVale />
+            <TrackingPixels />
           </ValeProvider>
         </AdminProvider>
       </body>
