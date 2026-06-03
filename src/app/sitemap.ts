@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { fetchListings } from "@/lib/api";
 import { generateSlug } from "@/lib/utils";
+import { blogPosts } from "@/data/blog-posts";
 
 const BASE_URL = "https://gardenstate.ai";
 
@@ -26,5 +27,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     /* API may be unavailable during build */
   }
 
-  return [...staticPages, ...listingPages];
+  const blogPages: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/blog`, changeFrequency: "weekly", priority: 0.8 },
+    ...blogPosts.map((post) => ({
+      url: `${BASE_URL}/blog/${post.slug}`,
+      lastModified: new Date(post.updatedDate || post.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
+  return [...staticPages, ...blogPages, ...listingPages];
 }
