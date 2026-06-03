@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { blogPosts } from "@/data/blog-posts";
+import { fetchBlogPosts, type BlogPostAPI } from "@/lib/api";
+import { blogPosts as staticPosts } from "@/data/blog-posts";
+
+export const revalidate = 300; // ISR: refresh every 5 minutes
 
 export const metadata: Metadata = {
   title: "Real Estate News & Guides | Garden State AI",
@@ -37,8 +40,53 @@ const categoryColors: Record<string, string> = {
   guide: "bg-amber-500 text-white",
 };
 
-export default function BlogPage() {
-  const [featured, ...rest] = blogPosts;
+// Normalize API post to display format
+interface DisplayPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  author: string;
+  category: string;
+  coverImage: string;
+  readingTime: number;
+}
+
+function apiToDisplay(p: BlogPostAPI): DisplayPost {
+  return {
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    date: p.published_at || p.created_at,
+    author: p.author,
+    category: p.category,
+    coverImage: p.cover_image,
+    readingTime: p.reading_time,
+  };
+}
+
+function staticToDisplay(p: (typeof staticPosts)[0]): DisplayPost {
+  return {
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    date: p.date,
+    author: p.author,
+    category: p.category,
+    coverImage: p.coverImage,
+    readingTime: p.readingTime,
+  };
+}
+
+export default async function BlogPage() {
+  // Try API first, fall back to static
+  const apiPosts = await fetchBlogPosts();
+  const posts: DisplayPost[] = apiPosts.length > 0
+    ? apiPosts.map(apiToDisplay)
+    : staticPosts.map(staticToDisplay);
+
+  const [featured, ...rest] = posts;
+  if (!featured) return null;
 
   return (
     <>
@@ -72,8 +120,8 @@ export default function BlogPage() {
             </div>
             <div className="flex flex-col justify-center p-8 md:p-10">
               <div className="flex items-center gap-3">
-                <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${categoryColors[featured.category]}`}>
-                  {categoryLabels[featured.category]}
+                <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${categoryColors[featured.category] || "bg-gray-600 text-white"}`}>
+                  {categoryLabels[featured.category] || featured.category}
                 </span>
                 <span className="text-xs text-gray-400">{featured.readingTime} min read</span>
               </div>
@@ -111,8 +159,8 @@ export default function BlogPage() {
                       className="object-cover transition duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
-                    <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${categoryColors[post.category]}`}>
-                      {categoryLabels[post.category]}
+                    <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${categoryColors[post.category] || "bg-gray-600 text-white"}`}>
+                      {categoryLabels[post.category] || post.category}
                     </span>
                   </div>
                   <div className="flex flex-1 flex-col p-5">

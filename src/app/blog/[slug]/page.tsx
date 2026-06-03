@@ -2,145 +2,130 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { blogPosts, getPost, getRelatedPosts } from "@/data/blog-posts";
+import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
+import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
 
-type Props = { params: Promise<{ slug: string }> };
+export const revalidate = 300; // ISR: 5 min
 
+type Props = { params: Promise<{ slug: string }> };
 const BASE_URL = "https://gardenstate.ai";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
-  if (!post) return { title: "Post Not Found" };
+  const post = await fetchBlogPost(slug);
+  const staticPost = !post ? getStaticPost(slug) : null;
+  const title = post?.title || staticPost?.title;
+  const excerpt = post?.excerpt || staticPost?.excerpt;
+  const image = post?.cover_image || staticPost?.coverImage;
+  const date = post?.published_at || post?.created_at || staticPost?.date;
 
-  const url = `${BASE_URL}/blog/${post.slug}`;
+  if (!title) return { title: "Post Not Found" };
 
+  const url = `${BASE_URL}/blog/${slug}`;
   return {
-    title: post.title,
-    description: post.excerpt,
-    authors: [{ name: post.author }],
+    title,
+    description: excerpt,
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: "article",
-      url,
-      publishedTime: post.date,
-      modifiedTime: post.updatedDate || post.date,
-      authors: [post.author],
-      tags: post.tags,
-      images: [
-        {
-          url: post.coverImage,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      title, description: excerpt, type: "article", url,
+      publishedTime: date,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: title }] : [],
       siteName: "Garden State AI",
     },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: [post.coverImage],
-    },
+    twitter: { card: "summary_large_image", title, description: excerpt, images: image ? [image] : [] },
     alternates: { canonical: url },
   };
 }
 
 export async function generateStaticParams() {
-  return blogPosts.map(p => ({ slug: p.slug }));
+  const apiPosts = await fetchBlogPosts();
+  if (apiPosts.length > 0) return apiPosts.map(p => ({ slug: p.slug }));
+  return staticPosts.map(p => ({ slug: p.slug }));
 }
+
+const categoryColors: Record<string, string> = {
+  market: "bg-blue-600 text-white",
+  tips: "bg-emerald-600 text-white",
+  news: "bg-purple-600 text-white",
+  guide: "bg-amber-500 text-white",
+};
+const categoryLabels: Record<string, string> = {
+  market: "Market Update",
+  tips: "Selling Tips",
+  news: "News",
+  guide: "Guide",
+};
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getPost(slug);
-  if (!post) notFound();
 
-  const related = getRelatedPosts(slug);
-  const url = `${BASE_URL}/blog/${post.slug}`;
+  // Try API, fall back to static
+  const apiPost = await fetchBlogPost(slug);
+  const staticPost = !apiPost ? getStaticPost(slug) : null;
+  if (!apiPost && !staticPost) notFound();
 
-  const categoryColors: Record<string, string> = {
-    market: "bg-blue-600 text-white",
-    tips: "bg-emerald-600 text-white",
-    news: "bg-purple-600 text-white",
-    guide: "bg-amber-500 text-white",
-  };
-  const categoryLabels: Record<string, string> = {
-    market: "Market Update",
-    tips: "Selling Tips",
-    news: "News",
-    guide: "Guide",
-  };
+  const title = apiPost?.title || staticPost!.title;
+  const excerpt = apiPost?.excerpt || staticPost!.excerpt;
+  const content = apiPost?.content || staticPost!.content;
+  const category = apiPost?.category || staticPost!.category;
+  const coverImage = apiPost?.cover_image || staticPost!.coverImage;
+  const readingTime = apiPost?.reading_time || staticPost!.readingTime;
+  const author = apiPost?.author || staticPost!.author;
+  const authorRole = apiPost?.author_role || staticPost?.authorRole || null;
+  const date = apiPost?.published_at || apiPost?.created_at || staticPost!.date;
+  const tags: string[] = apiPost?.tags || staticPost?.tags || [];
 
-  // JSON-LD structured data for SEO
+  const url = `${BASE_URL}/blog/${slug}`;
+
+  // Related posts — try API, fall back to static
+  const allApiPosts = await fetchBlogPosts();
+  let relatedPosts: { slug: string; title: string; coverImage: string; readingTime: number }[];
+  if (allApiPosts.length > 1) {
+    relatedPosts = allApiPosts
+      .filter(p => p.slug !== slug)
+      .slice(0, 2)
+      .map(p => ({ slug: p.slug, title: p.title, coverImage: p.cover_image, readingTime: p.reading_time }));
+  } else {
+    relatedPosts = getStaticRelated(slug).map(p => ({ slug: p.slug, title: p.title, coverImage: p.coverImage, readingTime: p.readingTime }));
+  }
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
-    image: post.coverImage,
-    datePublished: post.date,
-    dateModified: post.updatedDate || post.date,
-    author: {
-      "@type": "Organization",
-      name: post.author,
-      url: BASE_URL,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Garden State AI",
-      url: BASE_URL,
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": url,
-    },
+    headline: title,
+    description: excerpt,
+    image: coverImage,
+    datePublished: date,
+    author: { "@type": "Organization", name: author, url: BASE_URL },
+    publisher: { "@type": "Organization", name: "Garden State AI", url: BASE_URL },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Hero */}
       <section className="relative">
         <div className="relative aspect-[21/9] w-full md:aspect-[3/1]">
-          <Image
-            src={post.coverImage}
-            alt={post.title}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-          />
+          <Image src={coverImage} alt={title} fill className="object-cover" sizes="100vw" priority />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
         </div>
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-3xl px-4 pb-8 md:pb-12">
             <div className="flex items-center gap-3">
-              <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[post.category]}`}>
-                {categoryLabels[post.category]}
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[category] || "bg-gray-600 text-white"}`}>
+                {categoryLabels[category] || category}
               </span>
-              <span className="text-xs text-gray-300">{post.readingTime} min read</span>
+              <span className="text-xs text-gray-300">{readingTime} min read</span>
             </div>
-            <h1 className="mt-3 text-3xl font-extrabold text-white md:text-4xl lg:text-5xl leading-tight">
-              {post.title}
-            </h1>
+            <h1 className="mt-3 text-3xl font-extrabold text-white md:text-4xl lg:text-5xl leading-tight">{title}</h1>
             <div className="mt-4 flex items-center gap-3 text-sm text-gray-300">
-              <span className="font-medium text-white">{post.author}</span>
-              {post.authorRole && (
-                <>
-                  <span>&middot;</span>
-                  <span>{post.authorRole}</span>
-                </>
-              )}
+              <span className="font-medium text-white">{author}</span>
+              {authorRole && (<><span>&middot;</span><span>{authorRole}</span></>)}
               <span>&middot;</span>
-              <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              <time dateTime={date}>
+                {new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
               </time>
             </div>
           </div>
@@ -149,19 +134,15 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Article body */}
       <article className="mx-auto max-w-3xl px-4 py-10">
-        {/* Share bar */}
         <div className="mb-8 flex items-center justify-between border-b pb-4">
           <div className="flex flex-wrap gap-2">
-            {post.tags.slice(0, 4).map(tag => (
-              <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                {tag}
-              </span>
+            {tags.slice(0, 4).map(tag => (
+              <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">{tag}</span>
             ))}
           </div>
-          <ShareButtons url={url} title={post.title} />
+          <ShareButtons url={url} title={title} />
         </div>
 
-        {/* Content */}
         <div
           className="prose prose-lg prose-gray max-w-none
             prose-headings:text-navy prose-headings:font-extrabold
@@ -175,13 +156,12 @@ export default async function BlogPostPage({ params }: Props) {
             prose-th:bg-navy prose-th:text-white prose-th:px-4 prose-th:py-2.5 prose-th:text-sm prose-th:font-semibold
             prose-td:px-4 prose-td:py-2.5 prose-td:border-t prose-td:text-sm
             prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-1 prose-blockquote:rounded-r-lg"
-          dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
+          dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }}
         />
 
-        {/* Bottom share */}
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
           <p className="text-sm font-medium text-gray-600">Found this useful? Share it.</p>
-          <ShareButtons url={url} title={post.title} />
+          <ShareButtons url={url} title={title} />
         </div>
 
         {/* CTA */}
@@ -191,16 +171,12 @@ export default async function BlogPostPage({ params }: Props) {
             Get an AI-powered CMA for your property — free, instant, no obligation.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/sell"
-              className="rounded-xl bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg"
-            >
+            <Link href="/sell" className="rounded-xl bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
               Get My Free Valuation
             </Link>
             <a
               href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20just%20read%20your%20blog%20and%20want%20a%20CMA"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-8 py-3 font-bold text-white transition hover:bg-[#20bd5a]"
             >
               <svg viewBox="0 0 32 32" fill="currentColor" className="h-4 w-4">
@@ -212,13 +188,12 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {/* Related posts */}
-        {related.length > 0 && (
+        {relatedPosts.length > 0 && (
           <div className="mt-12">
             <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-gray-400">Related Articles</h3>
             <div className="grid gap-6 sm:grid-cols-2">
-              {related.map(r => (
-                <Link key={r.slug} href={`/blog/${r.slug}`}
-                  className="group flex gap-4 rounded-xl border bg-white p-4 transition hover:shadow-md">
+              {relatedPosts.map(r => (
+                <Link key={r.slug} href={`/blog/${r.slug}`} className="group flex gap-4 rounded-xl border bg-white p-4 transition hover:shadow-md">
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
                     <Image src={r.coverImage} alt={r.title} fill className="object-cover" sizes="80px" />
                   </div>
@@ -232,18 +207,14 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
 
-        {/* Back to blog */}
         <div className="mt-10 text-center">
-          <Link href="/blog" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-            &larr; All Articles
-          </Link>
+          <Link href="/blog" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">&larr; All Articles</Link>
         </div>
       </article>
     </>
   );
 }
 
-/** Markdown to HTML — handles headings, bold, italic, links, tables, lists */
 function markdownToHtml(md: string): string {
   return md
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
@@ -253,14 +224,12 @@ function markdownToHtml(md: string): string {
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
     .replace(/^\|(.+)\|$/gm, (_, row) => {
       const cells = row.split("|").map((c: string) => c.trim());
-      const isHeader = cells.every((c: string) => /^-+$/.test(c));
-      if (isHeader) return "";
-      const tag = "td";
-      return `<tr>${cells.map((c: string) => `<${tag}>${c}</${tag}>`).join("")}</tr>`;
+      if (cells.every((c: string) => /^-+$/.test(c))) return "";
+      return `<tr>${cells.map((c: string) => `<td>${c}</td>`).join("")}</tr>`;
     })
-    .replace(/(<tr>.*<\/tr>\n?)+/g, (match) => `<table>${match}</table>`)
+    .replace(/(<tr>.*<\/tr>\n?)+/g, (m) => `<table>${m}</table>`)
     .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
     .replace(/\n\n/g, "</p><p>")
     .replace(/^(?!<[huptol])/gm, "")
     .replace(/^\s*$/gm, "");

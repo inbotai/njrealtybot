@@ -337,3 +337,44 @@ export async function fetchCMA(city: string, beds?: number): Promise<string> {
   const json = await res.json();
   return json.report || "";
 }
+
+// ── Blog API ────────────────────────────────────────────────
+
+export interface BlogPostAPI {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content?: string;
+  category: string;
+  tags: string[];
+  cover_image: string;
+  reading_time: number;
+  author: string;
+  author_role: string | null;
+  status?: string;
+  published_at: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
+export async function fetchBlogPosts(): Promise<BlogPostAPI[]> {
+  try {
+    const res = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.posts || [];
+  } catch { return []; }
+}
+
+export async function fetchBlogPost(slug: string): Promise<BlogPostAPI | null> {
+  try {
+    const res = await fetch(`${IDX_API}/api/idx/blog/posts/${slug}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}

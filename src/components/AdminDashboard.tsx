@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AdminBlogTab from "./AdminBlogTab";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -55,7 +56,7 @@ interface Stats {
   activeSessions: number;
 }
 
-type Tab = "users" | "leads" | "sessions" | "sellers";
+type Tab = "users" | "leads" | "sessions" | "sellers" | "blog";
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
@@ -226,13 +227,14 @@ export default function AdminDashboard() {
 
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1">
-        {(["users", "leads", "sessions", "sellers"] as Tab[]).map(t => (
+        {(["users", "leads", "sessions", "sellers", "blog"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${tab === t ? "bg-white shadow text-navy" : "text-gray-500"}`}>
             {t === "users" ? `Users (${users.length})` :
              t === "leads" ? `Leads (${leads.length})` :
              t === "sessions" ? `Sessions (${sessions.length})` :
-             `Seller Leads (${sellerLeads.length})`}
+             t === "sellers" ? `Seller Leads (${sellerLeads.length})` :
+             "Blog"}
           </button>
         ))}
       </div>
@@ -529,6 +531,10 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {tab === "blog" && (
+        <AdminBlogTab password={password || "vale2026"} />
       )}
     </div>
   );
