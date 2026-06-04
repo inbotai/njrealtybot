@@ -434,6 +434,10 @@ function TaxAppealBar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<TaxAnalysis | null>(null);
+  const [leadName, setLeadName] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [leadUnlocked, setLeadUnlocked] = useState(false);
+  const [leadLoading, setLeadLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -511,6 +515,7 @@ function TaxAppealBar() {
               </span>
             </div>
 
+            {/* Summary — always visible */}
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg bg-gray-50 p-3">
                 <p className="text-xs font-medium uppercase text-gray-500">Est. Overpayment</p>
@@ -531,54 +536,105 @@ function TaxAppealBar() {
               </div>
             </div>
 
-            {/* Comps */}
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b text-xs uppercase text-gray-500">
-                    <th className="pb-2 pr-4">Comparable</th>
-                    <th className="pb-2 pr-4">Sale Price</th>
-                    <th className="pb-2 pr-4">Date</th>
-                    <th className="pb-2">Beds</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analysis.comparables.map((c, i) => (
-                    <tr key={i} className="border-b last:border-0">
-                      <td className="py-2 pr-4 font-medium">{c.address}</td>
-                      <td className="py-2 pr-4">{formatCurrency(c.salePrice)}</td>
-                      <td className="py-2 pr-4">{c.saleDate}</td>
-                      <td className="py-2">{c.bedrooms ?? "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Lead gate — name + phone to unlock details */}
+            {!leadUnlocked ? (
+              <div className="mt-6 border-t pt-6">
+                <p className="text-sm font-semibold text-gray-900">
+                  Want the full report with comps, ratios, and appeal tools?
+                </p>
+                <p className="mt-1 text-xs text-gray-500">Enter your name and phone to unlock the detailed analysis.</p>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!leadName.trim() || !leadPhone.trim()) return;
+                  setLeadLoading(true);
+                  try {
+                    await submitLead({
+                      full_name: leadName.trim(),
+                      phone: leadPhone.trim(),
+                      message: `Tax Appeal lead — ${analysis.address}, ${analysis.city}. Assessed: $${analysis.assessedValue}. Overpayment: $${analysis.overpaymentLow}–$${analysis.overpaymentHigh}. Appeal: ${analysis.appealLikelihood}.`,
+                      lead_type: "info_request",
+                    });
+                  } catch { /* still unlock */ }
+                  setLeadUnlocked(true);
+                  setLeadLoading(false);
+                }} className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="text"
+                    value={leadName}
+                    onChange={(e) => setLeadName(e.target.value)}
+                    placeholder="Your name"
+                    required
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
+                  />
+                  <input
+                    type="tel"
+                    value={leadPhone}
+                    onChange={(e) => setLeadPhone(e.target.value)}
+                    placeholder="Phone or WhatsApp"
+                    required
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={leadLoading || !leadName.trim() || !leadPhone.trim()}
+                    className="whitespace-nowrap rounded-lg bg-gold px-6 py-2.5 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50"
+                  >
+                    {leadLoading ? "..." : "See Full Report"}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <>
+                {/* Comps — unlocked */}
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b text-xs uppercase text-gray-500">
+                        <th className="pb-2 pr-4">Comparable</th>
+                        <th className="pb-2 pr-4">Sale Price</th>
+                        <th className="pb-2 pr-4">Date</th>
+                        <th className="pb-2">Beds</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analysis.comparables.map((c, i) => (
+                        <tr key={i} className="border-b last:border-0">
+                          <td className="py-2 pr-4 font-medium">{c.address}</td>
+                          <td className="py-2 pr-4">{formatCurrency(c.salePrice)}</td>
+                          <td className="py-2 pr-4">{c.saleDate}</td>
+                          <td className="py-2">{c.bedrooms ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-            {/* Chapter 123 details */}
-            <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                <dt className="text-gray-600">Equalization Ratio</dt>
-                <dd className="font-medium">{analysis.eqRatio.toFixed(2)}%</dd>
-              </div>
-              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                <dt className="text-gray-600">Common Level Range</dt>
-                <dd className="font-medium">{formatPercent(analysis.commonLevelRangeLow)} – {formatPercent(analysis.commonLevelRangeHigh)}</dd>
-              </div>
-              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                <dt className="text-gray-600">Implied Market Value</dt>
-                <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
-              </div>
-              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                <dt className="text-gray-600">Comp-Based Value</dt>
-                <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
-              </div>
-            </dl>
+                {/* Chapter 123 details — unlocked */}
+                <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Equalization Ratio</dt>
+                    <dd className="font-medium">{analysis.eqRatio.toFixed(2)}%</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Common Level Range</dt>
+                    <dd className="font-medium">{formatPercent(analysis.commonLevelRangeLow)} – {formatPercent(analysis.commonLevelRangeHigh)}</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Implied Market Value</dt>
+                    <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Comp-Based Value</dt>
+                    <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
+                  </div>
+                </dl>
 
-            {analysis.isOverAssessed && (
-              <a href="/property-tax" className="mt-4 block w-full rounded-lg bg-gold px-6 py-3 text-center font-bold text-navy hover:bg-yellow-400">
-                Generate My Appeal Packet
-              </a>
+                {analysis.isOverAssessed && (
+                  <a href="/property-tax" className="mt-4 block w-full rounded-lg bg-gold px-6 py-3 text-center font-bold text-navy hover:bg-yellow-400">
+                    Generate My Appeal Packet
+                  </a>
+                )}
+              </>
             )}
 
             <p className="mt-3 text-xs text-gray-400">
