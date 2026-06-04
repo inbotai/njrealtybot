@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import HeroChat from "@/components/HeroChat";
 import HeroSeller from "@/components/HeroSeller";
 import { submitLead } from "@/lib/api";
+import { MockProvider } from "@/lib/service-ladder/property-tax/data-provider";
+import { analyzePropertyTax, formatCurrency, formatPercent } from "@/lib/service-ladder/property-tax/calc";
+import type { Chapter123Analysis } from "@/lib/service-ladder/property-tax/types";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -133,11 +136,6 @@ export default function HomePage() {
                 <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Market Intelligence</h3>
                 <p className="mt-1 text-xs text-gray-500">City reports, investment scores, deal finder, demand tracking — all AI-powered</p>
               </a>
-              <a href="/property-tax" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl">&#128176;</div>
-                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Tax Appeal</h3>
-                <p className="mt-1 text-xs text-gray-500">NJ Chapter 123 analysis — find out if you&apos;re overpaying in property taxes</p>
-              </a>
             </div>
           </div>
         </section>
@@ -163,6 +161,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Tax Appeal hero bar */}
+        <TaxAppealBar />
       </>
     );
   }
@@ -399,5 +400,176 @@ function PublicHomepage() {
         )}
       </div>
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────
+   Tax Appeal hero bar — inline on admin homepage
+   ──────────────────────────────────────────────────────── */
+
+const taxProvider = new MockProvider();
+
+function TaxAppealBar() {
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<Chapter123Analysis | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!address.trim()) return;
+    setLoading(true);
+    setError(null);
+    setAnalysis(null);
+
+    const [assessment, comps] = await Promise.all([
+      taxProvider.getAssessment(address),
+      taxProvider.getComparableSales(address),
+    ]);
+    if (!assessment) {
+      setError("Property not found. Try a full address like \"123 Maple St, Montclair, NJ\".");
+      setLoading(false);
+      return;
+    }
+    if (comps.length < 2) {
+      setError("Not enough comparable sales to analyze.");
+      setLoading(false);
+      return;
+    }
+    const ratio = await taxProvider.getDirectorRatio(assessment.county);
+    if (!ratio) {
+      setError(`Director's Ratio not available for ${assessment.county} County.`);
+      setLoading(false);
+      return;
+    }
+    setAnalysis(analyzePropertyTax(assessment, comps, ratio));
+    setLoading(false);
+  }
+
+  return (
+    <section className="bg-gradient-to-br from-navy via-indigo-900 to-navy py-14">
+      <div className="mx-auto max-w-4xl px-4 text-center">
+        <h2 className="text-2xl font-extrabold text-white md:text-3xl">
+          Are You Paying Too Much in{" "}
+          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            Property Taxes
+          </span>
+          ?
+        </h2>
+        <p className="mt-2 text-sm text-gray-300">
+          Free NJ Chapter 123 analysis — enter your address and find out instantly.
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-6 flex gap-3 mx-auto max-w-xl">
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="123 Maple St, Montclair, NJ"
+            required
+            className="flex-1 rounded-lg border-0 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-gold"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="whitespace-nowrap rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50"
+          >
+            {loading ? "Analyzing..." : "Check My Taxes"}
+          </button>
+        </form>
+        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+
+        {/* Inline results */}
+        {analysis && (
+          <div className="mt-8 mx-auto max-w-3xl rounded-xl bg-white p-6 text-left shadow-lg">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Your Analysis</h3>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                analysis.appealLikelihood === "high" ? "bg-green-100 text-green-800"
+                  : analysis.appealLikelihood === "moderate" ? "bg-yellow-100 text-yellow-800"
+                    : "bg-gray-100 text-gray-600"
+              }`}>
+                {analysis.appealLikelihood === "high" ? "Strong Case"
+                  : analysis.appealLikelihood === "moderate" ? "Possible Case" : "Unlikely Benefit"}
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="text-xs font-medium uppercase text-gray-500">Est. Overpayment</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">
+                  {analysis.overpaymentLow === 0 && analysis.overpaymentHigh === 0
+                    ? "$0"
+                    : `${formatCurrency(analysis.overpaymentLow)} – ${formatCurrency(analysis.overpaymentHigh)}`}
+                </p>
+                <p className="text-xs text-gray-500">per year</p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="text-xs font-medium uppercase text-gray-500">Appeal Likelihood</p>
+                <p className="mt-1 text-xl font-bold capitalize text-gray-900">{analysis.appealLikelihood}</p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="text-xs font-medium uppercase text-gray-500">Filing Deadline</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">{analysis.filingDeadline}</p>
+              </div>
+            </div>
+
+            {/* Comps */}
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b text-xs uppercase text-gray-500">
+                    <th className="pb-2 pr-4">Comparable</th>
+                    <th className="pb-2 pr-4">Sale Price</th>
+                    <th className="pb-2 pr-4">Date</th>
+                    <th className="pb-2">Distance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analysis.comparables.map((c, i) => (
+                    <tr key={i} className="border-b last:border-0">
+                      <td className="py-2 pr-4 font-medium">{c.address}</td>
+                      <td className="py-2 pr-4">{formatCurrency(c.salePrice)}</td>
+                      <td className="py-2 pr-4">{c.saleDate}</td>
+                      <td className="py-2">{c.distanceMiles} mi</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Chapter 123 details */}
+            <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                <dt className="text-gray-600">Director&apos;s Ratio</dt>
+                <dd className="font-medium">{formatPercent(analysis.directorRatio)}</dd>
+              </div>
+              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                <dt className="text-gray-600">Common Level Range</dt>
+                <dd className="font-medium">{formatPercent(analysis.commonLevelRangeLow)} – {formatPercent(analysis.commonLevelRangeHigh)}</dd>
+              </div>
+              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                <dt className="text-gray-600">Implied Market Value</dt>
+                <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
+              </div>
+              <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                <dt className="text-gray-600">Comp-Based Value</dt>
+                <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
+              </div>
+            </dl>
+
+            {analysis.isOverAssessed && (
+              <a href="/property-tax" className="mt-4 block w-full rounded-lg bg-gold px-6 py-3 text-center font-bold text-navy hover:bg-yellow-400">
+                Generate My Appeal Packet
+              </a>
+            )}
+
+            <p className="mt-3 text-xs text-gray-400">
+              Estimate only — not a guarantee or legal/tax advice. Consult a licensed professional for individualized guidance.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
