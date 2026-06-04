@@ -133,6 +133,11 @@ export default function HomePage() {
                 <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Market Intelligence</h3>
                 <p className="mt-1 text-xs text-gray-500">City reports, investment scores, deal finder, demand tracking — all AI-powered</p>
               </a>
+              <a href="/property-tax" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-xl">&#128176;</div>
+                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Tax Appeal</h3>
+                <p className="mt-1 text-xs text-gray-500">NJ Chapter 123 analysis — find out if you&apos;re overpaying in property taxes</p>
+              </a>
             </div>
           </div>
         </section>
