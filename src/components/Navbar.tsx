@@ -16,6 +16,7 @@ const adminLinks = [
 ];
 
 const moreLinks = [
+  { href: "/property-tax", label: "Tax Appeal" },
   { href: "/match", label: "Matchmaker" },
   { href: "/staging", label: "Staging" },
   { href: "/renovate", label: "Renovate" },
