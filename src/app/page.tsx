@@ -467,7 +467,7 @@ function TaxAppealBar() {
             onChange={(e) => setAddress(e.target.value)}
             placeholder="123 Maple St, Montclair, NJ"
             required
-            className="flex-1 rounded-lg border-0 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-gold"
+            className="flex-1 rounded-lg border-0 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-gold"
           />
           <button
             type="submit"
