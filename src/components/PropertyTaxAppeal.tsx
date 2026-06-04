@@ -1,17 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { MockProvider } from "@/lib/service-ladder/property-tax/data-provider";
 import {
-  analyzePropertyTax,
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
-import type { Chapter123Analysis, TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
+import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
 import type { LadderStage } from "@/lib/service-ladder/types";
 
-// Swap this for a real provider when NJ MOD-IV / county data is available
-const provider = new MockProvider();
+const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+
+interface TaxAnalysisResult {
+  address: string;
+  city: string;
+  county: string;
+  assessedValue: number;
+  taxAnnual: number;
+  eqRatio: number;
+  eqRatioEffective: number;
+  commonLevelRangeLow: number;
+  commonLevelRangeHigh: number;
+  impliedMarketValue: number;
+  estimatedMarketValueLow: number;
+  estimatedMarketValueHigh: number;
+  estimatedMarketValueMid: number;
+  isOverAssessed: boolean;
+  overpaymentLow: number;
+  overpaymentHigh: number;
+  appealLikelihood: "high" | "moderate" | "low";
+  filingDeadline: string;
+  comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; yearBuilt: number | null; distanceMiles: number | null; propertyType: string }[];
+}
 
 // Feature flag: set to true when real payments are wired
 const EQUIP_PAYWALL_ENABLED = false;
@@ -26,7 +45,7 @@ export default function PropertyTaxAppeal() {
   const [stage, setStage] = useState<LadderStage>("diagnose");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<Chapter123Analysis | null>(null);
+  const [analysis, setAnalysis] = useState<TaxAnalysisResult | null>(null);
 
   // Rung 3 lead form
   const [leadForm, setLeadForm] = useState<Partial<TaxAppealLead>>({});
@@ -42,32 +61,18 @@ export default function PropertyTaxAppeal() {
     setAnalysis(null);
 
     try {
-      const [assessment, comps] = await Promise.all([
-        provider.getAssessment(address),
-        provider.getComparableSales(address),
-      ]);
-
-      if (!assessment) {
-        setError(
-          "We couldn't find that property. Try entering the full street address with city and state (e.g. \"123 Maple St, Montclair, NJ\").",
-        );
+      const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "We couldn't find that property. Try the full street address with city (e.g. \"123 Maple St, Montclair, NJ\").");
         setLoading(false);
         return;
       }
-      if (comps.length < 2) {
-        setError("Not enough comparable sales found to run an analysis. Try a different address.");
-        setLoading(false);
-        return;
-      }
-
-      const ratio = await provider.getDirectorRatio(assessment.county);
-      if (!ratio) {
-        setError(`Director's Ratio not available for ${assessment.county} County.`);
-        setLoading(false);
-        return;
-      }
-
-      const result = analyzePropertyTax(assessment, comps, ratio);
+      const result: TaxAnalysisResult = await res.json();
       setAnalysis(result);
       setStage("diagnose");
     } catch {
@@ -206,11 +211,11 @@ export default function PropertyTaxAppeal() {
                 <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Current Assessment</dt>
-                    <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue * analysis.directorRatio)}</dd>
+                    <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue * analysis.eqRatioEffective)}</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Director&apos;s Ratio</dt>
-                    <dd className="font-medium">{formatPercent(analysis.directorRatio)}</dd>
+                    <dt className="text-gray-600">Equalization Ratio</dt>
+                    <dd className="font-medium">{formatPercent(analysis.eqRatioEffective)}</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Implied Market Value</dt>
@@ -311,17 +316,17 @@ export default function PropertyTaxAppeal() {
                     {formatCurrency(analysis.estimatedMarketValueLow)} to{" "}
                     {formatCurrency(analysis.estimatedMarketValueHigh)} (average:{" "}
                     {formatCurrency(analysis.estimatedMarketValueMid)}). Under the NJ Chapter 123
-                    Common Level Ratio, the county Director&apos;s Ratio is{" "}
-                    {formatPercent(analysis.directorRatio)}, which means the fair assessed value
+                    Common Level Ratio, the county Equalization Ratio is{" "}
+                    {formatPercent(analysis.eqRatioEffective)}, which means the fair assessed value
                     should be approximately{" "}
-                    {formatCurrency(Math.round(analysis.estimatedMarketValueMid * analysis.directorRatio))}.
+                    {formatCurrency(Math.round(analysis.estimatedMarketValueMid * analysis.eqRatioEffective))}.
                     The current assessment of{" "}
-                    {formatCurrency(Math.round(analysis.impliedMarketValue * analysis.directorRatio))}{" "}
+                    {formatCurrency(Math.round(analysis.impliedMarketValue * analysis.eqRatioEffective))}{" "}
                     exceeds this by{" "}
                     {formatCurrency(
                       Math.round(
-                        analysis.impliedMarketValue * analysis.directorRatio -
-                          analysis.estimatedMarketValueMid * analysis.directorRatio,
+                        analysis.impliedMarketValue * analysis.eqRatioEffective -
+                          analysis.estimatedMarketValueMid * analysis.eqRatioEffective,
                       ),
                     )}
                     , placing the property&apos;s individual ratio above the Common Level Range upper

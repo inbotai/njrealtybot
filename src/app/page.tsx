@@ -6,9 +6,7 @@ import { useRouter } from "next/navigation";
 import HeroChat from "@/components/HeroChat";
 import HeroSeller from "@/components/HeroSeller";
 import { submitLead } from "@/lib/api";
-import { MockProvider } from "@/lib/service-ladder/property-tax/data-provider";
-import { analyzePropertyTax, formatCurrency, formatPercent } from "@/lib/service-ladder/property-tax/calc";
-import type { Chapter123Analysis } from "@/lib/service-ladder/property-tax/types";
+import { formatCurrency, formatPercent } from "@/lib/service-ladder/property-tax/calc";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -407,13 +405,35 @@ function PublicHomepage() {
    Tax Appeal hero bar — inline on admin homepage
    ──────────────────────────────────────────────────────── */
 
-const taxProvider = new MockProvider();
+const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+
+interface TaxAnalysis {
+  address: string;
+  city: string;
+  county: string;
+  assessedValue: number;
+  taxAnnual: number;
+  eqRatio: number;
+  eqRatioEffective: number;
+  commonLevelRangeLow: number;
+  commonLevelRangeHigh: number;
+  impliedMarketValue: number;
+  estimatedMarketValueLow: number;
+  estimatedMarketValueHigh: number;
+  estimatedMarketValueMid: number;
+  isOverAssessed: boolean;
+  overpaymentLow: number;
+  overpaymentHigh: number;
+  appealLikelihood: "high" | "moderate" | "low";
+  filingDeadline: string;
+  comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; distanceMiles: number | null; propertyType: string }[];
+}
 
 function TaxAppealBar() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<Chapter123Analysis | null>(null);
+  const [analysis, setAnalysis] = useState<TaxAnalysis | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -422,28 +442,25 @@ function TaxAppealBar() {
     setError(null);
     setAnalysis(null);
 
-    const [assessment, comps] = await Promise.all([
-      taxProvider.getAssessment(address),
-      taxProvider.getComparableSales(address),
-    ]);
-    if (!assessment) {
-      setError("Property not found. Try a full address like \"123 Maple St, Montclair, NJ\".");
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Could not find assessment data. Try the full address with city and NJ.");
+        setLoading(false);
+        return;
+      }
+      const result: TaxAnalysis = await res.json();
+      setAnalysis(result);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-    if (comps.length < 2) {
-      setError("Not enough comparable sales to analyze.");
-      setLoading(false);
-      return;
-    }
-    const ratio = await taxProvider.getDirectorRatio(assessment.county);
-    if (!ratio) {
-      setError(`Director's Ratio not available for ${assessment.county} County.`);
-      setLoading(false);
-      return;
-    }
-    setAnalysis(analyzePropertyTax(assessment, comps, ratio));
-    setLoading(false);
   }
 
   return (
@@ -522,7 +539,7 @@ function TaxAppealBar() {
                     <th className="pb-2 pr-4">Comparable</th>
                     <th className="pb-2 pr-4">Sale Price</th>
                     <th className="pb-2 pr-4">Date</th>
-                    <th className="pb-2">Distance</th>
+                    <th className="pb-2">Beds</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -531,7 +548,7 @@ function TaxAppealBar() {
                       <td className="py-2 pr-4 font-medium">{c.address}</td>
                       <td className="py-2 pr-4">{formatCurrency(c.salePrice)}</td>
                       <td className="py-2 pr-4">{c.saleDate}</td>
-                      <td className="py-2">{c.distanceMiles} mi</td>
+                      <td className="py-2">{c.bedrooms ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -541,8 +558,8 @@ function TaxAppealBar() {
             {/* Chapter 123 details */}
             <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
               <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                <dt className="text-gray-600">Director&apos;s Ratio</dt>
-                <dd className="font-medium">{formatPercent(analysis.directorRatio)}</dd>
+                <dt className="text-gray-600">Equalization Ratio</dt>
+                <dd className="font-medium">{analysis.eqRatio.toFixed(2)}%</dd>
               </div>
               <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                 <dt className="text-gray-600">Common Level Range</dt>
