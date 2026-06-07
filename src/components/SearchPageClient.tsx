@@ -249,38 +249,38 @@ export default function SearchPageClient() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Hero search bar */}
         <div className="mb-6 flex overflow-hidden rounded-xl bg-white shadow-md border border-gray-200 px-4 py-2 items-center gap-2">
-          {heroVoiceActive ? (
-            <VoiceButton onTranscript={(text) => handleHeroSearch(text)} onRecordingChange={setHeroVoiceActive} />
-          ) : (
-            <>
-              <div className="flex items-center">
-                <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
-                  <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
-                  <circle cx="100" cy="105" r="52" fill="#4f46e5" />
-                  <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                  <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
-                  <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
-                  <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                value={heroInput}
-                onChange={e => setHeroInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleHeroSearch(); } }}
-                placeholder="Search properties, request a CMA, sell your home, or click the mic to speak"
-                className="flex-1 px-2 py-2 text-sm text-gray-800 outline-none placeholder:text-gray-400"
-                disabled={heroSearching}
-              />
-              <VoiceButton onTranscript={(text) => handleHeroSearch(text)} onRecordingChange={setHeroVoiceActive} />
-              <button
-                onClick={() => handleHeroSearch()}
-                disabled={!heroInput.trim() || heroSearching}
-                className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
-              >
-                {heroSearching ? "..." : "Search"}
-              </button>
-            </>
+          {!heroVoiceActive && (
+            <div className="flex items-center">
+              <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
+                <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+                <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+                <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+                <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          )}
+          {!heroVoiceActive && (
+            <input
+              type="text"
+              value={heroInput}
+              onChange={e => setHeroInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleHeroSearch(); } }}
+              placeholder="Search properties, request a CMA, sell your home, or click the mic to speak"
+              className="flex-1 px-2 py-2 text-sm text-gray-800 outline-none placeholder:text-gray-400"
+              disabled={heroSearching}
+            />
+          )}
+          <VoiceButton onTranscript={(text) => handleHeroSearch(text)} onRecordingChange={setHeroVoiceActive} />
+          {!heroVoiceActive && (
+            <button
+              onClick={() => handleHeroSearch()}
+              disabled={!heroInput.trim() || heroSearching}
+              className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-40"
+            >
+              {heroSearching ? "..." : "Search"}
+            </button>
           )}
         </div>
 

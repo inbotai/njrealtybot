@@ -160,25 +160,23 @@ export default function ValeSidePanel() {
       {/* Input area */}
       <div className="border-t border-gray-200 px-4 py-3 bg-white">
         <div className="flex items-center gap-2">
-          {voiceActive ? (
-            <VoiceButton onTranscript={(text) => handleSend(text)} onRecordingChange={setVoiceActive} />
-          ) : (
-            <>
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Search homes, ask about market trends..."
-                className="flex-1 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-gray-400"
-                disabled={loading}
-              />
-              <VoiceButton onTranscript={(text) => handleSend(text)} onRecordingChange={setVoiceActive} className="rounded-xl border border-gray-300 bg-white p-3 text-gray-500 hover:bg-gray-50" />
-              <button onClick={() => handleSend()} disabled={loading || !input.trim()}
-                className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 transition">
-                Send
-              </button>
-            </>
+          {!voiceActive && (
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              placeholder="Search homes, ask about market trends..."
+              className="flex-1 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-gray-400"
+              disabled={loading}
+            />
+          )}
+          <VoiceButton onTranscript={(text) => handleSend(text)} onRecordingChange={setVoiceActive} className={voiceActive ? "" : "rounded-xl border border-gray-300 bg-white p-3 text-gray-500 hover:bg-gray-50"} />
+          {!voiceActive && (
+            <button onClick={() => handleSend()} disabled={loading || !input.trim()}
+              className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 transition">
+              Send
+            </button>
           )}
         </div>
         <p className="mt-2 text-center text-xs text-gray-400">
