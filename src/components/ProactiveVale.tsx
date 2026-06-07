@@ -1,18 +1,63 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { IDX_PUBLIC_ENABLED } from "@/lib/config";
+import { usePathname } from "next/navigation";
+import { submitLead } from "@/lib/api";
 
 const STORAGE_KEY = "gsai_proactive_shown";
 
-/** Proactive Vale nudge — appears after 15s on homepage. Hidden until broker. */
+/** Context-aware proactive nudge — adapts message to current page. */
+function getNudge(pathname: string): { title: string; body: string; cta: string; interest: string } {
+  if (pathname.startsWith("/market/")) {
+    const city = decodeURIComponent(pathname.split("/market/")[1] || "");
+    return {
+      title: `Interested in ${city || "this market"}?`,
+      body: "Get weekly price alerts and new listings in this area — before they hit the market.",
+      cta: "Get Market Alerts",
+      interest: `market alerts: ${city}`,
+    };
+  }
+  if (pathname === "/sell" || pathname.startsWith("/sell")) {
+    return {
+      title: "Thinking about selling?",
+      body: "Get a free AI-powered valuation and our 90-day guarantee: if we don't sell it, we do it for free.",
+      cta: "Get My Valuation",
+      interest: "sell",
+    };
+  }
+  if (pathname === "/search" || pathname.startsWith("/property/")) {
+    return {
+      title: "Found something you like?",
+      body: "Save your search and get instant alerts when similar homes hit the market or drop in price.",
+      cta: "Set Up Alerts",
+      interest: "buy",
+    };
+  }
+  if (pathname === "/property-tax") {
+    return {
+      title: "Paying too much in taxes?",
+      body: "Enter your address above — or let me check if you qualify for a property tax reduction.",
+      cta: "Check My Taxes",
+      interest: "tax appeal",
+    };
+  }
+  return {
+    title: "Can I help?",
+    body: "I'm Vale — I can find homes, estimate values, or analyze any NJ market. What are you looking for?",
+    cta: "Let's Talk",
+    interest: "general",
+  };
+}
+
 export default function ProactiveVale() {
   const [show, setShow] = useState(false);
-  const router = useRouter();
+  const [phone, setPhone] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const pathname = usePathname();
+  const nudge = getNudge(pathname);
 
   useEffect(() => {
-    if (!IDX_PUBLIC_ENABLED) return;
     if (sessionStorage.getItem(STORAGE_KEY)) return;
 
     const timer = setTimeout(() => {
@@ -20,9 +65,23 @@ export default function ProactiveVale() {
         setShow(true);
         sessionStorage.setItem(STORAGE_KEY, "1");
       }
-    }, 15000);
+    }, 20000); // 20 seconds
     return () => clearTimeout(timer);
   }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!phone.trim()) return;
+    try {
+      await submitLead({
+        full_name: "Proactive Lead",
+        phone: phone.trim(),
+        message: `Proactive nudge lead — interest: ${nudge.interest}. Page: ${pathname}`,
+        lead_type: nudge.interest === "buy" ? "buyer_waitlist" : "info_request",
+      });
+    } catch { /* silent */ }
+    setSubmitted(true);
+  }
 
   if (!show) return null;
 
@@ -38,13 +97,32 @@ export default function ProactiveVale() {
             <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
           </svg>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-navy">Looking to sell?</p>
-          <p className="mt-1 text-xs text-gray-500">I can tell you what your home is worth in 30 seconds. Just type your address.</p>
-          <button onClick={() => { setShow(false); router.push("/chat?q=What%27s%20my%20home%20worth%3F"); }}
-            className="mt-2 rounded-lg bg-gold px-4 py-1.5 text-xs font-bold text-navy hover:bg-yellow-400">
-            Get My Valuation
-          </button>
+        <div className="min-w-0">
+          {submitted ? (
+            <>
+              <p className="text-sm font-semibold text-green-700">Got it!</p>
+              <p className="mt-1 text-xs text-gray-500">We&apos;ll be in touch soon.</p>
+            </>
+          ) : showForm ? (
+            <form onSubmit={handleSubmit} className="space-y-2">
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="Your phone or WhatsApp" required autoFocus
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-gold focus:outline-none" />
+              <button type="submit" disabled={!phone.trim()}
+                className="w-full rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">
+                {nudge.cta}
+              </button>
+            </form>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-navy">{nudge.title}</p>
+              <p className="mt-1 text-xs text-gray-500">{nudge.body}</p>
+              <button onClick={() => setShowForm(true)}
+                className="mt-2 rounded-lg bg-gold px-4 py-1.5 text-xs font-bold text-navy hover:bg-yellow-400">
+                {nudge.cta}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

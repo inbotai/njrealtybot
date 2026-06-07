@@ -3,6 +3,7 @@ import Link from "next/link";
 import { fetchMarketReport, getPhotoUrl } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import IdxGate from "@/components/IdxGate";
+import MarketLeadCapture from "@/components/MarketLeadCapture";
 
 type Props = { params: Promise<{ city: string }> };
 
@@ -112,6 +113,9 @@ export default async function MarketPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Market Alerts Lead Capture */}
+      <MarketLeadCapture city={cityName} />
 
       <div className="mx-auto max-w-5xl px-4 py-12">
         {/* Recent Sales — gated behind IDX auth in Phase 1 */}
