@@ -18,7 +18,6 @@ export default function Footer() {
               <span className="text-gold">Garden</span> State <span className="text-indigo-400">AI</span>
             </h3>
             <p className="mt-2 text-sm">
-              The Most Advanced Real Estate AI in NJ.
             </p>
           </div>
 
