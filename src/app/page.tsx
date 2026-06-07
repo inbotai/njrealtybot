@@ -421,12 +421,17 @@ interface TaxAnalysis {
   estimatedMarketValueLow: number;
   estimatedMarketValueHigh: number;
   estimatedMarketValueMid: number;
+  estimatedPropertyRatio: number;
+  chapter123Result: "within_range" | "over_assessed" | "under_assessed";
+  chapter123Explanation: string;
+  effectiveTaxRate: number;
   isOverAssessed: boolean;
   overpaymentLow: number;
   overpaymentHigh: number;
   appealLikelihood: "high" | "moderate" | "low";
   filingDeadline: string;
-  comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; distanceMiles: number | null; propertyType: string }[];
+  revaluation: { year: number; explanation: string; recommendation: string } | null;
+  comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; distanceMiles: number | null; propertyType: string; score?: number }[];
 }
 
 function TaxAppealBar() {
@@ -612,22 +617,54 @@ function TaxAppealBar() {
                 {/* Chapter 123 details — unlocked */}
                 <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Equalization Ratio</dt>
+                    <dt className="text-gray-600">Average Ratio</dt>
                     <dd className="font-medium">{analysis.eqRatio.toFixed(2)}%</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Common Level Range</dt>
-                    <dd className="font-medium">{formatPercent(analysis.commonLevelRangeLow)} – {formatPercent(analysis.commonLevelRangeHigh)}</dd>
+                    <dd className="font-medium">{analysis.commonLevelRangeLow}% – {analysis.commonLevelRangeHigh}%</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Estimated Property Ratio</dt>
+                    <dd className={`font-medium ${analysis.chapter123Result === "over_assessed" ? "text-red-600" : analysis.chapter123Result === "under_assessed" ? "text-blue-600" : "text-green-600"}`}>
+                      {analysis.estimatedPropertyRatio}%
+                    </dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Effective Tax Rate</dt>
+                    <dd className="font-medium">{analysis.effectiveTaxRate}%</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Comp-Based Market Value</dt>
+                    <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Implied Market Value</dt>
                     <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
                   </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Comp-Based Value</dt>
-                    <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
-                  </div>
                 </dl>
+
+                {/* Chapter 123 Test Result */}
+                <div className={`mt-4 rounded-lg p-3 text-sm ${
+                  analysis.chapter123Result === "over_assessed" ? "bg-red-50 text-red-800"
+                    : analysis.chapter123Result === "under_assessed" ? "bg-blue-50 text-blue-800"
+                      : "bg-green-50 text-green-800"
+                }`}>
+                  <p className="font-semibold">
+                    Chapter 123 Test: {analysis.chapter123Result === "over_assessed" ? "Over-Assessed"
+                      : analysis.chapter123Result === "under_assessed" ? "Under-Assessed" : "Within Range"}
+                  </p>
+                  <p className="mt-1 text-xs">{analysis.chapter123Explanation}</p>
+                </div>
+
+                {/* Revaluation Impact */}
+                {analysis.revaluation && (
+                  <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+                    <p className="font-semibold text-amber-900">Revaluation {analysis.revaluation.year}</p>
+                    <p className="mt-1 text-xs text-amber-800">{analysis.revaluation.explanation}</p>
+                    <p className="mt-2 text-xs font-medium text-amber-900">{analysis.revaluation.recommendation}</p>
+                  </div>
+                )}
 
                 {analysis.isOverAssessed && (
                   <a href="/property-tax" className="mt-4 block w-full rounded-lg bg-gold px-6 py-3 text-center font-bold text-navy hover:bg-yellow-400">
