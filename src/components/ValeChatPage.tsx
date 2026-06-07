@@ -76,6 +76,7 @@ export default function ValeChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -338,25 +339,32 @@ export default function ValeChatPage() {
         onSubmit={handleSubmit}
         className="flex items-center gap-2 border-t border-gray-200 py-3"
       >
-        <input
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Search homes, ask about market trends, schedule a showing..."
-          className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-          disabled={loading}
-        />
-        <VoiceButton
-          onTranscript={(text) => send(text)}
-          className="rounded-xl border border-gray-300 bg-white p-2.5 text-gray-500 hover:bg-gray-50"
-        />
-        <button
-          type="submit"
-          disabled={loading || !input.trim()}
-          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
-        >
-          Send
-        </button>
+        {voiceActive ? (
+          <VoiceButton onTranscript={(text) => send(text)} onRecordingChange={setVoiceActive} />
+        ) : (
+          <>
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Search homes, ask about market trends, schedule a showing..."
+              className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              disabled={loading}
+            />
+            <VoiceButton
+              onTranscript={(text) => send(text)}
+              onRecordingChange={setVoiceActive}
+              className="rounded-xl border border-gray-300 bg-white p-2.5 text-gray-500 hover:bg-gray-50"
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+            >
+              Send
+            </button>
+          </>
+        )}
       </form>
      </div>
     </div>

@@ -20,6 +20,7 @@ const stats = [
 
 export default function SellPageClient() {
   const [address, setAddress] = useState("");
+  const [voiceActive, setVoiceActive] = useState(false);
   const router = useRouter();
 
   function handleSubmit(e: React.FormEvent) {
@@ -84,22 +85,28 @@ export default function SellPageClient() {
 
           {/* Address input */}
           <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-2xl">
-            <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl">
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your property address... (e.g. 36 Clark Ave, Bloomfield)"
-                className="flex-1 px-5 py-4 text-base text-gray-800 outline-none placeholder:text-gray-400"
-              />
-              <VoiceButton onTranscript={handleVoice} className="px-3" />
-              <button
-                type="submit"
-                disabled={!address.trim()}
-                className="bg-gold px-8 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
-              >
-                Get Free Estimate
-              </button>
+            <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl px-4 py-2 items-center gap-2">
+              {voiceActive ? (
+                <VoiceButton onTranscript={handleVoice} onRecordingChange={setVoiceActive} />
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Enter your property address... (e.g. 36 Clark Ave, Bloomfield)"
+                    className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
+                  />
+                  <VoiceButton onTranscript={handleVoice} onRecordingChange={setVoiceActive} />
+                  <button
+                    type="submit"
+                    disabled={!address.trim()}
+                    className="rounded-lg bg-gold px-6 py-2.5 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
+                  >
+                    Get Free Estimate
+                  </button>
+                </>
+              )}
             </div>
             <p className="mt-3 text-sm text-gray-400">
               Or click the microphone and say your address

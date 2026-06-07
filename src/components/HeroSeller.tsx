@@ -13,6 +13,7 @@ const chips: { label: string; query?: string; href?: string }[] = [
 export default function HeroSeller() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(false);
   const router = useRouter();
 
   function submit(text?: string) {
@@ -25,26 +26,35 @@ export default function HeroSeller() {
   return (
     <div className="mx-auto w-full max-w-2xl">
       {/* Address input */}
-      <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl">
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
-          placeholder="Enter your NJ address (e.g. 36 Clark Ave, Bloomfield)"
-          className="flex-1 px-5 py-5 text-base text-gray-800 outline-none placeholder:text-gray-400"
-        />
-        <VoiceButton
-          onTranscript={(text) => { setAddress(text); submit(text); }}
-          className="px-2"
-        />
-        <button
-          onClick={() => submit()}
-          disabled={!address.trim() || loading}
-          className="bg-gold px-6 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
-        >
-          {loading ? "..." : "Get Free Estimate"}
-        </button>
+      <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl px-4 py-2 items-center gap-2">
+        {voiceActive ? (
+          <VoiceButton
+            onTranscript={(text) => { setAddress(text); submit(text); }}
+            onRecordingChange={setVoiceActive}
+          />
+        ) : (
+          <>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
+              placeholder="Enter your NJ address (e.g. 36 Clark Ave, Bloomfield)"
+              className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
+            />
+            <VoiceButton
+              onTranscript={(text) => { setAddress(text); submit(text); }}
+              onRecordingChange={setVoiceActive}
+            />
+            <button
+              onClick={() => submit()}
+              disabled={!address.trim() || loading}
+              className="rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
+            >
+              {loading ? "..." : "Get Free Estimate"}
+            </button>
+          </>
+        )}
       </div>
       <p className="mt-3 text-sm text-gray-400">
         Or click the microphone and say your address
