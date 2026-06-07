@@ -674,9 +674,12 @@ function TaxAppealBar() {
               </>
             )}
 
-            <p className="mt-3 text-xs text-gray-400">
-              Estimate only — not a guarantee or legal/tax advice. Consult a licensed professional for individualized guidance.
-            </p>
+            <div className="mt-4 border-t pt-4">
+              <p className="text-xs font-semibold text-gray-500">Disclaimer</p>
+              <p className="mt-1 text-xs text-gray-400 leading-relaxed">
+                This analysis is a <strong>general estimate</strong> based on public data and NJ Chapter 123. <strong>It is not legal, tax, or professional advice.</strong> Results are approximate and may vary based on official assessor information. The success of an appeal is not guaranteed. We recommend consulting a <strong>tax appeal attorney</strong> or <strong>licensed property tax consultant</strong> in New Jersey before taking any action. Garden State AI does not offer guarantees and does not represent the taxpayer.
+              </p>
+            </div>
           </div>
         )}
       </div>

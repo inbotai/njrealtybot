@@ -36,9 +36,12 @@ interface TaxAnalysisResult {
 const EQUIP_PAYWALL_ENABLED = false;
 
 const DISCLAIMER =
-  "This is an estimate based on public data and recent comparable sales, not a guarantee of tax savings. " +
-  "This tool does not provide legal or tax advice. Consult a licensed NJ tax appeal attorney or CPA " +
-  "for individualized guidance. Filing an appeal is a homeowner's right — this tool helps you exercise it.";
+  "This analysis is a general estimate based on public data and NJ Chapter 123. " +
+  "It is not legal, tax, or professional advice. Results are approximate and may vary " +
+  "based on official assessor information. The success of an appeal is not guaranteed. " +
+  "We recommend consulting a tax appeal attorney or licensed property tax consultant " +
+  "in New Jersey before taking any action. Garden State AI does not offer guarantees " +
+  "and does not represent the taxpayer.";
 
 export default function PropertyTaxAppeal() {
   const [address, setAddress] = useState("");
