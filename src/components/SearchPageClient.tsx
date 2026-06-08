@@ -39,18 +39,21 @@ function categorize(listings: Listing[]) {
   const upcoming: Listing[] = [];
   const newListings: Listing[] = [];
   const active: Listing[] = [];
+  const underContract: Listing[] = [];
 
   for (const l of listings) {
     const status = (l.mls_status || "").toLowerCase();
     if (status.includes("coming soon") || status.includes("upcoming")) {
       upcoming.push(l);
+    } else if (status.includes("under contract") || status.includes("pending") || status.includes("attorney review")) {
+      underContract.push(l);
     } else if (l.list_date && now - new Date(l.list_date).getTime() < sevenDays) {
       newListings.push(l);
     } else {
       active.push(l);
     }
   }
-  return { upcoming, newListings, active };
+  return { upcoming, newListings, active, underContract };
 }
 
 export default function SearchPageClient() {
@@ -178,7 +181,7 @@ export default function SearchPageClient() {
   }, [filters.city, filters.county, filters.q]);
 
   const allListings: Listing[] = results?.data || [];
-  const { upcoming, newListings, active } = categorize(allListings);
+  const { upcoming, newListings, active, underContract } = categorize(allListings);
   const currentPage = Number(filters.page);
   const totalPages = results?.totalPages || 1;
   const locationName = filters.city || filters.county || filters.q;
@@ -391,8 +394,13 @@ export default function SearchPageClient() {
               />
             )}
 
+            {/* Under Contract */}
+            {underContract.length > 0 && (
+              <Section title="📝 Under Contract" subtitle="Accepted offer — may still accept backup offers" listings={underContract} />
+            )}
+
             {/* If no sections matched but we have listings, show all */}
-            {!upcoming.length && !newListings.length && !active.length && allListings.length > 0 && (
+            {!upcoming.length && !newListings.length && !active.length && !underContract.length && allListings.length > 0 && (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {allListings.map((l) => <ListingCard key={l.id} listing={l} />)}
               </div>
