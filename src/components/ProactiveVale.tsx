@@ -59,15 +59,17 @@ export default function ProactiveVale() {
 
   useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY)) return;
+    // Don't show on chat or property detail pages (user is already engaged with Vale)
+    if (pathname === "/chat" || pathname.startsWith("/property/")) return;
 
     const timer = setTimeout(() => {
       if (!sessionStorage.getItem(STORAGE_KEY)) {
         setShow(true);
         sessionStorage.setItem(STORAGE_KEY, "1");
       }
-    }, 20000); // 20 seconds
+    }, 30000); // 30 seconds
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

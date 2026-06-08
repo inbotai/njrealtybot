@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { submitLead } from "@/lib/api";
 
 const STORAGE_KEY = "gsai_exit_shown";
 
 /** Exit intent popup — captures lead with value exchange. Once per session. */
 export default function ExitIntent() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -16,10 +18,12 @@ export default function ExitIntent() {
 
   useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY)) return;
+    // Don't show on chat or property detail pages (user is already engaged)
+    if (pathname === "/chat" || pathname.startsWith("/property/")) return;
 
     // Delay enabling exit intent — don't show to bouncing users
     let enabled = false;
-    const enableTimer = setTimeout(() => { enabled = true; }, 10000);
+    const enableTimer = setTimeout(() => { enabled = true; }, 15000);
 
     function handleMouseLeave(e: MouseEvent) {
       if (e.clientY <= 0 && enabled && !sessionStorage.getItem(STORAGE_KEY)) {

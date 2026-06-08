@@ -20,7 +20,13 @@ export default function HeroSeller() {
     const q = (text || address).trim();
     if (!q || loading) return;
     setLoading(true);
-    router.push(`/chat?q=${encodeURIComponent(`What's my home worth? ${q}`)}`);
+    // Detect property search vs valuation — if input has beds/rent/buy keywords, treat as search
+    const isSearch = /\b(bedroom|bed|bath|rent|buy|house|condo|townhouse|multi.?family|for sale|listing|under \d|dormitorio)\b/i.test(q);
+    if (isSearch) {
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
+    } else {
+      router.push(`/chat?q=${encodeURIComponent(`What's my home worth? ${q}`)}`);
+    }
   }
 
   return (
