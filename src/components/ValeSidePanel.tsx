@@ -26,9 +26,9 @@ export default function ValeSidePanel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
 
-  // Close panel on homepage
+  // Close panel on homepage and search results — only show on property detail pages
   useEffect(() => {
-    if (pathname === "/") closePanel();
+    if (pathname === "/" || pathname === "/search") closePanel();
   }, [pathname, closePanel]);
 
   // Auto-scroll on new messages
