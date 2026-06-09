@@ -23,8 +23,15 @@ export function useFavorites() {
 
   const toggle = useCallback((id: string) => {
     setFavorites(prev => {
-      const next = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id];
+      const wasAdded = !prev.includes(id);
+      const next = wasAdded ? [...prev, id] : prev.filter(f => f !== id);
       saveFavorites(next);
+      // Beacon to backend when saving (fire-and-forget)
+      if (wasAdded) {
+        fetch(`https://inbot-idx-api-production.up.railway.app/api/idx/listings/${id}/save-event`, {
+          method: "POST", keepalive: true,
+        }).catch(() => {});
+      }
       return next;
     });
   }, []);

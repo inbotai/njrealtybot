@@ -188,10 +188,18 @@ export default function NetProceedsClient() {
                     <dd className="font-medium text-red-600">-{formatCurrency(netResult.mortgagePayoff)}</dd>
                   </div>
                 )}
-                <div className="flex justify-between rounded bg-green-50 px-3 py-3 text-lg font-bold">
-                  <dt className="text-green-800">Net to Seller</dt>
-                  <dd className={netResult.netToSeller >= 0 ? "text-green-800" : "text-red-800"}>{formatCurrency(netResult.netToSeller)}</dd>
+                <div className={`flex justify-between rounded px-3 py-3 text-lg font-bold ${netResult.netToSeller >= 0 ? "bg-green-50" : "bg-red-50"}`}>
+                  <dt className={netResult.netToSeller >= 0 ? "text-green-800" : "text-red-800"}>
+                    {netResult.netToSeller >= 0 ? "Net to Seller" : "Amount Due at Closing"}
+                  </dt>
+                  <dd className={netResult.netToSeller >= 0 ? "text-green-800" : "text-red-800"}>{formatCurrency(Math.abs(netResult.netToSeller))}</dd>
                 </div>
+                {netResult.netToSeller < 0 && (
+                  <p className="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                    Selling at this price would require bringing approximately {formatCurrency(Math.abs(netResult.netToSeller))} to closing.
+                    The mortgage balance exceeds the net sale proceeds. Consider adjusting the sale price or exploring rental options.
+                  </p>
+                )}
               </dl>
               {netResult.mansionTaxNote && (
                 <p className="mt-3 text-xs text-amber-700 bg-amber-50 rounded p-2">{netResult.mansionTaxNote}</p>
