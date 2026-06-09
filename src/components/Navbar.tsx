@@ -18,6 +18,7 @@ const adminLinks = [
 const moreLinks = [
   { href: "/property-tax", label: "Tax Appeal" },
   { href: "/my-home", label: "Track My Home" },
+  { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/match", label: "Matchmaker" },
   { href: "/staging", label: "Staging" },
   { href: "/renovate", label: "Renovate" },
