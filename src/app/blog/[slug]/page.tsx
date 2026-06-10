@@ -70,11 +70,11 @@ export default async function BlogPostPage({ params }: Props) {
   const excerpt = apiPost?.excerpt || staticPost!.excerpt;
   const content = apiPost?.content || staticPost!.content;
   const category = apiPost?.category || staticPost!.category;
-  const coverImage = apiPost?.cover_image || staticPost!.coverImage;
-  const readingTime = apiPost?.reading_time || staticPost!.readingTime;
-  const author = apiPost?.author || staticPost!.author;
+  const coverImage = apiPost?.cover_image || staticPost?.coverImage || "";
+  const readingTime = apiPost?.reading_time ?? staticPost?.readingTime ?? 2;
+  const author = apiPost?.author || staticPost?.author || "Garden State AI";
   const authorRole = apiPost?.author_role || staticPost?.authorRole || null;
-  const date = apiPost?.published_at || apiPost?.created_at || staticPost!.date;
+  const date = apiPost?.published_at || apiPost?.created_at || staticPost?.date || new Date().toISOString();
   const tags: string[] = apiPost?.tags || staticPost?.tags || [];
 
   const url = `${BASE_URL}/blog/${slug}`;
