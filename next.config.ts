@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
       new URL("https://*.mlsgrid.com/**"),
       new URL("https://*.trestle.com/**"),
       new URL("https://*.photos.mlsgrid.com/**"),
+      // Municipal seals for news articles
+      new URL("https://*.hackensack.org/**"),
+      new URL("https://*.cliftonnj.org/**"),
+      new URL("https://*.cityofpassaic.com/**"),
+      new URL("https://*.elmwoodparknj.us/**"),
+      new URL("https://*.wallingtonnj.org/**"),
+      new URL("https://*.fairlawn.org/**"),
+      new URL("https://*.eastrutherfordnj.net/**"),
     ],
   },
 
