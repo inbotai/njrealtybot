@@ -25,6 +25,7 @@ const moreLinks = [
   { href: "/favorites", label: "Saved" },
   { href: "/afford", label: "Affordability" },
   { href: "/deals", label: "Deals" },
+  { href: "/news", label: "Dev News" },
   { href: "/blog", label: "Blog" },
   { href: "/market", label: "Market" },
   { href: "/open-houses", label: "Open Houses" },
