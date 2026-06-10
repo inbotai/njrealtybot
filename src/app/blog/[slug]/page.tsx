@@ -48,12 +48,14 @@ const categoryColors: Record<string, string> = {
   tips: "bg-emerald-600 text-white",
   news: "bg-purple-600 text-white",
   guide: "bg-amber-500 text-white",
+  development: "bg-indigo-600 text-white",
 };
 const categoryLabels: Record<string, string> = {
   market: "Market Update",
   tips: "Selling Tips",
   news: "News",
   guide: "Guide",
+  development: "Development News",
 };
 
 export default async function BlogPostPage({ params }: Props) {
@@ -107,10 +109,14 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Hero */}
       <section className="relative">
-        <div className="relative aspect-[21/9] w-full md:aspect-[3/1]">
-          <Image src={coverImage} alt={title} fill className="object-cover" sizes="100vw" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-        </div>
+        {coverImage ? (
+          <div className="relative aspect-[21/9] w-full md:aspect-[3/1]">
+            <Image src={coverImage} alt={title} fill className="object-cover" sizes="100vw" priority />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          </div>
+        ) : (
+          <div className="aspect-[21/9] w-full md:aspect-[4/1] bg-gradient-to-br from-navy via-indigo-900 to-navy" />
+        )}
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-3xl px-4 pb-8 md:pb-12">
             <div className="flex items-center gap-3">
