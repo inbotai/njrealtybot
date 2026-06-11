@@ -161,7 +161,7 @@ export default async function BlogPostPage({ params }: Props) {
             prose-headings:text-navy prose-headings:font-extrabold
             prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
             prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-            prose-p:leading-relaxed prose-p:text-gray-700
+            prose-p:leading-relaxed prose-p:text-gray-700 prose-p:mb-6
             prose-a:text-indigo-600 prose-a:font-medium hover:prose-a:text-indigo-800
             prose-strong:text-navy
             prose-li:text-gray-700 prose-li:leading-relaxed
