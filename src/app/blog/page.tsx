@@ -107,13 +107,13 @@ export default async function BlogPage() {
         {/* Featured Post */}
         <Link href={`/blog/${featured.slug}`} className="group mb-12 block overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-xl">
           <div className="grid md:grid-cols-2">
-            <div className="relative aspect-[16/10] md:aspect-auto bg-gradient-to-br from-navy via-indigo-900 to-navy">
+            <div className="relative aspect-[16/10] md:aspect-auto bg-gradient-to-br from-gray-100 to-gray-200">
               {featured.coverImage ? (
                 featured.coverImage.startsWith("/") || featured.coverImage.includes("mlsmatrix") || featured.coverImage.includes("paragonrels") ? (
                   <Image src={featured.coverImage} alt={featured.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" priority />
                 ) : (
                   <div className="flex h-full items-center justify-center p-12">
-                    <img src={featured.coverImage} alt={featured.title} className="max-h-64 max-w-80 object-contain drop-shadow-2xl" />
+                    <img src={featured.coverImage} alt={featured.title} className="max-h-64 max-w-80 object-contain drop-shadow-lg" />
                   </div>
                 )
               ) : null}
@@ -152,7 +152,7 @@ export default async function BlogPage() {
               {rest.map(post => (
                 <Link key={post.slug} href={`/blog/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-lg">
-                  <div className="relative aspect-[16/10] bg-gradient-to-br from-navy via-indigo-900 to-navy">
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-100 to-gray-200">
                     {post.coverImage ? (
                       post.coverImage.startsWith("/") || post.coverImage.includes("mlsmatrix") || post.coverImage.includes("paragonrels") ? (
                         <Image src={post.coverImage} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
