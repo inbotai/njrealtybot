@@ -7,11 +7,11 @@ import { blogPosts as staticPosts } from "@/data/blog-posts";
 export const revalidate = 300; // ISR: refresh every 5 minutes
 
 export const metadata: Metadata = {
-  title: "Real Estate News & Guides | Garden State AI",
+  title: "NJ Real Estate News | Garden State AI",
   description:
     "Expert NJ real estate market updates, selling strategies, buyer guides, and data-driven insights. Everything you need to buy or sell smarter in New Jersey.",
   openGraph: {
-    title: "Real Estate News & Guides | Garden State AI",
+    title: "NJ Real Estate News | Garden State AI",
     description:
       "Expert NJ real estate market updates, selling strategies, buyer guides, and data-driven insights.",
     type: "website",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Real Estate News & Guides | Garden State AI",
+    title: "NJ Real Estate News | Garden State AI",
     description:
       "Expert NJ real estate market updates, selling strategies, buyer guides, and data-driven insights.",
   },
@@ -112,8 +112,8 @@ export default async function BlogPage() {
                 featured.coverImage.startsWith("/") || featured.coverImage.includes("mlsmatrix") || featured.coverImage.includes("paragonrels") ? (
                   <Image src={featured.coverImage} alt={featured.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" priority />
                 ) : (
-                  <div className="flex h-full items-center justify-center p-8">
-                    <img src={featured.coverImage} alt={featured.title} className="max-h-40 max-w-56 object-contain opacity-80" />
+                  <div className="flex h-full items-center justify-center p-12">
+                    <img src={featured.coverImage} alt={featured.title} className="max-h-64 max-w-80 object-contain drop-shadow-2xl" />
                   </div>
                 )
               ) : null}
@@ -158,7 +158,7 @@ export default async function BlogPage() {
                         <Image src={post.coverImage} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                       ) : (
                         <div className="flex h-full items-center justify-center p-6">
-                          <img src={post.coverImage} alt={post.title} className="max-h-24 max-w-40 object-contain opacity-80" />
+                          <img src={post.coverImage} alt={post.title} className="max-h-32 max-w-48 object-contain drop-shadow-lg" />
                         </div>
                       )
                     ) : null}
