@@ -110,8 +110,15 @@ export default async function BlogPostPage({ params }: Props) {
       {/* Hero */}
       <section className="relative">
         {coverImage ? (
-          <div className="relative aspect-[21/9] w-full md:aspect-[3/1]">
-            <Image src={coverImage} alt={title} fill className="object-cover" sizes="100vw" priority />
+          <div className="relative aspect-[21/9] w-full md:aspect-[3/1] bg-gradient-to-br from-navy via-indigo-900 to-navy">
+            {/* Use img for external municipal seals, Image for internal photos */}
+            {coverImage.startsWith("/") || coverImage.includes("mlsmatrix") || coverImage.includes("paragonrels") ? (
+              <Image src={coverImage} alt={title} fill className="object-cover" sizes="100vw" priority />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img src={coverImage} alt={title} className="max-h-32 max-w-64 object-contain opacity-80" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
           </div>
         ) : (
@@ -222,21 +229,36 @@ export default async function BlogPostPage({ params }: Props) {
 }
 
 function markdownToHtml(md: string): string {
-  return md
+  let html = md
+    // Headings
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
     .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    // Bold + italic
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Links
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    // Horizontal rule
+    .replace(/^---$/gm, "<hr>")
+    // Tables
     .replace(/^\|(.+)\|$/gm, (_, row) => {
       const cells = row.split("|").map((c: string) => c.trim());
       if (cells.every((c: string) => /^-+$/.test(c))) return "";
       return `<tr>${cells.map((c: string) => `<td>${c}</td>`).join("")}</tr>`;
     })
     .replace(/(<tr>.*<\/tr>\n?)+/g, (m) => `<table>${m}</table>`)
+    // Lists
     .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/^(?!<[huptol])/gm, "")
-    .replace(/^\s*$/gm, "");
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
+
+  // Split into paragraphs on double newlines
+  const paragraphs = html.split(/\n\n+/).filter(p => p.trim());
+  html = paragraphs.map(p => {
+    const trimmed = p.trim();
+    // Don't wrap block elements in <p>
+    if (/^<(h[1-6]|ul|ol|table|hr|blockquote)/.test(trimmed)) return trimmed;
+    return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`;
+  }).join("\n");
+
+  return html;
 }
