@@ -107,15 +107,16 @@ export default async function BlogPage() {
         {/* Featured Post */}
         <Link href={`/blog/${featured.slug}`} className="group mb-12 block overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-xl">
           <div className="grid md:grid-cols-2">
-            <div className="relative aspect-[16/10] md:aspect-auto">
-              <Image
-                src={featured.coverImage}
-                alt={featured.title}
-                fill
-                className="object-cover transition duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
+            <div className="relative aspect-[16/10] md:aspect-auto bg-gradient-to-br from-navy via-indigo-900 to-navy">
+              {featured.coverImage ? (
+                featured.coverImage.startsWith("/") || featured.coverImage.includes("mlsmatrix") || featured.coverImage.includes("paragonrels") ? (
+                  <Image src={featured.coverImage} alt={featured.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" priority />
+                ) : (
+                  <div className="flex h-full items-center justify-center p-8">
+                    <img src={featured.coverImage} alt={featured.title} className="max-h-40 max-w-56 object-contain opacity-80" />
+                  </div>
+                )
+              ) : null}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent md:hidden" />
             </div>
             <div className="flex flex-col justify-center p-8 md:p-10">
@@ -151,14 +152,16 @@ export default async function BlogPage() {
               {rest.map(post => (
                 <Link key={post.slug} href={`/blog/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-lg">
-                  <div className="relative aspect-[16/10]">
-                    <Image
-                      src={post.coverImage}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition duration-500 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-navy via-indigo-900 to-navy">
+                    {post.coverImage ? (
+                      post.coverImage.startsWith("/") || post.coverImage.includes("mlsmatrix") || post.coverImage.includes("paragonrels") ? (
+                        <Image src={post.coverImage} alt={post.title} fill className="object-cover transition duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center p-6">
+                          <img src={post.coverImage} alt={post.title} className="max-h-24 max-w-40 object-contain opacity-80" />
+                        </div>
+                      )
+                    ) : null}
                     <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${categoryColors[post.category] || "bg-gray-600 text-white"}`}>
                       {categoryLabels[post.category] || post.category}
                     </span>
