@@ -251,13 +251,14 @@ function markdownToHtml(md: string): string {
     .replace(/^- (.+)$/gm, "<li>$1</li>")
     .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
 
-  // Split into paragraphs on double newlines
-  const paragraphs = html.split(/\n\n+/).filter(p => p.trim());
+  // Split into paragraphs — treat single and double newlines as breaks
+  const paragraphs = html.split(/\n/).filter(p => p.trim());
   html = paragraphs.map(p => {
     const trimmed = p.trim();
     // Don't wrap block elements in <p>
-    if (/^<(h[1-6]|ul|ol|table|hr|blockquote)/.test(trimmed)) return trimmed;
-    return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`;
+    if (/^<(h[1-6]|ul|ol|table|hr|blockquote|li)/.test(trimmed)) return trimmed;
+    if (!trimmed) return "";
+    return `<p>${trimmed}</p>`;
   }).join("\n");
 
   return html;
