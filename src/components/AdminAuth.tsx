@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 
 interface AdminContextType {
   isAdmin: boolean;
+  authLoaded: boolean;
   login: (password: string) => boolean;
   logout: () => void;
   changePassword: (newPassword: string) => boolean;
@@ -11,6 +12,7 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType>({
   isAdmin: false,
+  authLoaded: false,
   login: () => false,
   logout: () => {},
   changePassword: () => false,
@@ -23,10 +25,12 @@ const DEFAULT_PASSWORDS = ["Vale2026!@1", "vale2026", "gardenstate2026"];
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("njrb_admin");
     if (token === ADMIN_HASH) setIsAdmin(true);
+    setAuthLoaded(true);
   }, []);
 
   const login = (password: string): boolean => {
@@ -55,7 +59,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AdminContext.Provider value={{ isAdmin, login, logout, changePassword }}>
+    <AdminContext.Provider value={{ isAdmin, authLoaded, login, logout, changePassword }}>
       {children}
     </AdminContext.Provider>
   );

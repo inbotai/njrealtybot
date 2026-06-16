@@ -19,21 +19,22 @@ export default function RequireAuth({
   children: React.ReactNode;
   alwaysRequire?: boolean;
 }) {
-  const { isAdmin } = useAdmin();
+  const { isAdmin, authLoaded } = useAdmin();
   const router = useRouter();
 
   const needsAuth = alwaysRequire || !IDX_PUBLIC_ENABLED;
 
   useEffect(() => {
-    if (needsAuth && !isAdmin) {
+    // Wait for auth to hydrate from sessionStorage before redirecting
+    if (authLoaded && needsAuth && !isAdmin) {
       router.replace("/");
     }
-  }, [needsAuth, isAdmin, router]);
+  }, [authLoaded, needsAuth, isAdmin, router]);
 
   // Phase 2 or admin → render children
   if (!needsAuth || isAdmin) return <>{children}</>;
 
-  // Redirecting — show spinner
+  // Still loading auth or redirecting — show spinner
   return (
     <div className="flex h-[60vh] items-center justify-center">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />

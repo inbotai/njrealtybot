@@ -46,12 +46,29 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             alt={formatAddress(listing)}
             className="h-full w-full object-cover transition group-hover:scale-105"
             loading="lazy"
+            onError={(e) => {
+              const img = e.currentTarget;
+              // Try proxy fallback if primary_photo_url failed
+              if (listing.primary_photo_url && img.src === listing.primary_photo_url && listing.photo_count) {
+                img.src = getPhotoUrl(listing.mls_number);
+                return;
+              }
+              // Hide broken image, show placeholder
+              img.style.display = "none";
+              const placeholder = img.parentElement?.querySelector("[data-photo-fallback]") as HTMLElement | null;
+              if (placeholder) placeholder.style.display = "flex";
+            }}
           />
-        ) : (
-          <div className="flex h-full items-center justify-center text-gray-400">
-            No Photo
-          </div>
-        )}
+        ) : null}
+        <div
+          data-photo-fallback
+          className="h-full w-full items-center justify-center text-gray-400"
+          style={{ display: photo ? "none" : "flex" }}
+        >
+          <svg className="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+          </svg>
+        </div>
         <span className={`absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold text-white ${statusColor}`}>
           {listing.mls_status}
         </span>
