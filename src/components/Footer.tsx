@@ -5,6 +5,8 @@ const quickLinks = [
   { href: "/chat", label: "Chat with Vale" },
   { href: "/alerts", label: "Price Alerts" },
   { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
 ];
 
 export default function Footer() {
