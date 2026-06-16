@@ -179,8 +179,14 @@ export default function ValeSidePanel() {
             </button>
           )}
         </div>
-        <p className="mt-2 text-center text-xs text-gray-400">
+        <p className="mt-2 text-center text-[10px] text-gray-400 leading-relaxed">
           Powered by <span className="font-medium text-indigo-500">Vale</span> from InBot AI
+          <br />
+          By chatting, you agree to our{" "}
+          <a href="/privacy" target="_blank" className="underline hover:text-indigo-500">Privacy Policy</a>
+          {" & "}
+          <a href="/terms" target="_blank" className="underline hover:text-indigo-500">Terms</a>.
+          Msg & data rates may apply. Reply STOP to opt out.
         </p>
       </div>
     </div>

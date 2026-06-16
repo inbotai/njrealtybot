@@ -51,8 +51,13 @@ export default function PropertyChatTrigger({ listingId, address, price }: {
           Get Market Analysis
         </button>
       </div>
-      <p className="mt-3 text-center text-[9px] text-gray-400">
+      <p className="mt-3 text-center text-[9px] text-gray-400 leading-relaxed">
         Powered by <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Vale from InBot AI</a>
+        <br />
+        By chatting, you agree to our{" "}
+        <a href="/privacy" target="_blank" className="underline hover:text-indigo-400">Privacy Policy</a>
+        {" & "}
+        <a href="/terms" target="_blank" className="underline hover:text-indigo-400">Terms</a>.
       </p>
     </div>
   );

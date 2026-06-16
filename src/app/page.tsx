@@ -327,6 +327,20 @@ function PublicHomepage() {
                 required
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
               />
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
+                />
+                <span className="text-xs text-gray-500">
+                  I agree to receive SMS/WhatsApp messages from Garden State AI.
+                  Msg & data rates may apply. Reply STOP to opt out.{" "}
+                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+                  {" & "}
+                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+                </span>
+              </label>
               <button
                 type="submit"
                 disabled={!waitlistPhone.trim() || waitlistLoading}
@@ -334,9 +348,6 @@ function PublicHomepage() {
               >
                 {waitlistLoading ? "..." : "Join the Waitlist"}
               </button>
-              <p className="text-xs text-gray-400">
-                We&apos;ll only use this to notify you when property search launches.
-              </p>
             </form>
           )}
         </div>
@@ -587,6 +598,12 @@ function TaxAppealBar() {
                     {leadLoading ? "..." : "See Full Report"}
                   </button>
                 </form>
+                <p className="mt-2 text-[10px] text-gray-400">
+                  By submitting, you agree to receive SMS/WhatsApp messages. Msg & data rates may apply. Reply STOP to opt out.{" "}
+                  <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>
+                  {" & "}
+                  <a href="/terms" target="_blank" className="underline">Terms</a>.
+                </p>
               </div>
             ) : (
               <>

@@ -364,6 +364,13 @@ export default function ValeChatPage() {
           </button>
         )}
       </form>
+      <p className="mt-2 text-center text-[10px] text-gray-400 leading-relaxed">
+        By chatting, you agree to our{" "}
+        <a href="/privacy" target="_blank" className="underline hover:text-indigo-500">Privacy Policy</a>
+        {" & "}
+        <a href="/terms" target="_blank" className="underline hover:text-indigo-500">Terms</a>.
+        Msg & data rates may apply. Reply STOP to opt out.
+      </p>
      </div>
     </div>
   );
