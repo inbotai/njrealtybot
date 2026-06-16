@@ -334,8 +334,10 @@ function PublicHomepage() {
                   className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
                 />
                 <span className="text-xs text-gray-500">
-                  I agree to receive SMS/WhatsApp messages from Garden State AI.
-                  Msg & data rates may apply. Reply STOP to opt out.{" "}
+                  I consent to receive SMS and WhatsApp messages from Garden State AI
+                  about property alerts, market updates, and real estate services at the phone number provided.
+                  Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
+                  Your mobile information will not be shared with third parties for marketing purposes.{" "}
                   <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
                   {" & "}
                   <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
@@ -599,7 +601,9 @@ function TaxAppealBar() {
                   </button>
                 </form>
                 <p className="mt-2 text-[10px] text-gray-400">
-                  By submitting, you agree to receive SMS/WhatsApp messages. Msg & data rates may apply. Reply STOP to opt out.{" "}
+                  By submitting, you consent to receive SMS/WhatsApp messages from Garden State AI
+                  about your property tax analysis and real estate services. Msg frequency varies. Msg & data rates may apply.
+                  Reply STOP to opt out. Your mobile info will not be shared with third parties.{" "}
                   <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>
                   {" & "}
                   <a href="/terms" target="_blank" className="underline">Terms</a>.
