@@ -13,7 +13,7 @@ export default function MLSDisclaimer() {
             <p className="text-xs leading-relaxed">
               The data relating to real estate for sale on this web site comes in part from
               the Internet Data Exchange Program of the NJMLS. Real estate listings held by
-              brokerage firms other than Realty One Group Legend are marked with the NJMLS Internet
+              brokerage firms other than Better Homes and Gardens Real Estate Green Team are marked with the NJMLS Internet
               Data Exchange logo and information about them includes the name of the listing
               brokers. Some properties listed with the participating brokers do not appear on
               this website at the request of the seller. Listings of brokers that do not participate
@@ -61,10 +61,10 @@ export default function MLSDisclaimer() {
             Property listings provided by GardenState.ai through authorized access to GSMLS and NJMLS.
           </p>
           <p>
-            Broker of Record: [Full Broker Name] — Broker License: #XXXXXXX
+            Brokerage: Better Homes and Gardens Real Estate Green Team — 293 Route 94, Vernon, NJ 07462
           </p>
           <p>
-            Real Estate Agent: Julio Reynoso — Agent License: #XXXXXXX
+            Real Estate Agent: Julio Reynoso
           </p>
           <p>
             GardenState.ai is an independent Artificial Intelligence platform.
