@@ -88,7 +88,19 @@ export default function MarketLeadCapture({ city }: { city: string }) {
               {loading ? "..." : "Sign Up Free"}
             </button>
           </div>
-          <p className="mt-2 text-center text-xs text-gray-400">No spam. Unsubscribe anytime.</p>
+          <label className="mt-2 flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" required
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
+            <span className="text-[10px] text-gray-500 leading-relaxed">
+              I consent to receive SMS/WhatsApp messages from Garden State AI
+              about market updates and real estate services.
+              Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
+              Your mobile info will not be shared with third parties.{" "}
+              <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+              {" & "}
+              <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+            </span>
+          </label>
         </form>
       </div>
     </section>

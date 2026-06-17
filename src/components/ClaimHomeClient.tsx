@@ -139,6 +139,19 @@ export default function ClaimHomeClient() {
                   placeholder="john@email.com"
                   className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-gold focus:outline-none" />
               </div>
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" required
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
+                <span className="text-[10px] text-gray-500 leading-relaxed">
+                  I consent to receive SMS/WhatsApp messages from Garden State AI
+                  about my home value and real estate services.
+                  Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
+                  Your mobile info will not be shared with third parties.{" "}
+                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+                  {" & "}
+                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+                </span>
+              </label>
               <div className="border-t pt-4">
                 <p className="text-sm font-medium text-gray-700">Calculate your equity (optional)</p>
                 <p className="text-xs text-gray-400">This helps us show how much you&apos;d walk away with if you sold.</p>

@@ -110,6 +110,16 @@ export default function ProactiveVale() {
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
                 placeholder="Your phone or WhatsApp" required autoFocus
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-gold focus:outline-none" />
+              <label className="flex items-start gap-1.5 cursor-pointer">
+                <input type="checkbox" required
+                  className="mt-0.5 h-3 w-3 rounded border-gray-300 text-gold focus:ring-gold" />
+                <span className="text-[9px] text-gray-400 leading-relaxed">
+                  I consent to SMS/WhatsApp messages. Msg &amp; data rates may apply. Reply STOP to opt out.{" "}
+                  <a href="/privacy" target="_blank" className="underline">Privacy</a>
+                  {" & "}
+                  <a href="/terms" target="_blank" className="underline">Terms</a>.
+                </span>
+              </label>
               <button type="submit" disabled={!phone.trim()}
                 className="w-full rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">
                 {nudge.cta}

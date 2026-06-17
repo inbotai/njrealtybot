@@ -222,12 +222,25 @@ export default function NetProceedsClient() {
                     });
                   } catch { /* still unlock */ }
                   setLeadDone(true);
-                }} className="mt-4 flex gap-2">
-                  <input type="text" value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="Name" required
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
-                  <input type="tel" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="Phone" required
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
-                  <button type="submit" className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-navy hover:bg-yellow-400">Unlock</button>
+                }} className="mt-4 space-y-2">
+                  <div className="flex gap-2">
+                    <input type="text" value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="Name" required
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
+                    <input type="tel" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="Phone" required
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
+                    <button type="submit" className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-navy hover:bg-yellow-400">Unlock</button>
+                  </div>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" required
+                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
+                    <span className="text-[10px] text-gray-500 leading-relaxed">
+                      I consent to receive SMS/WhatsApp messages from Garden State AI.
+                      Msg &amp; data rates may apply. Reply STOP to opt out.{" "}
+                      <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy</a>
+                      {" & "}
+                      <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+                    </span>
+                  </label>
                 </form>
               )}
             </div>

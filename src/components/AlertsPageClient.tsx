@@ -154,6 +154,20 @@ export default function AlertsPageClient() {
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" required
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+              <span className="text-[10px] text-gray-500 leading-relaxed">
+                I consent to receive SMS/WhatsApp messages from Garden State AI
+                about property alerts and real estate services.
+                Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
+                Your mobile info will not be shared with third parties.{" "}
+                <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+                {" & "}
+                <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+              </span>
+            </label>
+
             <button
               type="submit"
               disabled={submitting}
@@ -161,9 +175,6 @@ export default function AlertsPageClient() {
             >
               {submitting ? "Subscribing..." : "Get Free Alerts"}
             </button>
-            <p className="text-center text-xs text-gray-400">
-              Free forever. Unsubscribe anytime. We never share your info.
-            </p>
           </form>
         </div>
       </section>
