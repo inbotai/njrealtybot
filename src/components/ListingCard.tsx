@@ -55,6 +55,11 @@ export default function ListingCard({ listing }: { listing: Listing }) {
                 img.src = getPhotoUrl(listing.mls_number);
                 return;
               }
+              // Retry with nocache to bypass negative cache
+              if (listing.photo_count && !img.src.includes("nocache")) {
+                img.src = `${getPhotoUrl(listing.mls_number)}?nocache=1`;
+                return;
+              }
               // Hide broken image, show placeholder
               img.style.display = "none";
               const placeholder = img.parentElement?.querySelector("[data-photo-fallback]") as HTMLElement | null;

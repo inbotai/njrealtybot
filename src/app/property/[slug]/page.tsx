@@ -186,7 +186,7 @@ export default async function PropertyPage({ params }: Props) {
 
       <div className="mx-auto max-w-7xl px-4 py-8">
         <PhotoGallery mlsNumber={listing.mls_number} photoCount={realPhotoCount || listing.photo_count} address={address}
-          isSold={isSold} />
+          isSold={isSold} storedPhotos={listing.listing_photos} />
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">

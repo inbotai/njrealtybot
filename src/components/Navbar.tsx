@@ -13,26 +13,25 @@ const publicLinks = [
 const adminLinks = [
   { href: "/search", label: "Buy" },
   { href: "/sell", label: "Sell" },
-  { href: "/chat", label: "Vale" },
+  { href: "/my-home", label: "Track My Home" },
+  { href: "/property-tax", label: "Tax Appeal" },
+  { href: "/market", label: "Market" },
+  { href: "/deals", label: "Deals" },
 ];
 
 const moreLinks = [
-  { href: "/property-tax", label: "Tax Appeal" },
-  { href: "/my-home", label: "Track My Home" },
   { href: "/net-proceeds", label: "Net Proceeds" },
-  { href: "/match", label: "Matchmaker" },
-  { href: "/staging", label: "Staging" },
-  { href: "/renovate", label: "Renovate" },
-  { href: "/favorites", label: "Saved" },
   { href: "/afford", label: "Affordability" },
-  { href: "/deals", label: "Deals" },
-  { href: "/blog", label: "News" },
-  { href: "/market", label: "Market" },
-  { href: "/open-houses", label: "Open Houses" },
   { href: "/alerts", label: "Alerts" },
-  { href: "/about", label: "About" },
+  { href: "/blog", label: "News" },
   { href: "/contact", label: "Contact" },
 ];
+
+/** Open Houses: visible in main nav Thu–Sun, hidden in More Mon–Wed */
+function isOpenHouseDay(): boolean {
+  const day = new Date().getDay(); // 0=Sun, 4=Thu, 5=Fri, 6=Sat
+  return day === 0 || day >= 4;
+}
 
 export default function Navbar() {
   const { isAdmin, logout } = useAdmin();
@@ -41,7 +40,11 @@ export default function Navbar() {
   const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
+  const showOpenHouse = isOpenHouseDay();
   const mainLinks = isAdmin ? adminLinks : publicLinks;
+  const dynamicMoreLinks = showOpenHouse
+    ? moreLinks
+    : [{ href: "/open-houses", label: "Open Houses" }, ...moreLinks];
   const isListingPage = pathname === "/search" || pathname.startsWith("/property/")
     || pathname === "/deals" || pathname === "/open-houses";
 
@@ -74,6 +77,12 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          {isAdmin && showOpenHouse && (
+            <Link href="/open-houses"
+              className="text-sm font-medium text-gray-200 transition hover:text-gold">
+              Open Houses
+            </Link>
+          )}
 
           {/* More dropdown — admin only */}
           {isAdmin && (
@@ -87,7 +96,7 @@ export default function Navbar() {
               </button>
               {moreOpen && (
                 <div className="absolute right-0 top-full mt-2 w-44 rounded-lg bg-white py-1 shadow-xl">
-                  {moreLinks.map((l) => (
+                  {dynamicMoreLinks.map((l) => (
                     <Link key={l.href} href={l.href} onClick={() => setMoreOpen(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600">
                       {l.label}
@@ -101,7 +110,7 @@ export default function Navbar() {
           {/* BHG Broker logo — only on listing pages */}
           {isListingPage && (
             <div className="flex items-center gap-3 border-l border-white/20 pl-5">
-              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-28 w-auto" />
+              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[88px] w-auto" />
               <div className="hidden xl:block">
                 <p className="text-sm font-semibold text-white">Julio Reynoso</p>
                 <p className="text-xs text-gray-400">Licensed Real Estate Agent</p>
@@ -134,7 +143,13 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          {isAdmin && moreLinks.map((l) => (
+          {isAdmin && showOpenHouse && (
+            <Link href="/open-houses" onClick={() => setMobileOpen(false)}
+              className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5 hover:text-gold">
+              Open Houses
+            </Link>
+          )}
+          {isAdmin && dynamicMoreLinks.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
               className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5 hover:text-gold">
               {l.label}

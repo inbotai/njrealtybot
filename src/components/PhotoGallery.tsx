@@ -1,19 +1,26 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getPhotoUrl } from "@/lib/api";
+import type { ListingPhoto } from "@/lib/api";
 
-export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }: {
+export default function PhotoGallery({ mlsNumber, photoCount, address, isSold, storedPhotos }: {
   mlsNumber: string; photoCount: number; address: string; isSold?: boolean;
+  storedPhotos?: ListingPhoto[];
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   // NJMLS rule: sold listings may only show the first photo
   const total = isSold ? Math.min(photoCount, 1) : Math.min(photoCount, 25);
-  // Track which photo indices failed to load
   const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
-  // Retry with ?nocache=1 if all photos fail but photoCount > 0
   const [retried, setRetried] = useState(false);
   const [useNocache, setUseNocache] = useState(false);
+
+  // Use stored photos from Supabase Storage if available
+  const sortedStored = storedPhotos
+    ?.filter(p => p.stored_url)
+    .sort((a, b) => a.display_order - b.display_order) || [];
+  const hasStoredPhotos = sortedStored.length > 0;
+  const effectiveTotal = hasStoredPhotos ? sortedStored.length : total;
 
   const handleError = useCallback((index: number) => {
     setFailedPhotos(prev => {
@@ -23,20 +30,21 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
     });
   }, []);
 
-  // Working photos = all indices minus failed ones
-  const workingIndices = Array.from({ length: total }, (_, i) => i).filter(i => !failedPhotos.has(i));
+  const workingIndices = Array.from({ length: effectiveTotal }, (_, i) => i).filter(i => !failedPhotos.has(i));
 
-  // Auto-retry once with nocache if all photos failed but MLS says they exist
+  // Auto-retry once with nocache if proxy photos all fail (only when no stored photos)
   useEffect(() => {
-    if (!retried && photoCount > 0 && workingIndices.length === 0 && failedPhotos.size >= total) {
+    if (!hasStoredPhotos && !retried && photoCount > 0 && workingIndices.length === 0 && failedPhotos.size >= total) {
       setRetried(true);
       setUseNocache(true);
       setFailedPhotos(new Set());
     }
-  }, [retried, photoCount, workingIndices.length, failedPhotos.size, total]);
+  }, [hasStoredPhotos, retried, photoCount, workingIndices.length, failedPhotos.size, total]);
 
-  const photoUrl = (index: number) =>
-    useNocache ? `${getPhotoUrl(mlsNumber, index)}?nocache=1` : getPhotoUrl(mlsNumber, index);
+  const photoUrl = (index: number) => {
+    if (hasStoredPhotos) return sortedStored[index]?.stored_url || "";
+    return useNocache ? `${getPhotoUrl(mlsNumber, index)}?nocache=1` : getPhotoUrl(mlsNumber, index);
+  };
 
   if (photoCount === 0 || (workingIndices.length === 0 && failedPhotos.size > 0)) {
     return (
@@ -46,7 +54,6 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
     );
   }
 
-  // If active photo failed, jump to next working one
   const displayIndex = failedPhotos.has(activeIndex)
     ? (workingIndices[0] ?? 0)
     : activeIndex;
@@ -72,7 +79,6 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
           className="h-full w-full object-cover"
           onError={() => handleError(displayIndex)}
         />
-        {/* Navigation arrows */}
         {workingIndices.length > 1 && (
           <>
             <button
@@ -91,7 +97,7 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
           </>
         )}
       </div>
-      {/* Thumbnails — only show working photos */}
+      {/* Thumbnails */}
       {workingIndices.length > 1 && (
         <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
           {workingIndices.map((i) => (
