@@ -97,8 +97,9 @@ export default function PrivacyPolicyPage() {
               <strong>Message &amp; Data Rates:</strong> Standard carrier message and data rates may apply.
             </li>
             <li>
-              <strong>No Sharing for Marketing:</strong> We do not sell or share your phone number with third parties
-              for their marketing purposes.
+              <strong>No Sharing for Marketing:</strong> Your mobile information will not be shared with or sold to
+              third parties or affiliates for marketing or promotional purposes at any time. We only use your phone
+              number to deliver the messages you have consented to receive.
             </li>
           </ul>
         </section>
