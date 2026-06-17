@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { submitLead } from "@/lib/api";
 
 const STORAGE_KEY = "gsai_exit_shown";
+/** Pages where exit intent should NEVER show */
+const EXCLUDED_PATHS = ["/chat", "/property/", "/privacy", "/terms", "/contact", "/admin"];
 
-/** Exit intent popup — captures lead with value exchange. Once per session. */
+/** Exit intent popup — captures lead with value exchange. Once per visitor (localStorage). */
 export default function ExitIntent() {
   const pathname = usePathname();
   const [show, setShow] = useState(false);
@@ -17,18 +19,20 @@ export default function ExitIntent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem(STORAGE_KEY)) return;
-    // Don't show on chat or property detail pages (user is already engaged)
-    if (pathname === "/chat" || pathname.startsWith("/property/")) return;
+    // Only show once ever (localStorage persists across sessions/tabs)
+    try { if (localStorage.getItem(STORAGE_KEY)) return; } catch { return; }
+    // Don't show on excluded pages
+    if (EXCLUDED_PATHS.some(p => pathname === p || pathname.startsWith(p))) return;
 
-    // Delay enabling exit intent — don't show to bouncing users
+    // Delay enabling — user must be on site for 30s before exit intent activates
     let enabled = false;
-    const enableTimer = setTimeout(() => { enabled = true; }, 15000);
+    const enableTimer = setTimeout(() => { enabled = true; }, 30000);
 
     function handleMouseLeave(e: MouseEvent) {
-      if (e.clientY <= 0 && enabled && !sessionStorage.getItem(STORAGE_KEY)) {
+      if (e.clientY <= 0 && enabled) {
+        try { if (localStorage.getItem(STORAGE_KEY)) return; } catch { return; }
         setShow(true);
-        sessionStorage.setItem(STORAGE_KEY, "1");
+        try { localStorage.setItem(STORAGE_KEY, "1"); } catch {}
       }
     }
     document.addEventListener("mouseleave", handleMouseLeave);
@@ -36,7 +40,7 @@ export default function ExitIntent() {
       clearTimeout(enableTimer);
       document.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, []);
+  }, [pathname]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,7 +114,13 @@ export default function ExitIntent() {
                 {loading ? "..." : interest === "sell" ? "Get My Free Valuation" : interest === "invest" ? "Send Me Deals" : "Keep Me Updated"}
               </button>
             </form>
-            <p className="mt-3 text-xs text-gray-400 text-center">No spam. Unsubscribe anytime.</p>
+            <p className="mt-3 text-[10px] text-gray-400 text-center leading-relaxed">
+              By submitting, you consent to receive SMS/WhatsApp messages from Garden State AI.
+              Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.{" "}
+              <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>
+              {" & "}
+              <a href="/terms" target="_blank" className="underline">Terms</a>.
+            </p>
           </>
         )}
       </div>
