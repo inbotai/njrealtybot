@@ -198,17 +198,11 @@ export default async function PropertyPage({ params }: Props) {
                 </h1>
                 <p className="mt-1 text-lg text-gray-600">{address}</p>
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
-                <div className="mt-3 flex items-center gap-4">
-                  <div>
-                    <img src="/bhg-green-team-logo.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-14 w-auto" />
-                    <p className="mt-1 text-xs font-semibold text-navy">Julio Reynoso — Licensed Real Estate Agent</p>
-                  </div>
-                  {listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e" ? (
-                    <img src="/gsmls-logo.gif" alt="GSMLS" className="h-5 w-auto" />
-                  ) : (
-                    <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-5 w-auto" />
-                  )}
-                </div>
+                {listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e" ? (
+                  <img src="/gsmls-logo.gif" alt="GSMLS" className="mt-2 h-6 w-auto" />
+                ) : (
+                  <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="mt-2 h-6 w-auto" />
+                )}
               </div>
               <div className="flex flex-wrap gap-2 items-center">
                 <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${isSold ? "bg-red-600" : "bg-green-600"}`}>

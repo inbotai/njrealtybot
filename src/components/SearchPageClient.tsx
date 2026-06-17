@@ -287,23 +287,14 @@ export default function SearchPageClient() {
           )}
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-navy">
-              {hasCity
-                ? `${typeLabel} in ${locationName}`
-                : `Search ${typeLabel} in New Jersey`}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {results?.total?.toLocaleString() || 0} listings found
-            </p>
-          </div>
-          <div className="text-right">
-            <img src="/bhg-green-team-logo.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-20 w-auto md:h-24" />
-            <p className="mt-1 text-sm font-semibold text-navy">Julio Reynoso</p>
-            <p className="text-xs text-gray-500">Licensed Real Estate Agent</p>
-          </div>
-        </div>
+        <h1 className="mb-2 text-2xl font-bold text-navy">
+          {hasCity
+            ? `${typeLabel} in ${locationName}`
+            : `Search ${typeLabel} in New Jersey`}
+        </h1>
+        <p className="mb-6 text-sm text-gray-500">
+          {results?.total?.toLocaleString() || 0} listings found
+        </p>
 
         {/* Filter bar — row 1 */}
         <div className="mb-3 flex flex-wrap gap-3">

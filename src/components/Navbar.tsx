@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
@@ -38,8 +39,11 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const mainLinks = isAdmin ? adminLinks : publicLinks;
+  const isListingPage = pathname === "/search" || pathname.startsWith("/property/")
+    || pathname === "/deals" || pathname === "/open-houses";
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -91,6 +95,17 @@ export default function Navbar() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* BHG Broker logo — only on listing pages */}
+          {isListingPage && (
+            <div className="flex items-center gap-2 border-l border-white/20 pl-5">
+              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-12 w-auto" />
+              <div className="hidden xl:block">
+                <p className="text-xs font-semibold text-white">Julio Reynoso</p>
+                <p className="text-[10px] text-gray-400">Licensed Agent</p>
+              </div>
             </div>
           )}
 
