@@ -49,7 +49,7 @@ export default function Footer() {
               <a href="mailto:info@gardenstate.ai" className="text-gold hover:underline">info@gardenstate.ai</a>
             </p>
             <div className="mt-4 border-t border-white/10 pt-4">
-              <p className="text-xs font-semibold text-gray-300">Better Homes and Gardens | Green Team</p>
+              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-10 w-auto mb-2" />
               <p className="text-xs text-gray-400">293 Route 94, Vernon, NJ 07462</p>
               <p className="text-xs text-gray-400">
                 Office: <a href="tel:+19738147344" className="hover:text-gray-300">973.814.7344</a>

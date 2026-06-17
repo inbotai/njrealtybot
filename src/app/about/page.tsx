@@ -30,9 +30,7 @@ export default function AboutPage() {
       </div>
 
       <div className="mt-10 rounded-xl bg-white p-8 shadow-md">
-        <h2 className="text-xl font-bold text-navy">
-          Better Homes and Gardens | Green Team
-        </h2>
+        <img src="/bhg-green-team-logo.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-12 w-auto" />
         <p className="mt-3 leading-relaxed text-gray-600">
           Garden State AI is proudly brokered by Better Homes and Gardens | Green Team,
           a trusted name in real estate with a commitment to innovation and client success.
