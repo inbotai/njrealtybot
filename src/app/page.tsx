@@ -575,23 +575,38 @@ function TaxAppealBar() {
                   } catch { /* still unlock */ }
                   setLeadUnlocked(true);
                   setLeadLoading(false);
-                }} className="mt-3 flex flex-col gap-3 sm:flex-row">
-                  <input
-                    type="text"
-                    value={leadName}
-                    onChange={(e) => setLeadName(e.target.value)}
-                    placeholder="Your name"
-                    required
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
-                  />
-                  <input
-                    type="tel"
-                    value={leadPhone}
-                    onChange={(e) => setLeadPhone(e.target.value)}
-                    placeholder="Phone or WhatsApp"
-                    required
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
-                  />
+                }} className="mt-3 flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <input
+                      type="text"
+                      value={leadName}
+                      onChange={(e) => setLeadName(e.target.value)}
+                      placeholder="Your name"
+                      required
+                      className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
+                    />
+                    <input
+                      type="tel"
+                      value={leadPhone}
+                      onChange={(e) => setLeadPhone(e.target.value)}
+                      placeholder="Phone or WhatsApp"
+                      required
+                      className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
+                    />
+                  </div>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" required
+                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
+                    <span className="text-[10px] text-gray-500 leading-relaxed">
+                      I consent to receive SMS/WhatsApp messages from Garden State AI
+                      about my property tax analysis and real estate services.
+                      Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
+                      Your mobile info will not be shared with third parties.{" "}
+                      <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+                      {" & "}
+                      <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+                    </span>
+                  </label>
                   <button
                     type="submit"
                     disabled={leadLoading || !leadName.trim() || !leadPhone.trim()}
@@ -600,14 +615,6 @@ function TaxAppealBar() {
                     {leadLoading ? "..." : "See Full Report"}
                   </button>
                 </form>
-                <p className="mt-2 text-[10px] text-gray-400">
-                  By submitting, you consent to receive SMS/WhatsApp messages from Garden State AI
-                  about your property tax analysis and real estate services. Msg frequency varies. Msg & data rates may apply.
-                  Reply STOP to opt out. Your mobile info will not be shared with third parties.{" "}
-                  <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>
-                  {" & "}
-                  <a href="/terms" target="_blank" className="underline">Terms</a>.
-                </p>
               </div>
             ) : (
               <>

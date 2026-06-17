@@ -109,18 +109,24 @@ export default function ExitIntent() {
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
                 placeholder="Phone or WhatsApp" required
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-gold focus:outline-none" />
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" required
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
+                <span className="text-[10px] text-gray-500 leading-relaxed">
+                  I consent to receive SMS/WhatsApp messages from Garden State AI
+                  about property alerts and real estate services.
+                  Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
+                  Your mobile info will not be shared with third parties.{" "}
+                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
+                  {" & "}
+                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
+                </span>
+              </label>
               <button type="submit" disabled={loading || !phone.trim()}
                 className="w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">
                 {loading ? "..." : interest === "sell" ? "Get My Free Valuation" : interest === "invest" ? "Send Me Deals" : "Keep Me Updated"}
               </button>
             </form>
-            <p className="mt-3 text-[10px] text-gray-400 text-center leading-relaxed">
-              By submitting, you consent to receive SMS/WhatsApp messages from Garden State AI.
-              Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.{" "}
-              <a href="/privacy" target="_blank" className="underline">Privacy Policy</a>
-              {" & "}
-              <a href="/terms" target="_blank" className="underline">Terms</a>.
-            </p>
           </>
         )}
       </div>
