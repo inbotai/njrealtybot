@@ -298,7 +298,7 @@ export default function SearchPageClient() {
               {results?.total?.toLocaleString() || 0} listings found
             </p>
           </div>
-          <img src="/bhg-green-team-logo.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-10 w-auto" />
+          <img src="/bhg-green-team-logo.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-16 w-auto" />
         </div>
 
         {/* Filter bar — row 1 */}
