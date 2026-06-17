@@ -16,9 +16,11 @@ export function formatAddress(listing: Listing): string {
 }
 
 export function generateSlug(listing: Listing): string {
-  const addr = (listing.unparsed_address || [listing.street_number, listing.street_name, listing.city, listing.state_or_province, listing.postal_code].filter(Boolean).join(" "))
-    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-  return `${listing.id}-${addr}`;
+  const street = listing.unparsed_address
+    || [listing.street_number, listing.street_name].filter(Boolean).join(" ");
+  const full = [street, listing.city, listing.state_or_province].filter(Boolean).join(" ");
+  const slug = full.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return `${listing.id}-${slug}`;
 }
 
 export function parseSlug(slug: string): string {

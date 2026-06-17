@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { getPhotoUrl } from "@/lib/api";
 
 export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }: {
@@ -11,6 +11,9 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
   const total = isSold ? Math.min(photoCount, 1) : Math.min(photoCount, 25);
   // Track which photo indices failed to load
   const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
+  // Retry with ?nocache=1 if all photos fail but photoCount > 0
+  const [retried, setRetried] = useState(false);
+  const [useNocache, setUseNocache] = useState(false);
 
   const handleError = useCallback((index: number) => {
     setFailedPhotos(prev => {
@@ -22,6 +25,18 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
 
   // Working photos = all indices minus failed ones
   const workingIndices = Array.from({ length: total }, (_, i) => i).filter(i => !failedPhotos.has(i));
+
+  // Auto-retry once with nocache if all photos failed but MLS says they exist
+  useEffect(() => {
+    if (!retried && photoCount > 0 && workingIndices.length === 0 && failedPhotos.size >= total) {
+      setRetried(true);
+      setUseNocache(true);
+      setFailedPhotos(new Set());
+    }
+  }, [retried, photoCount, workingIndices.length, failedPhotos.size, total]);
+
+  const photoUrl = (index: number) =>
+    useNocache ? `${getPhotoUrl(mlsNumber, index)}?nocache=1` : getPhotoUrl(mlsNumber, index);
 
   if (photoCount === 0 || (workingIndices.length === 0 && failedPhotos.size > 0)) {
     return (
@@ -52,7 +67,7 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
       {/* Main photo */}
       <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden rounded-xl bg-gray-200">
         <img
-          src={getPhotoUrl(mlsNumber, displayIndex)}
+          src={photoUrl(displayIndex)}
           alt={`${address} — Photo ${displayIndex + 1}`}
           className="h-full w-full object-cover"
           onError={() => handleError(displayIndex)}
@@ -82,7 +97,7 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold }:
           {workingIndices.map((i) => (
             <img
               key={i}
-              src={getPhotoUrl(mlsNumber, i)}
+              src={photoUrl(i)}
               alt={`Photo ${i + 1}`}
               onClick={() => setActiveIndex(i)}
               onError={() => handleError(i)}

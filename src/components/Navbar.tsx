@@ -101,7 +101,7 @@ export default function Navbar() {
           {/* BHG Broker logo — only on listing pages */}
           {isListingPage && (
             <div className="flex items-center gap-3 border-l border-white/20 pl-5">
-              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-16 w-auto" />
+              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-28 w-auto" />
               <div className="hidden xl:block">
                 <p className="text-sm font-semibold text-white">Julio Reynoso</p>
                 <p className="text-xs text-gray-400">Licensed Real Estate Agent</p>
