@@ -48,6 +48,14 @@ export default function Footer() {
               {" | "}
               <a href="mailto:info@gardenstate.ai" className="text-gold hover:underline">info@gardenstate.ai</a>
             </p>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <p className="text-xs font-semibold text-gray-300">Better Homes and Gardens | Green Team</p>
+              <p className="text-xs text-gray-400">293 Route 94, Vernon, NJ 07462</p>
+              <p className="text-xs text-gray-400">
+                Office: <a href="tel:+19738147344" className="hover:text-gray-300">973.814.7344</a>
+                {" | Fax: 845.920.7669"}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -89,11 +97,11 @@ export default function Footer() {
         {/* Platform disclaimer */}
         <div className="mt-6 border-t border-white/10 pt-4 text-center text-[10px] text-gray-500 space-y-1">
           <p>
-            GardenState.ai is an Artificial Intelligence platform for the real estate industry.
-            Property search and listing services are provided through IDX (GSMLS/NJMLS) by licensed real estate agents.
+            Garden State AI is an AI-powered real estate platform. Property search and listing services are provided
+            through IDX (GSMLS/NJMLS) by Better Homes and Gardens | Green Team, 293 Route 94, Vernon, NJ 07462.
           </p>
           <p>
-            GardenState.ai is not a brokerage. All buying and selling services are handled by authorized agents.
+            All buying and selling services are handled by licensed real estate agents.
           </p>
           <p>&copy; {new Date().getFullYear()} Garden State AI. All rights reserved.</p>
         </div>

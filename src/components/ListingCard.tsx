@@ -15,7 +15,7 @@ const statusColors: Record<string, string> = {
   "Coming Soon": "bg-purple-600",
 };
 
-const OUR_OFFICE = "REALTY ONE GROUP LEGEND";
+const OUR_OFFICE = "BETTER HOMES AND GARDENS";
 
 function isOurListing(listing: Listing): boolean {
   return (listing.listing_office_name || "").toUpperCase().includes(OUR_OFFICE);
