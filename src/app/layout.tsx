@@ -44,6 +44,9 @@ export const metadata: Metadata = {
     description:
       "Search 50,000+ homes for sale in New Jersey with Vale AI.",
   },
+  icons: {
+    icon: "/icon.svg",
+  },
   robots: { index: true, follow: true },
 };
 
