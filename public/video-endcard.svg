@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="#1e1b4b"/>
+  <rect width="1920" height="1080" fill="url(#grad)" opacity="0.4"/>
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </radialGradient>
+  </defs>
+
+  <!-- House icon (centered, large) -->
+  <g transform="translate(860, 250) scale(5)">
+    <circle cx="32" cy="32" r="30" fill="#1e1b4b" stroke="#fbbf24" stroke-width="1.5"/>
+    <ellipse cx="32" cy="52" rx="24" ry="6" fill="#22c55e" opacity="0.8"/>
+    <rect x="18" y="28" width="28" height="20" rx="2" fill="#fbbf24"/>
+    <polygon points="14,30 32,14 50,30" fill="#dc2626"/>
+    <rect x="28" y="36" width="8" height="12" rx="1" fill="#1e1b4b"/>
+    <circle cx="34" cy="42" r="1" fill="#fbbf24"/>
+    <rect x="21" y="32" width="5" height="5" rx="0.5" fill="#93c5fd"/>
+    <rect x="38" y="32" width="5" height="5" rx="0.5" fill="#93c5fd"/>
+    <circle cx="10" cy="38" r="6" fill="#16a34a"/>
+    <rect x="9" y="42" width="2" height="8" fill="#92400e"/>
+    <circle cx="54" cy="36" r="5" fill="#16a34a"/>
+    <rect x="53" y="39" width="2" height="9" fill="#92400e"/>
+    <ellipse cx="16" cy="47" rx="4" ry="3" fill="#15803d"/>
+    <ellipse cx="48" cy="47" rx="4" ry="3" fill="#15803d"/>
+  </g>
+
+  <!-- Brand name -->
+  <text x="960" y="650" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="72" font-weight="800">
+    <tspan fill="#fbbf24">Garden</tspan>
+    <tspan fill="white"> State </tspan>
+    <tspan fill="#818cf8">AI</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="960" y="720" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="32" fill="#c7d2fe">
+    The Most Advanced Real Estate AI in New Jersey
+  </text>
+
+  <!-- URL bar -->
+  <rect x="660" y="770" width="600" height="70" rx="35" fill="#fbbf24"/>
+  <text x="960" y="815" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="36" font-weight="800" fill="#1e1b4b">
+    gardenstate.ai
+  </text>
+
+  <!-- Free tools line -->
+  <text x="960" y="900" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#9ca3af">
+    Free Home Valuation  |  Tax Appeal  |  Market Reports  |  AI Assistant
+  </text>
+
+  <!-- BHG line -->
+  <text x="960" y="1010" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="18" fill="#6b7280">
+    Better Homes and Gardens Real Estate | Green Team
+  </text>
+  <text x="960" y="1040" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="16" fill="#4b5563">
+    Julio Reynoso | Licensed Real Estate Agent
+  </text>
+</svg>
