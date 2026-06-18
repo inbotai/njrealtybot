@@ -92,6 +92,9 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Tax Appeal hero bar — seller lead magnet */}
+        <TaxAppealBar />
+
         {/* Stats strip */}
         <section className="border-b bg-white py-10">
           <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-12 px-4">
@@ -160,8 +163,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Tax Appeal hero bar */}
-        <TaxAppealBar />
       </>
     );
   }
@@ -255,6 +256,9 @@ function PublicHomepage() {
           </div>
         </div>
       </div>
+
+      {/* Tax Appeal — seller lead magnet */}
+      <TaxAppealBar />
 
       {/* Stats strip */}
       <section className="border-b bg-white py-10">
