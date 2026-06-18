@@ -1,10 +1,24 @@
 import Link from "next/link";
 
-const quickLinks = [
+const sellerLinks = [
   { href: "/sell", label: "Sell Your Home" },
-  { href: "/chat", label: "Chat with Vale" },
+  { href: "/my-home", label: "Track My Home Value" },
+  { href: "/property-tax", label: "Tax Appeal" },
+  { href: "/net-proceeds", label: "Net Proceeds Calculator" },
+  { href: "/market", label: "Market Reports" },
+];
+
+const buyerLinks = [
+  { href: "/search", label: "Search Homes" },
+  { href: "/deals", label: "Deals & Price Drops" },
+  { href: "/open-houses", label: "Open Houses" },
   { href: "/alerts", label: "Price Alerts" },
+  { href: "/afford", label: "Affordability Calculator" },
+];
+
+const companyLinks = [
   { href: "/contact", label: "Contact" },
+  { href: "/blog", label: "News" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
 ];
@@ -12,26 +26,59 @@ const quickLinks = [
 export default function Footer() {
   return (
     <footer className="mt-auto bg-navy text-gray-300">
+      {/* Tax Appeal CTA — seller lead magnet */}
+      <div className="bg-gradient-to-r from-red-900/40 via-navy to-red-900/40 border-b border-white/10">
+        <div className="mx-auto max-w-4xl px-4 py-10 text-center">
+          <p className="text-sm font-bold uppercase tracking-wider text-red-400">Are you paying too much in property taxes?</p>
+          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            NJ homeowners overpay an average of $2,500/year
+          </h2>
+          <p className="mt-3 text-sm text-gray-400">
+            Our free AI analysis compares your assessment to recent sales and tells you
+            if you have a case — in under 60 seconds.
+          </p>
+          <Link href="/property-tax"
+            className="mt-5 inline-block rounded-lg bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
+            Check My Property Taxes Free
+          </Link>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Garden State AI */}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Brand */}
           <div>
             <h3 className="text-base font-bold text-white">
               <span className="text-gold">Garden</span> State <span className="text-indigo-400">AI</span>
             </h3>
-            <p className="mt-2 text-sm">
+            <p className="mt-2 text-sm text-gray-400">
+              AI-powered real estate for New Jersey homeowners, sellers, and buyers.
             </p>
+            <div className="mt-4">
+              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[68px] w-auto mb-2" />
+              <p className="text-xs text-gray-500">293 Route 94, Vernon, NJ 07462</p>
+            </div>
           </div>
 
-          {/* Links */}
+          {/* Sellers */}
           <div>
-            <h4 className="mb-3 font-semibold text-white">Quick Links</h4>
+            <h4 className="mb-3 font-semibold text-white">For Sellers</h4>
             <ul className="space-y-2 text-sm">
-              {quickLinks.map((l) => (
+              {sellerLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="hover:text-gold transition">
-                    {l.label}
-                  </Link>
+                  <Link href={l.href} className="hover:text-gold transition">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Buyers */}
+          <div>
+            <h4 className="mb-3 font-semibold text-white">For Buyers</h4>
+            <ul className="space-y-2 text-sm">
+              {buyerLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-gold transition">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -40,22 +87,22 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="mb-3 font-semibold text-white">Contact</h4>
-            <p className="text-sm">
-              Vale, our AI partner, is available 24/7.
-            </p>
+            <p className="text-sm">Vale, our AI partner, is available 24/7.</p>
             <p className="mt-2 text-sm">
               <a href="tel:+12015281095" className="text-gold hover:underline">(201) 528-1095</a>
               {" | "}
               <a href="mailto:info@gardenstate.ai" className="text-gold hover:underline">info@gardenstate.ai</a>
             </p>
-            <div className="mt-4 border-t border-white/10 pt-4">
-              <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[68px] w-auto mb-2" />
-              <p className="text-xs text-gray-400">293 Route 94, Vernon, NJ 07462</p>
-              <p className="text-xs text-gray-400">
-                Office: <a href="tel:+19738147344" className="hover:text-gray-300">973.814.7344</a>
-                {" | Fax: 845.920.7669"}
-              </p>
+            <div className="mt-4 border-t border-white/10 pt-4 text-xs text-gray-500">
+              <p>Office: <a href="tel:+19738147344" className="hover:text-gray-300">973.814.7344</a> | Fax: 845.920.7669</p>
             </div>
+            <ul className="mt-4 space-y-2 text-sm">
+              {companyLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-gold transition">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -100,9 +147,7 @@ export default function Footer() {
             Garden State AI is an AI-powered real estate platform. Property search and listing services are provided
             through IDX (GSMLS/NJMLS) by Better Homes and Gardens | Green Team, 293 Route 94, Vernon, NJ 07462.
           </p>
-          <p>
-            All buying and selling services are handled by licensed real estate agents.
-          </p>
+          <p>All buying and selling services are handled by licensed real estate agents.</p>
           <p>&copy; {new Date().getFullYear()} Garden State AI. All rights reserved.</p>
         </div>
       </div>
