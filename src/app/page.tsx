@@ -334,7 +334,6 @@ function PublicHomepage() {
               <label className="flex items-start gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  required
                   className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
                 />
                 <span className="text-xs text-gray-500">
@@ -599,7 +598,7 @@ function TaxAppealBar() {
                     />
                   </div>
                   <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" required
+                    <input type="checkbox"
                       className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
                     <span className="text-[10px] text-gray-500 leading-relaxed">
                       I consent to receive SMS/WhatsApp messages from Garden State AI

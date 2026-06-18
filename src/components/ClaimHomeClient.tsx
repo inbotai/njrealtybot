@@ -140,7 +140,7 @@ export default function ClaimHomeClient() {
                   className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-gold focus:outline-none" />
               </div>
               <label className="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox" required
+                <input type="checkbox"
                   className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
                 <span className="text-[10px] text-gray-500 leading-relaxed">
                   I consent to receive SMS/WhatsApp messages from Garden State AI

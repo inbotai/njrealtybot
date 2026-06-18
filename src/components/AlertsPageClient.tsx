@@ -155,7 +155,7 @@ export default function AlertsPageClient() {
             {error && <p className="text-sm text-red-600">{error}</p>}
 
             <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" required
+              <input type="checkbox"
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
               <span className="text-[10px] text-gray-500 leading-relaxed">
                 I consent to receive SMS/WhatsApp messages from Garden State AI

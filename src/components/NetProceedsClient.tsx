@@ -231,7 +231,7 @@ export default function NetProceedsClient() {
                     <button type="submit" className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-navy hover:bg-yellow-400">Unlock</button>
                   </div>
                   <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" required
+                    <input type="checkbox"
                       className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
                     <span className="text-[10px] text-gray-500 leading-relaxed">
                       I consent to receive SMS/WhatsApp messages from Garden State AI.

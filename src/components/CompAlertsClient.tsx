@@ -179,7 +179,7 @@ export default function CompAlertsClient() {
             {/* SMS/WhatsApp Consent */}
             <label className="flex items-start gap-2 cursor-pointer">
               <input
-                type="checkbox" required
+                type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
