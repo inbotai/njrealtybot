@@ -3,8 +3,11 @@ import Link from "next/link";
 const sellerLinks = [
   { href: "/sell", label: "Sell Your Home" },
   { href: "/my-home", label: "Track My Home Value" },
+  { href: "/sell-timing", label: "Sell Now vs Wait" },
   { href: "/property-tax", label: "Tax Appeal" },
-  { href: "/net-proceeds", label: "Net Proceeds Calculator" },
+  { href: "/comp-alerts", label: "Comp Alerts" },
+  { href: "/renovate", label: "Renovation ROI" },
+  { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/market", label: "Market Reports" },
 ];
 

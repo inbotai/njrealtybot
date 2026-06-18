@@ -20,9 +20,12 @@ const adminLinks = [
 ];
 
 const moreLinks = [
+  { href: "/sell-timing", label: "Sell Now vs Wait" },
+  { href: "/comp-alerts", label: "Comp Alerts" },
+  { href: "/renovate", label: "Renovation ROI" },
   { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/afford", label: "Affordability" },
-  { href: "/alerts", label: "Alerts" },
+  { href: "/alerts", label: "Price Alerts" },
   { href: "/blog", label: "News" },
   { href: "/contact", label: "Contact" },
 ];
