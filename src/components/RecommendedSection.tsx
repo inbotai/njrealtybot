@@ -6,6 +6,11 @@ import Link from "next/link";
 
 interface Rec { id: string; score: number; address: string; price: number }
 
+function recSlug(r: Rec): string {
+  const slug = (r.address || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return `${r.id}-${slug}`;
+}
+
 export default function RecommendedSection() {
   const [recs, setRecs] = useState<Rec[]>([]);
 
@@ -24,7 +29,7 @@ export default function RecommendedSection() {
         <p className="mb-6 text-sm text-gray-500">Based on your browsing preferences</p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {recs.map(r => (
-            <Link key={r.id} href={`/property/${r.id}`}
+            <Link key={r.id} href={`/property/${recSlug(r)}`}
               className="rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md"
             >
               <p className="truncate text-sm font-medium text-gray-900">{r.address}</p>

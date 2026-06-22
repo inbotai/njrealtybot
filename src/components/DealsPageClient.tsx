@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { fetchDeals, type DealOpportunity } from "@/lib/api";
 import Link from "next/link";
 
+function dealSlug(d: DealOpportunity): string {
+  const full = [d.address, d.city, "NJ"].filter(Boolean).join(" ");
+  const slug = full.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return `${d.listingId}-${slug}`;
+}
+
 export default function DealsPageClient() {
   const [deals, setDeals] = useState<DealOpportunity[]>([]);
   const [city, setCity] = useState("");
@@ -43,7 +49,7 @@ export default function DealsPageClient() {
       ) : (
         <div className="mt-8 space-y-4">
           {deals.map(d => (
-            <Link key={d.listingId} href={`/property/${d.listingId}`}
+            <Link key={d.listingId} href={`/property/${dealSlug(d)}`}
               className="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
