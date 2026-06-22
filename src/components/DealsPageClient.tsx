@@ -10,73 +10,116 @@ function dealSlug(d: DealOpportunity): string {
   return `${d.listingId}-${slug}`;
 }
 
+function DealCard({ d, isRental }: { d: DealOpportunity; isRental?: boolean }) {
+  return (
+    <Link href={`/property/${dealSlug(d)}`}
+      className="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900">{d.address}</h3>
+            {isRental && (
+              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">Rental</span>
+            )}
+          </div>
+          <p className="text-sm text-gray-500">{d.city} | MLS# {d.mlsNumber}{d.daysOnMarket > 0 ? ` | ${d.daysOnMarket} days` : ""}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-bold text-gray-900">
+            ${d.listPrice.toLocaleString()}{isRental ? "/mo" : ""}
+          </p>
+          {!isRental && d.predictedDrop > 0 && (
+            <p className="text-sm font-medium text-green-600">
+              Predicted: ${d.predictedPrice.toLocaleString()} (-{d.predictedDrop}%)
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          d.probability >= 60 ? "bg-green-100 text-green-800"
+          : d.probability >= 40 ? "bg-yellow-100 text-yellow-800"
+          : "bg-gray-100 text-gray-600"
+        }`}>
+          {isRental ? "Great deal" : `${d.probability}% probability`}
+        </span>
+        {d.signals.map((s, i) => (
+          <span key={i} className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">{s}</span>
+        ))}
+      </div>
+    </Link>
+  );
+}
+
 export default function DealsPageClient() {
   const [deals, setDeals] = useState<DealOpportunity[]>([]);
+  const [rentalDeals, setRentalDeals] = useState<DealOpportunity[]>([]);
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"sales" | "rentals" | "all">("all");
 
   async function loadDeals(c?: string) {
     setLoading(true);
-    const d = await fetchDeals(c || undefined, 20);
-    setDeals(d);
+    const result = await fetchDeals(c || undefined, 20);
+    setDeals(result.deals || []);
+    setRentalDeals(result.rentalDeals || []);
     setLoading(false);
   }
 
   useEffect(() => { loadDeals(); }, []);
 
+  const shown = tab === "sales" ? deals
+    : tab === "rentals" ? rentalDeals
+    : [...deals, ...rentalDeals];
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900">Hidden Deals</h1>
       <p className="mt-2 text-gray-500">
-        Our AI analyzes days on market, price reductions, and area comparables to find properties likely to drop in price.
+        AI-powered deal detection: properties likely to drop in price + below-market rentals.
       </p>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <input
           type="text" value={city} onChange={e => setCity(e.target.value)}
           placeholder="Filter by city (e.g. Hoboken)"
           className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          onKeyDown={e => e.key === "Enter" && loadDeals(city)}
         />
         <button onClick={() => loadDeals(city)} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-          Search Deals
+          Search
         </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="mt-6 flex gap-1 rounded-lg bg-gray-100 p-1 w-fit">
+        {([["all", `All (${deals.length + rentalDeals.length})`], ["sales", `Sales (${deals.length})`], ["rentals", `Rentals (${rentalDeals.length})`]] as const).map(([key, label]) => (
+          <button key={key} onClick={() => setTab(key as any)}
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${tab === key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {loading ? (
         <p className="mt-8 text-gray-400">Analyzing market data...</p>
-      ) : deals.length === 0 ? (
+      ) : shown.length === 0 ? (
         <p className="mt-8 text-gray-400">No deals found. Try a different city.</p>
       ) : (
-        <div className="mt-8 space-y-4">
-          {deals.map(d => (
-            <Link key={d.listingId} href={`/property/${dealSlug(d)}`}
-              className="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-gray-900">{d.address}</h3>
-                  <p className="text-sm text-gray-500">{d.city} | MLS# {d.mlsNumber} | {d.daysOnMarket} days on market</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-gray-900">${d.listPrice.toLocaleString()}</p>
-                  <p className="text-sm font-medium text-green-600">
-                    Predicted: ${d.predictedPrice.toLocaleString()} (-{d.predictedDrop}%)
-                  </p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  d.probability >= 60 ? "bg-green-100 text-green-800"
-                  : d.probability >= 40 ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-600"
-                }`}>
-                  {d.probability}% probability
-                </span>
-                {d.signals.map((s, i) => (
-                  <span key={i} className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">{s}</span>
-                ))}
-              </div>
-            </Link>
+        <div className="mt-6 space-y-4">
+          {tab === "all" && deals.length > 0 && (
+            <h2 className="text-lg font-bold text-gray-800 mt-4">Sale Deals — Likely Price Drops</h2>
+          )}
+          {(tab === "all" || tab === "sales") && deals.map(d => (
+            <DealCard key={d.listingId} d={d} />
+          ))}
+          {tab === "all" && rentalDeals.length > 0 && (
+            <h2 className="text-lg font-bold text-gray-800 mt-8">Rental Deals — Below Market Rate</h2>
+          )}
+          {(tab === "all" || tab === "rentals") && rentalDeals.map(d => (
+            <DealCard key={d.listingId} d={d} isRental />
           ))}
         </div>
       )}

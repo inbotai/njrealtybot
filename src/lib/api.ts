@@ -232,15 +232,16 @@ export async function recordAndGetDemand(listingId: string, visitorId?: string):
   return res.json();
 }
 
-/** Get deals / tunneling opportunities */
-export async function fetchDeals(city?: string, limit = 10): Promise<DealOpportunity[]> {
+/** Get deals / tunneling opportunities (sales + rentals) */
+export async function fetchDeals(city?: string, limit = 10): Promise<{ deals: DealOpportunity[]; rentalDeals: DealOpportunity[] }> {
   const params = new URLSearchParams();
   if (city) params.set("city", city);
   params.set("limit", String(limit));
+  params.set("type", "all");
   const res = await fetch(`${IDX_API}/api/idx/deals?${params}`);
-  if (!res.ok) return [];
+  if (!res.ok) return { deals: [], rentalDeals: [] };
   const json = await res.json();
-  return json.deals || [];
+  return { deals: json.deals || [], rentalDeals: json.rentalDeals || [] };
 }
 
 /** Get personalized recommendations */
