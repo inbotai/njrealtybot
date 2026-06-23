@@ -271,7 +271,10 @@ export default function TaxShockClient() {
                       <div key={i} className="rounded-lg bg-white/5 p-3 flex justify-between items-center">
                         <div className="min-w-0 flex-1">
                           <p className="text-white text-sm truncate">{c.address}</p>
-                          <div className="flex gap-3 text-xs text-gray-500 mt-0.5">
+                          <div className="flex gap-3 text-xs text-gray-500 mt-0.5 flex-wrap">
+                            {c.distanceMiles != null && c.distanceMiles > 0 && (
+                              <span className="text-blue-400">{c.distanceMiles < 0.1 ? "< 0.1" : c.distanceMiles.toFixed(1)} mi away</span>
+                            )}
                             {c.bedrooms && <span>{c.bedrooms}bd</span>}
                             {c.bathrooms && <span>{c.bathrooms}ba</span>}
                             {c.livingAreaSqft && <span>{c.livingAreaSqft.toLocaleString()} sqft</span>}
