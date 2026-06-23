@@ -118,7 +118,7 @@ export default function TaxShockClient() {
 
       // Animated reveal sequence
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-      for (let i = 1; i <= 6; i++) {
+      for (let i = 1; i <= 7; i++) {
         setTimeout(() => setRevealStep(i), i * 800);
       }
     } catch {
@@ -244,8 +244,70 @@ export default function TaxShockClient() {
               </div>
             </div>
 
-            {/* Step 6: CTA */}
-            <div className={`transition-all duration-700 ${revealStep >= 6 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            {/* Step 6: Comparable Properties */}
+            {result.comparables?.length > 0 && (
+              <div className={`transition-all duration-700 ${revealStep >= 6 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+                <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+                  <p className="text-gray-400 text-sm uppercase tracking-widest mb-1">Similar Properties That Sold Recently</p>
+                  <p className="text-gray-500 text-xs mb-4">These comparable sales in {result.city} support a lower assessment</p>
+
+                  {/* Your property header */}
+                  <div className="rounded-lg bg-gold/10 border border-gold/30 p-3 mb-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-gold text-xs font-bold uppercase">Your Property</p>
+                        <p className="text-white text-sm font-semibold truncate">{result.address}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-gray-400 text-xs">Assessment</p>
+                        <p className="text-white font-bold">${result.assessedValue?.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Comp list */}
+                  <div className="space-y-2">
+                    {result.comparables.slice(0, 5).map((c: any, i: number) => (
+                      <div key={i} className="rounded-lg bg-white/5 p-3 flex justify-between items-center">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white text-sm truncate">{c.address}</p>
+                          <div className="flex gap-3 text-xs text-gray-500 mt-0.5">
+                            {c.bedrooms && <span>{c.bedrooms}bd</span>}
+                            {c.bathrooms && <span>{c.bathrooms}ba</span>}
+                            {c.livingAreaSqft && <span>{c.livingAreaSqft.toLocaleString()} sqft</span>}
+                            {c.saleDate && <span>Sold {new Date(c.saleDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>}
+                          </div>
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="text-white font-bold text-sm">${c.salePrice?.toLocaleString()}</p>
+                          {result.assessedValue > 0 && c.salePrice > 0 && (
+                            <p className={`text-xs font-medium ${c.salePrice < result.assessedValue ? "text-emerald-400" : "text-gray-500"}`}>
+                              {c.salePrice < result.assessedValue
+                                ? `$${(result.assessedValue - c.salePrice).toLocaleString()} below your assessment`
+                                : `$${(c.salePrice - result.assessedValue).toLocaleString()} above`
+                              }
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Average comp price vs assessment */}
+                  {result.comparables.length >= 2 && (
+                    <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                      <p className="text-gray-400 text-sm">Avg sale price of similar homes</p>
+                      <p className="text-white font-bold">
+                        ${Math.round(result.comparables.reduce((sum: number, c: any) => sum + (c.salePrice || 0), 0) / result.comparables.length).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: CTA */}
+            <div className={`transition-all duration-700 ${revealStep >= 7 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
 
               {/* Social proof */}
               <p className="text-center text-gray-500 text-sm mb-6">
