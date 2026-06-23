@@ -354,19 +354,27 @@ export default function TaxShockClient() {
               {!showContact && !submitted ? (
                 <div className="space-y-4">
                   {/* Primary CTA: WhatsApp */}
-                  <a href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-8 py-5 text-lg font-bold text-white hover:bg-[#20bd5a] transition w-full"
+                  {/* Primary CTA: Prepare Form A-1 */}
+                  <a href="/appeal"
+                    className="flex items-center justify-center gap-3 rounded-2xl bg-gold px-8 py-5 text-lg font-bold text-navy hover:bg-yellow-400 transition w-full"
                   >
-                    <svg viewBox="0 0 32 32" fill="currentColor" className="h-6 w-6"><path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z"/></svg>
-                    Get My Free Tax Appeal Guide
+                    &#x1F4DD; Prepare My Tax Appeal (Form A-1)
                   </a>
 
-                  {/* Secondary: Leave contact */}
-                  <button onClick={() => setShowContact(true)}
-                    className="w-full rounded-2xl border border-white/20 px-8 py-4 text-gray-300 hover:text-white hover:border-white/40 transition text-center"
+                  {/* Secondary: WhatsApp */}
+                  <a href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-8 py-4 font-bold text-white hover:bg-[#20bd5a] transition w-full"
                   >
-                    Or leave your info — we&apos;ll contact you
+                    <svg viewBox="0 0 32 32" fill="currentColor" className="h-5 w-5"><path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z"/></svg>
+                    Or Get Help via WhatsApp
+                  </a>
+
+                  {/* Tertiary: Leave contact */}
+                  <button onClick={() => setShowContact(true)}
+                    className="w-full rounded-2xl border border-white/20 px-8 py-3 text-sm text-gray-400 hover:text-white hover:border-white/40 transition text-center"
+                  >
+                    Leave your info — we&apos;ll contact you
                   </button>
 
                   {/* Share */}
