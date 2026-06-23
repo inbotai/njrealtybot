@@ -23,6 +23,13 @@ interface TaxResult {
   eqRatio: number;
   effectiveTaxRate: number;
   comparables: any[];
+  caseStrength: "strong" | "moderate" | "weak" | "no_case";
+  caseStrengthExplanation: string;
+  propertyTypeWarning: string | null;
+  appealRiskWarning: string;
+  conservativeEstimate: number;
+  conservativeSavingsLow: number;
+  conservativeSavingsHigh: number;
 }
 
 // ── Animated Counter ───────────────────────────────────────
@@ -43,29 +50,32 @@ function AnimCounter({ target, prefix = "$", duration = 1200 }: { target: number
   return <>{prefix}{val.toLocaleString()}</>;
 }
 
-// ── Appeal Strength Score ──────────────────────────────────
-function appealScore(r: TaxResult): number {
-  let s = 0;
-  if (r.isOverAssessed) s += 35;
-  if (r.overpaymentHigh > 2000) s += 20;
-  else if (r.overpaymentHigh > 1000) s += 10;
-  if (r.appealLikelihood === "high") s += 25;
-  else if (r.appealLikelihood === "moderate") s += 15;
-  if (r.comparables?.length >= 3) s += 10;
-  if (r.chapter123Result === "over-assessed") s += 10;
-  return Math.min(100, s);
+function caseColor(s: string) {
+  if (s === "strong") return "text-emerald-400";
+  if (s === "moderate") return "text-yellow-400";
+  if (s === "weak") return "text-orange-400";
+  return "text-red-400";
 }
 
-function scoreColor(s: number) {
-  if (s >= 70) return "text-emerald-400";
-  if (s >= 50) return "text-yellow-400";
-  return "text-orange-400";
+function caseBgColor(s: string) {
+  if (s === "strong") return "bg-emerald-500";
+  if (s === "moderate") return "bg-yellow-500";
+  if (s === "weak") return "bg-orange-500";
+  return "bg-red-500";
 }
 
-function scoreLabel(s: number) {
-  if (s >= 70) return "Strong Case";
-  if (s >= 50) return "Moderate Case";
-  return "Needs Review";
+function caseLabel(s: string) {
+  if (s === "strong") return "Strong Case";
+  if (s === "moderate") return "Moderate Case";
+  if (s === "weak") return "Weak Case";
+  return "No Case for Appeal";
+}
+
+function casePercent(s: string) {
+  if (s === "strong") return 85;
+  if (s === "moderate") return 55;
+  if (s === "weak") return 30;
+  return 10;
 }
 
 // ── Main Component ─────────────────────────────────────────
@@ -152,8 +162,10 @@ export default function TaxShockClient() {
 
   // ── Result View ──────────────────────────────────────────
   if (result) {
-    const score = appealScore(result);
-    const savings5yr = (result.overpaymentHigh || 0) * 5;
+    const strength = result.caseStrength || "no_case";
+    const savingsLow = result.conservativeSavingsLow || 0;
+    const savingsHigh = result.conservativeSavingsHigh || 0;
+    const savings5yr = savingsHigh * 5;
 
     return (
       <>
@@ -202,44 +214,66 @@ export default function TaxShockClient() {
               </div>
             </div>
 
-            {/* Step 4: THE REVEAL — Overpayment */}
+            {/* Step 4: THE REVEAL — Conservative Result */}
             <div className={`transition-all duration-700 ${revealStep >= 4 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
-              {result.isOverAssessed && result.overpaymentHigh > 0 ? (
+              {/* Property type warning */}
+              {result.propertyTypeWarning && (
+                <div className="rounded-xl bg-amber-900/30 border border-amber-500/30 p-4 mb-4 text-sm text-amber-300">
+                  <span className="font-bold">&#x26A0; Property Type Notice:</span> {result.propertyTypeWarning}
+                </div>
+              )}
+
+              {strength === "strong" || strength === "moderate" ? (
                 <div className="rounded-2xl bg-gradient-to-r from-emerald-900/50 to-green-900/50 border-2 border-emerald-500/30 p-8 text-center">
                   <p className="text-emerald-400 text-sm uppercase tracking-widest font-bold">You May Be Overpaying</p>
-                  <p className="text-6xl font-extrabold text-emerald-400 mt-3">
-                    <AnimCounter target={result.overpaymentHigh} duration={1500} /><span className="text-3xl">/year</span>
+                  <p className="text-4xl font-extrabold text-emerald-400 mt-3">
+                    <AnimCounter target={savingsLow} duration={1500} /> — <AnimCounter target={savingsHigh} duration={1500} /><span className="text-2xl">/year</span>
                   </p>
-                  <p className="text-gray-300 mt-3 text-lg">
-                    That&apos;s <span className="text-white font-bold"><AnimCounter target={savings5yr} duration={1800} /></span> over 5 years
-                  </p>
+                  <p className="text-gray-400 text-sm mt-2">Conservative estimate</p>
+                  {savings5yr > 0 && (
+                    <p className="text-gray-300 mt-3 text-lg">
+                      Potential 5-year savings: <span className="text-white font-bold"><AnimCounter target={savings5yr} duration={1800} /></span>
+                    </p>
+                  )}
+                </div>
+              ) : strength === "weak" ? (
+                <div className="rounded-2xl bg-amber-900/20 border-2 border-amber-500/30 p-8 text-center">
+                  <p className="text-amber-400 text-sm uppercase tracking-widest font-bold">Marginal Case</p>
+                  <p className="text-2xl font-bold text-white mt-2">Your assessment is near the upper limit but within range</p>
+                  <p className="text-gray-400 mt-2">Potential savings would be small. An appeal carries risk.</p>
                 </div>
               ) : (
                 <div className="rounded-2xl bg-blue-900/30 border-2 border-blue-500/30 p-8 text-center">
-                  <p className="text-blue-400 text-sm uppercase tracking-widest font-bold">Good News</p>
-                  <p className="text-2xl font-bold text-white mt-2">Your assessment appears to be in line with market value</p>
-                  <p className="text-gray-400 mt-2">We&apos;ll monitor it and alert you if it changes</p>
+                  <p className="text-blue-400 text-sm uppercase tracking-widest font-bold">No Case for Appeal</p>
+                  <p className="text-2xl font-bold text-white mt-2">Your assessment is in line with market value</p>
+                  <p className="text-gray-400 mt-2">Filing an appeal is not recommended at this time</p>
                 </div>
               )}
+
+              {/* Appeal risk warning — always shown */}
+              <div className="rounded-xl bg-red-900/20 border border-red-500/20 p-4 mt-4 text-xs text-red-300/80">
+                <span className="font-bold">&#x26A0; Important:</span> {result.appealRiskWarning}
+              </div>
             </div>
 
-            {/* Step 5: Appeal Strength Score */}
+            {/* Step 5: Case Strength (from backend) */}
             <div className={`transition-all duration-700 ${revealStep >= 5 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <div className="rounded-xl bg-white/5 border border-white/10 p-6">
-                <p className="text-gray-400 text-sm mb-3">Appeal Strength</p>
+                <p className="text-gray-400 text-sm mb-3">Case Strength</p>
                 <div className="flex items-center gap-4">
                   <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-1000 ${score >= 70 ? "bg-emerald-500" : score >= 50 ? "bg-yellow-500" : "bg-orange-500"}`}
-                      style={{ width: `${score}%` }} />
+                    <div className={`h-full rounded-full transition-all duration-1000 ${caseBgColor(strength)}`}
+                      style={{ width: `${casePercent(strength)}%` }} />
                   </div>
-                  <span className={`text-2xl font-extrabold ${scoreColor(score)}`}>{score}</span>
+                  <span className={`text-lg font-extrabold ${caseColor(strength)}`}>{caseLabel(strength)}</span>
                 </div>
-                <p className={`mt-2 font-semibold ${scoreColor(score)}`}>{scoreLabel(score)}</p>
+                <p className="mt-3 text-sm text-gray-400">{result.caseStrengthExplanation}</p>
                 <div className="mt-4 space-y-2 text-sm">
-                  {result.isOverAssessed && <p className="text-emerald-400">&#x2705; Assessment above market value</p>}
-                  {result.comparables?.length >= 3 && <p className="text-emerald-400">&#x2705; {result.comparables.length} comparable sales support your case</p>}
-                  {result.filingDeadline && <p className="text-emerald-400">&#x2705; Filing deadline: {result.filingDeadline}</p>}
-                  {result.chapter123Result === "over-assessed" && <p className="text-emerald-400">&#x2705; Chapter 123 analysis supports appeal</p>}
+                  {result.chapter123Result === "over_assessed" && <p className="text-emerald-400">&#x2705; Chapter 123: Over-assessed</p>}
+                  {result.chapter123Result === "within_range" && <p className="text-gray-500">&#x2796; Chapter 123: Within range</p>}
+                  {result.chapter123Result === "under_assessed" && <p className="text-red-400">&#x274C; Chapter 123: Under-assessed — do NOT appeal</p>}
+                  {result.comparables?.length >= 3 && <p className="text-emerald-400">&#x2705; {result.comparables.length} comparable sales analyzed</p>}
+                  {result.filingDeadline && <p className="text-gray-400">&#x1F4C5; Filing deadline: {result.filingDeadline}</p>}
                 </div>
               </div>
             </div>
