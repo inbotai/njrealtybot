@@ -137,8 +137,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Tax Appeal — seller lead magnet (between white sections) */}
-        <TaxAppealBar />
+        {/* Sell Score CTA */}
+        <section className="bg-gradient-to-br from-navy via-indigo-900 to-navy py-14">
+          <div className="mx-auto max-w-4xl px-4 text-center">
+            <h2 className="text-2xl font-extrabold text-white md:text-3xl">
+              What&apos;s Your Home{" "}
+              <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+                Really Worth
+              </span>
+              ?
+            </h2>
+            <p className="mt-2 text-sm text-gray-300">
+              Free AI valuation with Sell Score — find out in 30 seconds.
+            </p>
+            <a href="/value"
+              className="mt-6 inline-block rounded-lg bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
+              Get My Sell Score
+            </a>
+          </div>
+        </section>
 
         {/* AI capabilities */}
         <section className="py-16 bg-gray-50">
@@ -298,8 +315,6 @@ function PublicHomepage() {
         </div>
       </section>
 
-      {/* Tax Appeal — seller lead magnet */}
-      <TaxAppealBar />
 
       {/* Buyer waitlist */}
       <section className="bg-gray-50 py-16">
@@ -416,51 +431,3 @@ function PublicHomepage() {
   );
 }
 
-/* ────────────────────────────────────────────────────────
-   Tax Appeal hero bar — inline on admin homepage
-   ──────────────────────────────────────────────────────── */
-
-function TaxAppealBar() {
-  const [address, setAddress] = useState("");
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!address.trim()) return;
-    window.location.href = `/tax-shock?address=${encodeURIComponent(address.trim())}`;
-  }
-
-  return (
-    <section className="bg-gradient-to-br from-navy via-indigo-900 to-navy py-14">
-      <div className="mx-auto max-w-4xl px-4 text-center">
-        <h2 className="text-2xl font-extrabold text-white md:text-3xl">
-          Are You Paying Too Much in{" "}
-          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
-            Property Taxes
-          </span>
-          ?
-        </h2>
-        <p className="mt-2 text-sm text-gray-300">
-          Free NJ Chapter 123 analysis — enter your address and find out instantly.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 flex gap-3 mx-auto max-w-xl">
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="123 Maple St, Montclair, NJ"
-            required
-            className="flex-1 rounded-lg border-0 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-gold"
-          />
-          <button
-            type="submit"
-            disabled={!address.trim()}
-            className="whitespace-nowrap rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50"
-          >
-            Check My Taxes
-          </button>
-        </form>
-      </div>
-    </section>
-  );
-}
