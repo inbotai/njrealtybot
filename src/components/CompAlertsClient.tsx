@@ -145,7 +145,7 @@ export default function CompAlertsClient() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Your WhatsApp Number *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Your Phone Number *</label>
               <input
                 type="tel" required
                 value={form.phone}
