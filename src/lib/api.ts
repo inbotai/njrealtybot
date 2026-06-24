@@ -107,6 +107,7 @@ export interface LeadData {
   message: string;
   listing_id?: string;
   lead_type: "info_request" | "showing_request" | "listing_request" | "buyer_waitlist";
+  source?: string;
 }
 
 export interface ListingsResponse {

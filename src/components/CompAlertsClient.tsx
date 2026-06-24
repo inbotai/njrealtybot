@@ -77,14 +77,22 @@ export default function CompAlertsClient() {
     return (
       <section className="min-h-[70vh] flex items-center justify-center bg-gray-50 px-4">
         <div className="max-w-md text-center bg-green-50 border border-green-200 rounded-2xl p-8 shadow-lg">
-          <div className="text-5xl mb-4">&#10003;</div>
-          <h2 className="text-2xl font-bold text-green-800">You&apos;re All Set!</h2>
+          <div className="text-5xl mb-4">{"\u2705"}</div>
+          <h2 className="text-2xl font-bold text-green-800">You&apos;re All Set{form.name ? `, ${form.name.split(" ")[0]}` : ""}!</h2>
           <p className="mt-3 text-green-700">
-            We&apos;ll message you on WhatsApp whenever a home sells within{" "}
-            <strong>{form.radius} mi</strong> of your address.
+            To activate your comp alerts, just send us a quick message:
           </p>
+          <div className="mt-5 space-y-3">
+            <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want comp alerts for ${form.address}, ${form.city} within ${form.radius} mi`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
+              Open WhatsApp
+            </a>
+            <p className="text-gray-500 text-sm">
+              or text <strong>(201) 528-1095</strong> and say &ldquo;I want comp alerts for {form.city}&rdquo;
+            </p>
+          </div>
           <p className="mt-4 text-sm text-gray-500">
-            Reply to any alert to chat with Vale, our AI real estate assistant.
+            You&apos;ll get alerts whenever a home sells within{" "}
+            <strong>{form.radius} mi</strong> of your address.
           </p>
           <Link href="/sell" className="mt-6 inline-block rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-navy hover:bg-yellow-400 transition">
             Get Your Free Home Valuation

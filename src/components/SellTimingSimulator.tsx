@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import LeadGate from "@/components/LeadGate";
+const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
+import { submitLead } from "@/lib/api";
 
 type PropertyType = "Single Family" | "Condo" | "Townhouse" | "Multi-Family";
 
@@ -252,12 +253,11 @@ export default function SellTimingSimulator() {
 
               {/* Lead capture */}
               <div className="mt-10">
-                <LeadGate
-                  inline={true}
-                  valueProp="Get Market Alerts for Best Timing"
-                  source="sell_timing"
-                  message={`${propertyType} in ${city} | Best timing: ${projections[projections.length - 1].seasonalNote} | 12mo projection: ${fmt(projections[projections.length - 1].value)}`}
-                  resultsText={`🏠 *Sell Timing Analysis — ${city}*\n\nProperty: ${propertyType}\nCurrent Value: ${fmt(projections[0].value)}\n\n3 Months: ${fmt(projections[1].value)} (${projections[1].appreciation >= 0 ? "+" : ""}${fmt(projections[1].appreciation)})\n6 Months: ${fmt(projections[2].value)} (${projections[2].appreciation >= 0 ? "+" : ""}${fmt(projections[2].appreciation)})\n12 Months: ${fmt(projections[3].value)} (${projections[3].appreciation >= 0 ? "+" : ""}${fmt(projections[3].appreciation)})\n\nRecommendation: ${projections[3].appreciation > projections[0].appreciation ? "Waiting may increase your net proceeds" : "Consider selling soon"}\n\nFree valuation: gardenstate.ai/sell\n— Garden State AI`}
+                <SellTimingLeadCapture
+                  city={city}
+                  propertyType={propertyType}
+                  projections={projections}
+                  fmt={fmt}
                 />
               </div>
 
@@ -282,5 +282,85 @@ export default function SellTimingSimulator() {
         </div>
       </section>
     </>
+  );
+}
+
+/** Lead capture → contact Vale for results — sell-timing only */
+function SellTimingLeadCapture({ city, propertyType, projections, fmt }: {
+  city: string; propertyType: string; projections: Projection[]; fmt: (n: number) => string;
+}) {
+  const [step, setStep] = useState<"name" | "phone" | "channel" | "done">("name");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function handleName() {
+    if (!name.trim()) return;
+    setStep("phone");
+  }
+
+  async function handlePhone() {
+    if (!phone.trim()) return;
+    setStep("channel");
+    // Save lead (non-blocking)
+    setSaving(true);
+    const msg = `Sell timing analysis: ${propertyType} in ${city}. Current: ${fmt(projections[0].value)}, 12mo: ${fmt(projections[3].value)}`;
+    submitLead({ full_name: name.trim(), phone: phone.trim(), message: msg, lead_type: "info_request", source: "sell_timing" }).catch(() => {});
+    setSaving(false);
+  }
+
+  function handleChannel(ch: "whatsapp" | "text") {
+    setStep("done");
+  }
+
+  const inputCls = "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-indigo-500";
+  const btnCls = "w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition";
+
+  if (step === "done") {
+    return (
+      <div className="rounded-2xl bg-white p-8 text-center shadow-lg">
+        <div className="text-4xl mb-3">{"\u2705"}</div>
+        <h3 className="text-xl font-bold text-navy">Your analysis is ready, {name.split(" ")[0]}!</h3>
+        <p className="text-gray-600 mt-3">Just send us a message to receive your full Sell Timing report:</p>
+        <div className="mt-5 space-y-3">
+          <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I need my sell timing analysis for ${city}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
+            Open WhatsApp
+          </a>
+          <p className="text-gray-400 text-sm">or text <strong>(201) 528-1095</strong> and say &ldquo;I need my sell timing analysis for {city}&rdquo;</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-white p-8 shadow-lg">
+      <h3 className="text-xl font-bold text-navy">Get Your Full Report</h3>
+      <p className="text-gray-500 text-sm mt-1">We&apos;ll send you the complete analysis with personalized recommendations.</p>
+      <div className="mt-5 space-y-3">
+        {step === "name" && (
+          <>
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} onKeyDown={e => e.key === "Enter" && handleName()} />
+            <button onClick={handleName} className={btnCls}>Continue</button>
+          </>
+        )}
+        {step === "phone" && (
+          <>
+            <p className="text-gray-600 text-sm">Thanks, {name.split(" ")[0]}! What&apos;s your phone number?</p>
+            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone number" type="tel" className={inputCls} onKeyDown={e => e.key === "Enter" && handlePhone()} />
+            <button onClick={handlePhone} disabled={saving} className={btnCls}>Continue</button>
+          </>
+        )}
+        {step === "channel" && (
+          <>
+            <p className="text-gray-600 text-sm">How would you like to receive your report?</p>
+            <div className="flex gap-3">
+              <button onClick={() => handleChannel("whatsapp")} className="flex-1 rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition">WhatsApp</button>
+              <button onClick={() => handleChannel("text")} className="flex-1 rounded-lg border-2 border-gray-300 py-3 font-bold text-gray-700 hover:border-indigo-500 transition">Text Message</button>
+            </div>
+          </>
+        )}
+      </div>
+      <p className="text-gray-400 text-xs mt-4 text-center">No spam, ever. We&apos;ll only send what you requested.</p>
+    </div>
   );
 }
