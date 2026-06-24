@@ -89,11 +89,15 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       const sid = await ensureSession(currentListingId);
       const msgHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (isAdmin) msgHeaders["X-Admin-Token"] = ADMIN_API_TOKEN;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
         headers: msgHeaders,
         body: JSON.stringify({ sessionId: sid, message: text }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const d = await r.json();
       const reply = d.reply || d.error || "Something went wrong.";
       setMessages(prev => [...prev, { role: "assistant", text: reply }]);

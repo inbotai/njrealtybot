@@ -43,11 +43,15 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
     setMessages(prev => [...prev, { role: "user", text }]);
     setLoading(true);
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, message: text }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const d = await r.json();
       setMessages(prev => [...prev, { role: "assistant", text: d.reply || d.error || "Something went wrong." }]);
     } catch {
