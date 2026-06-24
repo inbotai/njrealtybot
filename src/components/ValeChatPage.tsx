@@ -137,7 +137,7 @@ export default function ValeChatPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: sid, message: trimmed }),
-          signal: AbortSignal.timeout(45000),
+          signal: AbortSignal.timeout(60000),
         });
         if (!r.ok) throw new Error(`Message failed: ${r.status}`);
         const d = await r.json();

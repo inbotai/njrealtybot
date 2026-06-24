@@ -45,7 +45,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
     setLoading(true);
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 45000);
+      const timeout = setTimeout(() => controller.abort(), 60000);
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -92,7 +92,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       const msgHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (isAdmin) msgHeaders["X-Admin-Token"] = ADMIN_API_TOKEN;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 45000);
+      const timeout = setTimeout(() => controller.abort(), 60000);
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
         headers: msgHeaders,
@@ -100,6 +100,23 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
         signal: controller.signal,
       });
       clearTimeout(timeout);
+      // Session expired (server restart) — auto-create new session and retry once
+      if (r.status === 410) {
+        sessionRef.current = null;
+        const newSid = await ensureSession(currentListingId);
+        const r2 = await fetch(`${IDX_API}/api/idx/chat/message`, {
+          method: "POST",
+          headers: msgHeaders,
+          body: JSON.stringify({ sessionId: newSid, message: text }),
+          signal: AbortSignal.timeout(60000),
+        });
+        if (!r2.ok) throw new Error(`chat/message retry ${r2.status}`);
+        const d2 = await r2.json();
+        const reply2 = d2.reply || d2.error || "Something went wrong.";
+        setMessages(prev => [...prev, { role: "assistant", text: reply2 }]);
+        setLoading(false);
+        return;
+      }
       if (!r.ok) throw new Error(`chat/message ${r.status}`);
       const d = await r.json();
       const reply = d.reply || d.error || "Something went wrong.";
