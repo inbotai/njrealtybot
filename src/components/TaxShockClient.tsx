@@ -32,6 +32,8 @@ interface TaxResult {
   conservativeEstimate: number;
   conservativeSavingsLow: number;
   conservativeSavingsHigh: number;
+  zestimate: number | null;
+  zestimateSource: string | null;
 }
 
 // ── Animated Counter ───────────────────────────────────────
@@ -195,10 +197,19 @@ export default function TaxShockClient() {
             {/* Step 3: Market Value */}
             <div className={`transition-all duration-700 ${revealStep >= 3 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <div className="rounded-xl bg-white/5 border border-white/10 p-6">
-                <p className="text-gray-400 text-sm">Our Estimated Market Value</p>
+                <p className="text-gray-400 text-sm">Comparable Sales Value</p>
                 <p className="text-4xl font-extrabold mt-1 text-blue-400">
                   <AnimCounter target={result.estimatedMarketValueMid} />
                 </p>
+                <p className="text-gray-500 text-xs mt-1">Based on {result.comparables?.length || 0} recent comparable sales</p>
+                {result.zestimate && (
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <p className="text-gray-400 text-sm">{result.zestimateSource === "redfin" ? "Redfin Estimate" : "Zestimate (Zillow)"}</p>
+                    <p className="text-2xl font-bold mt-1 text-emerald-400">
+                      <AnimCounter target={result.zestimate} />
+                    </p>
+                  </div>
+                )}
                 {result.isOverAssessed && (
                   <p className="text-red-400 mt-2 font-semibold">
                     Your assessment is {Math.round(((result.assessedValue / result.estimatedMarketValueMid) - 1) * 100)}% above market value

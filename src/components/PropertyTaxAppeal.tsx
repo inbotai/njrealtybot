@@ -29,6 +29,8 @@ interface TaxAnalysisResult {
   overpaymentHigh: number;
   appealLikelihood: "high" | "moderate" | "low";
   filingDeadline: string;
+  zestimate?: number | null;
+  zestimateSource?: string | null;
   comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; yearBuilt: number | null; distanceMiles: number | null; propertyType: string }[];
 }
 
@@ -230,6 +232,12 @@ export default function PropertyTaxAppeal() {
                       {formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}
                     </dd>
                   </div>
+                  {analysis.zestimate && (
+                    <div className="flex justify-between rounded bg-emerald-50 px-3 py-2">
+                      <dt className="text-gray-600">{analysis.zestimateSource === "redfin" ? "Redfin Estimate" : "Zestimate (Zillow)"}</dt>
+                      <dd className="font-semibold text-emerald-700">{formatCurrency(analysis.zestimate)}</dd>
+                    </div>
+                  )}
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Common Level Range</dt>
                     <dd className="font-medium">
