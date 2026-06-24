@@ -520,9 +520,9 @@ export default function AppealWizard() {
                   Loading comparables...
                 </span>
               ) : form.useGSAIComps ? (
-                "&#x2705; Comparables Loaded from Garden State AI"
+                "\u2705 Comparables Loaded from Garden State AI"
               ) : (
-                "&#x1F50D; Use My Comparables from Garden State AI"
+                "\uD83D\uDD0D Use My Comparables from Garden State AI"
               )}
             </button>
 
