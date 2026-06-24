@@ -353,13 +353,39 @@ export default function TaxShockClient() {
 
               {!showContact && !submitted ? (
                 <div className="space-y-4">
-                  {/* Primary CTA: WhatsApp */}
-                  {/* Primary CTA: Prepare Form A-1 */}
-                  <a href="/appeal"
-                    className="flex items-center justify-center gap-3 rounded-2xl bg-gold px-8 py-5 text-lg font-bold text-navy hover:bg-yellow-400 transition w-full"
+                  {/* Primary CTA: Prepare Form A-1 with pre-filled data */}
+                  <button onClick={() => {
+                    // Store analysis data for AppealWizard to pick up
+                    sessionStorage.setItem("gsai_tax_analysis", JSON.stringify({
+                      address: result.address,
+                      city: result.city,
+                      county: result.county,
+                      assessedValue: result.assessedValue,
+                      taxAnnual: result.taxAnnual,
+                      estimatedMarketValueMid: result.estimatedMarketValueMid,
+                      conservativeEstimate: result.conservativeEstimate,
+                      eqRatio: result.eqRatio,
+                      chapter123Result: result.chapter123Result,
+                      caseStrength: result.caseStrength,
+                      caseStrengthExplanation: result.caseStrengthExplanation,
+                      filingDeadline: result.filingDeadline,
+                      overpaymentLow: result.overpaymentLow,
+                      overpaymentHigh: result.overpaymentHigh,
+                      comparables: result.comparables?.slice(0, 6).map((c: any) => ({
+                        address: c.address || "",
+                        salePrice: c.salePrice?.toString() || "",
+                        saleDate: c.saleDate || "",
+                        beds: c.bedrooms?.toString() || "",
+                        baths: c.bathrooms?.toString() || "",
+                        sqft: c.livingAreaSqft?.toString() || "",
+                      })),
+                    }));
+                    window.location.href = "/appeal";
+                  }}
+                    className="flex items-center justify-center gap-3 rounded-2xl bg-gold px-8 py-5 text-lg font-bold text-navy hover:bg-yellow-400 transition w-full cursor-pointer"
                   >
                     &#x1F4DD; Prepare My Tax Appeal (Form A-1)
-                  </a>
+                  </button>
 
                   {/* Secondary: WhatsApp */}
                   <a href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`}

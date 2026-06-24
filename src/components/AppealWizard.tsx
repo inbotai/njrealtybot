@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -105,6 +105,67 @@ export default function AppealWizard() {
   const [loadingComps, setLoadingComps] = useState(false);
   const [generating, setGenerating] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
+
+  // Auto-fill from Tax Shock analysis if available
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("gsai_tax_analysis");
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      sessionStorage.removeItem("gsai_tax_analysis"); // consume once
+
+      setForm(prev => {
+        const updated = { ...prev };
+
+        // Property info
+        if (data.address) updated.propertyAddress = data.address.replace(/,.*$/, "").trim();
+        if (data.city) updated.propertyCity = data.city;
+        if (data.county) updated.propertyCounty = data.county;
+
+        // Assessment
+        if (data.assessedValue) updated.assessedTotal = data.assessedValue.toString();
+        if (data.taxAnnual) updated.currentTaxes = data.taxAnnual.toFixed(2);
+
+        // Claimed value = conservative estimate or mid market value
+        if (data.conservativeEstimate) {
+          updated.claimedValue = Math.round(data.conservativeEstimate).toString();
+        } else if (data.estimatedMarketValueMid) {
+          updated.claimedValue = Math.round(data.estimatedMarketValueMid).toString();
+        }
+
+        // Pre-select appeal reasons
+        updated.appealReasons = ["Assessment exceeds true market value", "Assessment is not in line with comparable properties"];
+
+        // Build narrative from Chapter 123 analysis
+        const parts: string[] = [];
+        if (data.chapter123Result === "over_assessed" && data.eqRatio) {
+          parts.push(`Under NJ Chapter 123, the county equalization ratio is ${(data.eqRatio * 100).toFixed(2)}%. Based on ${data.comparables?.length || 0} comparable sales, the estimated market value is $${Math.round(data.estimatedMarketValueMid || 0).toLocaleString()}, placing the current assessment above the Common Level Range upper bound.`);
+        }
+        if (data.caseStrengthExplanation) {
+          parts.push(data.caseStrengthExplanation);
+        }
+        if (parts.length) updated.appealNarrative = parts.join("\n\n");
+
+        // Comparables
+        if (data.comparables?.length) {
+          updated.comps = data.comparables.slice(0, 6).map((c: any) => ({
+            address: c.address || "",
+            salePrice: c.salePrice || "",
+            saleDate: c.saleDate || "",
+            beds: c.beds || "",
+            baths: c.baths || "",
+            sqft: c.sqft || "",
+          }));
+          updated.useGSAIComps = true;
+        }
+
+        return updated;
+      });
+
+      // Skip the landing page, go straight to step 1
+      setStep(1);
+    } catch { /* ignore parse errors */ }
+  }, []);
 
   function update(field: keyof FormData, value: any) {
     setForm(prev => ({ ...prev, [field]: value }));
