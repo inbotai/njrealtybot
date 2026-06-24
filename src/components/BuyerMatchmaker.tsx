@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { fetchRecommendations, fetchListings } from "@/lib/api";
 import ListingCard from "@/components/ListingCard";
+import LeadGate from "@/components/LeadGate";
 import type { Listing } from "@/lib/api";
 
 interface BuyerProfile {
@@ -133,6 +134,17 @@ export default function BuyerMatchmaker() {
             </div>
           )}
         </div>
+
+        <section className="py-10">
+          <div className="mx-auto max-w-lg px-4">
+            <LeadGate
+              inline={true}
+              valueProp="Save My Matches + Get Alerts"
+              source="buyer_match"
+              message={`Budget: ${profile.budget ? `$${Number(profile.budget).toLocaleString()}` : "any"} | ${profile.beds ? `${profile.beds}+ beds` : "any beds"} | ${profile.cities || "any city"} | ${profile.mustHaves.join(", ") || "no must-haves"} | ${results.length} matches found`}
+            />
+          </div>
+        </section>
 
         <section className="bg-gray-50 py-12 text-center">
           <div className="mx-auto max-w-lg px-4">

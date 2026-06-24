@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import LeadGate from "@/components/LeadGate";
 
 export default function AffordabilityCalc() {
   const router = useRouter();
@@ -103,6 +104,15 @@ export default function AffordabilityCalc() {
                 </button>
               </div>
               <button onClick={() => setResult(null)} className="mt-4 text-sm text-gray-400 hover:text-navy">Recalculate</button>
+
+              <div className="mt-8">
+                <LeadGate
+                  inline={true}
+                  valueProp="Get Matched Homes in My Budget"
+                  source="affordability_calc"
+                  message={`Budget: $${result.budget.toLocaleString()} | Monthly: $${result.monthly.toLocaleString()}/mo | ${down}% down at ${rate}%`}
+                />
+              </div>
             </div>
           )}
         </div>

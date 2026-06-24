@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LeadGate from "@/components/LeadGate";
 
 interface ValuationResult {
   address: string;
@@ -170,6 +171,17 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Lead capture */}
+          <div className="mt-10">
+            <LeadGate
+              title="Get Your Full CMA Report with Comparables"
+              valueProp="Full CMA Report"
+              source="sell_score"
+              message={`Sell Score for ${result.address}: ${fmt(result.estimatedValue)} (range: ${fmt(result.lowRange)}-${fmt(result.highRange)})`}
+              inline
+            />
           </div>
 
           {/* Share CTA — the viral engine */}

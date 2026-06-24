@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchDeals, type DealOpportunity } from "@/lib/api";
 import Link from "next/link";
+import LeadGate from "@/components/LeadGate";
 
 function dealSlug(d: DealOpportunity): string {
   const full = [d.address, d.city, "NJ"].filter(Boolean).join(" ");
@@ -123,6 +124,13 @@ export default function DealsPageClient() {
           ))}
         </div>
       )}
+
+      <LeadGate
+        valueProp="Get Deal Alerts When New Ones Drop"
+        source="deals_page"
+        message="Subscribed to deal alerts"
+        inline={true}
+      />
     </div>
   );
 }

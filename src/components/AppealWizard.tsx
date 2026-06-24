@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import LeadGate from "@/components/LeadGate";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -322,6 +323,12 @@ export default function AppealWizard() {
               Run Another Tax Analysis
             </a>
           </div>
+
+          <LeadGate
+            valueProp="Get Appeal Updates + Attorney Referral"
+            source="tax_appeal_wizard"
+            message={`Tax appeal for ${form.propertyAddress}, ${form.propertyCity} — claimed value $${form.claimedValue}`}
+          />
 
           <div className="mt-8 rounded-xl bg-white/5 border border-white/10 p-6 text-left text-sm space-y-3">
             <h3 className="font-bold text-gold">Next Steps</h3>

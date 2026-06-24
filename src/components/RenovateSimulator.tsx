@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LeadGate from "@/components/LeadGate";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20see%20renovation%20options%20for%20my%20home";
 
@@ -289,6 +290,16 @@ export default function RenovateSimulator() {
                     You&apos;re {result.roiPercent > result.njAvgRoi ? "above" : result.roiPercent < result.njAvgRoi ? "below" : "at"} average
                   </p>
                 </div>
+              </div>
+
+              {/* Lead capture */}
+              <div className="mt-6">
+                <LeadGate
+                  inline={true}
+                  valueProp="Get AI Renovation Renderings"
+                  source="renovate_sim"
+                  message={`${selectedReno.label} | Budget: ${fmt(parseInt(budgetStr))} | ROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}% | ${result.verdictLabel}`}
+                />
               </div>
 
               {/* CTA inside result */}

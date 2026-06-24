@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import LeadGate from "@/components/LeadGate";
 
 type PropertyType = "Single Family" | "Condo" | "Townhouse" | "Multi-Family";
 
@@ -247,6 +248,16 @@ export default function SellTimingSimulator() {
                   These projections are estimates based on historical NJ market averages and seasonal patterns.
                   Actual results will vary based on local conditions, property improvements, and economic changes.
                 </p>
+              </div>
+
+              {/* Lead capture */}
+              <div className="mt-10">
+                <LeadGate
+                  inline={true}
+                  valueProp="Get Market Alerts for Best Timing"
+                  source="sell_timing"
+                  message={`${propertyType} in ${city} | Best timing: ${projections[projections.length - 1].seasonalNote} | 12mo projection: ${fmt(projections[projections.length - 1].value)}`}
+                />
               </div>
 
               {/* CTAs */}
