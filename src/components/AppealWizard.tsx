@@ -246,6 +246,21 @@ export default function AppealWizard() {
     } catch (e) {
       console.error("PDF generation failed:", e);
     }
+    // Register as lead in admin dashboard
+    try {
+      await fetch(`${IDX_API}/api/idx/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.ownerName || "Tax Appeal User",
+          phone: form.ownerPhone || undefined,
+          email: form.ownerEmail || undefined,
+          lead_type: "tax_appeal",
+          source: "appeal_wizard",
+          message: `Tax appeal PDF generated for ${form.propertyAddress}, ${form.propertyCity}. Block ${form.block}, Lot ${form.lot}. Assessment: $${form.assessedTotal}, Claimed: $${form.claimedValue}. ${form.comps.filter(c => c.address).length} comps attached.`,
+        }),
+      });
+    } catch { /* non-blocking */ }
     setGenerating(false);
     setStep(7);
   }
