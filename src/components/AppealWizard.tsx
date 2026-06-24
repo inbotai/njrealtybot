@@ -255,8 +255,8 @@ export default function AppealWizard() {
           full_name: form.ownerName || "Tax Appeal User",
           phone: form.ownerPhone || undefined,
           email: form.ownerEmail || undefined,
-          lead_type: "tax_appeal",
-          source: "appeal_wizard",
+          lead_type: "info_request",
+          source: "tax_appeal_wizard",
           message: `Tax appeal PDF generated for ${form.propertyAddress}, ${form.propertyCity}. Block ${form.block}, Lot ${form.lot}. Assessment: $${form.assessedTotal}, Claimed: $${form.claimedValue}. ${form.comps.filter(c => c.address).length} comps attached.`,
         }),
       });
