@@ -58,12 +58,23 @@ export default function CompAlertsClient() {
         setError(data.error);
         return;
       }
-      // Also register as lead
+      // Register as lead
       await submitLead({
         full_name: form.name || "Comp Alert Subscriber",
         phone: form.phone,
         message: `Comp alert signup: ${form.address}, ${form.city} — radius ${form.radius} mi`,
         lead_type: "info_request",
+        source: "comp_alerts",
+      }).catch(() => {});
+      // Send confirmation SMS
+      await fetch(`${IDX_API}/api/idx/send-results`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.name, phone: form.phone, channel: "sms",
+          tool: "comp_alerts",
+          results: `You're signed up for Comp Alerts! You'll get a text whenever a home sells within ${form.radius} mi of ${form.address || form.city}. Reply to chat with Vale, our AI assistant. Reply STOP to opt out. - Garden State AI`,
+        }),
       }).catch(() => {});
       setSuccess(true);
     } catch {
@@ -80,19 +91,11 @@ export default function CompAlertsClient() {
           <div className="text-5xl mb-4">{"\u2705"}</div>
           <h2 className="text-2xl font-bold text-green-800">You&apos;re All Set{form.name ? `, ${form.name.split(" ")[0]}` : ""}!</h2>
           <p className="mt-3 text-green-700">
-            To activate your comp alerts, just send us a quick message:
-          </p>
-          <div className="mt-5 space-y-3">
-            <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want comp alerts for ${form.address}, ${form.city} within ${form.radius} mi`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
-              Open WhatsApp
-            </a>
-            <p className="text-gray-500 text-sm">
-              or text <strong>(201) 528-1095</strong> and say &ldquo;I want comp alerts for {form.city}&rdquo;
-            </p>
-          </div>
-          <p className="mt-4 text-sm text-gray-500">
-            You&apos;ll get alerts whenever a home sells within{" "}
+            We&apos;ve sent a confirmation to your phone. You&apos;ll receive alerts whenever a home sells within{" "}
             <strong>{form.radius} mi</strong> of your address.
+          </p>
+          <p className="mt-4 text-sm text-gray-500">
+            Reply to any alert to chat with Vale, our AI real estate assistant.
           </p>
           <Link href="/sell" className="mt-6 inline-block rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-navy hover:bg-yellow-400 transition">
             Get Your Free Home Valuation

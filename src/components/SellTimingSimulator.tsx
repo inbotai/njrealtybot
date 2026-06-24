@@ -285,82 +285,78 @@ export default function SellTimingSimulator() {
   );
 }
 
-/** Lead capture → contact Vale for results — sell-timing only */
+/** Lead capture → auto-send results via SMS — sell-timing only */
 function SellTimingLeadCapture({ city, propertyType, projections, fmt }: {
   city: string; propertyType: string; projections: Projection[]; fmt: (n: number) => string;
 }) {
-  const [step, setStep] = useState<"name" | "phone" | "channel" | "done">("name");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
-  async function handleName() {
-    if (!name.trim()) return;
-    setStep("phone");
-  }
-
-  async function handlePhone() {
-    if (!phone.trim()) return;
-    setStep("channel");
-    // Save lead (non-blocking)
-    setSaving(true);
-    const msg = `Sell timing analysis: ${propertyType} in ${city}. Current: ${fmt(projections[0].value)}, 12mo: ${fmt(projections[3].value)}`;
-    submitLead({ full_name: name.trim(), phone: phone.trim(), message: msg, lead_type: "info_request", source: "sell_timing" }).catch(() => {});
-    setSaving(false);
-  }
-
-  function handleChannel(ch: "whatsapp" | "text") {
-    setStep("done");
+  async function handleSubmit() {
+    if (!name.trim() || !phone.trim()) { setError("Name and phone number are required"); return; }
+    if (!consent) { setError("Please accept the messaging consent"); return; }
+    setSending(true); setError("");
+    try {
+      const p = projections;
+      const results = [
+        `Sell Timing Analysis - ${city}, NJ`,
+        `Property: ${propertyType}`,
+        `Current Value: ${fmt(p[0].value)}`,
+        `3 Months: ${fmt(p[1].value)} (${p[1].appreciation >= 0 ? "+" : ""}${fmt(p[1].appreciation)})`,
+        `6 Months: ${fmt(p[2].value)} (${p[2].appreciation >= 0 ? "+" : ""}${fmt(p[2].appreciation)})`,
+        `12 Months: ${fmt(p[3].value)} (${p[3].appreciation >= 0 ? "+" : ""}${fmt(p[3].appreciation)})`,
+        ``,
+        `Free valuation: gardenstate.ai/sell`,
+        `Reply STOP to opt out.`,
+      ].join("\n");
+      const r = await fetch(`${IDX_API}/api/idx/send-results`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: name.trim(), phone: phone.trim(), channel: "sms", tool: "sell_timing", results }),
+      });
+      if (!r.ok) throw new Error("Send failed");
+      setSent(true);
+    } catch {
+      setError("Could not send. Please try again.");
+    }
+    setSending(false);
   }
 
   const inputCls = "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-indigo-500";
-  const btnCls = "w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition";
 
-  if (step === "done") {
+  if (sent) {
     return (
       <div className="rounded-2xl bg-white p-8 text-center shadow-lg">
         <div className="text-4xl mb-3">{"\u2705"}</div>
-        <h3 className="text-xl font-bold text-navy">Your analysis is ready, {name.split(" ")[0]}!</h3>
-        <p className="text-gray-600 mt-3">Just send us a message to receive your full Sell Timing report:</p>
-        <div className="mt-5 space-y-3">
-          <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I need my sell timing analysis for ${city}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
-            Open WhatsApp
-          </a>
-          <p className="text-gray-400 text-sm">or text <strong>(201) 528-1095</strong> and say &ldquo;I need my sell timing analysis for {city}&rdquo;</p>
-        </div>
+        <h3 className="text-xl font-bold text-navy">Sent, {name.split(" ")[0]}!</h3>
+        <p className="text-gray-600 mt-2">Check your phone — your sell timing analysis has been texted to you.</p>
+        <p className="text-gray-400 text-sm mt-4">Want a full home valuation? <a href="/sell" className="text-indigo-600 underline">Get one free here</a></p>
       </div>
     );
   }
 
   return (
     <div className="rounded-2xl bg-white p-8 shadow-lg">
-      <h3 className="text-xl font-bold text-navy">Get Your Full Report</h3>
-      <p className="text-gray-500 text-sm mt-1">We&apos;ll send you the complete analysis with personalized recommendations.</p>
+      <h3 className="text-xl font-bold text-navy">Send My Results</h3>
+      <p className="text-gray-500 text-sm mt-1">We&apos;ll text you the complete analysis instantly.</p>
       <div className="mt-5 space-y-3">
-        {step === "name" && (
-          <>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} onKeyDown={e => e.key === "Enter" && handleName()} />
-            <button onClick={handleName} className={btnCls}>Continue</button>
-          </>
-        )}
-        {step === "phone" && (
-          <>
-            <p className="text-gray-600 text-sm">Thanks, {name.split(" ")[0]}! What&apos;s your phone number?</p>
-            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone number" type="tel" className={inputCls} onKeyDown={e => e.key === "Enter" && handlePhone()} />
-            <button onClick={handlePhone} disabled={saving} className={btnCls}>Continue</button>
-          </>
-        )}
-        {step === "channel" && (
-          <>
-            <p className="text-gray-600 text-sm">How would you like to receive your report?</p>
-            <div className="flex gap-3">
-              <button onClick={() => handleChannel("whatsapp")} className="flex-1 rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition">WhatsApp</button>
-              <button onClick={() => handleChannel("text")} className="flex-1 rounded-lg border-2 border-gray-300 py-3 font-bold text-gray-700 hover:border-indigo-500 transition">Text Message</button>
-            </div>
-          </>
-        )}
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} />
+        <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" type="tel" className={inputCls} />
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600" />
+          <span className="text-[10px] text-gray-500 leading-relaxed">
+            I consent to receive SMS messages from Garden State AI about real estate services. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="/privacy" target="_blank" className="underline">Privacy Policy</a> &amp; <a href="/terms" target="_blank" className="underline">Terms</a>.
+          </span>
+        </label>
       </div>
-      <p className="text-gray-400 text-xs mt-4 text-center">No spam, ever. We&apos;ll only send what you requested.</p>
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      <button onClick={handleSubmit} disabled={sending} className="mt-4 w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition disabled:opacity-40">
+        {sending ? "Sending..." : "Text Me My Results"}
+      </button>
     </div>
   );
 }

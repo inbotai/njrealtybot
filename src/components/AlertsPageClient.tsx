@@ -33,6 +33,18 @@ export default function AlertsPageClient() {
       });
       const data = await res.json();
       if (data.ok) {
+        // Send confirmation SMS
+        if (form.phone) {
+          fetch(`${IDX_API}/api/idx/send-results`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              full_name: form.full_name, phone: form.phone, channel: "sms",
+              tool: "price_alerts",
+              results: `You're signed up for Price Alerts in ${form.city}! You'll get a text when homes sell near ${form.address || form.city}. Reply to chat with Vale. Reply STOP to opt out. - Garden State AI`,
+            }),
+          }).catch(() => {});
+        }
         setSuccess(true);
       } else {
         setError(data.error || "Something went wrong. Please try again.");
@@ -51,19 +63,11 @@ export default function AlertsPageClient() {
           <div className="text-5xl mb-4">{"\u2705"}</div>
           <h2 className="text-2xl font-bold text-navy">You&apos;re All Set{form.full_name ? `, ${form.full_name.split(" ")[0]}` : ""}!</h2>
           <p className="mt-3 text-gray-600">
-            Your alerts for <strong>{form.address || form.city}</strong> are ready to activate.
-            Just send us a quick message:
+            We&apos;ve sent a confirmation to your phone. You&apos;ll receive alerts whenever a home sells near{" "}
+            <strong>{form.address || form.city}</strong>.
           </p>
-          <div className="mt-5 space-y-3">
-            <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want price alerts for ${form.address || form.city}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
-              Open WhatsApp
-            </a>
-            <p className="text-gray-500 text-sm">
-              or text <strong>(201) 528-1095</strong> and say &ldquo;I want price alerts for {form.city}&rdquo;
-            </p>
-          </div>
           <p className="mt-4 text-sm text-gray-400">
-            You&apos;ll get alerts whenever a home sells near you, with an AI estimate of your home&apos;s value.
+            Reply to any alert to chat with Vale, our AI real estate assistant.
           </p>
         </div>
       </section>

@@ -130,6 +130,8 @@ export default function DealsPageClient() {
   );
 }
 
+const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
+
 const DEAL_CATEGORIES = [
   "Single Family", "Multi-Family", "Condo/Townhouse", "Land/Lots", "Rentals", "Commercial",
 ];
@@ -140,6 +142,7 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [consent, setConsent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -150,6 +153,7 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
   async function handleSubmit() {
     if (!name.trim() || !phone.trim()) { setError("Name and phone are required"); return; }
     if (categories.length === 0) { setError("Select at least one property type"); return; }
+    if (!consent) { setError("Please accept the messaging consent"); return; }
     setSaving(true); setError("");
     try {
       await submitLead({
@@ -159,6 +163,16 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
         lead_type: "info_request",
         source: "deals_page",
       });
+      // Send confirmation SMS
+      await fetch(`${IDX_API}/api/idx/send-results`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: name.trim(), phone: phone.trim(), channel: "sms",
+          tool: "deal_alerts",
+          results: `You're signed up for Deal Alerts! Looking for: ${categories.join(", ")}${city ? ` in ${city}` : ""}. We'll text you when new deals match. Reply STOP to opt out. - Garden State AI`,
+        }),
+      }).catch(() => {});
       setStep("done");
     } catch {
       setError("Could not save. Please try again.");
@@ -172,15 +186,9 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
     return (
       <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow-lg border">
         <div className="text-4xl mb-3">{"\u2705"}</div>
-        <h3 className="text-xl font-bold text-gray-800">Deal alerts ready, {name.split(" ")[0]}!</h3>
+        <h3 className="text-xl font-bold text-gray-800">You&apos;re all set, {name.split(" ")[0]}!</h3>
         <p className="text-gray-600 mt-3">Looking for: <strong>{categories.join(", ")}</strong>{city ? ` in ${city}` : ""}</p>
-        <p className="text-gray-600 mt-2">Send us a message to activate your alerts:</p>
-        <div className="mt-5 space-y-3">
-          <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want deal alerts for ${categories.join(", ")}${city ? ` in ${city}` : ""}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
-            Open WhatsApp
-          </a>
-          <p className="text-gray-500 text-sm">or text <strong>(201) 528-1095</strong> and say &ldquo;I want deal alerts&rdquo;</p>
-        </div>
+        <p className="text-gray-600 mt-2">We&apos;ve sent a confirmation to your phone. We&apos;ll text you when new deals match your criteria.</p>
       </div>
     );
   }
@@ -204,12 +212,17 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
         <input value={city} onChange={e => setCity(e.target.value)} placeholder="Preferred city (optional)" className={inputCls} />
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} />
         <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" type="tel" className={inputCls} />
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600" />
+          <span className="text-[10px] text-gray-500 leading-relaxed">
+            I consent to receive SMS messages from Garden State AI about deal alerts and real estate services. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="/privacy" target="_blank" className="underline">Privacy</a> &amp; <a href="/terms" target="_blank" className="underline">Terms</a>.
+          </span>
+        </label>
       </div>
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       <button onClick={handleSubmit} disabled={saving} className="mt-4 w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition disabled:opacity-40">
         {saving ? "Saving..." : "Get Deal Alerts"}
       </button>
-      <p className="text-gray-400 text-xs mt-3 text-center">No spam, ever. We&apos;ll only send deals that match your criteria.</p>
     </div>
   );
 }
