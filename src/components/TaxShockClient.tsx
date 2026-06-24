@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import VoiceButton from "./VoiceButton";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
@@ -80,6 +81,7 @@ function casePercent(s: string) {
 
 // ── Main Component ─────────────────────────────────────────
 export default function TaxShockClient() {
+  const searchParams = useSearchParams();
   const [address, setAddress] = useState("");
   const [voiceActive, setVoiceActive] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -91,6 +93,18 @@ export default function TaxShockClient() {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const autoRanRef = useRef(false);
+
+  // Auto-run analysis if ?address= param is present (from Vale links)
+  useEffect(() => {
+    if (autoRanRef.current) return;
+    const addrParam = searchParams.get("address");
+    if (addrParam) {
+      autoRanRef.current = true;
+      setAddress(addrParam);
+      analyze(addrParam);
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

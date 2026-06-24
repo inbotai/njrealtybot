@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import TaxShockClient from "@/components/TaxShockClient";
 
 export const metadata: Metadata = {
@@ -19,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function TaxShockPage() {
-  return <TaxShockClient />;
+  return <Suspense><TaxShockClient /></Suspense>;
 }
