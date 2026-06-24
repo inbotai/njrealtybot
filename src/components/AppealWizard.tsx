@@ -463,7 +463,10 @@ export default function AppealWizard() {
             <a href="/tax-shock" className={btnSecondary}>Run Another Analysis</a>
           </div>
 
-          <p className="mt-8 text-xs text-gray-600 text-center">{DISCLAIMER}</p>
+          <div className="mt-8 rounded-xl bg-amber-900/20 border border-amber-500/30 p-5 text-center">
+            <p className="text-amber-300 font-bold text-sm mb-2">{"\u26A0\uFE0F"} Important Legal Disclaimer</p>
+            <p className="text-gray-300 text-sm leading-relaxed">{DISCLAIMER}</p>
+          </div>
         </div>
       </section>
     );
