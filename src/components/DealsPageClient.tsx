@@ -130,6 +130,14 @@ export default function DealsPageClient() {
         source="deals_page"
         message="Subscribed to deal alerts"
         inline={true}
+        resultsText={deals.length > 0 ? [
+          `\u{1F525} *AI-Detected Deals*\n`,
+          ...deals.slice(0, 5).map((d, i) =>
+            `${i + 1}. ${d.address} — $${d.listPrice.toLocaleString()} (${d.probability}% chance of price drop)`
+          ),
+          `\nSee all deals: gardenstate.ai/deals`,
+          `— Garden State AI`,
+        ].join("\n") : undefined}
       />
     </div>
   );

@@ -299,6 +299,7 @@ export default function RenovateSimulator() {
                   valueProp="Get AI Renovation Renderings"
                   source="renovate_sim"
                   message={`${selectedReno.label} | Budget: ${fmt(parseInt(budgetStr))} | ROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}% | ${result.verdictLabel}`}
+                  resultsText={`🔨 *Renovation ROI Results*\n\nProject: ${selectedReno.label}\nBudget: ${fmt(parseInt(budgetStr))}\nValue Added: ${fmt(result.valueAdded)}\nROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}%\nVerdict: ${result.verdictLabel}\n\nGet a free CMA: gardenstate.ai/sell\n— Garden State AI`}
                 />
               </div>
 

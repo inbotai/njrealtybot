@@ -328,6 +328,21 @@ export default function AppealWizard() {
             valueProp="Get Appeal Updates + Attorney Referral"
             source="tax_appeal_wizard"
             message={`Tax appeal for ${form.propertyAddress}, ${form.propertyCity} — claimed value $${form.claimedValue}`}
+            resultsText={[
+              `📋 *Tax Appeal Summary — ${form.propertyAddress}, ${form.propertyCity}*`,
+              ``,
+              `County: ${form.propertyCounty || "N/A"}`,
+              `Current Assessment: $${parseInt(form.assessedTotal || "0").toLocaleString()}`,
+              `Your Claimed Value: $${parseInt(form.claimedValue || "0").toLocaleString()}`,
+              `Reasons: ${form.appealReasons.join(", ") || "N/A"}`,
+              `Comparables: ${form.comps.filter(c => c.address).length} sales attached`,
+              ``,
+              `Your Form A-1 PDF has been generated.`,
+              `File before April 1 with your County Board of Taxation.`,
+              ``,
+              `Full analysis: gardenstate.ai/tax-shock`,
+              `— Garden State AI`,
+            ].join("\n")}
           />
 
           <div className="mt-8 rounded-xl bg-white/5 border border-white/10 p-6 text-left text-sm space-y-3">

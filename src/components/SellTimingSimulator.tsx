@@ -257,6 +257,7 @@ export default function SellTimingSimulator() {
                   valueProp="Get Market Alerts for Best Timing"
                   source="sell_timing"
                   message={`${propertyType} in ${city} | Best timing: ${projections[projections.length - 1].seasonalNote} | 12mo projection: ${fmt(projections[projections.length - 1].value)}`}
+                  resultsText={`🏠 *Sell Timing Analysis — ${city}*\n\nProperty: ${propertyType}\nCurrent Value: ${fmt(projections[0].value)}\n\n3 Months: ${fmt(projections[1].value)} (${projections[1].appreciation >= 0 ? "+" : ""}${fmt(projections[1].appreciation)})\n6 Months: ${fmt(projections[2].value)} (${projections[2].appreciation >= 0 ? "+" : ""}${fmt(projections[2].appreciation)})\n12 Months: ${fmt(projections[3].value)} (${projections[3].appreciation >= 0 ? "+" : ""}${fmt(projections[3].appreciation)})\n\nRecommendation: ${projections[3].appreciation > projections[0].appreciation ? "Waiting may increase your net proceeds" : "Consider selling soon"}\n\nFree valuation: gardenstate.ai/sell\n— Garden State AI`}
                 />
               </div>
 

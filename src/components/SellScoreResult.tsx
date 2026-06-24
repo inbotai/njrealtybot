@@ -180,6 +180,19 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
               valueProp="Full CMA Report"
               source="sell_score"
               message={`Sell Score for ${result.address}: ${fmt(result.estimatedValue)} (range: ${fmt(result.lowRange)}-${fmt(result.highRange)})`}
+              resultsText={[
+                `🏠 *Your Sell Score — ${result.address}*`,
+                ``,
+                `Sell Score: ${result.sellScore}/100 (${result.sellScoreLabel})`,
+                `Estimated Value: ${fmt(result.estimatedValue)}`,
+                `Range: ${fmt(result.lowRange)} — ${fmt(result.highRange)}`,
+                ...(result.assessedValue > 0 ? [`Assessment: ${fmt(result.assessedValue)}`] : []),
+                ...(result.taxAmount > 0 ? [`Annual Taxes: ${fmt(result.taxAmount)}`] : []),
+                ``,
+                `Get your full CMA at gardenstate.ai/value`,
+                ``,
+                `— Garden State AI`,
+              ].join("\n")}
               inline
             />
           </div>

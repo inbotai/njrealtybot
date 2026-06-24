@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import VoiceButton from "./VoiceButton";
+import LeadGate from "@/components/LeadGate";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -88,10 +89,6 @@ export default function TaxShockClient() {
   const [result, setResult] = useState<TaxResult | null>(null);
   const [error, setError] = useState("");
   const [revealStep, setRevealStep] = useState(0);
-  const [showContact, setShowContact] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const autoRanRef = useRef(false);
 
@@ -151,24 +148,6 @@ export default function TaxShockClient() {
     }
   }
 
-  async function handleContactSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !phone.trim() || !result) return;
-
-    try {
-      await fetch(`${IDX_API}/api/idx/leads`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: name, phone, message: `Tax Shock: ${result.address} — overpaying ~$${result.overpaymentHigh?.toLocaleString()}/yr`,
-          lead_type: "info_request", source: "tax_shock_tool",
-        }),
-      });
-      setSubmitted(true);
-    } catch {
-      setSubmitted(true); // show success anyway, lead notify is best-effort
-    }
-  }
 
   const waText = result
     ? `Hi Vale! I just found out I may be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes on ${result.address}. Can you help me with the appeal process?`
@@ -186,7 +165,7 @@ export default function TaxShockClient() {
         {/* Result Header */}
         <section className="bg-navy py-6 text-white">
           <div className="mx-auto max-w-4xl px-4">
-            <button onClick={() => { setResult(null); setAddress(""); setRevealStep(0); setShowContact(false); setSubmitted(false); }}
+            <button onClick={() => { setResult(null); setAddress(""); setRevealStep(0); }}
               className="text-sm text-gray-400 hover:text-white transition">&larr; Check another address</button>
           </div>
         </section>
@@ -365,8 +344,7 @@ export default function TaxShockClient() {
                 247 homeowners in {result.city || "your area"} checked their taxes this month
               </p>
 
-              {!showContact && !submitted ? (
-                <div className="space-y-4">
+              <div className="space-y-4">
                   {/* Primary CTA: Prepare Form A-1 with pre-filled data */}
                   <button onClick={() => {
                     // Store analysis data for AppealWizard to pick up
@@ -410,12 +388,25 @@ export default function TaxShockClient() {
                     Or Get Help via WhatsApp
                   </a>
 
-                  {/* Tertiary: Leave contact */}
-                  <button onClick={() => setShowContact(true)}
-                    className="w-full rounded-2xl border border-white/20 px-8 py-3 text-sm text-gray-400 hover:text-white hover:border-white/40 transition text-center"
-                  >
-                    Leave your info — we&apos;ll contact you
-                  </button>
+                  {/* Send results via WhatsApp/SMS */}
+                  <LeadGate
+                    valueProp="Get Your Tax Appeal Package"
+                    source="tax_shock_tool"
+                    message={`Tax Shock: ${result.address} — overpaying ~$${result.overpaymentHigh?.toLocaleString()}/yr`}
+                    resultsText={[
+                      `\u{1F4CA} *Tax Analysis \u2014 ${result.address}*\n`,
+                      `Assessment: $${result.assessedValue?.toLocaleString()}`,
+                      `Market Value: $${result.estimatedMarketValueMid?.toLocaleString()}`,
+                      `Annual Taxes: $${result.taxAnnual?.toLocaleString()}`,
+                      `Case Strength: ${result.caseStrength}`,
+                      `Potential Savings: $${result.overpaymentLow?.toLocaleString()} \u2014 $${result.overpaymentHigh?.toLocaleString()}/yr`,
+                      `Comparable Sales: ${result.comparables?.length || 0}`,
+                      `Filing Deadline: ${result.filingDeadline || "N/A"}\n`,
+                      `Full analysis: gardenstate.ai/tax-shock`,
+                      `Prepare appeal: gardenstate.ai/appeal`,
+                      `\u2014 Garden State AI`,
+                    ].join("\n")}
+                  />
 
                   {/* Share */}
                   <div className="flex justify-center gap-3 pt-2">
@@ -427,24 +418,6 @@ export default function TaxShockClient() {
                     </button>
                   </div>
                 </div>
-              ) : submitted ? (
-                <div className="rounded-2xl bg-emerald-900/30 border border-emerald-500/30 p-8 text-center">
-                  <p className="text-2xl font-bold text-emerald-400">We got your info!</p>
-                  <p className="text-gray-300 mt-2">Vale will reach out on WhatsApp with your complete Tax Appeal Guide.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleContactSubmit} className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4">
-                  <h3 className="font-bold text-lg">Get Your Tax Appeal Package</h3>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your name"
-                    className="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-white placeholder:text-gray-500 outline-none focus:border-gold" required />
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone / WhatsApp number"
-                    className="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-white placeholder:text-gray-500 outline-none focus:border-gold" required />
-                  <button type="submit" className="w-full rounded-xl bg-gold py-3 font-bold text-navy hover:bg-yellow-400 transition">
-                    Send Me the Guide
-                  </button>
-                  <p className="text-xs text-gray-500 text-center">We&apos;ll text you — no spam, ever</p>
-                </form>
-              )}
 
               {/* Disclaimer */}
               <p className="mt-8 text-[11px] text-gray-600 leading-relaxed">

@@ -142,6 +142,7 @@ export default function BuyerMatchmaker() {
               valueProp="Save My Matches + Get Alerts"
               source="buyer_match"
               message={`Budget: ${profile.budget ? `$${Number(profile.budget).toLocaleString()}` : "any"} | ${profile.beds ? `${profile.beds}+ beds` : "any beds"} | ${profile.cities || "any city"} | ${profile.mustHaves.join(", ") || "no must-haves"} | ${results.length} matches found`}
+              resultsText={`🏡 *Your Property Matches*\n\nBudget: up to $${profile.budget ? Number(profile.budget).toLocaleString() : "any"}\nBedrooms: ${profile.beds ? `${profile.beds}+` : "any"}\nCities: ${profile.cities || "any"}\nMatches Found: ${results.length}\n\nBrowse all: gardenstate.ai/search\n— Garden State AI`}
             />
           </div>
         </section>

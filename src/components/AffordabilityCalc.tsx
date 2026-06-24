@@ -111,6 +111,7 @@ export default function AffordabilityCalc() {
                   valueProp="Get Matched Homes in My Budget"
                   source="affordability_calc"
                   message={`Budget: $${result.budget.toLocaleString()} | Monthly: $${result.monthly.toLocaleString()}/mo | ${down}% down at ${rate}%`}
+                  resultsText={`💰 *Your Home Budget*\n\nMax Budget: $${result.budget.toLocaleString()}\nMonthly Payment: $${result.monthly.toLocaleString()}/mo\nDown Payment: $${Math.round(result.budget * Number(down) / 100).toLocaleString()} (${down}%)\n\nSee homes in your budget: gardenstate.ai/search\n— Garden State AI`}
                 />
               </div>
             </div>
