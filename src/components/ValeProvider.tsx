@@ -71,7 +71,9 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       method: "POST",
       headers,
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
     });
+    if (!r.ok) throw new Error(`chat/start ${r.status}`);
     const d = await r.json();
     if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
     sessionRef.current = d.sessionId;
@@ -98,6 +100,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
         signal: controller.signal,
       });
       clearTimeout(timeout);
+      if (!r.ok) throw new Error(`chat/message ${r.status}`);
       const d = await r.json();
       const reply = d.reply || d.error || "Something went wrong.";
       setMessages(prev => [...prev, { role: "assistant", text: reply }]);
@@ -107,8 +110,8 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       if (ids.length > 0) {
         const fetched = await Promise.all(
           ids.slice(0, 12).map((id: string) =>
-            fetch(`${IDX_API}/api/idx/listings/${id}`)
-              .then(r => r.json())
+            fetch(`${IDX_API}/api/idx/listings/${id}`, { signal: AbortSignal.timeout(8000) })
+              .then(r => { if (!r.ok) return null; return r.json(); })
               .then(d => d.listing || null)
               .catch(() => null)
           )

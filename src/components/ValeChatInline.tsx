@@ -22,14 +22,15 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ listingId, visitorId: vid || undefined }),
+      signal: AbortSignal.timeout(10000),
     })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(`start ${r.status}`); return r.json(); })
       .then(d => {
         setSessionId(d.sessionId);
         if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
         setMessages([{ role: "assistant", text: d.greeting }]);
       })
-      .catch(() => setMessages([{ role: "assistant", text: "Hi! I'm Vale. Ask me anything about this property." }]));
+      .catch((err) => { console.error("chat/start failed:", err); setMessages([{ role: "assistant", text: "Hi! I'm Vale. Ask me anything about this property." }]); });
   }, [listingId]);
 
   useEffect(() => {
@@ -52,9 +53,11 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
         signal: controller.signal,
       });
       clearTimeout(timeout);
+      if (!r.ok) throw new Error(`message ${r.status}`);
       const d = await r.json();
       setMessages(prev => [...prev, { role: "assistant", text: d.reply || d.error || "Something went wrong." }]);
-    } catch {
+    } catch (err) {
+      console.error("chat/message failed:", err);
       setMessages(prev => [...prev, { role: "assistant", text: "Connection error. Try again." }]);
     }
     setLoading(false);

@@ -102,7 +102,9 @@ export default function ValeChatPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
     });
+    if (!r.ok) throw new Error(`Session start failed: ${r.status}`);
     const d = await r.json();
     if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
     sessionRef.current = d.sessionId;
@@ -115,7 +117,10 @@ export default function ValeChatPage() {
 
   // Start session on mount
   useEffect(() => {
-    ensureSession();
+    ensureSession().catch((err) => {
+      console.error("[Vale chat] session init error:", err);
+      setMessages([{ role: "assistant", text: "Could not connect. Please refresh the page." }]);
+    });
   }, [ensureSession]);
 
   const send = useCallback(
@@ -132,7 +137,9 @@ export default function ValeChatPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: sid, message: trimmed }),
+          signal: AbortSignal.timeout(45000),
         });
+        if (!r.ok) throw new Error(`Message failed: ${r.status}`);
         const d = await r.json();
         const reply = d.reply || d.error || "Something went wrong.";
 
@@ -145,9 +152,11 @@ export default function ValeChatPage() {
         if (ids.length > 0) {
           const fetched = await Promise.all(
             ids.slice(0, 12).map((id: string) =>
-              fetch(`${IDX_API}/api/idx/listings/${id}`)
-                .then((r) => r.json())
-                .then((d) => d.listing || null)
+              fetch(`${IDX_API}/api/idx/listings/${id}`, {
+                signal: AbortSignal.timeout(8000),
+              })
+                .then((r) => (r.ok ? r.json() : null))
+                .then((d) => d?.listing || null)
                 .catch(() => null)
             )
           );
@@ -158,7 +167,8 @@ export default function ValeChatPage() {
           ...prev,
           { role: "assistant", text: reply, listings },
         ]);
-      } catch {
+      } catch (err) {
+        console.error("[Vale chat] send error:", err);
         setMessages((prev) => [
           ...prev,
           { role: "assistant", text: "Connection error. Please try again." },
@@ -172,12 +182,18 @@ export default function ValeChatPage() {
 
   // Auto-send query from URL param (e.g. /chat?q=cma+for+123+main+st)
   useEffect(() => {
-    const q = searchParams.get("q");
-    if (q && !autoSent.current) {
-      autoSent.current = true;
-      // Wait for session to be ready, then send
-      const timer = setTimeout(() => send(q), 500);
-      return () => clearTimeout(timer);
+    try {
+      const q = searchParams.get("q");
+      if (q && !autoSent.current) {
+        autoSent.current = true;
+        // Wait for session to be ready, then send
+        const timer = setTimeout(() => {
+          send(q).catch((err) => console.error("[Vale chat] auto-send error:", err));
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.error("[Vale chat] URL param error:", err);
     }
   }, [searchParams, send]);
 
