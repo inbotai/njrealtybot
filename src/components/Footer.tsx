@@ -40,7 +40,7 @@ export default function Footer() {
             Our free AI analysis compares your assessment to recent sales and tells you
             if you have a case — in under 60 seconds.
           </p>
-          <Link href="/property-tax"
+          <Link href="/tax-shock"
             className="mt-5 inline-block rounded-lg bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
             Check My Property Taxes Free
           </Link>

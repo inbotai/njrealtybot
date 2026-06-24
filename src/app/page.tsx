@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import HeroChat from "@/components/HeroChat";
 import HeroSeller from "@/components/HeroSeller";
 import { submitLead } from "@/lib/api";
-import { formatCurrency, formatPercent } from "@/lib/service-ladder/property-tax/calc";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -421,71 +420,13 @@ function PublicHomepage() {
    Tax Appeal hero bar — inline on admin homepage
    ──────────────────────────────────────────────────────── */
 
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
-
-interface TaxAnalysis {
-  address: string;
-  city: string;
-  county: string;
-  assessedValue: number;
-  taxAnnual: number;
-  eqRatio: number;
-  eqRatioEffective: number;
-  commonLevelRangeLow: number;
-  commonLevelRangeHigh: number;
-  impliedMarketValue: number;
-  estimatedMarketValueLow: number;
-  estimatedMarketValueHigh: number;
-  estimatedMarketValueMid: number;
-  estimatedPropertyRatio: number;
-  chapter123Result: "within_range" | "over_assessed" | "under_assessed";
-  chapter123Explanation: string;
-  effectiveTaxRate: number;
-  isOverAssessed: boolean;
-  overpaymentLow: number;
-  overpaymentHigh: number;
-  appealLikelihood: "high" | "moderate" | "low";
-  filingDeadline: string;
-  revaluation: { year: number; explanation: string; recommendation: string } | null;
-  comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; distanceMiles: number | null; propertyType: string; score?: number }[];
-}
-
 function TaxAppealBar() {
   const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<TaxAnalysis | null>(null);
-  const [leadName, setLeadName] = useState("");
-  const [leadPhone, setLeadPhone] = useState("");
-  const [leadUnlocked, setLeadUnlocked] = useState(false);
-  const [leadLoading, setLeadLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!address.trim()) return;
-    setLoading(true);
-    setError(null);
-    setAnalysis(null);
-
-    try {
-      const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: address.trim() }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error || "Could not find assessment data. Try the full address with city and NJ.");
-        setLoading(false);
-        return;
-      }
-      const result: TaxAnalysis = await res.json();
-      setAnalysis(result);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    window.location.href = `/tax-shock?address=${encodeURIComponent(address.trim())}`;
   }
 
   return (
@@ -513,206 +454,12 @@ function TaxAppealBar() {
           />
           <button
             type="submit"
-            disabled={loading}
+            disabled={!address.trim()}
             className="whitespace-nowrap rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50"
           >
-            {loading ? "Analyzing..." : "Check My Taxes"}
+            Check My Taxes
           </button>
         </form>
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-
-        {/* Inline results */}
-        {analysis && (
-          <div className="mt-8 mx-auto max-w-3xl rounded-xl bg-white p-6 text-left shadow-lg">
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Your Analysis</h3>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                analysis.appealLikelihood === "high" ? "bg-green-100 text-green-800"
-                  : analysis.appealLikelihood === "moderate" ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-600"
-              }`}>
-                {analysis.appealLikelihood === "high" ? "Strong Case"
-                  : analysis.appealLikelihood === "moderate" ? "Possible Case" : "Unlikely Benefit"}
-              </span>
-            </div>
-
-            {/* Summary — always visible */}
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs font-medium uppercase text-gray-500">Est. Overpayment</p>
-                <p className="mt-1 text-xl font-bold text-gray-900">
-                  {analysis.overpaymentLow === 0 && analysis.overpaymentHigh === 0
-                    ? "$0"
-                    : `${formatCurrency(analysis.overpaymentLow)} – ${formatCurrency(analysis.overpaymentHigh)}`}
-                </p>
-                <p className="text-xs text-gray-500">per year</p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs font-medium uppercase text-gray-500">Appeal Likelihood</p>
-                <p className="mt-1 text-xl font-bold capitalize text-gray-900">{analysis.appealLikelihood}</p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs font-medium uppercase text-gray-500">Filing Deadline</p>
-                <p className="mt-1 text-xl font-bold text-gray-900">{analysis.filingDeadline}</p>
-              </div>
-            </div>
-
-            {/* Lead gate — name + phone to unlock details */}
-            {!leadUnlocked ? (
-              <div className="mt-6 border-t pt-6">
-                <p className="text-sm font-semibold text-gray-900">
-                  Want the full report with comps, ratios, and appeal tools?
-                </p>
-                <p className="mt-1 text-xs text-gray-500">Enter your name and phone to unlock the detailed analysis.</p>
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (!leadName.trim() || !leadPhone.trim()) return;
-                  setLeadLoading(true);
-                  try {
-                    await submitLead({
-                      full_name: leadName.trim(),
-                      phone: leadPhone.trim(),
-                      message: `Tax Appeal lead — ${analysis.address}, ${analysis.city}. Assessed: $${analysis.assessedValue}. Overpayment: $${analysis.overpaymentLow}–$${analysis.overpaymentHigh}. Appeal: ${analysis.appealLikelihood}.`,
-                      lead_type: "info_request",
-                    });
-                  } catch { /* still unlock */ }
-                  setLeadUnlocked(true);
-                  setLeadLoading(false);
-                }} className="mt-3 flex flex-col gap-3">
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <input
-                      type="text"
-                      value={leadName}
-                      onChange={(e) => setLeadName(e.target.value)}
-                      placeholder="Your name"
-                      required
-                      className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
-                    />
-                    <input
-                      type="tel"
-                      value={leadPhone}
-                      onChange={(e) => setLeadPhone(e.target.value)}
-                      placeholder="Phone or WhatsApp"
-                      required
-                      className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none"
-                    />
-                  </div>
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox"
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-                    <span className="text-[10px] text-gray-500 leading-relaxed">
-                      I consent to receive SMS/WhatsApp messages from Garden State AI
-                      about my property tax analysis and real estate services.
-                      Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
-                      Your mobile info will not be shared with third parties.{" "}
-                      <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                      {" & "}
-                      <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                    </span>
-                  </label>
-                  <button
-                    type="submit"
-                    disabled={leadLoading || !leadName.trim() || !leadPhone.trim()}
-                    className="whitespace-nowrap rounded-lg bg-gold px-6 py-2.5 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50"
-                  >
-                    {leadLoading ? "..." : "See Full Report"}
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <>
-                {/* Comps — unlocked */}
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b text-xs uppercase text-gray-500">
-                        <th className="pb-2 pr-4">Comparable</th>
-                        <th className="pb-2 pr-4">Sale Price</th>
-                        <th className="pb-2 pr-4">Date</th>
-                        <th className="pb-2">Beds</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analysis.comparables.map((c, i) => (
-                        <tr key={i} className="border-b last:border-0">
-                          <td className="py-2 pr-4 font-medium">{c.address}</td>
-                          <td className="py-2 pr-4">{formatCurrency(c.salePrice)}</td>
-                          <td className="py-2 pr-4">{c.saleDate}</td>
-                          <td className="py-2">{c.bedrooms ?? "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Chapter 123 details — unlocked */}
-                <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Average Ratio</dt>
-                    <dd className="font-medium">{analysis.eqRatio.toFixed(2)}%</dd>
-                  </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Common Level Range</dt>
-                    <dd className="font-medium">{analysis.commonLevelRangeLow}% – {analysis.commonLevelRangeHigh}%</dd>
-                  </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Estimated Property Ratio</dt>
-                    <dd className={`font-medium ${analysis.chapter123Result === "over_assessed" ? "text-red-600" : analysis.chapter123Result === "under_assessed" ? "text-blue-600" : "text-green-600"}`}>
-                      {analysis.estimatedPropertyRatio}%
-                    </dd>
-                  </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Effective Tax Rate</dt>
-                    <dd className="font-medium">{analysis.effectiveTaxRate}%</dd>
-                  </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Comp-Based Market Value</dt>
-                    <dd className="font-medium">{formatCurrency(analysis.estimatedMarketValueLow)} – {formatCurrency(analysis.estimatedMarketValueHigh)}</dd>
-                  </div>
-                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Implied Market Value</dt>
-                    <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
-                  </div>
-                </dl>
-
-                {/* Chapter 123 Test Result */}
-                <div className={`mt-4 rounded-lg p-3 text-sm ${
-                  analysis.chapter123Result === "over_assessed" ? "bg-red-50 text-red-800"
-                    : analysis.chapter123Result === "under_assessed" ? "bg-blue-50 text-blue-800"
-                      : "bg-green-50 text-green-800"
-                }`}>
-                  <p className="font-semibold">
-                    Chapter 123 Test: {analysis.chapter123Result === "over_assessed" ? "Over-Assessed"
-                      : analysis.chapter123Result === "under_assessed" ? "Under-Assessed" : "Within Range"}
-                  </p>
-                  <p className="mt-1 text-xs">{analysis.chapter123Explanation}</p>
-                </div>
-
-                {/* Revaluation Impact */}
-                {analysis.revaluation && (
-                  <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
-                    <p className="font-semibold text-amber-900">Revaluation {analysis.revaluation.year}</p>
-                    <p className="mt-1 text-xs text-amber-800">{analysis.revaluation.explanation}</p>
-                    <p className="mt-2 text-xs font-medium text-amber-900">{analysis.revaluation.recommendation}</p>
-                  </div>
-                )}
-
-                {analysis.isOverAssessed && (
-                  <a href="/property-tax" className="mt-4 block w-full rounded-lg bg-gold px-6 py-3 text-center font-bold text-navy hover:bg-yellow-400">
-                    Generate My Appeal Packet
-                  </a>
-                )}
-              </>
-            )}
-
-            <div className="mt-4 border-t pt-3">
-              <p className="text-[10px] font-semibold text-gray-400">Disclaimer</p>
-              <p className="mt-0.5 text-[10px] text-gray-400 leading-relaxed">
-                This analysis is a <strong>general estimate</strong> based on public data and NJ Chapter 123. <strong>It is not legal, tax, or professional advice.</strong> Results are approximate and may vary based on official assessor information. The success of an appeal is not guaranteed. We recommend consulting a <strong>tax appeal attorney</strong> or <strong>licensed property tax consultant</strong> in New Jersey before taking any action. Garden State AI does not offer guarantees and does not represent the taxpayer.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
