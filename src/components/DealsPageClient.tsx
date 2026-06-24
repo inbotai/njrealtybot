@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchDeals, type DealOpportunity } from "@/lib/api";
 import Link from "next/link";
-import LeadGate from "@/components/LeadGate";
+import { submitLead } from "@/lib/api";
 
 function dealSlug(d: DealOpportunity): string {
   const full = [d.address, d.city, "NJ"].filter(Boolean).join(" ");
@@ -125,20 +125,91 @@ export default function DealsPageClient() {
         </div>
       )}
 
-      <LeadGate
-        valueProp="Get Deal Alerts When New Ones Drop"
-        source="deals_page"
-        message="Subscribed to deal alerts"
-        inline={true}
-        resultsText={deals.length > 0 ? [
-          `\u{1F525} *AI-Detected Deals*\n`,
-          ...deals.slice(0, 5).map((d, i) =>
-            `${i + 1}. ${d.address} — $${d.listPrice.toLocaleString()} (${d.probability}% chance of price drop)`
-          ),
-          `\nSee all deals: gardenstate.ai/deals`,
-          `— Garden State AI`,
-        ].join("\n") : undefined}
-      />
+      <DealsLeadCapture deals={deals} />
+    </div>
+  );
+}
+
+const DEAL_CATEGORIES = [
+  "Single Family", "Multi-Family", "Condo/Townhouse", "Land/Lots", "Rentals", "Commercial",
+];
+
+function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
+  const [step, setStep] = useState<"form" | "done">("form");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  function toggleCat(cat: string) {
+    setCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+  }
+
+  async function handleSubmit() {
+    if (!name.trim() || !phone.trim()) { setError("Name and phone are required"); return; }
+    if (categories.length === 0) { setError("Select at least one property type"); return; }
+    setSaving(true); setError("");
+    try {
+      await submitLead({
+        full_name: name.trim(),
+        phone: phone.trim(),
+        message: `Deal alerts: ${categories.join(", ")}${city ? ` in ${city}` : ""}`,
+        lead_type: "info_request",
+        source: "deals_page",
+      });
+      setStep("done");
+    } catch {
+      setError("Could not save. Please try again.");
+    }
+    setSaving(false);
+  }
+
+  const inputCls = "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-indigo-500";
+
+  if (step === "done") {
+    return (
+      <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow-lg border">
+        <div className="text-4xl mb-3">{"\u2705"}</div>
+        <h3 className="text-xl font-bold text-gray-800">Deal alerts ready, {name.split(" ")[0]}!</h3>
+        <p className="text-gray-600 mt-3">Looking for: <strong>{categories.join(", ")}</strong>{city ? ` in ${city}` : ""}</p>
+        <p className="text-gray-600 mt-2">Send us a message to activate your alerts:</p>
+        <div className="mt-5 space-y-3">
+          <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want deal alerts for ${categories.join(", ")}${city ? ` in ${city}` : ""}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
+            Open WhatsApp
+          </a>
+          <p className="text-gray-500 text-sm">or text <strong>(201) 528-1095</strong> and say &ldquo;I want deal alerts&rdquo;</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8 rounded-2xl bg-white p-8 shadow-lg border">
+      <h3 className="text-xl font-bold text-gray-800">Get Deal Alerts</h3>
+      <p className="text-gray-500 text-sm mt-1">We&apos;ll notify you when new deals match your criteria.</p>
+      <div className="mt-5 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">What types of properties are you looking for? *</label>
+          <div className="flex flex-wrap gap-2">
+            {DEAL_CATEGORIES.map(cat => (
+              <button key={cat} type="button" onClick={() => toggleCat(cat)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${categories.includes(cat) ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+        <input value={city} onChange={e => setCity(e.target.value)} placeholder="Preferred city (optional)" className={inputCls} />
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} />
+        <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" type="tel" className={inputCls} />
+      </div>
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      <button onClick={handleSubmit} disabled={saving} className="mt-4 w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition disabled:opacity-40">
+        {saving ? "Saving..." : "Get Deal Alerts"}
+      </button>
+      <p className="text-gray-400 text-xs mt-3 text-center">No spam, ever. We&apos;ll only send deals that match your criteria.</p>
     </div>
   );
 }
