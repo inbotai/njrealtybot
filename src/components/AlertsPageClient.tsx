@@ -47,16 +47,23 @@ export default function AlertsPageClient() {
   if (success) {
     return (
       <section className="min-h-[70vh] flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-navy">You&apos;re In!</h2>
+        <div className="max-w-md text-center bg-white rounded-2xl p-8 shadow-lg">
+          <div className="text-5xl mb-4">{"\u2705"}</div>
+          <h2 className="text-2xl font-bold text-navy">You&apos;re All Set{form.full_name ? `, ${form.full_name.split(" ")[0]}` : ""}!</h2>
           <p className="mt-3 text-gray-600">
-            You&apos;ll receive a WhatsApp message whenever a home sells near{" "}
-            <strong>{form.address || form.city}</strong>. Each alert includes an
-            AI estimate of your home&apos;s current value.
+            Your alerts for <strong>{form.address || form.city}</strong> are ready to activate.
+            Just send us a quick message:
           </p>
+          <div className="mt-5 space-y-3">
+            <a href={`https://wa.me/12015281095?text=${encodeURIComponent(`I want price alerts for ${form.address || form.city}`)}`} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-green-600 py-3 font-bold text-white hover:bg-green-700 transition text-center">
+              Open WhatsApp
+            </a>
+            <p className="text-gray-500 text-sm">
+              or text <strong>(201) 528-1095</strong> and say &ldquo;I want price alerts for {form.city}&rdquo;
+            </p>
+          </div>
           <p className="mt-4 text-sm text-gray-400">
-            Reply to any alert to chat with Vale, our AI real estate assistant.
+            You&apos;ll get alerts whenever a home sells near you, with an AI estimate of your home&apos;s value.
           </p>
         </div>
       </section>
@@ -131,7 +138,7 @@ export default function AlertsPageClient() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp / Phone *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Your Phone Number *</label>
                 <input
                   type="tel"
                   value={form.phone}
