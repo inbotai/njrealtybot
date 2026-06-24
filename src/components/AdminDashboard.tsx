@@ -174,8 +174,47 @@ export default function AdminDashboard() {
   const sourceLabels: Record<string, string> = {
     webchat_vale: "Webchat",
     whatsapp_vale: "WhatsApp",
+    sms_vale: "SMS",
     idx_website: "Website Form",
+    tax_shock_tool: "Tax Shock",
+    neighborhood_alerts: "Alerts",
+    instant_valuation: "Valuation",
   };
+
+  async function deleteLead(id: string) {
+    if (!confirm("Delete this lead?")) return;
+    try {
+      await fetch(`${IDX_API}/api/idx/admin/leads/${id}`, { method: "DELETE" });
+      setLeads(prev => prev.filter(l => l.id !== id));
+    } catch { alert("Failed to delete lead"); }
+  }
+
+  async function deleteUser(id: string) {
+    if (!confirm("Delete this user and ALL their data (leads, chat messages)? This cannot be undone.")) return;
+    try {
+      await fetch(`${IDX_API}/api/idx/admin/users/${id}`, { method: "DELETE" });
+      setUsers(prev => prev.filter(u => u.id !== id));
+    } catch { alert("Failed to delete user"); }
+  }
+
+  async function deleteAllData() {
+    if (!confirm("DELETE ALL leads, users, and chat messages? This CANNOT be undone.")) return;
+    if (!confirm("Are you SURE? This will erase everything.")) return;
+    try {
+      // Delete all users (which cascades to their leads and messages)
+      for (const u of users) {
+        await fetch(`${IDX_API}/api/idx/admin/users/${u.id}`, { method: "DELETE" });
+      }
+      // Delete any remaining leads not tied to users
+      for (const l of leads) {
+        await fetch(`${IDX_API}/api/idx/admin/leads/${l.id}`, { method: "DELETE" });
+      }
+      setUsers([]);
+      setLeads([]);
+      setSessions([]);
+      alert("All data deleted.");
+    } catch { alert("Some deletions may have failed. Refresh to check."); }
+  }
 
   async function viewChat(phone: string) {
     setChatLoading(true);
@@ -239,8 +278,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Refresh */}
-      <div className="mb-4 flex justify-end">
+      {/* Actions */}
+      <div className="mb-4 flex justify-end gap-2">
+        <button onClick={deleteAllData}
+          className="rounded-lg border border-red-200 px-4 py-1.5 text-sm text-red-500 hover:bg-red-50">
+          Delete All Data
+        </button>
         <button onClick={loadData} disabled={loading}
           className="rounded-lg border px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40">
           {loading ? "Loading..." : "Refresh"}
@@ -298,6 +341,7 @@ export default function AdminDashboard() {
                           <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             s.type === "cma" ? "bg-purple-100 text-purple-700" :
                             s.type === "search" ? "bg-blue-100 text-blue-700" :
+                            s.type === "tax_appeal" ? "bg-red-100 text-red-700" :
                             "bg-green-100 text-green-700"}`}>
                             {s.type.toUpperCase()}
                           </span>
@@ -320,10 +364,16 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   )}
-                  <button onClick={(e) => { e.stopPropagation(); viewChat(u.phone); }}
-                    className="mt-3 rounded-lg bg-indigo-600 px-4 py-1.5 text-xs text-white hover:bg-indigo-700">
-                    View WhatsApp Conversations
-                  </button>
+                  <div className="mt-3 flex gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); viewChat(u.phone); }}
+                      className="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs text-white hover:bg-indigo-700">
+                      View Conversations
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); deleteUser(u.id); }}
+                      className="rounded-lg bg-red-50 px-4 py-1.5 text-xs text-red-600 hover:bg-red-100">
+                      Delete User + Data
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -347,6 +397,7 @@ export default function AdminDashboard() {
                 <th className="px-4 py-3">Source</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -370,10 +421,14 @@ export default function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-400">{fmtDate(lead.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => deleteLead(lead.id)}
+                      className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100">Delete</button>
+                  </td>
                 </tr>
               ))}
               {leads.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No leads yet</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">No leads yet</td></tr>
               )}
             </tbody>
           </table>
