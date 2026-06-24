@@ -34,6 +34,11 @@ interface TaxResult {
   conservativeSavingsHigh: number;
   zestimate: number | null;
   zestimateSource: string | null;
+  landAssessment: number;
+  improvementAssessment: number;
+  block: string | null;
+  lot: string | null;
+  qualifier: string | null;
 }
 
 // ── Animated Counter ───────────────────────────────────────
@@ -364,7 +369,12 @@ export default function TaxShockClient() {
                       city: result.city,
                       county: result.county,
                       assessedValue: result.assessedValue,
+                      landAssessment: result.landAssessment,
+                      improvementAssessment: result.improvementAssessment,
                       taxAnnual: result.taxAnnual,
+                      block: result.block,
+                      lot: result.lot,
+                      qualifier: result.qualifier,
                       estimatedMarketValueMid: result.estimatedMarketValueMid,
                       conservativeEstimate: result.conservativeEstimate,
                       eqRatio: result.eqRatio,

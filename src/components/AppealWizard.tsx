@@ -123,9 +123,16 @@ export default function AppealWizard() {
         if (data.city) updated.propertyCity = data.city;
         if (data.county) updated.propertyCounty = data.county;
 
+        // Block/Lot
+        if (data.block) updated.block = data.block;
+        if (data.lot) updated.lot = data.lot;
+        if (data.qualifier) updated.qualifier = data.qualifier;
+
         // Assessment
         if (data.assessedValue) updated.assessedTotal = data.assessedValue.toString();
         if (data.taxAnnual) updated.currentTaxes = data.taxAnnual.toFixed(2);
+        if (data.landAssessment) updated.assessedLand = data.landAssessment.toString();
+        if (data.improvementAssessment) updated.assessedImprovement = data.improvementAssessment.toString();
 
         // Claimed value = conservative estimate or mid market value
         if (data.conservativeEstimate) {
