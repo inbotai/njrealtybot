@@ -249,7 +249,7 @@ export default function SearchPageClient() {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl px-4 py-8 lg:pr-[440px]">
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Hero search bar */}
         <div className="mb-6 flex overflow-hidden rounded-xl bg-white shadow-md border border-gray-200 px-4 py-2 items-center gap-2">
           {!heroVoiceActive && (
