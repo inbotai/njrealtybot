@@ -5,85 +5,95 @@ import { fetchBlogPosts, type BlogPostAPI } from "@/lib/api";
 export const revalidate = 1800; // 30 min ISR
 
 export const metadata: Metadata = {
-  title: "NJ Development News | Planning & Zoning Board Updates",
+  title: "NJ Real Estate News | Market Updates, Tax Analysis & Development",
   description:
-    "What's being built in your NJ neighborhood? Planning board approvals, zoning variances, new construction — sourced from official municipal documents.",
+    "NJ real estate news, market updates, property tax analysis, development alerts, and expert insights — powered by AI and real MLS data.",
   keywords: [
-    "NJ development news", "planning board NJ", "zoning board NJ",
-    "new construction NJ", "Hackensack planning board", "Clifton zoning board",
-    "NJ real estate news", "development alerts NJ",
+    "NJ real estate news", "NJ property tax news", "NJ market update",
+    "planning board NJ", "NJ home values", "Jersey City taxes",
+    "NJ development news", "property tax appeal NJ",
   ],
   openGraph: {
-    title: "NJ Development News | Garden State AI",
-    description: "Planning board approvals, zoning variances, and new construction across NJ — from official documents.",
+    title: "NJ Real Estate News | Garden State AI",
+    description: "Market updates, property tax analysis, development news, and expert insights for NJ homeowners.",
     type: "website",
     url: "https://gardenstate.ai/news",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NJ Development News | Garden State AI",
+    title: "NJ Real Estate News | Garden State AI",
   },
   alternates: { canonical: "https://gardenstate.ai/news" },
 };
 
+const CATEGORY_LABELS: Record<string, { label: string; color: string }> = {
+  market: { label: "Market Update", color: "bg-blue-100 text-blue-700" },
+  development: { label: "Development", color: "bg-indigo-100 text-indigo-700" },
+  tips: { label: "Seller Tips", color: "bg-green-100 text-green-700" },
+  guide: { label: "Buyer Guide", color: "bg-purple-100 text-purple-700" },
+  news: { label: "News", color: "bg-red-100 text-red-700" },
+  tax: { label: "Tax Analysis", color: "bg-amber-100 text-amber-700" },
+};
+
 export default async function NewsPage() {
-  // Fetch development articles from blog API
   const allPosts = await fetchBlogPosts();
-  const devPosts = allPosts.filter(p => p.category === "development" && p.status === "published");
-  const otherPosts = allPosts.filter(p => p.category !== "development" && p.status === "published").slice(0, 3);
+  const posts = allPosts.filter(p => p.status === "published");
 
   return (
     <>
       <section className="bg-navy py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h1 className="text-3xl font-extrabold md:text-5xl">
-            NJ Development{" "}
+            NJ Real Estate{" "}
             <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
               News
             </span>
           </h1>
           <p className="mt-4 text-lg text-gray-300">
-            What&apos;s being built in your neighborhood? Planning board approvals, zoning variances, and new construction — sourced from official municipal documents.
+            Market updates, property tax analysis, development alerts, and expert insights — powered by AI and real MLS data.
           </p>
         </div>
       </section>
 
       <section className="py-12">
         <div className="mx-auto max-w-4xl px-4">
-          {devPosts.length === 0 ? (
+          {posts.length === 0 ? (
             <div className="rounded-xl border bg-white p-8 text-center shadow-sm">
-              <p className="text-lg font-semibold text-gray-700">News articles are being generated</p>
-              <p className="mt-2 text-sm text-gray-500">
-                We&apos;re monitoring 18 NJ municipalities. Articles will appear here as planning and zoning boards publish new agendas.
-              </p>
-              <Link href="/my-home" className="mt-4 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy hover:bg-yellow-400">
-                Get Development Alerts for Your Home
-              </Link>
+              <p className="text-lg font-semibold text-gray-700">Articles are being generated</p>
+              <p className="mt-2 text-sm text-gray-500">New articles are published daily. Check back soon!</p>
             </div>
           ) : (
             <div className="space-y-6">
               {/* Featured article */}
-              {devPosts[0] && (
-                <Link href={`/blog/${devPosts[0].slug}`} className="block rounded-xl border bg-white shadow-sm hover:shadow-lg transition overflow-hidden">
+              {posts[0] && (
+                <Link href={`/blog/${posts[0].slug}`} className="block rounded-xl border bg-white shadow-sm hover:shadow-lg transition overflow-hidden">
+                  {posts[0].cover_image && (
+                    <img src={posts[0].cover_image} alt={posts[0].title} className="w-full h-48 object-cover" />
+                  )}
                   <div className="p-6 md:p-8">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">Development News</span>
-                      <span className="text-xs text-gray-400">{formatDate(devPosts[0].published_at || devPosts[0].created_at)}</span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${CATEGORY_LABELS[posts[0].category]?.color || "bg-gray-100 text-gray-700"}`}>
+                        {CATEGORY_LABELS[posts[0].category]?.label || posts[0].category}
+                      </span>
+                      <span className="text-xs text-gray-400">{formatDate(posts[0].published_at || posts[0].created_at)}</span>
+                      {posts[0].reading_time && <span className="text-xs text-gray-400">{posts[0].reading_time} min read</span>}
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 md:text-2xl">{devPosts[0].title}</h2>
-                    <p className="mt-3 text-gray-600 line-clamp-3">{devPosts[0].excerpt}</p>
+                    <h2 className="text-xl font-bold text-gray-900 md:text-2xl">{posts[0].title}</h2>
+                    <p className="mt-3 text-gray-600 line-clamp-3">{posts[0].excerpt}</p>
                     <p className="mt-4 text-sm font-medium text-indigo-600">Read full article &rarr;</p>
                   </div>
                 </Link>
               )}
 
               {/* Article grid */}
-              {devPosts.length > 1 && (
+              {posts.length > 1 && (
                 <div className="grid gap-6 md:grid-cols-2">
-                  {devPosts.slice(1).map(post => (
+                  {posts.slice(1).map(post => (
                     <Link key={post.slug} href={`/blog/${post.slug}`} className="block rounded-xl border bg-white p-5 shadow-sm hover:shadow-lg transition">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">Development</span>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_LABELS[post.category]?.color || "bg-gray-100 text-gray-700"}`}>
+                          {CATEGORY_LABELS[post.category]?.label || post.category}
+                        </span>
                         <span className="text-xs text-gray-400">{formatDate(post.published_at || post.created_at)}</span>
                       </div>
                       <h3 className="font-bold text-gray-900">{post.title}</h3>
@@ -96,33 +106,27 @@ export default async function NewsPage() {
             </div>
           )}
 
-          {/* Cross-promote other blog posts */}
-          {otherPosts.length > 0 && (
-            <div className="mt-12">
-              <h2 className="text-lg font-bold text-navy mb-4">More from Garden State AI</h2>
-              <div className="grid gap-4 md:grid-cols-3">
-                {otherPosts.map(post => (
-                  <Link key={post.slug} href={`/blog/${post.slug}`} className="block rounded-lg border bg-white p-4 shadow-sm hover:shadow-md transition">
-                    <span className="text-xs text-gray-400">{post.category}</span>
-                    <h3 className="mt-1 text-sm font-semibold text-gray-900 line-clamp-2">{post.title}</h3>
-                  </Link>
-                ))}
-              </div>
+          {/* CTAs */}
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            <div className="rounded-xl bg-gradient-to-r from-navy to-indigo-900 p-6 text-center text-white">
+              <h3 className="font-bold text-lg">Are You Overpaying Property Taxes?</h3>
+              <p className="mt-1 text-sm text-gray-300">Free AI analysis in 60 seconds.</p>
+              <Link href="/tax-shock" className="mt-3 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy hover:bg-yellow-400">
+                Check My Taxes — Free
+              </Link>
             </div>
-          )}
-
-          {/* CTA */}
-          <div className="mt-10 rounded-xl bg-gradient-to-r from-navy to-indigo-900 p-6 text-center text-white">
-            <h3 className="font-bold text-lg">Get Notified of New Developments Near You</h3>
-            <p className="mt-1 text-sm text-gray-300">Claim your home and we&apos;ll alert you when new projects are proposed in your neighborhood.</p>
-            <Link href="/my-home" className="mt-3 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy hover:bg-yellow-400">
-              Track My Home — Free
-            </Link>
+            <div className="rounded-xl bg-gradient-to-r from-green-800 to-emerald-900 p-6 text-center text-white">
+              <h3 className="font-bold text-lg">What&apos;s Your Home Worth?</h3>
+              <p className="mt-1 text-sm text-gray-300">AI-powered valuation with real MLS data.</p>
+              <Link href="/sell" className="mt-3 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy hover:bg-yellow-400">
+                Get Free Valuation
+              </Link>
+            </div>
           </div>
 
           <p className="mt-6 text-center text-[10px] text-gray-400">
-            News sourced from official NJ municipal board documents. This is not legal advice.
-            Garden State AI does not offer guarantees and does not represent any party in these proceedings.
+            Articles generated from real MLS data, official municipal documents, and verified news sources.
+            This is not legal or financial advice. Garden State AI does not offer guarantees.
           </p>
         </div>
       </section>
