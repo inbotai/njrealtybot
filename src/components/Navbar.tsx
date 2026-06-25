@@ -65,11 +65,10 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="group relative text-sm font-bold tracking-tight md:text-base">
+        <Link href="/" className="shrink-0 text-sm font-bold tracking-tight md:text-base">
           <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
           <span className="text-white"> State </span>
           <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
-          <span className="absolute -bottom-0.5 left-0 h-[2px] w-0 bg-gradient-to-r from-gold to-indigo-400 transition-all duration-300 group-hover:w-full" />
         </Link>
 
         {/* Desktop nav */}

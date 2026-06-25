@@ -23,7 +23,7 @@ export default async function OpenHousesPage() {
   return (
     <RequireAuth>
     <>
-      <div className="mx-auto max-w-7xl px-4 py-16">
+      <div className="mx-auto max-w-7xl px-4 py-16 lg:pr-[440px]">
         <h1 className="text-3xl font-bold text-navy">Upcoming Open Houses</h1>
         <p className="mt-2 text-gray-600">
           Visit properties in person. Find your next home this weekend.

@@ -36,8 +36,7 @@ const CATEGORY_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default async function NewsPage() {
-  const allPosts = await fetchBlogPosts();
-  const posts = allPosts.filter(p => p.status === "published");
+  const posts = await fetchBlogPosts();
 
   return (
     <>
