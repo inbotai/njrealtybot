@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchBlogPosts, type BlogPostAPI } from "@/lib/api";
 
-export const revalidate = 1800; // 30 min ISR
+export const revalidate = 60; // 1 min ISR — articles update daily
 
 export const metadata: Metadata = {
   title: "NJ Real Estate News | Market Updates, Tax Analysis & Development",
