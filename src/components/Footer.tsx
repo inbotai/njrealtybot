@@ -59,7 +59,9 @@ export default function Footer() {
             </p>
             <div className="mt-4">
               <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[68px] w-auto mb-2" />
-              <p className="text-xs text-gray-500">293 Route 94, Vernon, NJ 07462</p>
+              <p className="text-sm font-semibold text-white">Julio Reynoso</p>
+              <p className="text-xs text-gray-400">Licensed Real Estate Agent</p>
+              <p className="mt-1 text-xs text-gray-500">293 Route 94, Vernon, NJ 07462</p>
             </div>
           </div>
 

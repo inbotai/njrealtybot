@@ -109,11 +109,9 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* BHG Broker logo + agent name — always visible */}
-          <div className="flex flex-col items-center border-l border-white/20 pl-5">
+          {/* BHG Broker logo */}
+          <div className="border-l border-white/20 pl-5">
             <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[72px] w-auto" />
-            <p className="mt-1 text-xs font-semibold text-white">Julio Reynoso</p>
-            <p className="text-[10px] text-gray-400">Licensed Real Estate Agent</p>
           </div>
 
           {/* Admin indicator */}
