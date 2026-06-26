@@ -6,7 +6,6 @@ import { marked, Renderer } from "marked";
 import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
 import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
-import TwitterEmbed from "@/components/TwitterEmbed";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
   const title = apiPost?.title || staticPost!.title;
   const excerpt = apiPost?.excerpt || staticPost!.excerpt;
   const content = apiPost?.content || staticPost!.content;
+  const contentHtml = apiPost?.content_html || null;
   const category = apiPost?.category || staticPost!.category;
   const coverImage = apiPost?.cover_image || staticPost?.coverImage || "";
   const readingTime = apiPost?.reading_time ?? staticPost?.readingTime ?? 2;
@@ -173,12 +173,8 @@ export default async function BlogPostPage({ params }: Props) {
             prose-td:px-4 prose-td:py-2.5 prose-td:border-t prose-td:text-sm
             prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
             prose-hr:my-10"
-          dangerouslySetInnerHTML={{ __html: renderContent(content) }}
+          dangerouslySetInnerHTML={{ __html: contentHtml || renderContent(content) }}
         />
-        {/* Native X/Twitter embeds */}
-        {extractTweetUrls(content).map(url => (
-          <TwitterEmbed key={url} tweetUrl={url} />
-        ))}
 
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
           <p className="text-sm font-medium text-gray-600">Found this useful? Share it.</p>

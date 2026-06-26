@@ -348,6 +348,7 @@ export interface BlogPostAPI {
   title: string;
   excerpt: string;
   content?: string;
+  content_html?: string;
   category: string;
   tags: string[];
   cover_image: string;
