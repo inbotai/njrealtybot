@@ -7,6 +7,7 @@ import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
   { href: "/sell", label: "Sell" },
+  { href: "/fsbo", label: "FSBO" },
   { href: "/chat", label: "Vale" },
 ];
 

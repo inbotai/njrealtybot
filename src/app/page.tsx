@@ -75,27 +75,33 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Two CTAs side by side — Home Value + Tax Appeal */}
+        {/* Three CTAs — Home Value + Tax Appeal + FSBO */}
         <section className="bg-white py-8">
-          <div className="mx-auto max-w-4xl px-4 grid gap-4 md:grid-cols-2">
+          <div className="mx-auto max-w-4xl px-4 grid gap-4 md:grid-cols-3">
             <a href="/sell" className="group rounded-xl bg-gradient-to-br from-navy to-indigo-900 p-6 text-center text-white transition hover:shadow-xl">
               <p className="text-3xl">&#127968;</p>
-              <h2 className="mt-2 text-xl font-bold">What&apos;s Your Home Worth?</h2>
-              <p className="mt-1 text-sm text-gray-300">Free AI valuation in 30 seconds — MLS + public records + Zestimate</p>
-              <span className="mt-4 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy group-hover:bg-yellow-400">Get Free Valuation</span>
+              <h2 className="mt-2 text-lg font-bold">What&apos;s Your Home Worth?</h2>
+              <p className="mt-1 text-xs text-gray-300">Free AI valuation in 30 seconds</p>
+              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Get Free Valuation</span>
             </a>
             <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-900 to-red-800 p-6 text-center text-white transition hover:shadow-xl">
               <p className="text-3xl">&#128176;</p>
-              <h2 className="mt-2 text-xl font-bold">Are You Overpaying Taxes?</h2>
-              <p className="mt-1 text-sm text-gray-300">Free AI analysis — compare your assessment to real sales in 60 seconds</p>
-              <span className="mt-4 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy group-hover:bg-yellow-400">Check My Taxes</span>
+              <h2 className="mt-2 text-lg font-bold">Are You Overpaying Taxes?</h2>
+              <p className="mt-1 text-xs text-gray-300">Compare your assessment to real sales</p>
+              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Check My Taxes</span>
+            </a>
+            <a href="/fsbo" className="group rounded-xl bg-gradient-to-br from-emerald-800 to-green-900 p-6 text-center text-white transition hover:shadow-xl">
+              <p className="text-3xl">&#128274;</p>
+              <h2 className="mt-2 text-lg font-bold">Selling on Your Own?</h2>
+              <p className="mt-1 text-xs text-gray-300">AI pricing + licensed agent backup</p>
+              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Get FSBO Help</span>
             </a>
           </div>
         </section>
 
         {/* Quick links grid */}
         <section className="bg-gray-50 py-8">
-          <div className="mx-auto max-w-4xl px-4 grid gap-3 grid-cols-2 md:grid-cols-4">
+          <div className="mx-auto max-w-5xl px-4 grid gap-3 grid-cols-3 md:grid-cols-5">
             <a href="/search" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
               <p className="text-2xl">&#128269;</p>
               <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Search Homes</h3>
@@ -107,6 +113,10 @@ export default function HomePage() {
             <a href="/deals" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
               <p className="text-2xl">&#128176;</p>
               <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Deals</h3>
+            </a>
+            <a href="/list" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <p className="text-2xl">&#128221;</p>
+              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">List My Home</h3>
             </a>
             <a href="/news" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
               <p className="text-2xl">&#128240;</p>
