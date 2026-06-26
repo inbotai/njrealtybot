@@ -13,18 +13,21 @@ const publicLinks = [
 const adminLinks = [
   { href: "/search", label: "Buy" },
   { href: "/sell", label: "Sell" },
-  { href: "/my-home", label: "Track My Home" },
+  { href: "/list", label: "List My Home" },
   { href: "/property-tax", label: "Tax Appeal" },
   { href: "/market", label: "Market" },
   { href: "/deals", label: "Deals" },
 ];
 
 const moreLinks = [
+  { href: "/my-listing", label: "My Listing" },
+  { href: "/offers", label: "Offer Analysis" },
   { href: "/sell-timing", label: "Sell Now vs Wait" },
   { href: "/comp-alerts", label: "Comp Alerts" },
   { href: "/renovate", label: "Renovation ROI" },
   { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/afford", label: "Affordability" },
+  { href: "/my-home", label: "Track My Home" },
   { href: "/alerts", label: "Price Alerts" },
   { href: "/news", label: "News" },
   { href: "/contact", label: "Contact" },
