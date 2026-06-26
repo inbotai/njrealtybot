@@ -149,7 +149,7 @@ export default function ValeSidePanel() {
                   ? "bg-indigo-600 text-white"
                   : "bg-gray-100 text-gray-800"
               }`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap"
+                <p className="text-[15px] leading-relaxed whitespace-pre-wrap"
                   dangerouslySetInnerHTML={{ __html: formatChatMessage(msg.text) }}
                 />
               </div>
