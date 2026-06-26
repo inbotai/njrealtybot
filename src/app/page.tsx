@@ -52,24 +52,24 @@ export default function HomePage() {
   if (isAdmin) {
     return (
       <>
-        {/* Hero — full search */}
-        <section className="relative overflow-hidden bg-navy py-20 text-white">
+        {/* Hero — full-screen search, Claude/Google style */}
+        <section className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center bg-navy text-white">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
-          <div className="relative mx-auto max-w-4xl px-4 text-center">
-            <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+          <div className="relative mx-auto w-full max-w-3xl px-4 text-center">
+            <h1 className="text-5xl font-extrabold leading-tight md:text-6xl lg:text-7xl">
               <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
               <span className="text-white"> State </span>
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
             </h1>
-            <p className="mt-4 text-lg text-gray-300">
-              Search homes, get instant valuations, or sell with AI on your side.
+            <p className="mt-4 text-lg text-gray-400 md:text-xl">
+              Search homes, get valuations, check your taxes, or ask Vale anything.
             </p>
 
             <div className="mt-10">
               <HeroChat />
             </div>
 
-            <button onClick={logout} className="mt-6 text-xs text-gray-500 hover:text-gray-300 transition">
+            <button onClick={logout} className="mt-8 text-xs text-gray-600 hover:text-gray-400 transition">
               Logout
             </button>
           </div>
