@@ -12,7 +12,7 @@ const suggestions = [
   { label: "Rentals in Jersey City", params: "city=Jersey+City&propertyType=Rental" },
   { label: "3 bed in Jersey City", params: "city=Jersey+City&beds=3" },
   { label: "What's my home worth?", href: "/sell" },
-  { label: "Find deals", href: "/deals" },
+  { label: "Am I overpaying taxes?", href: "/tax-shock" },
 ];
 
 export default function HeroChat() {
@@ -27,13 +27,26 @@ export default function HeroChat() {
     if (!q || searching) return;
     setInput("");
 
-    // CMA / valuation requests → send to Vale chat
     // Normalize accents for matching: análisis → analisis
     const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
-      router.push(`/chat?q=${encodeURIComponent(q)}`);
+
+    // Tax queries → /tax-shock with address pre-filled
+    if (/tax|taxes|impuesto|assessment|overpay|sobre.?tasado|appeal|chapter 123/i.test(qNorm)) {
+      // Extract address if present (anything that looks like a street address)
+      const addrMatch = q.match(/\d+\s+[\w\s]+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|ct|court|pl|place|way|ter|terrace)\b[^,]*/i);
+      const addr = addrMatch ? addrMatch[0].trim() : "";
+      router.push(addr ? `/tax-shock?address=${encodeURIComponent(addr)}` : "/tax-shock");
       return;
     }
+
+    // CMA / valuation requests → /sell with address pre-filled
+    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
+      const addrMatch = q.match(/\d+\s+[\w\s]+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|ct|court|pl|place|way|ter|terrace)\b[^,]*/i);
+      const addr = addrMatch ? addrMatch[0].trim() : "";
+      router.push(addr ? `/sell?address=${encodeURIComponent(addr)}` : "/sell");
+      return;
+    }
+
     if (/deal|bargain|price drop|ganga|oportunidad/i.test(q)) {
       router.push("/deals");
       return;
