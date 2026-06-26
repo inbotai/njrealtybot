@@ -364,7 +364,7 @@ export interface BlogPostAPI {
 export async function fetchBlogPosts(): Promise<BlogPostAPI[]> {
   try {
     const res = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
