@@ -255,7 +255,13 @@ function renderContent(md: string): string {
     return `<a href="${href}"${target}>${text}</a>`;
   };
 
-  return marked.parse(cleaned, { renderer, gfm: true, breaks: false }) as string;
+  const result = marked.parse(cleaned, { renderer, gfm: true, breaks: false, async: false });
+  // Safety: if marked somehow returns a Promise, fall back to raw content
+  if (typeof result !== "string") {
+    console.error("[blog] marked.parse returned non-string:", typeof result);
+    return cleaned.replace(/\n/g, "<br>");
+  }
+  return result;
 }
 
 /** Extract tweet IDs from markdown content */
