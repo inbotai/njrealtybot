@@ -237,9 +237,21 @@ function markdownToHtml(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     // Horizontal rule
     .replace(/^---$/gm, "<hr>")
+    // Blockquotes
+    .replace(/^> (.+)$/gm, "<blockquote><p>$1</p></blockquote>")
+    // X/Twitter embeds — links to x.com or twitter.com get a styled embed card
+    .replace(/<a href="(https:\/\/(x|twitter)\.com\/[^"]+)"[^>]*>([^<]+)<\/a>/g,
+      '<div class="my-6 rounded-xl border border-gray-200 bg-gray-50 p-5">' +
+      '<div class="flex items-center gap-2 mb-3">' +
+      '<svg viewBox="0 0 24 24" class="h-5 w-5 text-gray-800" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
+      '<span class="text-sm font-semibold text-gray-800">Post on X</span>' +
+      '</div>' +
+      '<p class="text-sm text-gray-700 mb-3">$3</p>' +
+      '<a href="$1" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition">View on X &rarr;</a>' +
+      '</div>')
     // Tables
     .replace(/^\|(.+)\|$/gm, (_, row) => {
       const cells = row.split("|").map((c: string) => c.trim());
@@ -247,16 +259,17 @@ function markdownToHtml(md: string): string {
       return `<tr>${cells.map((c: string) => `<td>${c}</td>`).join("")}</tr>`;
     })
     .replace(/(<tr>.*<\/tr>\n?)+/g, (m) => `<table>${m}</table>`)
-    // Lists
+    // Numbered lists
+    .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
+    // Unordered lists
     .replace(/^- (.+)$/gm, "<li>$1</li>")
     .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
 
-  // Split into paragraphs — treat single and double newlines as breaks
+  // Split into paragraphs
   const paragraphs = html.split(/\n/).filter(p => p.trim());
   html = paragraphs.map(p => {
     const trimmed = p.trim();
-    // Don't wrap block elements in <p>
-    if (/^<(h[1-6]|ul|ol|table|hr|blockquote|li)/.test(trimmed)) return trimmed;
+    if (/^<(h[1-6]|ul|ol|table|hr|blockquote|li|div)/.test(trimmed)) return trimmed;
     if (!trimmed) return "";
     return `<p>${trimmed}</p>`;
   }).join("\n");
