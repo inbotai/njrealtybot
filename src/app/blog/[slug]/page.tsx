@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { marked } from "marked";
 import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
 import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
+import TwitterEmbed from "@/components/TwitterEmbed";
 
 export const revalidate = 300; // ISR: 5 min
 
@@ -159,18 +161,24 @@ export default async function BlogPostPage({ params }: Props) {
         <div
           className="prose prose-lg prose-gray max-w-none
             prose-headings:text-navy prose-headings:font-extrabold
-            prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-            prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+            prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5
+            prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
             prose-p:leading-relaxed prose-p:text-gray-700 prose-p:mb-6
             prose-a:text-indigo-600 prose-a:font-medium hover:prose-a:text-indigo-800
             prose-strong:text-navy
-            prose-li:text-gray-700 prose-li:leading-relaxed
+            prose-ul:my-6 prose-ol:my-6
+            prose-li:text-gray-700 prose-li:leading-relaxed prose-li:mb-2
             prose-table:border prose-table:rounded-lg prose-table:overflow-hidden
             prose-th:bg-navy prose-th:text-white prose-th:px-4 prose-th:py-2.5 prose-th:text-sm prose-th:font-semibold
             prose-td:px-4 prose-td:py-2.5 prose-td:border-t prose-td:text-sm
-            prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-1 prose-blockquote:rounded-r-lg"
-          dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }}
+            prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
+            prose-hr:my-10"
+          dangerouslySetInnerHTML={{ __html: renderContent(content) }}
         />
+        {/* Native X/Twitter embeds */}
+        {extractTweetIds(content).map(id => (
+          <TwitterEmbed key={id} tweetId={id} />
+        ))}
 
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
           <p className="text-sm font-medium text-gray-600">Found this useful? Share it.</p>
@@ -228,51 +236,37 @@ export default async function BlogPostPage({ params }: Props) {
   );
 }
 
-function markdownToHtml(md: string): string {
-  let html = md
-    // Headings
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    // Bold + italic
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Horizontal rule
-    .replace(/^---$/gm, "<hr>")
-    // Blockquotes
-    .replace(/^> (.+)$/gm, "<blockquote><p>$1</p></blockquote>")
-    // X/Twitter embeds — links to x.com or twitter.com get a styled embed card
-    .replace(/<a href="(https:\/\/(x|twitter)\.com\/[^"]+)"[^>]*>([^<]+)<\/a>/g,
-      '<div class="my-6 rounded-xl border border-gray-200 bg-gray-50 p-5">' +
-      '<div class="flex items-center gap-2 mb-3">' +
-      '<svg viewBox="0 0 24 24" class="h-5 w-5 text-gray-800" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
-      '<span class="text-sm font-semibold text-gray-800">Post on X</span>' +
-      '</div>' +
-      '<p class="text-sm text-gray-700 mb-3">$3</p>' +
-      '<a href="$1" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition">View on X &rarr;</a>' +
-      '</div>')
-    // Tables
-    .replace(/^\|(.+)\|$/gm, (_, row) => {
-      const cells = row.split("|").map((c: string) => c.trim());
-      if (cells.every((c: string) => /^-+$/.test(c))) return "";
-      return `<tr>${cells.map((c: string) => `<td>${c}</td>`).join("")}</tr>`;
-    })
-    .replace(/(<tr>.*<\/tr>\n?)+/g, (m) => `<table>${m}</table>`)
-    // Numbered lists
-    .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
-    // Unordered lists
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
+/** Convert markdown to HTML using marked, with link targets */
+function renderContent(md: string): string {
+  // Remove X/Twitter links from prose — they render as native embeds below
+  const cleaned = md.replace(
+    /\[([^\]]+)\]\(https:\/\/(x|twitter)\.com\/\w+\/status\/\d+[^)]*\)/g,
+    ""
+  );
 
-  // Split into paragraphs
-  const paragraphs = html.split(/\n/).filter(p => p.trim());
-  html = paragraphs.map(p => {
-    const trimmed = p.trim();
-    if (/^<(h[1-6]|ul|ol|table|hr|blockquote|li|div)/.test(trimmed)) return trimmed;
-    if (!trimmed) return "";
-    return `<p>${trimmed}</p>`;
-  }).join("\n");
+  const renderer = new marked.Renderer();
+  // Open all links in new tab
+  renderer.link = ({ href, text }) => {
+    const isInternal = href.startsWith("/") || href.includes("gardenstate.ai");
+    // CTA-style links (standalone links that are the only content in a paragraph)
+    const isCTA = text.includes("Free") || text.includes("free") || text.includes("Check") || text.includes("gardenstate.ai/news");
+    if (isCTA) {
+      return `<a href="${href}" ${isInternal ? "" : 'target="_blank" rel="noopener noreferrer"'} class="not-prose inline-block mt-2 mb-4 rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition no-underline">${text}</a>`;
+    }
+    return `<a href="${href}" ${isInternal ? "" : 'target="_blank" rel="noopener noreferrer"'}>${text}</a>`;
+  };
 
-  return html;
+  marked.setOptions({ renderer, gfm: true, breaks: false });
+  return marked.parse(cleaned) as string;
+}
+
+/** Extract tweet IDs from markdown content */
+function extractTweetIds(md: string): string[] {
+  const ids: string[] = [];
+  const re = /https:\/\/(x|twitter)\.com\/\w+\/status\/(\d+)/g;
+  let m;
+  while ((m = re.exec(md)) !== null) {
+    ids.push(m[2]);
+  }
+  return ids;
 }
