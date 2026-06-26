@@ -158,23 +158,7 @@ export default async function BlogPostPage({ params }: Props) {
           <ShareButtons url={url} title={title} />
         </div>
 
-        <div
-          className="prose prose-lg prose-gray max-w-none
-            prose-headings:text-navy prose-headings:font-extrabold
-            prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5
-            prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
-            prose-p:leading-relaxed prose-p:text-gray-700 prose-p:mb-6
-            prose-a:text-indigo-600 prose-a:font-medium hover:prose-a:text-indigo-800
-            prose-strong:text-navy
-            prose-ul:my-6 prose-ol:my-6
-            prose-li:text-gray-700 prose-li:leading-relaxed prose-li:mb-2
-            prose-table:border prose-table:rounded-lg prose-table:overflow-hidden
-            prose-th:bg-navy prose-th:text-white prose-th:px-4 prose-th:py-2.5 prose-th:text-sm prose-th:font-semibold
-            prose-td:px-4 prose-td:py-2.5 prose-td:border-t prose-td:text-sm
-            prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
-            prose-hr:my-10"
-          dangerouslySetInnerHTML={{ __html: contentHtml || renderContent(content) }}
-        />
+        {renderArticleBody(contentHtml || renderContent(content))}
 
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
           <p className="text-sm font-medium text-gray-600">Found this useful? Share it.</p>
@@ -260,13 +244,62 @@ function renderContent(md: string): string {
   return result;
 }
 
-/** Extract tweet URLs from markdown content */
-function extractTweetUrls(md: string): string[] {
-  const urls: string[] = [];
-  const re = /https:\/\/(x|twitter)\.com\/\w+\/(i\/)?status\/\d+/g;
-  let m;
-  while ((m = re.exec(md)) !== null) {
-    urls.push(m[0]);
-  }
-  return urls;
+const PROSE_CLASSES = `prose prose-lg prose-gray max-w-none
+  prose-headings:text-navy prose-headings:font-extrabold
+  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5
+  prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
+  prose-p:leading-relaxed prose-p:text-gray-700 prose-p:mb-6
+  prose-a:text-indigo-600 prose-a:font-medium hover:prose-a:text-indigo-800
+  prose-strong:text-navy
+  prose-ul:my-6 prose-ol:my-6
+  prose-li:text-gray-700 prose-li:leading-relaxed prose-li:mb-2
+  prose-table:border prose-table:rounded-lg prose-table:overflow-hidden
+  prose-th:bg-navy prose-th:text-white prose-th:px-4 prose-th:py-2.5 prose-th:text-sm prose-th:font-semibold
+  prose-td:px-4 prose-td:py-2.5 prose-td:border-t prose-td:text-sm
+  prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
+  prose-hr:my-10`;
+
+/** Split HTML around iframes — render prose sections and iframes separately */
+function renderArticleBody(html: string) {
+  // Split on iframe tags
+  const parts = html.split(/(<iframe[^>]*><\/iframe>|<iframe[^>]*\/>)/gi);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        const trimmed = part.trim();
+        if (!trimmed) return null;
+
+        // It's an iframe — render outside prose
+        if (trimmed.toLowerCase().startsWith("<iframe")) {
+          const src = trimmed.match(/src="([^"]+)"/)?.[1] || "";
+          const width = trimmed.match(/width="([^"]+)"/)?.[1] || "550";
+          const height = trimmed.match(/height="([^"]+)"/)?.[1] || "450";
+          return (
+            <div key={i} className="my-8 flex justify-center">
+              <iframe
+                src={src}
+                width={width}
+                height={height}
+                frameBorder="0"
+                scrolling="no"
+                allowFullScreen
+                style={{ borderRadius: 12, maxWidth: "100%" }}
+                title="Embedded post"
+              />
+            </div>
+          );
+        }
+
+        // It's HTML content — render in prose wrapper
+        return (
+          <div
+            key={i}
+            className={PROSE_CLASSES}
+            dangerouslySetInnerHTML={{ __html: trimmed }}
+          />
+        );
+      })}
+    </>
+  );
 }
