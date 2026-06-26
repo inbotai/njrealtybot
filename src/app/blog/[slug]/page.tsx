@@ -8,7 +8,7 @@ import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as 
 import ShareButtons from "@/components/ShareButtons";
 import TwitterEmbed from "@/components/TwitterEmbed";
 
-export const revalidate = 60; // ISR: 1 min
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
 const BASE_URL = "https://gardenstate.ai";
@@ -176,8 +176,8 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: renderContent(content) }}
         />
         {/* Native X/Twitter embeds */}
-        {extractTweetIds(content).map(id => (
-          <TwitterEmbed key={id} tweetId={id} />
+        {extractTweetUrls(content).map(url => (
+          <TwitterEmbed key={url} tweetUrl={url} />
         ))}
 
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
@@ -240,7 +240,7 @@ export default async function BlogPostPage({ params }: Props) {
 function renderContent(md: string): string {
   // Remove X/Twitter links from prose — they render as native embeds below
   const cleaned = md.replace(
-    /\[([^\]]+)\]\(https:\/\/(x|twitter)\.com\/\w+\/status\/\d+[^)]*\)/g,
+    /\[([^\]]+)\]\(https:\/\/(x|twitter)\.com\/\w+\/(i\/)?status\/\d+[^)]*\)/g,
     ""
   );
 
@@ -264,13 +264,13 @@ function renderContent(md: string): string {
   return result;
 }
 
-/** Extract tweet IDs from markdown content */
-function extractTweetIds(md: string): string[] {
-  const ids: string[] = [];
-  const re = /https:\/\/(x|twitter)\.com\/\w+\/status\/(\d+)/g;
+/** Extract tweet URLs from markdown content */
+function extractTweetUrls(md: string): string[] {
+  const urls: string[] = [];
+  const re = /https:\/\/(x|twitter)\.com\/\w+\/(i\/)?status\/\d+/g;
   let m;
   while ((m = re.exec(md)) !== null) {
-    ids.push(m[2]);
+    urls.push(m[0]);
   }
-  return ids;
+  return urls;
 }
