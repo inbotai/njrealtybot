@@ -65,7 +65,7 @@ export default async function NewsPage() {
             <div className="space-y-6">
               {/* Featured article */}
               {posts[0] && (
-                <Link href={`/blog/${posts[0].slug}`} className="block rounded-xl border bg-white shadow-sm hover:shadow-lg transition overflow-hidden">
+                <Link href={`/news/${posts[0].slug}`} className="block rounded-xl border bg-white shadow-sm hover:shadow-lg transition overflow-hidden">
                   {posts[0].cover_image && (
                     <img src={posts[0].cover_image} alt={posts[0].title} className="w-full h-48 object-cover" />
                   )}
@@ -88,7 +88,7 @@ export default async function NewsPage() {
               {posts.length > 1 && (
                 <div className="grid gap-6 md:grid-cols-2">
                   {posts.slice(1).map(post => (
-                    <Link key={post.slug} href={`/blog/${post.slug}`} className="block rounded-xl border bg-white p-5 shadow-sm hover:shadow-lg transition">
+                    <Link key={post.slug} href={`/news/${post.slug}`} className="block rounded-xl border bg-white p-5 shadow-sm hover:shadow-lg transition">
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_LABELS[post.category]?.color || "bg-gray-100 text-gray-700"}`}>
                           {CATEGORY_LABELS[post.category]?.label || post.category}

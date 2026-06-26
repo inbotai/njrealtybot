@@ -26,7 +26,7 @@ const moreLinks = [
   { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/afford", label: "Affordability" },
   { href: "/alerts", label: "Price Alerts" },
-  { href: "/blog", label: "News" },
+  { href: "/news", label: "News" },
   { href: "/contact", label: "Contact" },
 ];
 

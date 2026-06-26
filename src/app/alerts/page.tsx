@@ -2,16 +2,30 @@ import type { Metadata } from "next";
 import AlertsPageClient from "@/components/AlertsPageClient";
 
 export const metadata: Metadata = {
-  title: "Neighborhood Price Alerts | Know When Homes Sell Near You",
+  title: { absolute: "NJ Home Price Alerts \u2014 Get Notified When Prices Drop | Garden State AI" },
   description:
-    "Get instant WhatsApp alerts when a home near you sells. See what your neighbors' homes are selling for and track your home's value. Free for NJ homeowners.",
+    "Set price alerts for any NJ neighborhood or zip code. Get notified the moment a home drops in price or a new listing matches your criteria.",
   keywords: [
-    "home price alerts NJ", "neighborhood sales alerts", "homes sold near me",
-    "property value tracker NJ", "real estate alerts New Jersey",
+    "NJ property price alerts",
+    "home price drop alert New Jersey",
+    "NJ listing alerts",
+    "price reduction notifications NJ",
   ],
+  alternates: {
+    canonical: "https://gardenstate.ai/alerts",
+  },
   openGraph: {
-    title: "Neighborhood Price Alerts | Garden State AI",
-    description: "Get instant alerts when homes sell near you. Free for NJ homeowners.",
+    type: "website",
+    title: "NJ Home Price Alerts \u2014 Get Notified When Prices Drop | Garden State AI",
+    description:
+      "Set price alerts for any NJ neighborhood or zip code. Get notified the moment a home drops in price or a new listing matches your criteria.",
+    url: "https://gardenstate.ai/alerts",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NJ Home Price Alerts \u2014 Get Notified When Prices Drop | Garden State AI",
+    description:
+      "Set price alerts for any NJ neighborhood or zip code. Get notified the moment a home drops in price or a new listing matches your criteria.",
   },
 };
 

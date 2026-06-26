@@ -21,7 +21,7 @@ const buyerLinks = [
 
 const companyLinks = [
   { href: "/contact", label: "Contact" },
-  { href: "/blog", label: "News" },
+  { href: "/news", label: "News" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
 ];

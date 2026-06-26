@@ -18,31 +18,36 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Garden State AI | The Most Advanced Real Estate AI in NJ",
+    default: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
     template: "%s | Garden State AI",
   },
   description:
-    "Search 50,000+ homes for sale in New Jersey. AI-powered real estate search with instant market analysis, price predictions, and Vale — your 24/7 AI real estate partner.",
+    "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
   keywords: [
-    "New Jersey homes for sale",
-    "NJ real estate",
-    "AI real estate",
-    "Garden State AI",
-    "AI property search NJ",
+    "New Jersey real estate AI",
+    "NJ property tax appeal",
+    "home valuation NJ",
+    "buy sell homes NJ",
+    "Garden State real estate",
+    "Vale AI assistant NJ",
   ],
+  alternates: {
+    canonical: "https://gardenstate.ai/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "Garden State AI",
-    title: "Garden State AI | The Most Advanced Real Estate AI in NJ",
+    title: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
     description:
-      "Search 50,000+ homes for sale in New Jersey. AI-powered search with Vale, your 24/7 real estate AI partner.",
+      "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
+    url: "https://gardenstate.ai/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Garden State AI | The Most Advanced Real Estate AI in NJ",
+    title: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
     description:
-      "Search 50,000+ homes for sale in New Jersey with Vale AI.",
+      "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
   },
   icons: {
     icon: "/icon.svg",

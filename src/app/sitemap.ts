@@ -6,13 +6,30 @@ import { blogPosts as staticBlogPosts } from "@/data/blog-posts";
 const BASE_URL = "https://gardenstate.ai";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Public tools (high priority)
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE_URL, changeFrequency: "daily", priority: 1 },
-    { url: `${BASE_URL}/search`, changeFrequency: "daily", priority: 0.9 },
+    { url: BASE_URL, changeFrequency: "daily", priority: 1.0 },
+    { url: `${BASE_URL}/chat`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/sell`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/tax-shock`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/appeal`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/sell-timing`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/net-proceeds`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/renovate`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/afford`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/alerts`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/comp-alerts`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/open-houses`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${BASE_URL}/sell`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/news`, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.5 },
+    // Login pages (index landing)
+    { url: `${BASE_URL}/search`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE_URL}/market`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/deals`, changeFrequency: "weekly", priority: 0.7 },
+    // Static pages
+    { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   let listingPages: MetadataRoute.Sitemap = [];

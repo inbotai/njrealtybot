@@ -3,8 +3,31 @@ import DealsPageClient from "@/components/DealsPageClient";
 import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
-  title: "Hidden Deals | Properties Likely to Drop in Price",
-  description: "Find NJ properties that are overpriced or have been on the market too long. Our AI predicts which homes are likely to drop in price soon.",
+  title: { absolute: "NJ Investment Properties & Rental ROI Deals | Garden State AI" },
+  description:
+    "AI-identified investment opportunities in New Jersey. Properties likely to drop in price, rentals with strong ROI, and undervalued listings.",
+  keywords: [
+    "NJ investment properties",
+    "New Jersey rental property ROI",
+    "undervalued homes NJ",
+    "real estate investment New Jersey",
+  ],
+  alternates: {
+    canonical: "https://gardenstate.ai/deals",
+  },
+  openGraph: {
+    type: "website",
+    title: "NJ Investment Properties & Rental ROI Deals | Garden State AI",
+    description:
+      "AI-identified investment opportunities in New Jersey. Properties likely to drop in price, rentals with strong ROI, and undervalued listings.",
+    url: "https://gardenstate.ai/deals",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NJ Investment Properties & Rental ROI Deals | Garden State AI",
+    description:
+      "AI-identified investment opportunities in New Jersey. Properties likely to drop in price, rentals with strong ROI, and undervalued listings.",
+  },
 };
 
 export default function DealsPage() {

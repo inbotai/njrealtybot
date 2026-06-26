@@ -4,7 +4,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", "/search", "/market"],
+      disallow: ["/admin", "/my-home", "/favorites", "/match", "/staging"],
     },
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };

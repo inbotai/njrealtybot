@@ -2,9 +2,30 @@ import type { Metadata } from "next";
 import LeadForm from "@/components/LeadForm";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
+  title: { absolute: "Contact Garden State AI | NJ Real Estate" },
   description:
-    "Get in touch with Garden State AI. Ask about homes for sale, schedule a showing, or get a free home valuation.",
+    "Get in touch with Garden State AI. Reach us via WhatsApp, email, or our contact form for any NJ real estate questions.",
+  keywords: [
+    "contact Garden State AI",
+    "NJ real estate contact",
+    "Vale AI contact",
+  ],
+  alternates: {
+    canonical: "https://gardenstate.ai/contact",
+  },
+  openGraph: {
+    type: "website",
+    title: "Contact Garden State AI | NJ Real Estate",
+    description:
+      "Get in touch with Garden State AI. Reach us via WhatsApp, email, or our contact form for any NJ real estate questions.",
+    url: "https://gardenstate.ai/contact",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Garden State AI | NJ Real Estate",
+    description:
+      "Get in touch with Garden State AI. Reach us via WhatsApp, email, or our contact form for any NJ real estate questions.",
+  },
 };
 
 export default function ContactPage() {

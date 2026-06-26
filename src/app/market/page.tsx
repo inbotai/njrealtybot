@@ -3,8 +3,31 @@ import Link from "next/link";
 import { fetchMarketCities } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "NJ Real Estate Market & Investment Reports by City",
-  description: "Real estate market and investment reports for every city in NJ. Investment scores, tax data, appreciation, rental yields, and free valuations.",
+  title: { absolute: "NJ Real Estate Market Intelligence \u2014 Trends & Demand | Garden State AI" },
+  description:
+    "AI-powered market analytics for New Jersey real estate. Track price trends, buyer demand, days on market, and absorption rates by city.",
+  keywords: [
+    "NJ real estate market data",
+    "New Jersey housing market trends",
+    "NJ buyer demand analytics",
+    "real estate market intelligence NJ",
+  ],
+  alternates: {
+    canonical: "https://gardenstate.ai/market",
+  },
+  openGraph: {
+    type: "website",
+    title: "NJ Real Estate Market Intelligence \u2014 Trends & Demand | Garden State AI",
+    description:
+      "AI-powered market analytics for New Jersey real estate. Track price trends, buyer demand, days on market, and absorption rates by city.",
+    url: "https://gardenstate.ai/market",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NJ Real Estate Market Intelligence \u2014 Trends & Demand | Garden State AI",
+    description:
+      "AI-powered market analytics for New Jersey real estate. Track price trends, buyer demand, days on market, and absorption rates by city.",
+  },
 };
 
 export default async function MarketIndexPage() {

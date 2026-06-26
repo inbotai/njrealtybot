@@ -4,9 +4,32 @@ import SearchPageClient from "@/components/SearchPageClient";
 import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
-  title: "Search Homes for Sale in New Jersey",
+  title: { absolute: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI" },
   description:
-    "Browse thousands of homes for sale in New Jersey. Filter by city, price, beds, baths, and property type.",
+    "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
+  keywords: [
+    "search NJ homes for sale",
+    "New Jersey MLS search",
+    "NJ homes for sale by city",
+    "GSMLS listings NJ",
+    "NJMLS property search",
+  ],
+  alternates: {
+    canonical: "https://gardenstate.ai/search",
+  },
+  openGraph: {
+    type: "website",
+    title: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI",
+    description:
+      "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
+    url: "https://gardenstate.ai/search",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI",
+    description:
+      "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
+  },
 };
 
 function SearchFallback() {

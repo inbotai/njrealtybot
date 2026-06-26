@@ -226,6 +226,32 @@ function PublicHomepage() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "Garden State AI",
+            "url": "https://gardenstate.ai",
+            "logo": "https://gardenstate.ai/icon.svg",
+            "description": "AI-powered real estate platform for New Jersey homeowners, buyers, and sellers.",
+            "areaServed": { "@type": "State", "name": "New Jersey" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Garden State AI",
+            "applicationCategory": "RealEstateApplication",
+            "operatingSystem": "Web",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "featureList": [
+              "Home Valuation NJ", "Property Tax Appeal Generator", "Tax Shock Analysis",
+              "NJ MLS Search (60K+ listings)", "Vale AI Assistant", "Net Proceeds Calculator",
+              "Renovation ROI Calculator", "Affordability Calculator", "Market Intelligence",
+              "Investment Deal Finder", "Open Houses NJ", "Price & Comp Alerts"
+            ]
+          }
+        ]
+      }) }} />
       {/* Hero — seller valuation */}
       <section className="relative overflow-hidden bg-navy py-20 text-white">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />

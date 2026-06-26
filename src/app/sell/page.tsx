@@ -2,20 +2,49 @@ import type { Metadata } from "next";
 import SellPageClient from "@/components/SellPageClient";
 
 export const metadata: Metadata = {
-  title: "What's My Home Worth? | Free Home Valuation in NJ",
+  title: { absolute: "Free NJ Home Valuation \u2014 What's My House Worth? | Garden State AI" },
   description:
-    "Find out what your home is worth in 30 seconds. Free AI-powered home valuation for any property in New Jersey. No obligation.",
+    "Get an instant AI home valuation for your New Jersey property. Uses live MLS data, NJ MOD-IV records, and Zestimate to give you the most accurate estimate in 30 seconds.",
   keywords: [
-    "home value NJ", "what is my house worth", "sell my house New Jersey",
-    "free home valuation", "CMA report NJ", "home appraisal NJ",
-    "sell house Bloomfield NJ", "sell house Paramus NJ", "sell house Hoboken NJ",
+    "home valuation NJ",
+    "what is my home worth New Jersey",
+    "NJ AVM tool",
+    "free home value estimate NJ",
+    "sell my house New Jersey",
+    "NJ property value",
   ],
+  alternates: {
+    canonical: "https://gardenstate.ai/sell",
+  },
   openGraph: {
-    title: "What's My Home Worth? | Free NJ Home Valuation",
-    description: "Get an instant AI-powered home valuation for any property in New Jersey. Free, no obligation.",
+    type: "website",
+    title: "Free NJ Home Valuation \u2014 What's My House Worth? | Garden State AI",
+    description:
+      "Get an instant AI home valuation for your New Jersey property. Uses live MLS data, NJ MOD-IV records, and Zestimate to give you the most accurate estimate in 30 seconds.",
+    url: "https://gardenstate.ai/sell",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free NJ Home Valuation \u2014 What's My House Worth? | Garden State AI",
+    description:
+      "Get an instant AI home valuation for your New Jersey property. Uses live MLS data, NJ MOD-IV records, and Zestimate to give you the most accurate estimate in 30 seconds.",
   },
 };
 
 export default function SellPage() {
-  return <SellPageClient />;
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NJ Home Valuation Tool",
+        "description": "Free AI-powered instant home valuation for NJ properties using MLS, MOD-IV, and Zestimate data.",
+        "url": "https://gardenstate.ai/sell",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }) }} />
+      <SellPageClient />
+    </>
+  );
 }

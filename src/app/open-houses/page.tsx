@@ -7,9 +7,31 @@ import RequireAuth from "@/components/RequireAuth";
 import type { Listing } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "Open Houses in New Jersey",
+  title: { absolute: "Open Houses This Weekend in New Jersey | Garden State AI" },
   description:
-    "Browse upcoming open houses in New Jersey. Visit properties in person and find your dream home.",
+    "Browse all open houses happening this weekend across New Jersey. Filter by city, price, and property type. See photos and details before you go.",
+  keywords: [
+    "open houses NJ this weekend",
+    "open houses New Jersey",
+    "NJ open house listings",
+    "open house schedule NJ",
+  ],
+  alternates: {
+    canonical: "https://gardenstate.ai/open-houses",
+  },
+  openGraph: {
+    type: "website",
+    title: "Open Houses This Weekend in New Jersey | Garden State AI",
+    description:
+      "Browse all open houses happening this weekend across New Jersey. Filter by city, price, and property type. See photos and details before you go.",
+    url: "https://gardenstate.ai/open-houses",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Open Houses This Weekend in New Jersey | Garden State AI",
+    description:
+      "Browse all open houses happening this weekend across New Jersey. Filter by city, price, and property type. See photos and details before you go.",
+  },
 };
 
 export default async function OpenHousesPage() {
