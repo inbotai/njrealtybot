@@ -6,6 +6,7 @@ import { marked, Renderer } from "marked";
 import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
 import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
+import TwitterWidgetLoader from "@/components/TwitterWidgetLoader";
 
 export const dynamic = "force-dynamic";
 
@@ -159,6 +160,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {renderArticleBody(contentHtml || renderContent(content))}
+        {(contentHtml || content || "").includes("twitter-tweet") && <TwitterWidgetLoader />}
 
         <div className="mt-10 flex items-center justify-between rounded-xl bg-gray-50 p-5">
           <p className="text-sm font-medium text-gray-600">Found this useful? Share it.</p>
@@ -293,15 +295,14 @@ function renderArticleBody(html: string) {
           );
         }
 
-        // Twitter/X embed blockquote — render with widget script
+        // Twitter/X embed blockquote — render without script (TwitterWidgetLoader handles it)
         if (trimmed.includes("twitter-tweet")) {
+          const blockquoteOnly = trimmed.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
           return (
             <div
               key={i}
               className="my-8 flex justify-center not-prose"
-              dangerouslySetInnerHTML={{
-                __html: trimmed + (trimmed.includes("widgets.js") ? "" : '<script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>'),
-              }}
+              dangerouslySetInnerHTML={{ __html: blockquoteOnly }}
             />
           );
         }
