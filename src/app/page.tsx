@@ -75,107 +75,43 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* WhatsApp CTA banner */}
-        <div className="bg-navy px-4 pb-6">
-          <div className="mx-auto max-w-4xl rounded-xl border border-[#25D366]/30 bg-gradient-to-r from-[#25D366]/15 via-[#25D366]/5 to-[#25D366]/15 px-6 py-5">
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <div className="text-center sm:text-left">
-                <p className="text-sm font-bold text-white">Chat with Vale on WhatsApp for the best experience</p>
-                <p className="mt-1 text-xs text-gray-400">Instant valuations, property photos, market alerts &amp; more — right on your phone</p>
-              </div>
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#20bd5a] hover:shadow-lg">
-                {WA_ICON} Message Vale
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats strip */}
-        <section className="border-b bg-white py-10">
-          <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-12 px-4">
-            {[
-              { value: "60,000+", label: "MLS Listings" },
-              { value: "21", label: "NJ Counties" },
-              { value: "2", label: "MLS Feeds (NJMLS + GSMLS)" },
-              { value: "15 min", label: "Sync Frequency" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <p className="text-3xl font-bold text-navy">{s.value}</p>
-                <p className="mt-1 text-sm text-gray-500">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Services */}
-        <section className="py-16 bg-white">
-          <div className="mx-auto max-w-5xl px-4">
-            <h2 className="text-center text-2xl font-bold text-navy">Platform Features</h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <a href="/search" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-xl">&#128269;</div>
-                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Property Search</h3>
-                <p className="mt-1 text-xs text-gray-500">60k+ listings from NJMLS &amp; GSMLS with AI-powered natural language search</p>
-              </a>
-              <a href="/sell" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 text-xl">&#127968;</div>
-                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Home Valuation</h3>
-                <p className="mt-1 text-xs text-gray-500">AI valuation in 30 seconds — public records + comps + Zillow/Redfin data</p>
-              </a>
-              <a href="/staging" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-xl">&#10024;</div>
-                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Virtual Staging</h3>
-                <p className="mt-1 text-xs text-gray-500">AI staging for empty rooms — $20/photo or free when sellers list with you</p>
-              </a>
-              <a href="/market" className="group rounded-xl border bg-white p-5 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-xl">&#128200;</div>
-                <h3 className="mt-3 font-semibold text-navy group-hover:text-gold">Market Intelligence</h3>
-                <p className="mt-1 text-xs text-gray-500">City reports, investment scores, deal finder, demand tracking — all AI-powered</p>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Sell Score CTA */}
-        <section className="bg-gradient-to-br from-navy via-indigo-900 to-navy py-14">
-          <div className="mx-auto max-w-4xl px-4 text-center">
-            <h2 className="text-2xl font-extrabold text-white md:text-3xl">
-              What&apos;s Your Home{" "}
-              <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
-                Really Worth
-              </span>
-              ?
-            </h2>
-            <p className="mt-2 text-sm text-gray-300">
-              Free AI valuation with Sell Score — find out in 30 seconds.
-            </p>
-            <a href="/value"
-              className="mt-6 inline-block rounded-lg bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
-              Get My Sell Score
+        {/* Two CTAs side by side — Home Value + Tax Appeal */}
+        <section className="bg-white py-8">
+          <div className="mx-auto max-w-4xl px-4 grid gap-4 md:grid-cols-2">
+            <a href="/sell" className="group rounded-xl bg-gradient-to-br from-navy to-indigo-900 p-6 text-center text-white transition hover:shadow-xl">
+              <p className="text-3xl">&#127968;</p>
+              <h2 className="mt-2 text-xl font-bold">What&apos;s Your Home Worth?</h2>
+              <p className="mt-1 text-sm text-gray-300">Free AI valuation in 30 seconds — MLS + public records + Zestimate</p>
+              <span className="mt-4 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy group-hover:bg-yellow-400">Get Free Valuation</span>
+            </a>
+            <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-900 to-red-800 p-6 text-center text-white transition hover:shadow-xl">
+              <p className="text-3xl">&#128176;</p>
+              <h2 className="mt-2 text-xl font-bold">Are You Overpaying Taxes?</h2>
+              <p className="mt-1 text-sm text-gray-300">Free AI analysis — compare your assessment to real sales in 60 seconds</p>
+              <span className="mt-4 inline-block rounded-lg bg-gold px-6 py-2 font-bold text-navy group-hover:bg-yellow-400">Check My Taxes</span>
             </a>
           </div>
         </section>
 
-        {/* AI capabilities */}
-        <section className="py-16 bg-gray-50">
-          <div className="mx-auto max-w-4xl px-4">
-            <h2 className="text-center text-2xl font-bold text-navy">What Vale Can Do</h2>
-            <div className="mt-10 grid gap-4 md:grid-cols-2">
-              {[
-                { title: "24/7 AI Assistant", desc: "Vale handles inquiries on web and WhatsApp — searches, valuations, showings, follow-ups. Never misses a lead." },
-                { title: "Persistent Memory", desc: "Vale remembers every client — name, preferences, search history. Returning visitors get a personalized greeting." },
-                { title: "Automated Lead Gen", desc: "6 sources: expired listings, stale homes, price drops, overpriced, neighbor alerts, website visitors." },
-                { title: "Smart Follow-Up", desc: "Auto WhatsApp reminders to leads that go quiet. Just Sold digests to keep buyers engaged." },
-                { title: "Voice + Text", desc: "Clients can send voice notes in English or Spanish. Vale transcribes and understands both." },
-                { title: "Demand Signals", desc: "See how many buyers are viewing each listing. Bidding war probability. Match scores per buyer." },
-              ].map((f) => (
-                <div key={f.title} className="rounded-xl bg-white p-5 shadow-sm">
-                  <h3 className="font-semibold text-navy">{f.title}</h3>
-                  <p className="mt-1 text-sm text-gray-600">{f.desc}</p>
-                </div>
-              ))}
-            </div>
+        {/* Quick links grid */}
+        <section className="bg-gray-50 py-8">
+          <div className="mx-auto max-w-4xl px-4 grid gap-3 grid-cols-2 md:grid-cols-4">
+            <a href="/search" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <p className="text-2xl">&#128269;</p>
+              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Search Homes</h3>
+            </a>
+            <a href="/market" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <p className="text-2xl">&#128200;</p>
+              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Market Intel</h3>
+            </a>
+            <a href="/deals" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <p className="text-2xl">&#128176;</p>
+              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Deals</h3>
+            </a>
+            <a href="/news" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
+              <p className="text-2xl">&#128240;</p>
+              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">News</h3>
+            </a>
           </div>
         </section>
 
