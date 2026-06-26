@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const title = apiPost?.title || staticPost!.title;
   const excerpt = apiPost?.excerpt || staticPost!.excerpt;
-  const content = apiPost?.content || staticPost!.content;
+  const content = apiPost?.content ?? staticPost?.content ?? "";
   const contentHtml = apiPost?.content_html || null;
   const category = apiPost?.category || staticPost!.category;
   const coverImage = apiPost?.cover_image || staticPost?.coverImage || "";
