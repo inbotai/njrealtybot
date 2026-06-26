@@ -30,23 +30,10 @@ export default function HeroChat() {
     // Normalize accents for matching: análisis → analisis
     const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Extract address helper — strips punctuation from the end
-    const extractAddr = (text: string) => {
-      const m = text.match(/\d+\s+[\w\s]+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|ct|court|pl|place|way|ter|terrace)\b[^,]*/i);
-      return m ? m[0].replace(/[?.!]+$/, "").trim() : "";
-    };
-
-    // Tax queries → /tax-shock with address pre-filled
-    if (/tax|taxes|impuesto|assessment|overpay|sobre.?tasado|appeal|chapter 123/i.test(qNorm)) {
-      const addr = extractAddr(q);
-      router.push(addr ? `/tax-shock?address=${encodeURIComponent(addr)}` : "/tax-shock");
-      return;
-    }
-
-    // CMA / valuation requests → /sell with address pre-filled
-    if (/worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
-      const addr = extractAddr(q);
-      router.push(addr ? `/sell?address=${encodeURIComponent(addr)}` : "/sell");
+    // Tax queries and CMA/valuation requests → send to Vale chat
+    // Vale handles the conversation and provides clickable links within the chat
+    if (/tax|taxes|impuesto|assessment|overpay|sobre.?tasado|appeal|chapter 123|worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
       return;
     }
 
