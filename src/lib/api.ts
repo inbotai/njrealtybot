@@ -375,7 +375,7 @@ export async function fetchBlogPosts(): Promise<BlogPostAPI[]> {
 export async function fetchBlogPost(slug: string): Promise<BlogPostAPI | null> {
   try {
     const res = await fetch(`${IDX_API}/api/idx/blog/posts/${slug}`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
