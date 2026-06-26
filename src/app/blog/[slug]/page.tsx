@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { marked } from "marked";
+import { marked, Renderer } from "marked";
 import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
 import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
 import TwitterEmbed from "@/components/TwitterEmbed";
 
-export const revalidate = 300; // ISR: 5 min
+export const revalidate = 60; // ISR: 1 min
 
 type Props = { params: Promise<{ slug: string }> };
 const BASE_URL = "https://gardenstate.ai";
@@ -244,20 +244,18 @@ function renderContent(md: string): string {
     ""
   );
 
-  const renderer = new marked.Renderer();
-  // Open all links in new tab
-  renderer.link = ({ href, text }) => {
+  const renderer = new Renderer();
+  renderer.link = ({ href, text }: { href: string; text: string }) => {
     const isInternal = href.startsWith("/") || href.includes("gardenstate.ai");
-    // CTA-style links (standalone links that are the only content in a paragraph)
-    const isCTA = text.includes("Free") || text.includes("free") || text.includes("Check") || text.includes("gardenstate.ai/news");
+    const target = isInternal ? "" : ' target="_blank" rel="noopener noreferrer"';
+    const isCTA = /free|check|gardenstate\.ai\/news/i.test(text);
     if (isCTA) {
-      return `<a href="${href}" ${isInternal ? "" : 'target="_blank" rel="noopener noreferrer"'} class="not-prose inline-block mt-2 mb-4 rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition no-underline">${text}</a>`;
+      return `<a href="${href}"${target} class="not-prose inline-block mt-2 mb-4 rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition no-underline">${text}</a>`;
     }
-    return `<a href="${href}" ${isInternal ? "" : 'target="_blank" rel="noopener noreferrer"'}>${text}</a>`;
+    return `<a href="${href}"${target}>${text}</a>`;
   };
 
-  marked.setOptions({ renderer, gfm: true, breaks: false });
-  return marked.parse(cleaned) as string;
+  return marked.parse(cleaned, { renderer, gfm: true, breaks: false }) as string;
 }
 
 /** Extract tweet IDs from markdown content */
