@@ -29,24 +29,6 @@ const companyLinks = [
 export default function Footer() {
   return (
     <footer className="mt-auto bg-navy text-gray-300">
-      {/* Tax Appeal CTA — seller lead magnet */}
-      <div className="bg-gradient-to-r from-red-900/40 via-navy to-red-900/40 border-b border-white/10">
-        <div className="mx-auto max-w-4xl px-4 py-10 text-center">
-          <p className="text-sm font-bold uppercase tracking-wider text-red-400">Are you paying too much in property taxes?</p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            NJ homeowners overpay an average of $2,500/year
-          </h2>
-          <p className="mt-3 text-sm text-gray-400">
-            Our free AI analysis compares your assessment to recent sales and tells you
-            if you have a case — in under 60 seconds.
-          </p>
-          <Link href="/tax-shock"
-            className="mt-5 inline-block rounded-lg bg-gold px-8 py-3 font-bold text-navy transition hover:bg-yellow-400 hover:shadow-lg">
-            Check My Property Taxes Free
-          </Link>
-        </div>
-      </div>
-
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
