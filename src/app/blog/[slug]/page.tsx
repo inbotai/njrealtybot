@@ -259,10 +259,12 @@ const PROSE_CLASSES = `prose prose-lg prose-gray max-w-none
   prose-blockquote:border-l-gold prose-blockquote:bg-gold/5 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
   prose-hr:my-10`;
 
-/** Split HTML around iframes — render prose sections and iframes separately */
+/** Split HTML around embeds (iframes, twitter blockquotes) — render outside prose */
 function renderArticleBody(html: string) {
-  // Split on iframe tags
-  const parts = html.split(/(<iframe[^>]*><\/iframe>|<iframe[^>]*\/>)/gi);
+  // Split on iframes OR twitter-tweet blockquotes (including trailing script tag)
+  const parts = html.split(
+    /(<iframe[^>]*><\/iframe>|<iframe[^>]*\/>|<blockquote class="twitter-tweet"[\s\S]*?<\/blockquote>\s*(?:<script[^>]*><\/script>)?)/gi
+  );
 
   return (
     <>
@@ -270,7 +272,7 @@ function renderArticleBody(html: string) {
         const trimmed = part.trim();
         if (!trimmed) return null;
 
-        // It's an iframe — render outside prose
+        // Iframe embed
         if (trimmed.toLowerCase().startsWith("<iframe")) {
           const src = trimmed.match(/src="([^"]+)"/)?.[1] || "";
           const width = trimmed.match(/width="([^"]+)"/)?.[1] || "550";
@@ -291,7 +293,20 @@ function renderArticleBody(html: string) {
           );
         }
 
-        // It's HTML content — render in prose wrapper
+        // Twitter/X embed blockquote — render with widget script
+        if (trimmed.includes("twitter-tweet")) {
+          return (
+            <div
+              key={i}
+              className="my-8 flex justify-center not-prose"
+              dangerouslySetInnerHTML={{
+                __html: trimmed + (trimmed.includes("widgets.js") ? "" : '<script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>'),
+              }}
+            />
+          );
+        }
+
+        // Regular HTML content — render in prose wrapper
         return (
           <div
             key={i}
