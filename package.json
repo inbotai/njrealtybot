@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx playwright test --project=chromium",
+    "test:mobile": "npx playwright test --project=mobile",
+    "test:stress": "npx playwright test --config=playwright.stress.config.ts",
+    "test:all": "npx playwright test && npx playwright test --config=playwright.stress.config.ts",
+    "test:report": "npx playwright show-report"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.20",
