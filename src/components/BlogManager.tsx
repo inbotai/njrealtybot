@@ -59,6 +59,19 @@ export default function BlogManager() {
     } catch { /* ignore */ }
   }
 
+  async function startEditing(article: BlogArticle) {
+    // Fetch full article with content_html
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/blog/posts/${article.slug}`);
+      if (res.ok) {
+        const full = await res.json();
+        setEditing({ ...article, ...full });
+        return;
+      }
+    } catch { /* fallback to partial */ }
+    setEditing(article);
+  }
+
   function handleSaved() {
     setEditing(null);
     setCreating(false);
@@ -139,7 +152,7 @@ export default function BlogManager() {
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => setEditing(a)}
+                          onClick={() => startEditing(a)}
                           className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
                         >
                           Edit
