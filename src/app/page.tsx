@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import HeroChat from "@/components/HeroChat";
 import HeroSeller from "@/components/HeroSeller";
 import { submitLead } from "@/lib/api";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -361,6 +362,13 @@ function PublicHomepage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter signup */}
+      <section className="bg-white py-4">
+        <div className="mx-auto max-w-2xl px-4">
+          <NewsletterSignup />
         </div>
       </section>
 

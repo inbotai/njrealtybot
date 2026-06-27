@@ -7,6 +7,7 @@ import { fetchBlogPosts, fetchBlogPost } from "@/lib/api";
 import { blogPosts as staticPosts, getPost as getStaticPost, getRelatedPosts as getStaticRelated } from "@/data/blog-posts";
 import ShareButtons from "@/components/ShareButtons";
 import TwitterWidgetLoader from "@/components/TwitterWidgetLoader";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export const dynamic = "force-dynamic";
 
@@ -209,6 +210,8 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        <NewsletterSignup />
 
         <div className="mt-10 text-center">
           <Link href="/news" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">&larr; All Articles</Link>

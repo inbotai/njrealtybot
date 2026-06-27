@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AppealWizard from "@/components/AppealWizard";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Property Tax Appeal \u2014 Generate Form A-1 Automatically | Garden State AI" },
@@ -55,6 +56,9 @@ export default function AppealPage() {
         ]
       }) }} />
       <AppealWizard />
+      <div className="mx-auto max-w-2xl px-4 pb-8">
+        <NewsletterSignup />
+      </div>
     </>
   );
 }

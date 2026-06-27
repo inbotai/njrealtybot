@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import TaxShockClient from "@/components/TaxShockClient";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Property Tax Too High? Free Tax Shock Analysis | Garden State AI" },
@@ -65,6 +66,9 @@ export default function TaxShockPage() {
         ]
       }) }} />
       <Suspense><TaxShockClient /></Suspense>
+      <div className="mx-auto max-w-2xl px-4 pb-8">
+        <NewsletterSignup />
+      </div>
     </>
   );
 }
