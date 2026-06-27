@@ -11,6 +11,8 @@ import ValeSidePanel from "@/components/ValeSidePanel";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { AdminProvider } from "@/components/AdminAuth";
 import TrackingPixels from "@/components/TrackingPixels";
+import { Suspense } from "react";
+import ActivityTracker from "@/components/ActivityTracker";
 import ExitIntent from "@/components/ExitIntent";
 import ProactiveVale from "@/components/ProactiveVale";
 
@@ -76,6 +78,7 @@ export default async function RootLayout({
             <ExitIntent />
             <ProactiveVale />
             <TrackingPixels />
+            <Suspense><ActivityTracker /></Suspense>
           </ValeProvider>
         </AdminProvider>
       </body>
