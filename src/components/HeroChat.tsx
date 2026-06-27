@@ -37,6 +37,11 @@ export default function HeroChat() {
       return;
     }
 
+    if (/open\s*house/i.test(q)) {
+      router.push("/open-houses");
+      return;
+    }
+
     if (/deal|bargain|price drop|ganga|oportunidad/i.test(q)) {
       router.push("/deals");
       return;
