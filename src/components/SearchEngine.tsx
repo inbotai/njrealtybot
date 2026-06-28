@@ -110,17 +110,22 @@ export default function SearchEngine() {
           if (parsed.minPrice) params.set("minPrice", String(parsed.minPrice));
           if (parsed.maxPrice) params.set("maxPrice", String(parsed.maxPrice));
           if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
-          params.set("limit", "18");
+          params.set("limit", "30");
 
           const res = await fetch(`${IDX_API}/api/idx/listings?${params.toString()}`);
           const data = await res.json();
           const listings = data.listings || [];
+          const total = data.total || listings.length;
           setCurrentListings(listings);
 
+          const countText = total > listings.length
+            ? `Found **${total} properties** (showing top ${listings.length}). Click any listing to see full details.`
+            : total > 0
+            ? `Found **${total} properties**. Click any listing to see full details.`
+            : "No properties found. Try broadening your search.";
+
           setMessages(prev => [...prev, {
-            role: "assistant",
-            text: data.total > 0 ? `Found **${data.total} properties**. Click any listing to see full details.` : "No properties found. Try broadening your search.",
-            listings, timestamp: Date.now(),
+            role: "assistant", text: countText, listings, timestamp: Date.now(),
           }]);
           setLoading(false);
           return;
