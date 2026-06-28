@@ -46,6 +46,7 @@ export default function SearchEngine() {
   const [loading, setLoading] = useState(false);
   const [voiceActive, setVoiceActive] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [expandedListing, setExpandedListing] = useState<Listing | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -256,9 +257,9 @@ export default function SearchEngine() {
                         {msg.listings && msg.listings.length > 0 && (
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {msg.listings.map(listing => (
-                              <Link key={listing.id}
-                                href={`/property/${generateSlug(listing)}`}
-                                className="group overflow-hidden rounded-xl bg-white border border-gray-200 shadow-sm transition hover:shadow-lg hover:border-indigo-300"
+                              <button key={listing.id}
+                                onClick={() => setExpandedListing(expandedListing?.id === listing.id ? null : listing)}
+                                className={`group overflow-hidden rounded-xl bg-white border shadow-sm transition hover:shadow-lg text-left ${expandedListing?.id === listing.id ? "border-indigo-500 ring-2 ring-indigo-200" : "border-gray-200 hover:border-indigo-300"}`}
                               >
                                 <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
                                   <img
@@ -284,8 +285,81 @@ export default function SearchEngine() {
                                     {listing.living_area != null && <span>{listing.living_area.toLocaleString()} sqft</span>}
                                   </div>
                                 </div>
-                              </Link>
+                              </button>
                             ))}
+                          </div>
+                        )}
+
+                        {/* Expanded listing detail — inline */}
+                        {expandedListing && msg.listings?.some(l => l.id === expandedListing.id) && (
+                          <div className="rounded-xl border border-indigo-200 bg-white shadow-lg overflow-hidden">
+                            {/* Photo gallery */}
+                            <div className="flex gap-1 overflow-x-auto bg-gray-100">
+                              {[0, 1, 2, 3, 4].map(idx => (
+                                <img key={idx}
+                                  src={getPhotoUrl(expandedListing.mls_number, idx)}
+                                  alt={`Photo ${idx + 1}`}
+                                  className="h-48 w-auto flex-shrink-0 object-cover"
+                                  loading="lazy"
+                                  onError={e => (e.currentTarget.style.display = "none")}
+                                />
+                              ))}
+                            </div>
+                            <div className="p-5">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="text-2xl font-bold text-navy">
+                                    {expandedListing.list_price ? formatPrice(expandedListing.list_price) : "Price TBD"}
+                                  </h3>
+                                  <p className="mt-1 text-sm text-gray-600">
+                                    {expandedListing.unparsed_address || `${expandedListing.street_number} ${expandedListing.street_name}, ${expandedListing.city}, NJ`}
+                                  </p>
+                                </div>
+                                <button onClick={() => setExpandedListing(null)}
+                                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50">
+                                  Close
+                                </button>
+                              </div>
+                              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {expandedListing.bedrooms_total != null && (
+                                  <div className="rounded-lg bg-gray-50 p-3 text-center">
+                                    <p className="text-lg font-bold text-navy">{expandedListing.bedrooms_total}</p>
+                                    <p className="text-xs text-gray-500">Beds</p>
+                                  </div>
+                                )}
+                                {expandedListing.bathrooms_total != null && (
+                                  <div className="rounded-lg bg-gray-50 p-3 text-center">
+                                    <p className="text-lg font-bold text-navy">{expandedListing.bathrooms_total}</p>
+                                    <p className="text-xs text-gray-500">Baths</p>
+                                  </div>
+                                )}
+                                {expandedListing.living_area != null && (
+                                  <div className="rounded-lg bg-gray-50 p-3 text-center">
+                                    <p className="text-lg font-bold text-navy">{expandedListing.living_area.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500">Sqft</p>
+                                  </div>
+                                )}
+                                {expandedListing.year_built != null && (
+                                  <div className="rounded-lg bg-gray-50 p-3 text-center">
+                                    <p className="text-lg font-bold text-navy">{expandedListing.year_built}</p>
+                                    <p className="text-xs text-gray-500">Year Built</p>
+                                  </div>
+                                )}
+                              </div>
+                              {expandedListing.listing_office_name && (
+                                <p className="mt-3 text-xs text-gray-400">Listed by {expandedListing.listing_office_name}</p>
+                              )}
+                              <div className="mt-4 flex gap-2">
+                                <button onClick={() => handleSearch(`CMA for ${expandedListing.unparsed_address || expandedListing.city}`)}
+                                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition">
+                                  Get CMA
+                                </button>
+                                <button onClick={() => handleSearch(`schedule a showing at ${expandedListing.unparsed_address || expandedListing.city}`)}
+                                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50 transition">
+                                  Schedule Showing
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
