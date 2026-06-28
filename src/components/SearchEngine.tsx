@@ -143,53 +143,93 @@ export default function SearchEngine() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="flex min-h-screen bg-[#0f0a1e]">
-      {/* Left sidebar — nav links */}
-      <aside className="hidden md:flex w-56 flex-col border-r border-white/10 bg-[#0f0a1e] px-3 py-6">
-        <Link href="/v2" className="mb-8 px-3 text-lg font-bold">
-          <span className="text-gold">Garden</span>
-          <span className="text-white"> State </span>
-          <span className="text-indigo-400">AI</span>
+    <div className="flex min-h-screen bg-white">
+      {/* Left sidebar — icon-only, expand on hover */}
+      <aside className="hidden md:flex w-14 hover:w-56 flex-col border-r border-gray-200 bg-white px-2 py-6 transition-all duration-300 overflow-hidden group/sidebar">
+        <Link href="/v2" className="mb-8 flex items-center gap-2 px-2">
+          <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
+            <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+            <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+            <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+            <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+            <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+            <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="text-sm font-bold whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
+            <span className="text-gold">Garden</span>
+            <span className="text-navy"> State </span>
+            <span className="text-indigo-500">AI</span>
+          </span>
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV_LINKS.map(l => (
             <Link key={l.href} href={l.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 transition hover:bg-white/5 hover:text-white">
-              <span className="text-base">{l.icon}</span>
-              {l.label}
+              className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-navy whitespace-nowrap"
+              title={l.label}>
+              <span className="text-lg flex-shrink-0">{l.icon}</span>
+              <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">{l.label}</span>
             </Link>
           ))}
         </nav>
-        <div className="mt-auto px-3 pt-6 border-t border-white/10">
-          <p className="text-[10px] text-gray-600">Powered by Vale AI</p>
-          <p className="text-[10px] text-gray-600">BHG Real Estate | Green Team</p>
+        <div className="mt-auto px-2 pt-6 border-t border-gray-200 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
+          <p className="text-[10px] text-gray-400">Powered by Vale AI</p>
+          <p className="text-[10px] text-gray-400">BHG Real Estate | Green Team</p>
         </div>
       </aside>
 
       {/* Main content */}
       <main className="flex flex-1 flex-col">
         {/* Mobile header */}
-        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-gray-200">
           <span className="text-sm font-bold">
             <span className="text-gold">Garden</span>
-            <span className="text-white"> State </span>
-            <span className="text-indigo-400">AI</span>
+            <span className="text-navy"> State </span>
+            <span className="text-indigo-500">AI</span>
           </span>
         </div>
 
         {/* Center content area */}
         <div className={`flex flex-1 flex-col ${hasMessages ? "justify-start" : "justify-center"}`}>
-          {/* Hero — only show when no messages */}
+          {/* Hero search — centered when no messages */}
           {!hasMessages && (
-            <div className="px-4 text-center">
-              <h1 className="text-4xl font-extrabold text-white md:text-6xl lg:text-7xl">
-                <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
-                <span className="text-white"> State </span>
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
-              </h1>
-              <p className="mt-3 text-gray-500 text-sm md:text-base">
-                Search homes, get valuations, check your taxes, or ask anything about NJ real estate.
-              </p>
+            <div className="px-4">
+              <div className="mx-auto max-w-3xl">
+                <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-5 py-3 shadow-lg focus-within:border-indigo-400 focus-within:shadow-xl transition">
+                  <svg viewBox="0 0 200 200" className="h-9 w-9 flex-shrink-0">
+                    <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
+                    <circle cx="100" cy="105" r="52" fill="#4f46e5" />
+                    <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                    <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
+                    <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
+                    <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {!voiceActive && (
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
+                      placeholder="Search homes, ask about taxes, get a valuation..."
+                      className="flex-1 bg-transparent py-2 text-lg text-gray-900 outline-none placeholder:text-gray-400"
+                      disabled={loading}
+                    />
+                  )}
+                  <VoiceButton
+                    onTranscript={(text) => { setInput(text); handleSearch(text); }}
+                    onRecordingChange={setVoiceActive}
+                  />
+                  {!voiceActive && (
+                    <button onClick={() => handleSearch()} disabled={!input.trim() || loading}
+                      className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">
+                      {loading ? "..." : "Search"}
+                    </button>
+                  )}
+                </div>
+                <p className="mt-3 text-center text-xs text-gray-400">
+                  Search homes, get valuations, check your taxes, or ask anything about NJ real estate.
+                </p>
+              </div>
             </div>
           )}
 
@@ -208,7 +248,7 @@ export default function SearchEngine() {
                     ) : (
                       <div className="space-y-4">
                         {/* Text response */}
-                        <div className="rounded-2xl bg-white/5 px-5 py-4 text-[15px] text-gray-200 leading-relaxed whitespace-pre-wrap"
+                        <div className="rounded-2xl bg-gray-50 border border-gray-100 px-5 py-4 text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: formatResponse(msg.text) }}
                         />
 
@@ -218,9 +258,9 @@ export default function SearchEngine() {
                             {msg.listings.map(listing => (
                               <Link key={listing.id}
                                 href={`/property/${generateSlug(listing)}`}
-                                className="group overflow-hidden rounded-xl bg-white/5 border border-white/10 transition hover:border-indigo-500/50 hover:bg-white/10"
+                                className="group overflow-hidden rounded-xl bg-white border border-gray-200 shadow-sm transition hover:shadow-lg hover:border-indigo-300"
                               >
-                                <div className="aspect-[4/3] bg-gray-800 relative overflow-hidden">
+                                <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
                                   <img
                                     src={listing.primary_photo_url || getPhotoUrl(listing.mls_number)}
                                     alt={listing.unparsed_address || "Property"}
@@ -232,13 +272,13 @@ export default function SearchEngine() {
                                   </span>
                                 </div>
                                 <div className="p-3">
-                                  <p className="text-lg font-bold text-white">
+                                  <p className="text-lg font-bold text-navy">
                                     {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
                                   </p>
-                                  <p className="mt-0.5 text-xs text-gray-400 truncate">
+                                  <p className="mt-0.5 text-xs text-gray-500 truncate">
                                     {listing.unparsed_address || `${listing.street_number} ${listing.street_name}`}
                                   </p>
-                                  <div className="mt-1 flex gap-3 text-[11px] text-gray-500">
+                                  <div className="mt-1 flex gap-3 text-[11px] text-gray-400">
                                     {listing.bedrooms_total != null && <span>{listing.bedrooms_total} Beds</span>}
                                     {listing.bathrooms_total != null && <span>{listing.bathrooms_total} Baths</span>}
                                     {listing.living_area != null && <span>{listing.living_area.toLocaleString()} sqft</span>}
@@ -255,7 +295,7 @@ export default function SearchEngine() {
 
                 {/* Loading */}
                 {loading && (
-                  <div className="rounded-2xl bg-white/5 px-5 py-4">
+                  <div className="rounded-2xl bg-gray-50 border border-gray-100 px-5 py-4">
                     <div className="flex gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                       <span className="h-2.5 w-2.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -273,7 +313,7 @@ export default function SearchEngine() {
             <div className="mt-8 flex flex-wrap justify-center gap-2 px-4">
               {SUGGESTIONS.map(s => (
                 <button key={s} onClick={() => handleSearch(s)}
-                  className="rounded-full border border-white/15 px-3.5 py-1.5 text-xs text-gray-400 transition hover:bg-white/10 hover:text-white hover:border-white/30">
+                  className="rounded-full border border-gray-200 px-3.5 py-1.5 text-xs text-gray-500 transition hover:bg-gray-100 hover:text-navy hover:border-gray-300">
                   {s}
                 </button>
               ))}
@@ -282,9 +322,9 @@ export default function SearchEngine() {
         </div>
 
         {/* Search bar — always at bottom */}
-        <div className={`border-t border-white/10 bg-[#0f0a1e] px-4 ${hasMessages ? "py-3" : "py-6"}`}>
+        <div className={`border-t border-gray-200 bg-white px-4 ${hasMessages ? "py-3" : "py-6"}`}>
           <div className="mx-auto max-w-3xl">
-            <div className="flex items-center gap-2 rounded-2xl bg-white/10 border border-white/15 px-4 py-2 focus-within:border-indigo-500/50 transition">
+            <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-indigo-400 focus-within:shadow-md transition">
               {!voiceActive && (
                 <input
                   ref={inputRef}
@@ -293,7 +333,7 @@ export default function SearchEngine() {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
                   placeholder="Search homes, ask about taxes, get a valuation..."
-                  className="flex-1 bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-gray-500"
+                  className="flex-1 bg-transparent py-2 text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
                   disabled={loading}
                 />
               )}
@@ -308,7 +348,7 @@ export default function SearchEngine() {
                 </button>
               )}
             </div>
-            <p className="mt-2 text-center text-[10px] text-gray-600">
+            <p className="mt-2 text-center text-[10px] text-gray-400">
               Powered by Vale AI &middot; BHG Real Estate | Green Team &middot; 60,000+ MLS listings
             </p>
           </div>
@@ -324,8 +364,8 @@ function formatResponse(text: string): string {
     .replace(/\[ID:[a-f0-9-]+\]/gi, "")
     .trim()
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-indigo-400 underline hover:text-indigo-300">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, "<strong class='text-white'>$1</strong>")
-    .replace(/(?<!")(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-indigo-400 underline hover:text-indigo-300">$1</a>')
-    .replace(/(?<!")gardenstate\.ai\/([\w-]+)/g, '<a href="/$1" class="text-indigo-400 underline hover:text-indigo-300">gardenstate.ai/$1</a>');
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong class='text-navy'>$1</strong>")
+    .replace(/(?<!")(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
+    .replace(/(?<!")gardenstate\.ai\/([\w-]+)/g, '<a href="/$1" class="text-indigo-600 underline hover:text-indigo-800">gardenstate.ai/$1</a>');
 }
