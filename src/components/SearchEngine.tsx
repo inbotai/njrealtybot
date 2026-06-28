@@ -144,7 +144,7 @@ export default function SearchEngine() {
         });
         if (res.ok) {
           const data = await res.json();
-          setMessages(prev => [...prev, { role: "assistant", text: data.response || data.text || "I'm processing your request...", timestamp: Date.now() }]);
+          setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.response || data.text || "I'm processing your request...", timestamp: Date.now() }]);
           handled = true;
         }
       } catch { /* Vale also failed */ }
