@@ -189,7 +189,7 @@ export default function SearchEngine() {
         </div>
 
         {/* Center content area */}
-        <div className={`flex flex-1 flex-col ${hasMessages ? "justify-start" : "justify-center"}`}>
+        <div className={`flex flex-1 flex-col ${hasMessages ? "justify-start" : "justify-start pt-[20vh]"}`}>
           {/* Hero search — centered when no messages */}
           {!hasMessages && (
             <div className="px-4">
@@ -321,38 +321,39 @@ export default function SearchEngine() {
           )}
         </div>
 
-        {/* Search bar — always at bottom */}
-        <div className={`border-t border-gray-200 bg-white px-4 ${hasMessages ? "py-3" : "py-6"}`}>
-          <div className="mx-auto max-w-3xl">
-            <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-indigo-400 focus-within:shadow-md transition">
-              {!voiceActive && (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
-                  placeholder="Search homes, ask about taxes, get a valuation..."
-                  className="flex-1 bg-transparent py-2 text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
-                  disabled={loading}
+        {/* Bottom search bar — only when there are messages (hero search moves to bottom) */}
+        {hasMessages && (
+          <div className="border-t border-gray-200 bg-white px-4 py-3">
+            <div className="mx-auto max-w-3xl">
+              <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-indigo-400 focus-within:shadow-md transition">
+                {!voiceActive && (
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
+                    placeholder="Ask a follow-up..."
+                    className="flex-1 bg-transparent py-2 text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
+                    disabled={loading}
+                  />
+                )}
+                <VoiceButton
+                  onTranscript={(text) => { setInput(text); handleSearch(text); }}
+                  onRecordingChange={setVoiceActive}
                 />
-              )}
-              <VoiceButton
-                onTranscript={(text) => { setInput(text); handleSearch(text); }}
-                onRecordingChange={setVoiceActive}
-              />
-              {!voiceActive && (
-                <button onClick={() => handleSearch()} disabled={!input.trim() || loading}
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">
-                  {loading ? "..." : "Search"}
-                </button>
-              )}
+                {!voiceActive && (
+                  <button onClick={() => handleSearch()} disabled={!input.trim() || loading}
+                    className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">
+                    {loading ? "..." : "Search"}
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-center text-[10px] text-gray-400">
+                Powered by Vale AI &middot; BHG Real Estate | Green Team &middot; 60,000+ MLS listings
+              </p>
             </div>
-            <p className="mt-2 text-center text-[10px] text-gray-400">
-              Powered by Vale AI &middot; BHG Real Estate | Green Team &middot; 60,000+ MLS listings
-            </p>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
