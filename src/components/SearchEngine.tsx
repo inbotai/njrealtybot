@@ -9,19 +9,20 @@ import VoiceButton from "./VoiceButton";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
-const NAV_LINKS = [
-  { href: "/sell", label: "Home Value", icon: "\uD83C\uDFE0" },
-  { href: "/tax-shock", label: "Tax Check", icon: "\uD83D\uDCB0" },
-  { href: "/list", label: "List My Home", icon: "\uD83D\uDCDD" },
-  { href: "/news", label: "News", icon: "\uD83D\uDCF0" },
-  { href: "/market", label: "Market", icon: "\uD83D\uDCC8" },
-  { href: "/deals", label: "Deals", icon: "\uD83D\uDD25" },
-  { href: "/open-houses", label: "Open Houses", icon: "\uD83C\uDFE1" },
-  { href: "/fsbo", label: "FSBO Help", icon: "\uD83D\uDD13" },
-  { href: "/afford", label: "Affordability", icon: "\uD83E\uDDEE" },
-  { href: "/net-proceeds", label: "Net Proceeds", icon: "\uD83D\uDCB5" },
-  { href: "/renovate", label: "Reno ROI", icon: "\uD83D\uDD28" },
-  { href: "/appeal", label: "Tax Appeal", icon: "\u2696\uFE0F" },
+// Sidebar links: "query" items run inline via Vale, "href" items navigate away
+const NAV_LINKS: { label: string; icon: string; query?: string; href?: string }[] = [
+  { label: "Home Value", icon: "\uD83C\uDFE0", query: "What is my home worth?" },
+  { label: "Tax Check", icon: "\uD83D\uDCB0", query: "Am I overpaying property taxes?" },
+  { label: "List My Home", icon: "\uD83D\uDCDD", query: "I want to list my home for sale" },
+  { label: "News", icon: "\uD83D\uDCF0", href: "/news" },
+  { label: "Market Report", icon: "\uD83D\uDCC8", query: "Give me a market report for my area" },
+  { label: "Find Deals", icon: "\uD83D\uDD25", query: "Show me investment deals in NJ" },
+  { label: "Open Houses", icon: "\uD83C\uDFE1", query: "Open houses this weekend" },
+  { label: "FSBO Help", icon: "\uD83D\uDD13", query: "I'm selling my home without an agent, can you help?" },
+  { label: "Affordability", icon: "\uD83E\uDDEE", query: "How much home can I afford?" },
+  { label: "Net Proceeds", icon: "\uD83D\uDCB5", query: "How much will I net if I sell my home?" },
+  { label: "Reno ROI", icon: "\uD83D\uDD28", query: "What renovations add the most value?" },
+  { label: "Tax Appeal", icon: "\u2696\uFE0F", query: "Help me appeal my property taxes" },
 ];
 
 const SUGGESTIONS = [
@@ -168,11 +169,17 @@ export default function SearchEngine() {
           </span>
         </Link>
         <nav className="flex flex-col gap-1">
-          {NAV_LINKS.map(l => (
-            <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-navy whitespace-nowrap" title={l.label}>
+          {NAV_LINKS.map(l => l.href ? (
+            <Link key={l.label} href={l.href} className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-navy whitespace-nowrap" title={l.label}>
               <span className="text-lg flex-shrink-0">{l.icon}</span>
               <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">{l.label}</span>
             </Link>
+          ) : (
+            <button key={l.label} onClick={() => handleSearch(l.query!)}
+              className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-navy whitespace-nowrap text-left" title={l.label}>
+              <span className="text-lg flex-shrink-0">{l.icon}</span>
+              <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">{l.label}</span>
+            </button>
           ))}
         </nav>
         <div className="mt-auto px-2 pt-6 border-t border-gray-200 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
