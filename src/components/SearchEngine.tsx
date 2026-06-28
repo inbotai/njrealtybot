@@ -95,11 +95,13 @@ export default function SearchEngine() {
     setMessages(prev => [...prev, { role: "user", text: q, timestamp: Date.now() }]);
     setLoading(true);
 
-    try {
-      const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const isSearch = !/tax|taxes|worth|value|cma|sell|vender|appeal|how much|cuanto vale|fsbo|open.house/i.test(qNorm);
+    const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const isSearch = !/tax|taxes|worth|value|cma|sell|vender|appeal|how much|cuanto vale|fsbo|open.house/i.test(qNorm);
+    let handled = false;
 
-      if (isSearch) {
+    // Try property search first
+    if (isSearch) {
+      try {
         const parsed = await parseSearchQuery(q);
         const hasParams = parsed.city || parsed.county || parsed.beds || parsed.maxPrice || parsed.propertyType;
         if (hasParams) {
@@ -114,35 +116,42 @@ export default function SearchEngine() {
           params.set("limit", "30");
 
           const res = await fetch(`${IDX_API}/api/idx/listings?${params.toString()}`);
-          const data = await res.json();
-          const listings = data.listings || [];
-          const total = data.total || listings.length;
-          setCurrentListings(listings);
+          if (res.ok) {
+            const data = await res.json();
+            const listings = data.listings || [];
+            const total = data.total || listings.length;
+            setCurrentListings(listings);
 
-          const countText = total > listings.length
-            ? `Found **${total} properties** (showing top ${listings.length}). Click any listing to see full details.`
-            : total > 0
-            ? `Found **${total} properties**. Click any listing to see full details.`
-            : "No properties found. Try broadening your search.";
+            const countText = total > listings.length
+              ? `Found **${total} properties** (showing top ${listings.length}). Click any listing to see full details.`
+              : total > 0
+              ? `Found **${total} properties**. Click any listing to see full details.`
+              : "No properties found. Try broadening your search.";
 
-          setMessages(prev => [...prev, {
-            role: "assistant", text: countText, listings, timestamp: Date.now(),
-          }]);
-          setLoading(false);
-          return;
+            setMessages(prev => [...prev, { role: "assistant", text: countText, listings, timestamp: Date.now() }]);
+            handled = true;
+          }
         }
-      }
+      } catch { /* search parse failed — fall through to Vale */ }
+    }
 
-      if (sessionId) {
+    // Fall back to Vale chat for everything else (or if search failed)
+    if (!handled && sessionId) {
+      try {
         const res = await fetch(`${IDX_API}/api/idx/chat/message`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId, message: q }), signal: AbortSignal.timeout(60000),
         });
-        const data = await res.json();
-        setMessages(prev => [...prev, { role: "assistant", text: data.response || data.text || "Something went wrong.", timestamp: Date.now() }]);
-      }
-    } catch {
-      setMessages(prev => [...prev, { role: "assistant", text: "Something went wrong. Please try again.", timestamp: Date.now() }]);
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(prev => [...prev, { role: "assistant", text: data.response || data.text || "I'm processing your request...", timestamp: Date.now() }]);
+          handled = true;
+        }
+      } catch { /* Vale also failed */ }
+    }
+
+    if (!handled) {
+      setMessages(prev => [...prev, { role: "assistant", text: "I'm having trouble connecting. Please try again in a moment.", timestamp: Date.now() }]);
     }
     setLoading(false);
   }, [input, loading, sessionId]);
