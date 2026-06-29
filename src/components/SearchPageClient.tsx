@@ -106,13 +106,15 @@ export default function SearchPageClient() {
       .finally(() => setLoading(false));
   }
 
-  function syncUrl(f: typeof filters) {
+  function syncUrl(f: typeof filters, push = false) {
     const params = new URLSearchParams();
     Object.entries(f).forEach(([k, v]) => {
       if (v && !(k === "page" && v === "1") && !(k === "status" && v === "Active"))
         params.set(k, v);
     });
-    router.replace(`/search?${params.toString()}`, { scroll: false });
+    const url = `/search?${params.toString()}`;
+    if (push) router.push(url);
+    else router.replace(url, { scroll: false });
   }
 
   // Search on mount. The parent page.tsx uses key={searchParams} to force
@@ -133,7 +135,7 @@ export default function SearchPageClient() {
     const next = { ...filters, page: String(page) };
     setFilters(next);
     doSearch(next);
-    syncUrl(next);
+    syncUrl(next, true);
   }
 
   // Price inputs — search on Enter or blur, NOT on every keystroke
