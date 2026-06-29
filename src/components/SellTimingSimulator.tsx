@@ -106,12 +106,6 @@ export default function SellTimingSimulator() {
       const stats = data.stats || {};
       const inv = data.investment || {};
 
-      // Use real appreciation from market data, fallback to NJ average
-      const realAppreciation = inv.appreciation ?? 3.5;
-      // Annualize: the API returns 3-month vs prior 3-month comparison
-      // so we use it directly as the annual pace indicator
-      const annualRate = realAppreciation;
-
       const mkt: MarketData = {
         activeCount: stats.activeCount || 0,
         soldCount: stats.soldCount || 0,
@@ -125,6 +119,32 @@ export default function SellTimingSimulator() {
         investScore: inv.investScore ?? null,
         avgTax: inv.avgTax ?? null,
       };
+
+      // Not enough data — require at least some sales to project
+      if ((stats.soldCount || 0) < 3 && inv.appreciation === null) {
+        setMarket(mkt);
+        setError(`Not enough recent sales data in ${city.trim()} to generate reliable projections. Try a nearby larger city.`);
+        setLoading(false);
+        return;
+      }
+
+      // Build annual rate from real data, combining multiple signals
+      let annualRate = 3.5; // NJ baseline
+      if (inv.appreciation !== null) {
+        annualRate = inv.appreciation;
+      }
+      // Adjust by absorption (seller's market = faster appreciation)
+      const abs = stats.absorptionMonths ? parseFloat(stats.absorptionMonths) : null;
+      if (abs !== null) {
+        if (abs < 3) annualRate += 2;       // very hot market
+        else if (abs < 4) annualRate += 1;  // seller's market
+        else if (abs > 8) annualRate -= 2;  // buyer's market
+        else if (abs > 6) annualRate -= 1;  // cooling
+      }
+      // Adjust by trend
+      if (stats.trend === "up" && inv.appreciation === null) annualRate += 1;
+      if (stats.trend === "down") annualRate -= 1.5;
+
       setMarket(mkt);
 
       const now: Projection = {
