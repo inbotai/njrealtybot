@@ -205,6 +205,82 @@ Before spending a dollar on renovation:
 
 *Data from NAR 2025 Remodeling Impact Report, adjusted for NJ market conditions using Garden State AI analysis.*`,
   },
+  {
+    slug: "jersey-city-120m-state-bailout-what-it-means",
+    title: "Jersey City Gets $120M State Bailout — What It Means for Homeowners & Property Taxes",
+    excerpt: "New Jersey will provide Jersey City with $120 million in financial help. Here's what this means for property taxes, home values, and real estate in Hudson County.",
+    date: "2026-06-29",
+    author: "Garden State AI",
+    authorRole: "Market Intelligence",
+    category: "news",
+    tags: ["Jersey City", "property taxes", "Hudson County", "state bailout", "fiscal crisis", "NJ real estate"],
+    coverImage: "https://images.unsplash.com/photo-1524813686514-a57563d77965?w=1200&h=630&fit=crop",
+    readingTime: 5,
+    content: `## Jersey City Receives $120 Million State Lifeline
+
+The State of New Jersey announced today it will provide Jersey City with **$120 million in financial assistance**, including a $105 million loan and $15 million in direct aid. The announcement came from the City of Jersey City's official channels, with city leadership emphasizing the need to "continue being responsible and making the tough but necessary decisions to ensure this crisis never happens again."
+
+This is one of the largest state interventions in a New Jersey municipality in recent years, and it has significant implications for homeowners, property taxes, and the real estate market across Hudson County.
+
+### What Happened?
+
+Jersey City has been grappling with a fiscal crisis driven by years of tax abatements for luxury developments, rising municipal costs, and a structural budget deficit. The city's reliance on PILOT (Payment in Lieu of Taxes) agreements meant that while new developments brought residents, they didn't generate proportional property tax revenue.
+
+The result: a budget gap that threatened essential services and put pressure on existing homeowners to shoulder a heavier tax burden.
+
+### What Does This Mean for Property Taxes?
+
+The $120 million package buys time — but it's not free money. Here's what homeowners should expect:
+
+- **Short-term relief**: The state aid should prevent an immediate, dramatic property tax increase for the 2026-2027 fiscal year
+- **Long-term obligation**: The $105 million loan must be repaid, which means future budgets will need to account for debt service
+- **Potential reassessments**: The city may need to conduct a municipal-wide revaluation to ensure tax assessments reflect current market values — this could shift the tax burden significantly
+- **PILOT reform**: Expect stricter guidelines on future tax abatements for developers
+
+### Impact on Home Values
+
+The bailout is a **mixed signal** for the Jersey City real estate market:
+
+**Positive factors:**
+- Prevents a fiscal collapse that could have devastated property values
+- Shows state commitment to Jersey City's stability
+- Essential services (police, fire, schools) will continue without interruption
+
+**Cautionary factors:**
+- The underlying fiscal issues haven't been fully resolved
+- Future tax increases are likely as the loan gets repaid
+- Buyers may factor in fiscal uncertainty when making offers
+
+### Jersey City Market Snapshot
+
+Based on our MLS data:
+- **Active listings**: Jersey City currently has 180+ active listings
+- **Market type**: Seller's market with strong demand, especially in Downtown and the Waterfront
+- **Median prices**: Remain among the highest in Hudson County
+- **Days on market**: Properties in desirable neighborhoods still move quickly
+
+### What Should Homeowners Do?
+
+1. **Check your assessment**: If you believe your property is over-assessed, now may be a good time to file a tax appeal — especially before any potential revaluation. [Check your property taxes →](/tax-shock)
+
+2. **Know your home's value**: Understanding your home's current market value is critical, whether you're planning to sell, refinance, or simply track your investment. [Get a free AI valuation →](/sell)
+
+3. **Monitor the market**: Jersey City's market dynamics could shift as the fiscal situation evolves. Setting up price alerts helps you stay informed. [Set up comp alerts →](/comp-alerts)
+
+4. **Consider timing**: If you've been thinking about selling, the bailout provides short-term stability that could support current price levels. But long-term tax uncertainty may affect buyer confidence. [Should you sell now or wait? →](/sell-timing)
+
+### The Bigger Picture
+
+Jersey City's situation is a cautionary tale for New Jersey municipalities that rely heavily on tax abatements and PILOT agreements. While these tools attract development, they can create structural deficits that eventually burden existing homeowners.
+
+Other NJ cities facing similar dynamics — including Newark, Hoboken, and Paterson — will be watching closely to see how Jersey City navigates this recovery.
+
+---
+
+*This analysis is based on publicly available information from the City of Jersey City and MLS market data. For personalized advice about your property, [talk to Vale](/chat) — our AI real estate assistant.*
+
+*Source: [City of Jersey City official announcement](https://x.com/JerseyCity/status/2071575358214672822)*`,
+  },
 ];
 
 export function getPost(slug: string): BlogPost | undefined {
