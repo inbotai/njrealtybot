@@ -80,13 +80,13 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
   return (
     <>
       {/* Result header */}
-      <section className="bg-navy py-8 text-white">
+      <section className="bg-white py-8">
         <div className="mx-auto max-w-4xl px-4">
-          <button onClick={onReset} className="text-sm text-gray-400 hover:text-white transition">
+          <button onClick={onReset} className="text-sm text-gray-400 hover:text-navy transition">
             &larr; Check another address
           </button>
-          <h1 className="mt-2 text-2xl font-bold md:text-3xl truncate">{result.address}</h1>
-          <p className="text-gray-400 text-sm">{result.city && `${result.city}, NJ`}</p>
+          <h1 className="mt-2 text-2xl font-bold text-navy md:text-3xl truncate">{result.address}</h1>
+          <p className="text-gray-500 text-sm">{result.city && `${result.city}, NJ`}</p>
         </div>
       </section>
 

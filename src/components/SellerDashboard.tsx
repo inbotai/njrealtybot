@@ -50,10 +50,10 @@ export default function SellerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ---- hero header ---- */}
-      <section className="bg-navy py-12 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-bold sm:text-4xl">My Listing Dashboard</h1>
-          <p className="mt-2 text-gray-300">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">My Listing Dashboard</h1>
+          <p className="mt-2 text-gray-500">
             Track every step of your home sale in real time.
           </p>
         </div>

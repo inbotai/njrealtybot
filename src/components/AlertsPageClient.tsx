@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SmsConsent from "./SmsConsent";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -13,6 +14,7 @@ const benefits = [
 
 export default function AlertsPageClient() {
   const [form, setForm] = useState({ address: "", city: "", phone: "", email: "", full_name: "" });
+  const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -21,6 +23,10 @@ export default function AlertsPageClient() {
     e.preventDefault();
     if (!form.city.trim() || (!form.phone.trim() && !form.email.trim())) {
       setError("Please enter your city and phone number or email.");
+      return;
+    }
+    if (form.phone.trim() && !consent) {
+      setError("Please accept the messaging consent to continue.");
       return;
     }
     setSubmitting(true);
@@ -77,13 +83,12 @@ export default function AlertsPageClient() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-navy py-20 text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-indigo-900" />
-        <div className="relative mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+      <section className="bg-white py-12">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Know When Homes <span className="text-gold">Sell Near You</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Free WhatsApp alerts with sale prices + your home&apos;s estimated value. Updated in real time from NJMLS &amp; GSMLS.
           </p>
         </div>
@@ -165,19 +170,7 @@ export default function AlertsPageClient() {
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox"
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-              <span className="text-[10px] text-gray-500 leading-relaxed">
-                I consent to receive SMS/WhatsApp messages from Garden State AI
-                about property alerts and real estate services.
-                Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
-                Your mobile info will not be shared with third parties.{" "}
-                <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                {" & "}
-                <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-              </span>
-            </label>
+            <SmsConsent checked={consent} onChange={setConsent} />
 
             <button
               type="submit"

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { submitLead } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 const STORAGE_KEY = "gsai_exit_shown";
 /** Pages where exit intent should NEVER show */
@@ -17,6 +18,7 @@ export default function ExitIntent() {
   const [interest, setInterest] = useState<"buy" | "sell" | "invest" | "">("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     // Only show once ever (localStorage persists across sessions/tabs)
@@ -45,6 +47,7 @@ export default function ExitIntent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!phone.trim()) return;
+    if (!consent) return;
     setLoading(true);
     try {
       await submitLead({
@@ -109,20 +112,8 @@ export default function ExitIntent() {
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
                 placeholder="Phone or WhatsApp" required
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-gold focus:outline-none" />
-              <label className="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox"
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-                <span className="text-[10px] text-gray-500 leading-relaxed">
-                  I consent to receive SMS/WhatsApp messages from Garden State AI
-                  about property alerts and real estate services.
-                  Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
-                  Your mobile info will not be shared with third parties.{" "}
-                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                  {" & "}
-                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                </span>
-              </label>
-              <button type="submit" disabled={loading || !phone.trim()}
+              <SmsConsent checked={consent} onChange={setConsent} />
+              <button type="submit" disabled={loading || !phone.trim() || !consent}
                 className="w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">
                 {loading ? "..." : interest === "sell" ? "Get My Free Valuation" : interest === "invest" ? "Send Me Deals" : "Keep Me Updated"}
               </button>

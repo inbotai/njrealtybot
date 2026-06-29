@@ -35,13 +35,13 @@ export default function AffordabilityCalc() {
 
   return (
     <>
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             How Much House Can I{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Afford?</span>
+            <span className="text-gold">Afford?</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">Enter your income and debts — we&apos;ll show you your budget and matching NJ homes.</p>
+          <p className="mt-4 text-lg text-gray-500">Enter your income and debts — we&apos;ll show you your budget and matching NJ homes.</p>
         </div>
       </section>
 

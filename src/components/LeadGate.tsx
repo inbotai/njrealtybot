@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SmsConsent from "./SmsConsent";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -28,12 +29,19 @@ export default function LeadGate({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [channel, setChannel] = useState<"whatsapp" | "sms">("whatsapp");
+  const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) return;
+    if (!consent) {
+      setError("Please accept the messaging consent to continue.");
+      return;
+    }
+    setError("");
     setLoading(true);
     try {
       if (resultsText) {
@@ -136,12 +144,13 @@ export default function LeadGate({
         </div>
       )}
 
-      <button type="submit" disabled={!name.trim() || !phone.trim() || loading} className={btnCls}>
+      <SmsConsent checked={consent} onChange={setConsent} dark={dark} />
+
+      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+
+      <button type="submit" disabled={!name.trim() || !phone.trim() || !consent || loading} className={btnCls}>
         {loading ? "Sending..." : resultsText ? `Send via ${channel === "sms" ? "SMS" : "WhatsApp"}` : valueProp}
       </button>
-      <p className={`text-[10px] text-center ${dark ? "text-gray-600" : "text-gray-400"}`}>
-        No spam, ever. We&apos;ll only send what you requested.
-      </p>
     </form>
   );
 }

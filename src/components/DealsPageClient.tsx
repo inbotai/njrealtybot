@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchDeals, type DealOpportunity } from "@/lib/api";
 import Link from "next/link";
 import { submitLead } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 function dealSlug(d: DealOpportunity): string {
   const full = [d.address, d.city, "NJ"].filter(Boolean).join(" ");
@@ -76,7 +77,7 @@ export default function DealsPageClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900">Hidden Deals</h1>
+      <h1 className="text-3xl sm:text-4xl font-bold text-navy">Hidden Deals</h1>
       <p className="mt-2 text-gray-500">
         AI-powered deal detection: properties likely to drop in price + below-market rentals.
       </p>
@@ -212,12 +213,7 @@ function DealsLeadCapture({ deals }: { deals: DealOpportunity[] }) {
         <input value={city} onChange={e => setCity(e.target.value)} placeholder="Preferred city (optional)" className={inputCls} />
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} />
         <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" type="tel" className={inputCls} />
-        <label className="flex items-start gap-2 cursor-pointer">
-          <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600" />
-          <span className="text-[10px] text-gray-500 leading-relaxed">
-            I consent to receive SMS messages from Garden State AI about deal alerts and real estate services. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="/privacy" target="_blank" className="underline">Privacy</a> &amp; <a href="/terms" target="_blank" className="underline">Terms</a>.
-          </span>
-        </label>
+        <SmsConsent checked={consent} onChange={setConsent} />
       </div>
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       <button onClick={handleSubmit} disabled={saving} className="mt-4 w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition disabled:opacity-40">

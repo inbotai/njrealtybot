@@ -34,15 +34,105 @@ const SUGGESTIONS = [
   "Multi-family in Bergen County",
 ];
 
+interface ActionCard {
+  icon: string;
+  title: string;
+  description: string;
+  href?: string;        // navigate to page
+  query?: string;       // run inline search/Vale query
+  buttonText: string;
+}
+
 interface ChatMessage {
   role: "user" | "assistant";
   text: string;
   listings?: Listing[];
+  actions?: ActionCard[];
   timestamp: number;
 }
 
 // View modes: "chat" = conversation + grid, "detail" = single property full view
 type ViewMode = "chat" | "detail";
+
+// Intent → action card mapping: detect what the user wants and show the right CTA
+const ACTION_INTENTS: { pattern: RegExp; cards: ActionCard[] }[] = [
+  {
+    pattern: /\b(list|sell|vend|listar|poner en venta|put.*(house|home|property).*(market|sale))\b/i,
+    cards: [
+      { icon: "📝", title: "List Your Home", description: "Free valuation + digital listing in 5 minutes", href: "/list", buttonText: "Start Listing →" },
+      { icon: "🏠", title: "What's My Home Worth?", description: "Instant AI valuation with comparable sales", href: "/sell", buttonText: "Get Valuation →" },
+    ],
+  },
+  {
+    pattern: /\b(worth|value|valuaci|cuanto vale|home value|valuation|cma|comparable|comps)\b/i,
+    cards: [
+      { icon: "🏠", title: "Instant Home Valuation", description: "AI analysis with MLS comps, MOD-IV, and Zestimate", href: "/sell", buttonText: "Get My Value →" },
+    ],
+  },
+  {
+    pattern: /\b(tax|taxes|impuesto|overpay|pagando de mas|property tax|tax appeal|apelar)\b/i,
+    cards: [
+      { icon: "💰", title: "Tax Overpayment Check", description: "See if you're overpaying in 30 seconds", href: "/tax-shock", buttonText: "Check My Taxes →" },
+      { icon: "⚖️", title: "File a Tax Appeal", description: "Auto-generate Form A-1 with your data", href: "/appeal", buttonText: "Start Appeal →" },
+    ],
+  },
+  {
+    pattern: /\b(open.house|casa abierta|jornada de puertas|showing|visita)\b/i,
+    cards: [
+      { icon: "🏡", title: "Open Houses This Weekend", description: "Browse all upcoming open houses in NJ", href: "/open-houses", buttonText: "View Open Houses →" },
+    ],
+  },
+  {
+    pattern: /\b(deal|ganga|oferta|price.drop|baj[oó].de.precio|investment|inversion|inversi[oó]n)\b/i,
+    cards: [
+      { icon: "🔥", title: "Deals & Price Drops", description: "Properties with recent price reductions", href: "/deals", buttonText: "View Deals →" },
+    ],
+  },
+  {
+    pattern: /\b(fsbo|for sale by owner|sin agente|without.*(agent|realtor)|por mi cuenta)\b/i,
+    cards: [
+      { icon: "🔓", title: "FSBO Assistance", description: "Expert help for selling without an agent", href: "/fsbo", buttonText: "Learn More →" },
+    ],
+  },
+  {
+    pattern: /\b(afford|puedo.comprar|cuanto.puedo|how much.*(can|afford)|qualify|calific)\b/i,
+    cards: [
+      { icon: "🧮", title: "Affordability Calculator", description: "See how much home you can afford", href: "/affordability", buttonText: "Calculate →" },
+    ],
+  },
+  {
+    pattern: /\b(net.proceed|ganancia.neta|cuanto.me.queda|how much.*(net|keep|profit)|after.*(closing|sale))\b/i,
+    cards: [
+      { icon: "💵", title: "Net Proceeds Calculator", description: "Estimate what you'll keep after selling", href: "/net-proceeds", buttonText: "Calculate →" },
+    ],
+  },
+  {
+    pattern: /\b(renov|remodel|roi|mejora|upgrade|kitchen|bathroom|addition|agregar)\b/i,
+    cards: [
+      { icon: "🔨", title: "Renovation ROI", description: "Which renovations add the most value?", href: "/renovate", buttonText: "Check ROI →" },
+    ],
+  },
+  {
+    pattern: /\b(market.report|informe.de.mercado|how.*(is|the).market|estado del mercado)\b/i,
+    cards: [
+      { icon: "📈", title: "Market Report", description: "Latest NJ real estate market data", href: "/market", buttonText: "View Report →" },
+    ],
+  },
+  {
+    pattern: /\b(news|noticias|article|articulo|blog)\b/i,
+    cards: [
+      { icon: "📰", title: "Latest NJ Real Estate News", description: "Tax changes, market updates, and more", href: "/news", buttonText: "Read News →" },
+    ],
+  },
+];
+
+function detectActions(text: string): ActionCard[] {
+  const norm = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const intent of ACTION_INTENTS) {
+    if (intent.pattern.test(norm)) return intent.cards;
+  }
+  return [];
+}
 
 export default function SearchEngine() {
   const [input, setInput] = useState("");
@@ -96,72 +186,115 @@ export default function SearchEngine() {
     setLoading(true);
 
     const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const isSearch = !/tax|taxes|worth|value|cma|sell|vender|appeal|how much|cuanto vale|fsbo|open.house/i.test(qNorm);
+    // Detect explicit search intent: "houses in ...", "3 bed in ...", "condos under ..."
+    const isExplicitSearch = /\b(houses?|homes?|condos?|apartments?|townhouses?|rentals?|multi.?family|duplex|listing|bedroom|(\d+)\s*bed)\b/i.test(qNorm)
+      && /\b(in|near|under|around|county)\b/i.test(qNorm);
+    const isFollowUp = messages.length > 0;
     let handled = false;
 
-    // Try property search first
-    if (isSearch) {
+    // Detect action intent → attach CTA cards to the response
+    const actions = detectActions(q);
+
+    // ── Helper: try listing search ──
+    async function tryListingSearch(): Promise<boolean> {
       try {
         const parsed = await parseSearchQuery(q);
         const hasParams = parsed.city || parsed.county || parsed.beds || parsed.maxPrice || parsed.propertyType;
-        if (hasParams) {
-          const params = new URLSearchParams();
-          if (parsed.city) params.set("city", parsed.city);
-          if (parsed.county) params.set("county", parsed.county);
-          if (parsed.beds) params.set("beds", String(parsed.beds));
-          if (parsed.baths) params.set("baths", String(parsed.baths));
-          if (parsed.minPrice) params.set("minPrice", String(parsed.minPrice));
-          if (parsed.maxPrice) params.set("maxPrice", String(parsed.maxPrice));
-          if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
-          params.set("limit", "30");
-
-          const res = await fetch(`${IDX_API}/api/idx/listings?${params.toString()}`);
-          if (res.ok) {
-            const data = await res.json();
-            const listings = data.listings || [];
-            const total = data.total || listings.length;
-            setCurrentListings(listings);
-
-            const countText = total > listings.length
-              ? `Found **${total} properties** (showing top ${listings.length}). Click any listing to see full details.`
-              : total > 0
-              ? `Found **${total} properties**. Click any listing to see full details.`
-              : "No properties found. Try broadening your search.";
-
-            setMessages(prev => [...prev, { role: "assistant", text: countText, listings, timestamp: Date.now() }]);
-            handled = true;
-          }
-        }
-      } catch { /* search parse failed — fall through to Vale */ }
+        if (!hasParams) return false;
+        const params = new URLSearchParams();
+        if (parsed.city) params.set("city", parsed.city);
+        if (parsed.county) params.set("county", parsed.county);
+        if (parsed.beds) params.set("beds", String(parsed.beds));
+        if (parsed.baths) params.set("baths", String(parsed.baths));
+        if (parsed.minPrice) params.set("minPrice", String(parsed.minPrice));
+        if (parsed.maxPrice) params.set("maxPrice", String(parsed.maxPrice));
+        if (parsed.propertyType) params.set("propertyType", parsed.propertyType);
+        params.set("limit", "50");
+        const res = await fetch(`${IDX_API}/api/idx/listings?${params.toString()}`);
+        if (!res.ok) return false;
+        const data = await res.json();
+        const listings = data.listings || [];
+        const total = data.total || listings.length;
+        if (listings.length === 0) return false;
+        setCurrentListings(listings);
+        const countText = total > listings.length
+          ? `Found **${total} properties** (showing top ${listings.length}). Click any listing to see full details.`
+          : `Found **${total} properties**. Click any listing to see full details.`;
+        setMessages(prev => [...prev, { role: "assistant", text: countText, listings, timestamp: Date.now() }]);
+        return true;
+      } catch { return false; }
     }
 
-    // Fall back to Vale chat for everything else (or if search failed)
-    if (!handled && sessionId) {
+    // ── Helper: call Vale chat ──
+    async function tryVale(): Promise<boolean> {
+      if (!sessionId) return false;
       try {
         const res = await fetch(`${IDX_API}/api/idx/chat/message`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId, message: q }), signal: AbortSignal.timeout(60000),
         });
-        if (res.ok) {
-          const data = await res.json();
-          setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.response || data.text || "I'm processing your request...", timestamp: Date.now() }]);
-          handled = true;
-        }
-      } catch { /* Vale also failed */ }
+        if (!res.ok) return false;
+        const data = await res.json();
+        const reply = data.reply || data.response || data.text || "";
+        if (!reply) return false;
+        // Detect actions from Vale's response too (in case user asks generally)
+        const replyActions = actions.length > 0 ? actions : detectActions(reply);
+        setMessages(prev => [...prev, { role: "assistant", text: reply, actions: replyActions.length > 0 ? replyActions : undefined, timestamp: Date.now() }]);
+        return true;
+      } catch { return false; }
+    }
+
+    // ── EXPLICIT SEARCH: always search first, regardless of follow-up ──
+    if (isExplicitSearch) {
+      handled = await tryListingSearch();
+      // Also send to Vale for context (fire-and-forget, don't show response)
+      if (handled && sessionId) {
+        fetch(`${IDX_API}/api/idx/chat/message`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId, message: q }),
+        }).catch(() => {});
+      }
+    }
+
+    // ── FOLLOW-UP (non-search): Vale first to maintain conversation context ──
+    if (!handled && isFollowUp) {
+      handled = await tryVale();
+    }
+
+    // ── FIRST MESSAGE (non-search): Vale handles it, with action cards ──
+    if (!handled) {
+      handled = await tryVale();
+    }
+
+    // ── Fallback: try search if Vale failed ──
+    if (!handled) {
+      handled = await tryListingSearch();
     }
 
     if (!handled) {
       setMessages(prev => [...prev, { role: "assistant", text: "I'm having trouble connecting. Please try again in a moment.", timestamp: Date.now() }]);
     }
     setLoading(false);
-  }, [input, loading, sessionId]);
+  }, [input, loading, sessionId, messages.length]);
 
   const hasMessages = messages.length > 0;
+  const hasListings = messages.some(m => m.listings && m.listings.length > 0);
   const detail = currentListings[detailIndex] || null;
   const photoCount = detail?.photo_count || 10;
 
+  // Brokerage banner — IDX compliance: must be prominent when showing listings
+  const BrokerageBanner = () => (
+    <div className="flex items-center gap-4 rounded-xl bg-navy/5 border border-navy/10 px-5 py-3">
+      <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-14 w-auto shrink-0" />
+      <div className="text-sm leading-tight">
+        <p className="font-bold text-navy">Better Homes and Gardens Real Estate | Green Team</p>
+        <p className="text-gray-500 text-xs mt-0.5">Property search provided through IDX (GSMLS/NJMLS)</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex h-screen bg-white overflow-hidden">
       {/* Sidebar */}
       <aside className="hidden md:flex w-14 hover:w-56 flex-col border-r border-gray-200 bg-white px-2 py-6 transition-all duration-300 overflow-hidden group/sidebar">
         <Link href="/v2" className="mb-8 flex items-center gap-2 px-2">
@@ -208,17 +341,23 @@ export default function SearchEngine() {
         {viewMode === "detail" && detail && (
           <div ref={detailRef} className="flex-1 overflow-y-auto">
             {/* Nav bar top */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white/95 backdrop-blur px-4 py-2.5">
-              <button onClick={backToResults} className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                &larr; See All Results
-              </button>
-              <span className="text-xs text-gray-400">{detailIndex + 1} of {currentListings.length}</span>
-              <div className="flex gap-2">
-                <button disabled={detailIndex === 0} onClick={() => setDetailIndex(i => i - 1)}
-                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-navy hover:bg-gray-50 disabled:opacity-30">&larr; Prev</button>
-                <button disabled={detailIndex >= currentListings.length - 1} onClick={() => setDetailIndex(i => i + 1)}
-                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-navy hover:bg-gray-50 disabled:opacity-30">Next &rarr;</button>
-                <button onClick={newSearch} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">New Search</button>
+            <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur px-4 py-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button onClick={backToResults} className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                    &larr; See All Results
+                  </button>
+                  <span className="hidden sm:inline text-[10px] text-gray-300">|</span>
+                  <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="hidden sm:block h-8 w-auto" />
+                </div>
+                <span className="text-xs text-gray-400">{detailIndex + 1} of {currentListings.length}</span>
+                <div className="flex gap-2">
+                  <button disabled={detailIndex === 0} onClick={() => setDetailIndex(i => i - 1)}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-navy hover:bg-gray-50 disabled:opacity-30">&larr; Prev</button>
+                  <button disabled={detailIndex >= currentListings.length - 1} onClick={() => setDetailIndex(i => i + 1)}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-navy hover:bg-gray-50 disabled:opacity-30">Next &rarr;</button>
+                  <button onClick={newSearch} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">New Search</button>
+                </div>
               </div>
             </div>
 
@@ -309,8 +448,11 @@ export default function SearchEngine() {
                 </div>
               </div>
 
+              {/* Brokerage compliance */}
+              <div className="mt-6"><BrokerageBanner /></div>
+
               {/* Bottom nav */}
-              <div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-4">
+              <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
                 <button disabled={detailIndex === 0} onClick={() => setDetailIndex(i => i - 1)}
                   className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-navy hover:bg-gray-50 disabled:opacity-30">&larr; Previous Property</button>
                 <button onClick={backToResults} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">See All Results</button>
@@ -328,13 +470,14 @@ export default function SearchEngine() {
         {/* ═══ CHAT VIEW ═══ */}
         {viewMode === "chat" && (
           <>
-            <div className={`flex flex-1 flex-col overflow-y-auto ${hasMessages ? "justify-start" : "justify-start pt-[20vh]"}`}>
+            <div className={`flex flex-1 flex-col overflow-y-auto ${hasMessages ? "justify-start" : "items-center justify-center"}`}>
               {/* Hero search */}
               {!hasMessages && (
-                <div className="px-4">
-                  <div className="mx-auto max-w-3xl">
-                    <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-5 py-3 shadow-lg focus-within:border-indigo-400 focus-within:shadow-xl transition">
-                      <svg viewBox="0 0 200 200" className="h-9 w-9 flex-shrink-0">
+                <div className="w-full px-4 -mt-16">
+                  <div className="mx-auto max-w-2xl text-center">
+                    <h1 className="mb-6 text-3xl sm:text-4xl font-bold text-navy">What can I help you find?</h1>
+                    <div className="flex items-center gap-3 rounded-2xl bg-gray-50 border border-gray-200 px-6 py-4 shadow-xl focus-within:border-indigo-400 focus-within:shadow-2xl transition">
+                      <svg viewBox="0 0 200 200" className="h-10 w-10 flex-shrink-0">
                         <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
                         <circle cx="100" cy="105" r="52" fill="#4f46e5" />
                         <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
@@ -346,17 +489,17 @@ export default function SearchEngine() {
                         <input ref={inputRef} type="text" value={input} onChange={e => setInput(e.target.value)}
                           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
                           placeholder="Search homes, ask about taxes, get a valuation..."
-                          className="flex-1 bg-transparent py-2 text-lg text-gray-900 outline-none placeholder:text-gray-400" disabled={loading} />
+                          className="flex-1 bg-transparent py-3 text-xl text-gray-900 outline-none placeholder:text-gray-400" disabled={loading} />
                       )}
                       <VoiceButton onTranscript={(text) => { setInput(text); handleSearch(text); }} onRecordingChange={setVoiceActive} />
                       {!voiceActive && (
                         <button onClick={() => handleSearch()} disabled={!input.trim() || loading}
-                          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">
+                          className="rounded-xl bg-indigo-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">
                           {loading ? "..." : "Search"}
                         </button>
                       )}
                     </div>
-                    <p className="mt-3 text-center text-xs text-gray-400">Search homes, get valuations, check your taxes, or ask anything about NJ real estate.</p>
+                    <p className="mt-4 text-center text-sm text-gray-400">Search homes, get valuations, check your taxes, or ask anything about NJ real estate.</p>
                   </div>
                 </div>
               )}
@@ -376,7 +519,28 @@ export default function SearchEngine() {
                             <div className="rounded-2xl bg-gray-50 border border-gray-100 px-5 py-4 text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap"
                               dangerouslySetInnerHTML={{ __html: formatResponse(msg.text) }} />
 
+                            {/* Action cards — CTAs inline */}
+                            {msg.actions && msg.actions.length > 0 && (
+                              <div className={`grid gap-3 ${msg.actions.length === 1 ? "max-w-sm" : "sm:grid-cols-2"}`}>
+                                {msg.actions.map((action, ai) => (
+                                  <a key={ai} href={action.href || "#"}
+                                    onClick={action.query ? (e) => { e.preventDefault(); handleSearch(action.query!); } : undefined}
+                                    className="group flex items-start gap-4 rounded-xl bg-white border-2 border-indigo-100 p-4 shadow-sm transition hover:shadow-lg hover:border-indigo-400 cursor-pointer">
+                                    <span className="text-3xl shrink-0">{action.icon}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-bold text-navy text-sm">{action.title}</p>
+                                      <p className="text-xs text-gray-500 mt-0.5">{action.description}</p>
+                                      <span className="mt-2 inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white group-hover:bg-indigo-700 transition">
+                                        {action.buttonText}
+                                      </span>
+                                    </div>
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+
                             {msg.listings && msg.listings.length > 0 && (
+                              <><BrokerageBanner />
                               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {msg.listings.map((listing, li) => (
                                   <button key={listing.id} onClick={() => openDetail(msg.listings!, li)}
@@ -398,6 +562,7 @@ export default function SearchEngine() {
                                   </button>
                                 ))}
                               </div>
+                              </>
                             )}
                           </div>
                         )}
@@ -430,21 +595,26 @@ export default function SearchEngine() {
 
             {/* Bottom search bar */}
             {hasMessages && (
-              <div className="border-t border-gray-200 bg-white px-4 py-3">
+              <div className="border-t border-gray-200 bg-white px-4 py-4">
                 <div className="mx-auto max-w-3xl">
-                  <div className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-indigo-400 focus-within:shadow-md transition">
+                  <div className="flex items-center gap-3 rounded-2xl bg-gray-50 border border-gray-200 px-5 py-3 shadow-sm focus-within:border-indigo-400 focus-within:shadow-lg transition">
                     {!voiceActive && (
                       <input type="text" value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
-                        placeholder="Ask a follow-up..." className="flex-1 bg-transparent py-2 text-[15px] text-gray-900 outline-none placeholder:text-gray-400" disabled={loading} />
+                        placeholder="Ask a follow-up..." className="flex-1 bg-transparent py-2.5 text-lg text-gray-900 outline-none placeholder:text-gray-400" disabled={loading} />
                     )}
                     <VoiceButton onTranscript={(text) => { setInput(text); handleSearch(text); }} onRecordingChange={setVoiceActive} />
                     {!voiceActive && (
                       <button onClick={() => handleSearch()} disabled={!input.trim() || loading}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">{loading ? "..." : "Search"}</button>
+                        className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-30">{loading ? "..." : "Search"}</button>
                     )}
                   </div>
-                  <p className="mt-2 text-center text-[10px] text-gray-400">Powered by Vale AI &middot; BHG Real Estate | Green Team &middot; 60,000+ MLS listings</p>
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    {hasListings && <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="h-6 w-auto" />}
+                    <p className="text-[10px] text-gray-400">
+                      {hasListings ? "Listing data provided through IDX by BHG Real Estate | Green Team" : "Powered by Vale AI \u00b7 BHG Real Estate | Green Team \u00b7 60,000+ MLS listings"}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

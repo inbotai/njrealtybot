@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SmsConsent from "./SmsConsent";
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 import { submitLead } from "@/lib/api";
 
@@ -106,15 +107,13 @@ export default function SellTimingSimulator() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-10">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Should You Sell{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
-              Now or Wait?
-            </span>
+            <span className="text-gold">Now or Wait?</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             See how your home&apos;s value could change over 3, 6, and 12 months based on NJ market trends.
           </p>
         </div>
@@ -346,12 +345,7 @@ function SellTimingLeadCapture({ city, propertyType, projections, fmt }: {
       <div className="mt-5 space-y-3">
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputCls} />
         <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" type="tel" className={inputCls} />
-        <label className="flex items-start gap-2 cursor-pointer">
-          <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600" />
-          <span className="text-[10px] text-gray-500 leading-relaxed">
-            I consent to receive SMS messages from Garden State AI about real estate services. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="/privacy" target="_blank" className="underline">Privacy Policy</a> &amp; <a href="/terms" target="_blank" className="underline">Terms</a>.
-          </span>
-        </label>
+        <SmsConsent checked={consent} onChange={setConsent} />
       </div>
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       <button onClick={handleSubmit} disabled={sending} className="mt-4 w-full rounded-lg bg-indigo-600 py-3 font-bold text-white hover:bg-indigo-700 transition disabled:opacity-40">

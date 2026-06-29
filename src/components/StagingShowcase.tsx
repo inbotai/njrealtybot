@@ -66,18 +66,18 @@ export default function StagingShowcase() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Virtual Staging by{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Garden State AI
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             See how your home would look professionally staged — in seconds, not days.
           </p>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 text-gray-500">
             Homes with professional staging sell <span className="font-bold text-gold">73% faster</span> and for <span className="font-bold text-gold">5-10% more</span>.
           </p>
         </div>
@@ -176,10 +176,10 @@ export default function StagingShowcase() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-12 text-center text-white">
+      <section className="bg-gray-50 py-12 text-center">
         <div className="mx-auto max-w-2xl px-4">
-          <h2 className="text-2xl font-bold">Ready to See Your Home Transformed?</h2>
-          <p className="mt-2 text-gray-300">Send your photos to Vale — results in minutes.</p>
+          <h2 className="text-2xl font-bold text-navy">Ready to See Your Home Transformed?</h2>
+          <p className="mt-2 text-gray-500">Send your photos to Vale — results in minutes.</p>
           <a
             href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20stage%20my%20home%20photos"
             target="_blank" rel="noopener noreferrer"

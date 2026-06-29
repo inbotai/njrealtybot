@@ -274,13 +274,13 @@ export default function AppealWizard() {
   if (step === 0) {
     return (
       <>
-        <section className="bg-navy py-20 text-white">
+        <section className="bg-white py-12">
           <div className="mx-auto max-w-3xl px-4 text-center">
             <p className="text-gold font-semibold text-sm uppercase tracking-widest mb-4">Free Tool</p>
-            <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+            <h1 className="text-3xl sm:text-4xl font-bold text-navy">
               NJ Property Tax<br /><span className="text-gold">Appeal Assistant</span>
             </h1>
-            <p className="mt-5 text-lg text-gray-300">
+            <p className="mt-5 text-lg text-gray-500">
               Prepare your Form A-1 petition with comparable sales data.
               <br />Generate a professional document ready to print and file.
             </p>
@@ -346,12 +346,12 @@ export default function AppealWizard() {
     const boardLink = countyBoardLinks[countyUpper] || `https://www.google.com/search?q=${encodeURIComponent(`${form.propertyCounty} county NJ board of taxation filing`)}`;
 
     return (
-      <section className="bg-navy min-h-[80vh] py-16 text-white">
+      <section className="bg-white min-h-[80vh] py-12">
         <div className="mx-auto max-w-2xl px-4">
           <div className="text-center">
             <div className="text-6xl mb-4">{"\u2705"}</div>
-            <h1 className="text-3xl font-extrabold">Your Appeal Package Is Ready!</h1>
-            <p className="mt-3 text-lg text-gray-300">Your Form A-1 PDF has been downloaded. Here&apos;s exactly what to do next.</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-navy">Your Appeal Package Is Ready!</h1>
+            <p className="mt-3 text-lg text-gray-500">Your Form A-1 PDF has been downloaded. Here&apos;s exactly what to do next.</p>
           </div>
 
           {/* Step-by-step timeline */}
@@ -360,12 +360,12 @@ export default function AppealWizard() {
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-lg">1</div>
-                <div className="w-0.5 flex-1 bg-white/20" />
+                <div className="w-0.5 flex-1 bg-gray-200" />
               </div>
               <div className="pb-8">
                 <h3 className="font-bold text-gold text-lg">Print Your Form A-1</h3>
-                <p className="text-gray-300 mt-1">Open the downloaded PDF and print <strong>3 copies</strong>: one for the County Board, one for your municipality, and one for your records.</p>
-                <button onClick={generatePDF} className="mt-3 text-sm text-gold underline hover:text-yellow-300">Download PDF again</button>
+                <p className="text-gray-600 mt-1">Open the downloaded PDF and print <strong>3 copies</strong>: one for the County Board, one for your municipality, and one for your records.</p>
+                <button onClick={generatePDF} className="mt-3 text-sm text-gold underline hover:text-yellow-500">Download PDF again</button>
               </div>
             </div>
 
@@ -373,12 +373,12 @@ export default function AppealWizard() {
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-lg">2</div>
-                <div className="w-0.5 flex-1 bg-white/20" />
+                <div className="w-0.5 flex-1 bg-gray-200" />
               </div>
               <div className="pb-8">
                 <h3 className="font-bold text-gold text-lg">Review Before Filing</h3>
-                <p className="text-gray-300 mt-1">Double-check all information on the form. We <strong>strongly recommend</strong> having a licensed NJ tax attorney review it before you file.</p>
-                <p className="text-gray-400 text-sm mt-2">Need an attorney referral? Message us on WhatsApp and we&apos;ll connect you with a tax appeal specialist in {form.propertyCounty || "your"} County.</p>
+                <p className="text-gray-600 mt-1">Double-check all information on the form. We <strong>strongly recommend</strong> having a licensed NJ tax attorney review it before you file.</p>
+                <p className="text-gray-500 text-sm mt-2">Need an attorney referral? Message us on WhatsApp and we&apos;ll connect you with a tax appeal specialist in {form.propertyCounty || "your"} County.</p>
               </div>
             </div>
 
@@ -386,17 +386,17 @@ export default function AppealWizard() {
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-lg">3</div>
-                <div className="w-0.5 flex-1 bg-white/20" />
+                <div className="w-0.5 flex-1 bg-gray-200" />
               </div>
               <div className="pb-8">
                 <h3 className="font-bold text-gold text-lg">File with Your County Board</h3>
-                <p className="text-gray-300 mt-1">Submit your petition to the <strong>{form.propertyCounty || "County"} County Board of Taxation</strong>. You can file in person or by mail.</p>
-                <a href={boardLink} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/10 border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/20 transition">
+                <p className="text-gray-600 mt-1">Submit your petition to the <strong>{form.propertyCounty || "County"} County Board of Taxation</strong>. You can file in person or by mail.</p>
+                <a href={boardLink} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg bg-gray-100 border border-gray-200 px-4 py-2 text-sm text-navy hover:bg-gray-200 transition">
                   {"\uD83C\uDFDB\uFE0F"} {form.propertyCounty || "County"} County Board of Taxation Website {"\u2192"}
                 </a>
-                <div className="mt-3 rounded-lg bg-red-900/30 border border-red-500/30 p-3">
-                  <p className="text-red-300 text-sm font-semibold">{"\u23F0"} Deadline: April 1, {new Date().getFullYear() + (new Date().getMonth() >= 3 ? 1 : 0)}</p>
-                  <p className="text-red-400 text-xs mt-1">Late filings are NOT accepted. File early to avoid missing the deadline.</p>
+                <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3">
+                  <p className="text-red-700 text-sm font-semibold">{"\u23F0"} Deadline: April 1, {new Date().getFullYear() + (new Date().getMonth() >= 3 ? 1 : 0)}</p>
+                  <p className="text-red-500 text-xs mt-1">Late filings are NOT accepted. File early to avoid missing the deadline.</p>
                 </div>
               </div>
             </div>
@@ -405,12 +405,12 @@ export default function AppealWizard() {
             <div className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className="w-10 h-10 rounded-full bg-gold text-navy font-bold flex items-center justify-center text-lg">4</div>
-                <div className="w-0.5 flex-1 bg-white/20" />
+                <div className="w-0.5 flex-1 bg-gray-200" />
               </div>
               <div className="pb-8">
                 <h3 className="font-bold text-gold text-lg">Attend Your Hearing</h3>
-                <p className="text-gray-300 mt-1">The County Board will schedule a hearing (typically 1-3 months after filing). You&apos;ll present your case with your comparable sales evidence.</p>
-                <p className="text-gray-400 text-sm mt-2"><strong>Tip:</strong> Bring printouts of the comparable sales from your PDF. The Board wants to see recent sold prices of similar homes near yours.</p>
+                <p className="text-gray-600 mt-1">The County Board will schedule a hearing (typically 1-3 months after filing). You&apos;ll present your case with your comparable sales evidence.</p>
+                <p className="text-gray-500 text-sm mt-2"><strong>Tip:</strong> Bring printouts of the comparable sales from your PDF. The Board wants to see recent sold prices of similar homes near yours.</p>
               </div>
             </div>
 
@@ -420,17 +420,17 @@ export default function AppealWizard() {
                 <div className="w-10 h-10 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-lg">5</div>
               </div>
               <div className="pb-4">
-                <h3 className="font-bold text-emerald-400 text-lg">Get Your Decision</h3>
-                <p className="text-gray-300 mt-1">The Board will issue a judgment. If approved, your assessment will be reduced and you&apos;ll see lower taxes on your next bill.</p>
-                <p className="text-gray-400 text-sm mt-2">If denied, you can appeal to the NJ Tax Court within 45 days of the decision.</p>
+                <h3 className="font-bold text-emerald-600 text-lg">Get Your Decision</h3>
+                <p className="text-gray-600 mt-1">The Board will issue a judgment. If approved, your assessment will be reduced and you&apos;ll see lower taxes on your next bill.</p>
+                <p className="text-gray-500 text-sm mt-2">If denied, you can appeal to the NJ Tax Court within 45 days of the decision.</p>
               </div>
             </div>
           </div>
 
           {/* CTA: Get help */}
-          <div className="mt-8 rounded-xl bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 p-6 text-center">
-            <h3 className="font-bold text-lg">Need Help With Your Appeal?</h3>
-            <p className="text-gray-300 mt-2 text-sm">Our team can connect you with experienced NJ tax appeal attorneys and guide you through the process.</p>
+          <div className="mt-8 rounded-xl bg-indigo-50 border border-indigo-200 p-6 text-center">
+            <h3 className="font-bold text-lg text-navy">Need Help With Your Appeal?</h3>
+            <p className="text-gray-600 mt-2 text-sm">Our team can connect you with experienced NJ tax appeal attorneys and guide you through the process.</p>
             <a href="https://wa.me/12015281095?text=I%20need%20help%20with%20my%20property%20tax%20appeal" target="_blank" rel="noopener noreferrer" className={`inline-block mt-4 ${btnPrimary}`}>
               {"\uD83D\uDCF1"} Chat With Us on WhatsApp
             </a>

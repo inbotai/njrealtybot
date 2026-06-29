@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitLead, type LeadData } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 interface LeadFormProps {
   leadType: LeadData["lead_type"];
@@ -20,6 +21,7 @@ export default function LeadForm({
     phone: "",
     message: "",
   });
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   function update(field: string, value: string) {
@@ -28,6 +30,10 @@ export default function LeadForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (form.phone.trim() && !consent) {
+      setStatus("error");
+      return;
+    }
     setStatus("loading");
     try {
       await submitLead({
@@ -92,22 +98,15 @@ export default function LeadForm({
         />
       </div>
 
-      <label className="mt-3 flex items-start gap-2 cursor-pointer">
-        <input type="checkbox"
-          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-        <span className="text-[10px] text-gray-500 leading-relaxed">
-          I consent to receive SMS/WhatsApp messages from Garden State AI
-          about real estate services. Msg frequency varies. Msg &amp; data rates may apply.
-          Reply STOP to opt out. Your mobile info will not be shared with third parties.{" "}
-          <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-          {" & "}
-          <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-        </span>
-      </label>
+      <div className="mt-3">
+        <SmsConsent checked={consent} onChange={setConsent} />
+      </div>
 
       {status === "error" && (
         <p className="mt-2 text-sm text-red-600">
-          Something went wrong. Please try again.
+          {form.phone.trim() && !consent
+            ? "Please accept the messaging consent to continue."
+            : "Something went wrong. Please try again."}
         </p>
       )}
 

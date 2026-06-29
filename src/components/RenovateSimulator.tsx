@@ -105,15 +105,15 @@ export default function RenovateSimulator() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Renovation{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               ROI Calculator
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             See how renovations would look and calculate the ROI — before spending a dollar.
           </p>
         </div>
@@ -189,49 +189,49 @@ export default function RenovateSimulator() {
       </section>
 
       {/* Interactive ROI Calculator */}
-      <section className="py-12 bg-navy">
+      <section className="py-12 bg-gray-50">
         <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-2xl font-bold text-white">Calculate Your Renovation ROI</h2>
-          <p className="mt-2 text-center text-sm text-gray-400">Enter your details below to see if a renovation is worth it in the NJ market</p>
+          <h2 className="text-center text-2xl font-bold text-navy">Calculate Your Renovation ROI</h2>
+          <p className="mt-2 text-center text-sm text-gray-500">Enter your details below to see if a renovation is worth it in the NJ market</p>
 
-          <div className="mt-8 rounded-2xl bg-white/5 border border-white/10 p-6 md:p-8">
+          <div className="mt-8 rounded-2xl bg-white border border-gray-200 p-6 md:p-8 shadow-sm">
             <div className="grid gap-5 md:grid-cols-3">
               {/* City/Zip */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">City or ZIP Code</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">City or ZIP Code</label>
                 <input
                   type="text"
                   placeholder="e.g. Paramus or 07652"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
 
               {/* Renovation type */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Renovation Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Renovation Type</label>
                 <select
                   value={renoId}
                   onChange={(e) => { setRenoId(e.target.value); setResult(null); }}
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
                 >
                   {renovationTypes.map((r) => (
-                    <option key={r.id} value={r.id} className="bg-navy text-white">{r.label}</option>
+                    <option key={r.id} value={r.id}>{r.label}</option>
                   ))}
                 </select>
               </div>
 
               {/* Budget */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Your Budget ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Your Budget ($)</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   placeholder="e.g. 15000"
                   value={budgetStr}
                   onChange={(e) => { setBudgetStr(e.target.value.replace(/[^0-9]/g, "")); setResult(null); }}
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
             </div>
@@ -360,17 +360,17 @@ export default function RenovateSimulator() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-12 text-center text-white">
+      <section className="bg-gray-50 py-12 text-center">
         <div className="mx-auto max-w-2xl px-4">
-          <h2 className="text-2xl font-bold">Want a Personalized Renovation Plan?</h2>
-          <p className="mt-2 text-gray-300">
+          <h2 className="text-2xl font-bold text-navy">Want a Personalized Renovation Plan?</h2>
+          <p className="mt-2 text-gray-500">
             Vale analyzes your property and tells you exactly which renovations will give you the highest return.
           </p>
           <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-3.5 text-base font-bold text-navy hover:bg-yellow-400">
             Get My Renovation Plan
           </a>
-          <p className="mt-3 text-xs text-gray-400">Free when you list with us. $20/room otherwise.</p>
+          <p className="mt-3 text-xs text-gray-500">Free when you list with us. $20/room otherwise.</p>
         </div>
       </section>
     </>

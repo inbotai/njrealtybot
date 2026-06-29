@@ -40,15 +40,15 @@ export default async function NewsPage() {
 
   return (
     <>
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             NJ Real Estate{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               News
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Market updates, property tax analysis, development alerts, and expert insights — powered by AI and real MLS data.
           </p>
         </div>

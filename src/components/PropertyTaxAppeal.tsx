@@ -5,6 +5,7 @@ import {
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
+import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
 import type { LadderStage } from "@/lib/service-ladder/types";
 
@@ -54,6 +55,7 @@ export default function PropertyTaxAppeal() {
 
   // Rung 3 lead form
   const [leadForm, setLeadForm] = useState<Partial<TaxAppealLead>>({});
+  const [leadConsent, setLeadConsent] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
   // ── Rung 1: Diagnose ──────────────────────────────────────────
@@ -102,6 +104,7 @@ export default function PropertyTaxAppeal() {
 
   async function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!leadConsent) return;
     // TODO: wire to backend lead capture endpoint
     // await provider.captureLead({ ...leadForm, address, county, estimatedOverpayment });
     setLeadSubmitted(true);
@@ -113,16 +116,16 @@ export default function PropertyTaxAppeal() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Are You{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Overpaying
             </span>{" "}
             in Property Taxes?
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Enter your address and find out instantly. Free NJ Chapter 123 analysis with real comparable sales.
           </p>
         </div>
@@ -416,22 +419,11 @@ export default function PropertyTaxAppeal() {
                       />
                     </div>
                   </div>
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox"
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-                    <span className="text-[10px] text-gray-500 leading-relaxed">
-                      I consent to receive SMS/WhatsApp messages from Garden State AI
-                      about my tax appeal and real estate services.
-                      Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
-                      Your mobile info will not be shared with third parties.{" "}
-                      <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                      {" & "}
-                      <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                    </span>
-                  </label>
+                  <SmsConsent checked={leadConsent} onChange={setLeadConsent} />
                   <button
                     type="submit"
-                    className="w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400"
+                    disabled={!leadConsent}
+                    className="w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40"
                   >
                     Match Me with a Specialist
                   </button>

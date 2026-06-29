@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import ActivityTracker from "@/components/ActivityTracker";
 import ExitIntent from "@/components/ExitIntent";
 import ProactiveVale from "@/components/ProactiveVale";
+import AppSidebar from "@/components/AppSidebar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -64,19 +65,22 @@ export default async function RootLayout({
 }) {
   const hdrs = await headers();
   const isIdx = hdrs.get("x-idx-subdomain") === "true";
+  const pathname = hdrs.get("x-next-pathname") || hdrs.get("x-invoke-path") || "";
+  const isV2 = pathname === "/v2";
 
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
+      <body className="flex min-h-full flex-col bg-white text-gray-900">
         <AdminProvider>
           <ValeProvider>
-            {isIdx ? <NavbarIdx /> : <Navbar />}
+            {!isV2 && (isIdx ? <NavbarIdx /> : <Navbar />)}
+            {!isV2 && !isIdx && <AppSidebar />}
             <main className="flex-1">{children}</main>
-            {isIdx ? <FooterIdx /> : <Footer />}
-            <ValeSidePanel />
-            {!isIdx && <WhatsAppWidget />}
-            <ExitIntent />
-            <ProactiveVale />
+            {!isV2 && (isIdx ? <FooterIdx /> : <Footer />)}
+            {!isV2 && <ValeSidePanel />}
+            {!isIdx && !isV2 && <WhatsAppWidget />}
+            {!isV2 && <ExitIntent />}
+            {!isV2 && <ProactiveVale />}
             <TrackingPixels />
             <Suspense><ActivityTracker /></Suspense>
           </ValeProvider>

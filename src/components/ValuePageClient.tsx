@@ -141,20 +141,19 @@ export default function ValuePageClient() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[80vh] flex items-center bg-navy text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/50 via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-3xl px-4 text-center w-full py-20">
+      <section className="relative min-h-[80vh] flex items-center bg-white overflow-hidden">
+        <div className="relative mx-auto max-w-3xl px-4 text-center w-full py-12">
           <p className="text-gold font-semibold text-sm uppercase tracking-widest">
             Free Instant Valuation
           </p>
-          <h1 className="mt-4 text-5xl font-extrabold leading-tight md:text-7xl">
+          <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-navy">
             What&apos;s Your Home{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-clip-text text-transparent">
+            <span className="text-gold">
               Worth?
             </span>
           </h1>
-          <p className="mt-5 text-xl text-gray-300 md:text-2xl">
-            Get your <span className="text-white font-semibold">Sell Score</span> and instant AI valuation.
+          <p className="mt-5 text-xl text-gray-500 md:text-2xl">
+            Get your <span className="text-navy font-semibold">Sell Score</span> and instant AI valuation.
             <br className="hidden md:block" />
             Takes 30 seconds. 100% free.
           </p>

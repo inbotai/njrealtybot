@@ -25,13 +25,13 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <section className="bg-navy py-12 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-5xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             My Saved Properties{" "}
             <span className="text-gold">({count})</span>
           </h1>
-          <p className="mt-2 text-gray-300">Properties you&apos;ve saved while browsing</p>
+          <p className="mt-2 text-gray-500">Properties you&apos;ve saved while browsing</p>
         </div>
       </section>
 

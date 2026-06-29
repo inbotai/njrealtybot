@@ -97,15 +97,15 @@ export default function BuyerMatchmaker() {
   if (matchComplete) {
     return (
       <>
-        <section className="bg-navy py-12 text-white">
+        <section className="bg-white py-12">
           <div className="mx-auto max-w-5xl px-4 text-center">
-            <h1 className="text-3xl font-extrabold">
+            <h1 className="text-3xl sm:text-4xl font-bold text-navy">
               Your Matches{" "}
-              <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+              <span className="text-gold">
                 ({results.length} found)
               </span>
             </h1>
-            <p className="mt-2 text-gray-300">
+            <p className="mt-2 text-gray-500">
               Based on: {profile.budget ? `up to $${Number(profile.budget).toLocaleString()}` : "any budget"}
               {profile.beds ? ` · ${profile.beds}+ beds` : ""}
               {profile.cities ? ` · ${profile.cities}` : ""}
@@ -166,22 +166,22 @@ export default function BuyerMatchmaker() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Property{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Matchmaker
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Answer 5 quick questions. Our AI finds properties that match your lifestyle.
           </p>
           {/* Progress bar */}
-          <div className="mx-auto mt-6 h-2 max-w-md overflow-hidden rounded-full bg-white/20">
+          <div className="mx-auto mt-6 h-2 max-w-md overflow-hidden rounded-full bg-gray-200">
             <div className="h-full rounded-full bg-gold transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
-          <p className="mt-2 text-xs text-gray-400">Step {step + 1} of {totalSteps}</p>
+          <p className="mt-2 text-xs text-gray-500">Step {step + 1} of {totalSteps}</p>
         </div>
       </section>
 

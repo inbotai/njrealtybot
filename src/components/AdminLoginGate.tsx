@@ -39,25 +39,24 @@ export default function AdminLoginGate({ children }: { children: React.ReactNode
   }
 
   return (
-    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-navy py-20 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
+    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-white py-12">
       <div className="relative mx-auto max-w-md px-4 text-center">
-        <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
-          <span className="text-white"> State </span>
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
+        <h1 className="text-3xl sm:text-4xl font-bold text-navy">
+          <span className="text-gold">Garden</span>
+          <span className="text-navy"> State </span>
+          <span className="text-indigo-600">AI</span>
         </h1>
-        <p className="mt-4 text-lg text-gray-300">Agent Dashboard</p>
+        <p className="mt-4 text-lg text-gray-500">Agent Dashboard</p>
 
         <form onSubmit={handleLogin} className="mx-auto mt-10 max-w-sm">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <p className="text-sm font-medium text-gray-300 mb-4">Agent Login</p>
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+            <p className="text-sm font-medium text-gray-600 mb-4">Agent Login</p>
             <input
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(""); }}
               placeholder="Enter password"
-              className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-gray-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
             />
             {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
             <button

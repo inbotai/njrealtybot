@@ -15,15 +15,15 @@ export default function GuaranteePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             We Sell Your Home in 90 Days —{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Or It&apos;s Free
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Zero commission if we don&apos;t deliver. That&apos;s how confident we are.
           </p>
         </div>
@@ -109,16 +109,16 @@ export default function GuaranteePage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-gradient-to-br from-navy via-indigo-900 to-navy py-16">
+      <section className="bg-gray-50 py-12">
         <div className="mx-auto max-w-2xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-white md:text-3xl">Ready to Get Started?</h2>
-          <p className="mt-3 text-gray-300">Get your free home valuation and see if your property qualifies.</p>
+          <h2 className="text-2xl font-bold text-navy md:text-3xl">Ready to Get Started?</h2>
+          <p className="mt-3 text-gray-500">Get your free home valuation and see if your property qualifies.</p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Link href="/sell" className="rounded-lg bg-gold px-8 py-3 font-bold text-navy hover:bg-yellow-400">
               Get My Free Valuation
             </Link>
             <a href="https://wa.me/12015281095?text=I%27m%20interested%20in%20the%2090-day%20guarantee" target="_blank" rel="noopener noreferrer"
-              className="rounded-lg border border-white/30 px-8 py-3 font-bold text-white hover:bg-white/10">
+              className="rounded-lg border border-navy/30 px-8 py-3 font-bold text-navy hover:bg-navy/5">
               Message Us on WhatsApp
             </a>
           </div>

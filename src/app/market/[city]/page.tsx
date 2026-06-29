@@ -40,11 +40,11 @@ export default async function MarketPage({ params }: Props) {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">{cityName}, NJ</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">{cityName}, NJ</h1>
           <p className="mt-2 text-xl text-gold">Real Estate Market Report</p>
-          <p className="mt-2 text-sm text-gray-400">Updated {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
+          <p className="mt-2 text-sm text-gray-500">Updated {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
         </div>
       </section>
 
@@ -157,14 +157,14 @@ export default async function MarketPage({ params }: Props) {
         </IdxGate>
 
         {/* CMA CTA */}
-        <section className="rounded-2xl bg-gradient-to-r from-navy to-indigo-900 p-8 text-center text-white md:p-12">
-          <h2 className="text-2xl font-bold md:text-3xl">Own a Home in {cityName}?</h2>
-          <p className="mt-3 text-gray-300">Find out what it&apos;s worth in today&apos;s market. Free, instant, no obligation.</p>
+        <section className="rounded-2xl bg-gray-50 p-8 text-center md:p-12">
+          <h2 className="text-2xl font-bold text-navy md:text-3xl">Own a Home in {cityName}?</h2>
+          <p className="mt-3 text-gray-500">Find out what it&apos;s worth in today&apos;s market. Free, instant, no obligation.</p>
           <Link href={`/chat?q=${encodeURIComponent(`CMA for my home in ${cityName}`)}`}
             className="mt-6 inline-block rounded-xl bg-gold px-8 py-3 font-bold text-navy hover:bg-yellow-400">
             Get My Free Home Valuation
           </Link>
-          <p className="mt-3 text-sm text-gray-400">
+          <p className="mt-3 text-sm text-gray-500">
             Or message Vale on WhatsApp: <a href="https://wa.me/12015281095" className="text-gold hover:underline">+1 (201) 528-1095</a>
           </p>
         </section>

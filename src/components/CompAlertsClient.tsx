@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { submitLead } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -108,13 +109,12 @@ export default function CompAlertsClient() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-navy py-20 text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy to-indigo-900" />
-        <div className="relative mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+      <section className="bg-white py-12">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Know When Your <span className="text-gold">Neighbors Sell</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
             Get instant WhatsApp alerts when homes sell near you — and what they sold for.
           </p>
         </div>
@@ -188,23 +188,7 @@ export default function CompAlertsClient() {
             </div>
 
             {/* SMS/WhatsApp Consent */}
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span className="text-[10px] text-gray-500 leading-relaxed">
-                I consent to receive SMS/WhatsApp messages from Garden State AI
-                about nearby home sales and real estate services.
-                Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
-                Your mobile info will not be shared with third parties.{" "}
-                <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                {" & "}
-                <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-              </span>
-            </label>
+            <SmsConsent checked={consent} onChange={setConsent} />
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -258,9 +242,9 @@ export default function CompAlertsClient() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-navy text-center">
+      <section className="py-12 bg-gray-50 text-center">
         <div className="mx-auto max-w-2xl px-4">
-          <h2 className="text-2xl font-bold text-white">
+          <h2 className="text-2xl font-bold text-navy">
             Want to know your home&apos;s current value?
           </h2>
           <Link

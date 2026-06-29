@@ -36,8 +36,9 @@ export function middleware(req: NextRequest) {
     // This allows admin users to still access these routes on the main domain
   }
 
-  // Tag the request with the subdomain flag so layout can read it
+  // Tag the request with the subdomain flag + pathname so layout can read them
   const res = NextResponse.next();
+  res.headers.set("x-next-pathname", pathname);
   if (isIdx) {
     res.headers.set("x-idx-subdomain", "true");
   }

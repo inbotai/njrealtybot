@@ -149,12 +149,12 @@ function generateCounter(askingPrice: number, bestOffer: Offer, bestScore: Offer
 
 /* ── component ─────────────────────────────────────────── */
 
-const riskColor = { Low: "text-green-400", Medium: "text-yellow-400", High: "text-red-400" };
-const riskBg = { Low: "bg-green-900/30 border-green-700", Medium: "bg-yellow-900/30 border-yellow-700", High: "bg-red-900/30 border-red-700" };
+const riskColor = { Low: "text-green-700", Medium: "text-yellow-700", High: "text-red-700" };
+const riskBg = { Low: "bg-green-50 border-green-300", Medium: "bg-yellow-50 border-yellow-300", High: "bg-red-50 border-red-300" };
 
-const INPUT = "w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
+const INPUT = "w-full rounded-lg bg-white border border-gray-300 px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
 const SELECT = INPUT + " appearance-none";
-const LABEL = "block text-sm font-medium text-gray-300 mb-1";
+const LABEL = "block text-sm font-medium text-gray-700 mb-1";
 
 export default function OfferAnalyzer() {
   const [address, setAddress] = useState("");
@@ -201,26 +201,26 @@ export default function OfferAnalyzer() {
   return (
     <RequireAuth>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             AI Offer{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Analysis
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Compare up to 5 offers side-by-side. Get AI-scored rankings and a counter-strategy in seconds.
           </p>
         </div>
       </section>
 
-      <div className="bg-navy min-h-screen pb-20">
-        <div className="mx-auto max-w-4xl px-4">
+      <div className="bg-gray-50 min-h-screen pb-20">
+        <div className="mx-auto max-w-4xl px-4 pt-8">
 
           {/* Section 1: Property */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
-            <h2 className="text-xl font-bold text-gold mb-4">Your Property</h2>
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 mb-6 shadow-sm">
+            <h2 className="text-xl font-bold text-navy mb-4">Your Property</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label className={LABEL}>Address</label>
@@ -234,9 +234,9 @@ export default function OfferAnalyzer() {
           </div>
 
           {/* Section 2: Offers */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gold">Offers Received</h2>
+              <h2 className="text-xl font-bold text-navy">Offers Received</h2>
               {offers.length < 5 && (
                 <button onClick={addOffer} className="rounded-lg bg-gold/20 px-4 py-2 text-sm font-semibold text-gold hover:bg-gold/30 transition">
                   + Add Offer
@@ -245,9 +245,9 @@ export default function OfferAnalyzer() {
             </div>
 
             {offers.map((offer, idx) => (
-              <div key={offer.id} className="rounded-xl border border-white/10 bg-white/5 p-5 mb-4 last:mb-0">
+              <div key={offer.id} className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 mb-4 last:mb-0">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-white">Offer #{idx + 1}</h3>
+                  <h3 className="font-semibold text-navy">Offer #{idx + 1}</h3>
                   {offers.length > 1 && (
                     <button onClick={() => removeOffer(idx)} className="text-sm text-red-400 hover:text-red-300">Remove</button>
                   )}
@@ -298,7 +298,7 @@ export default function OfferAnalyzer() {
                   <label className={LABEL}>Contingencies</label>
                   <div className="flex flex-wrap gap-3">
                     {(["inspection", "appraisal", "financing", "saleOfHome"] as const).map((key) => (
-                      <label key={key} className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                      <label key={key} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                         <input type="checkbox" checked={offer.contingencies[key]} onChange={() => toggleContingency(idx, key)} className="accent-gold h-4 w-4" />
                         {key === "saleOfHome" ? "Sale of Home" : key.charAt(0).toUpperCase() + key.slice(1)}
                       </label>
@@ -326,14 +326,14 @@ export default function OfferAnalyzer() {
 
           {/* Section 3: AI Analysis */}
           {scores && scores.length > 0 && (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
-              <h2 className="text-xl font-bold text-gold mb-4">AI Offer Rankings</h2>
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold text-navy mb-4">AI Offer Rankings</h2>
               <div className="space-y-4">
                 {scores.map((s) => (
-                  <div key={s.offerId} className={`rounded-xl border p-5 ${s.isBest ? "border-gold bg-gold/10" : "border-white/10 bg-white/5"}`}>
+                  <div key={s.offerId} className={`rounded-xl border p-5 ${s.isBest ? "border-gold bg-gold/10" : "border-gray-200 bg-white"}`}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-white text-lg">{s.buyerLabel}</h3>
+                        <h3 className="font-bold text-navy text-lg">{s.buyerLabel}</h3>
                         {s.isBest && (
                           <span className="rounded-full bg-gold px-3 py-1 text-xs font-bold text-navy">AI RECOMMENDED</span>
                         )}
@@ -345,31 +345,31 @@ export default function OfferAnalyzer() {
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-4 text-sm">
-                      <div className="rounded-lg bg-white/5 p-3">
+                      <div className="rounded-lg bg-gray-50 p-3">
                         <div className="text-gray-400 text-xs mb-1">Price Score</div>
-                        <div className="text-white font-semibold">{s.priceScore}/100</div>
-                        <div className="mt-1 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-gold" style={{ width: `${s.priceScore}%` }} /></div>
+                        <div className="text-navy font-semibold">{s.priceScore}/100</div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full bg-gold" style={{ width: `${s.priceScore}%` }} /></div>
                       </div>
-                      <div className="rounded-lg bg-white/5 p-3">
+                      <div className="rounded-lg bg-gray-50 p-3">
                         <div className="text-gray-400 text-xs mb-1">Financing</div>
-                        <div className="text-white font-semibold">{s.financingScore}/100</div>
-                        <div className="mt-1 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-blue-400" style={{ width: `${s.financingScore}%` }} /></div>
+                        <div className="text-navy font-semibold">{s.financingScore}/100</div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full bg-blue-400" style={{ width: `${s.financingScore}%` }} /></div>
                       </div>
-                      <div className="rounded-lg bg-white/5 p-3">
+                      <div className="rounded-lg bg-gray-50 p-3">
                         <div className="text-gray-400 text-xs mb-1">Contingencies</div>
-                        <div className="text-white font-semibold">{s.contingencyScore}/100</div>
-                        <div className="mt-1 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-green-400" style={{ width: `${s.contingencyScore}%` }} /></div>
+                        <div className="text-navy font-semibold">{s.contingencyScore}/100</div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full bg-green-400" style={{ width: `${s.contingencyScore}%` }} /></div>
                       </div>
-                      <div className="rounded-lg bg-white/5 p-3">
+                      <div className="rounded-lg bg-gray-50 p-3">
                         <div className="text-gray-400 text-xs mb-1">Timeline</div>
-                        <div className="text-white font-semibold">{s.timelineScore}/100</div>
-                        <div className="mt-1 h-1.5 rounded-full bg-white/10"><div className="h-full rounded-full bg-purple-400" style={{ width: `${s.timelineScore}%` }} /></div>
+                        <div className="text-navy font-semibold">{s.timelineScore}/100</div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full bg-purple-400" style={{ width: `${s.timelineScore}%` }} /></div>
                       </div>
                     </div>
 
                     <div className="mt-3 flex items-center justify-between text-sm">
-                      <div className="text-gray-300">
-                        Est. Net to Seller: <span className="font-bold text-white">{fmt(s.netToSeller)}</span>
+                      <div className="text-gray-600">
+                        Est. Net to Seller: <span className="font-bold text-navy">{fmt(s.netToSeller)}</span>
                       </div>
                       <div className={`rounded-full border px-3 py-1 text-xs font-semibold ${riskBg[s.risk]} ${riskColor[s.risk]}`}>
                         {s.risk} Risk
@@ -383,26 +383,26 @@ export default function OfferAnalyzer() {
 
           {/* Section 4: Counter-Strategy */}
           {counter && scores && (
-            <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 mb-6">
-              <h2 className="text-xl font-bold text-gold mb-4">AI Counter-Strategy</h2>
+            <div className="rounded-2xl border border-gold/30 bg-gold/5 p-6 mb-6 shadow-sm">
+              <h2 className="text-xl font-bold text-navy mb-4">AI Counter-Strategy</h2>
               <p className="text-sm text-gray-400 mb-4">For the top-ranked offer:</p>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
                   <div className="text-xs text-gray-400 mb-1">Recommended Counter Price</div>
                   <div className="text-2xl font-extrabold text-gold">{fmt(counter.counterPrice)}</div>
                 </div>
-                <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
                   <div className="text-xs text-gray-400 mb-1">Response Deadline</div>
-                  <div className="text-lg font-bold text-white">{counter.deadline}</div>
+                  <div className="text-lg font-bold text-navy">{counter.deadline}</div>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4">
+              <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
                 <div className="text-xs text-gray-400 mb-2">Suggested Concessions</div>
                 <div className="space-y-2">
                   {counter.concessions.split(" | ").map((c, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm text-gray-200">
+                    <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
                       <span className="text-gold mt-0.5">&#x2022;</span>
                       <span>{c}</span>
                     </div>
@@ -410,9 +410,9 @@ export default function OfferAnalyzer() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4">
+              <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
                 <div className="text-xs text-gray-400 mb-1">Justification</div>
-                <p className="text-sm text-gray-200">{counter.justification}</p>
+                <p className="text-sm text-gray-600">{counter.justification}</p>
               </div>
 
               {/* Send to Agent */}
@@ -425,9 +425,9 @@ export default function OfferAnalyzer() {
                     Send to Agent for Review
                   </button>
                 ) : (
-                  <div className="rounded-xl border border-green-700 bg-green-900/30 p-4 text-center">
-                    <div className="text-green-400 font-bold text-lg mb-1">Sent for Review</div>
-                    <p className="text-sm text-gray-300">
+                  <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center">
+                    <div className="text-green-700 font-bold text-lg mb-1">Sent for Review</div>
+                    <p className="text-sm text-gray-600">
                       A licensed NJ real estate agent will review your offer analysis and counter-strategy.
                       You will be contacted within 24 hours.
                     </p>
@@ -438,7 +438,7 @@ export default function OfferAnalyzer() {
           )}
 
           {/* Disclaimer */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-center">
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5 text-center">
             <p className="text-xs text-gray-400 leading-relaxed">
               AI-generated strategies are recommendations only. All negotiations are reviewed and approved
               by a licensed NJ real estate agent before any communication is sent. Garden State AI does not

@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { submitLead } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 export default function OpenHouseAlerts() {
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!city.trim() || !phone.trim() || loading) return;
+    if (!city.trim() || !phone.trim() || loading || !consent) return;
     setLoading(true);
     try {
       await submitLead({
@@ -42,18 +44,8 @@ export default function OpenHouseAlerts() {
           <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
             placeholder="Your phone or WhatsApp" required
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
-          <label className="flex items-start gap-2 cursor-pointer">
-            <input type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-            <span className="text-[10px] text-gray-500 leading-relaxed">
-              I consent to receive SMS/WhatsApp messages about open houses.
-              Msg &amp; data rates may apply. Reply STOP to opt out.{" "}
-              <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy</a>
-              {" & "}
-              <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-            </span>
-          </label>
-          <button type="submit" disabled={loading || !city.trim() || !phone.trim()}
+          <SmsConsent checked={consent} onChange={setConsent} />
+          <button type="submit" disabled={loading || !city.trim() || !phone.trim() || !consent}
             className="w-full rounded-lg bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-indigo-900 disabled:opacity-40">
             {loading ? "..." : "Subscribe"}
           </button>

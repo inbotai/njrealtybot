@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatCurrency } from "@/lib/service-ladder/property-tax/calc";
+import SmsConsent from "./SmsConsent";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -40,6 +41,7 @@ export default function NetProceedsClient() {
   const [showLead, setShowLead] = useState(false);
   const [leadName, setLeadName] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
+  const [leadConsent, setLeadConsent] = useState(false);
   const [leadDone, setLeadDone] = useState(false);
 
   function parseNum(s: string): number { return Number(s.replace(/[^0-9.]/g, "")) || 0; }
@@ -70,13 +72,13 @@ export default function NetProceedsClient() {
 
   return (
     <>
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             What Will You{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Walk Away With</span>?
+            <span className="text-gold">Walk Away With</span>?
           </h1>
-          <p className="mt-4 text-lg text-gray-300">NJ net proceeds calculator with real Realty Transfer Fee brackets + sell vs rent comparison.</p>
+          <p className="mt-4 text-lg text-gray-500">NJ net proceeds calculator with real Realty Transfer Fee brackets + sell vs rent comparison.</p>
         </div>
       </section>
 
@@ -215,6 +217,7 @@ export default function NetProceedsClient() {
               {showLead && !leadDone && (
                 <form onSubmit={async (e) => {
                   e.preventDefault();
+                  if (!leadConsent) return;
                   try {
                     await fetch(`${IDX_API}/api/idx/leads`, {
                       method: "POST", headers: { "Content-Type": "application/json" },
@@ -228,19 +231,9 @@ export default function NetProceedsClient() {
                       className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
                     <input type="tel" value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="Phone" required
                       className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:outline-none" />
-                    <button type="submit" className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-navy hover:bg-yellow-400">Unlock</button>
+                    <button type="submit" disabled={!leadConsent} className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">Unlock</button>
                   </div>
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox"
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-                    <span className="text-[10px] text-gray-500 leading-relaxed">
-                      I consent to receive SMS/WhatsApp messages from Garden State AI.
-                      Msg &amp; data rates may apply. Reply STOP to opt out.{" "}
-                      <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy</a>
-                      {" & "}
-                      <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                    </span>
-                  </label>
+                  <SmsConsent checked={leadConsent} onChange={setLeadConsent} />
                 </form>
               )}
             </div>

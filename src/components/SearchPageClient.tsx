@@ -184,7 +184,7 @@ export default function SearchPageClient() {
   const { upcoming, newListings, active, underContract } = categorize(allListings);
   const currentPage = Number(filters.page);
   const totalPages = results?.totalPages || 1;
-  const locationName = filters.city || filters.county || filters.q;
+  const locationName = filters.city || (filters.county ? `${filters.county} County` : "") || filters.q;
   const hasCity = !!locationName;
   const typeLabels: Record<string, string> = {
     Rental: "Rentals",

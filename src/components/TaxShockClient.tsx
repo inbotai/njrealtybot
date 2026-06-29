@@ -170,10 +170,10 @@ export default function TaxShockClient() {
     return (
       <>
         {/* Result Header */}
-        <section className="bg-navy py-6 text-white">
+        <section className="bg-white py-6">
           <div className="mx-auto max-w-4xl px-4">
             <button onClick={() => { setResult(null); setAddress(""); setRevealStep(0); }}
-              className="text-sm text-gray-400 hover:text-white transition">&larr; Check another address</button>
+              className="text-sm text-gray-400 hover:text-navy transition">&larr; Check another address</button>
           </div>
         </section>
 
@@ -467,105 +467,37 @@ export default function TaxShockClient() {
   // ── Landing View ─────────────────────────────────────────
   return (
     <>
-      <section className="relative min-h-[85vh] flex items-center bg-[#0a0f1a] text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-900/20 via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-3xl px-4 text-center w-full py-20">
-
-          {/* JC Banner */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-red-500/10 border border-red-500/20 px-4 py-2 text-red-400 text-sm font-semibold mb-8">
-            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" /></span>
-            Jersey City taxes rising 20% — Check your property now
-          </div>
-
-          <h1 className="text-5xl font-extrabold leading-tight md:text-7xl">
-            Are You Paying<br />
-            <span className="text-red-400">Too Much</span> in<br />
-            <span className="text-gold">Property Taxes?</span>
+      <section className="bg-white py-12">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
+            Are You Paying <span className="text-red-500">Too Much</span> in Property Taxes?
           </h1>
-
-          <p className="mt-6 text-xl text-gray-400 md:text-2xl">
-            <span className="text-white font-semibold">68% of NJ homes</span> are over-assessed.
-            <br className="hidden md:block" />
-            Find out in 30 seconds if yours is one of them.
+          <p className="mt-4 text-lg text-gray-500">
+            Enter your address to find out.
           </p>
 
-          {/* Address input */}
-          <form onSubmit={handleSubmit} className="mx-auto mt-10 max-w-2xl">
-            <div className="flex overflow-hidden rounded-2xl bg-white shadow-2xl shadow-red-500/5 px-4 py-2 items-center gap-2">
+          <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-2xl">
+            <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl px-4 py-2 items-center gap-2">
               {!voiceActive && (
                 <input
                   type="text" value={address} onChange={e => setAddress(e.target.value)}
                   placeholder="Enter your address... (e.g. 123 Main St, Jersey City)"
-                  className="flex-1 px-2 py-4 text-lg text-gray-800 outline-none placeholder:text-gray-400"
+                  className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
                   autoFocus
                 />
               )}
               <VoiceButton onTranscript={handleVoice} onRecordingChange={setVoiceActive} />
               {!voiceActive && (
                 <button type="submit" disabled={!address.trim() || loading}
-                  className="rounded-xl bg-red-500 px-8 py-3 text-base font-bold text-white transition hover:bg-red-600 disabled:opacity-40 whitespace-nowrap"
+                  className="rounded-lg bg-red-500 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-40 whitespace-nowrap"
                 >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                      Analyzing...
-                    </span>
-                  ) : "Check My Taxes"}
+                  {loading ? "Analyzing..." : "Check My Taxes"}
                 </button>
               )}
             </div>
-            {error && <p className="mt-3 text-red-400 text-sm">{error}</p>}
-            <p className="mt-4 text-sm text-gray-600">Works for any property in New Jersey</p>
+            {error && <p className="mt-3 text-red-500 text-sm">{error}</p>}
+            <p className="mt-3 text-sm text-gray-400">Works for any property in New Jersey</p>
           </form>
-
-          {/* Trust */}
-          <div className="mt-12 flex flex-wrap justify-center gap-8 text-gray-500 text-sm">
-            <span>&#x1F3E0; 50,000+ properties</span>
-            <span>&#x1F4CA; Real MLS + tax data</span>
-            <span>&#x26A1; 30-second results</span>
-            <span>&#x1F512; No sign-up needed</span>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="bg-white py-16">
-        <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-3xl font-bold text-navy">How It Works</h2>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl">&#x1F3E0;</div>
-              <h3 className="mt-4 font-semibold text-navy">1. Enter Your Address</h3>
-              <p className="mt-2 text-sm text-gray-600">We pull your assessment and tax data from NJ public records automatically.</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl">&#x1F4CA;</div>
-              <h3 className="mt-4 font-semibold text-navy">2. AI Analyzes Your Taxes</h3>
-              <p className="mt-2 text-sm text-gray-600">We compare your assessment to recent sales, market data, and the NJ equalization ratio.</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl">&#x1F4B0;</div>
-              <h3 className="mt-4 font-semibold text-navy">3. See Your Savings</h3>
-              <p className="mt-2 text-sm text-gray-600">Get your estimated overpayment, appeal strength score, and step-by-step guide to file.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social proof */}
-      <section className="bg-gray-50 py-12">
-        <div className="mx-auto max-w-4xl px-4 grid gap-6 md:grid-cols-3">
-          {[
-            { name: "Carlos M.", city: "Jersey City", text: "Found out I was overpaying $3,100/year. Filed the appeal myself with the guide they gave me." },
-            { name: "Lisa K.", city: "Clifton", text: "My assessment was 30% above market value. This tool showed me exactly what to do." },
-            { name: "Robert T.", city: "Bloomfield", text: "Saved $2,400/year on my taxes. Shared it with my whole block — 4 neighbors also appealed!" },
-          ].map(t => (
-            <div key={t.name} className="rounded-xl border bg-white p-5 text-center">
-              <p className="text-sm text-gray-600 italic">&quot;{t.text}&quot;</p>
-              <p className="mt-3 text-sm font-semibold text-navy">{t.name}</p>
-              <p className="text-xs text-gray-400">{t.city}, NJ</p>
-            </div>
-          ))}
         </div>
       </section>
     </>

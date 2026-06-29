@@ -35,10 +35,10 @@ export default async function MarketIndexPage() {
 
   return (
     <>
-      <section className="bg-navy py-16 text-white text-center">
+      <section className="bg-white py-12 text-center">
         <div className="mx-auto max-w-4xl px-4">
-          <h1 className="text-3xl font-extrabold md:text-5xl">NJ Market Reports</h1>
-          <p className="mt-3 text-gray-300">Real estate market data for {cities.length}+ cities across New Jersey</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">NJ Market Reports</h1>
+          <p className="mt-3 text-gray-500">Real estate market data for {cities.length}+ cities across New Jersey</p>
         </div>
       </section>
 

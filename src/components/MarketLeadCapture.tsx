@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitLead } from "@/lib/api";
+import SmsConsent from "./SmsConsent";
 
 export default function MarketLeadCapture({ city }: { city: string }) {
   const [phone, setPhone] = useState("");
@@ -9,10 +10,12 @@ export default function MarketLeadCapture({ city }: { city: string }) {
   const [interest, setInterest] = useState<"alerts" | "invest" | "sell">("alerts");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!phone.trim()) return;
+    if (!consent) return;
     setLoading(true);
     try {
       await submitLead({
@@ -83,24 +86,14 @@ export default function MarketLeadCapture({ city }: { city: string }) {
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               placeholder="Phone or WhatsApp" required
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-gold focus:outline-none" />
-            <button type="submit" disabled={loading || !phone.trim()}
+            <button type="submit" disabled={loading || !phone.trim() || !consent}
               className="whitespace-nowrap rounded-lg bg-gold px-6 py-2.5 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40">
               {loading ? "..." : "Sign Up Free"}
             </button>
           </div>
-          <label className="mt-2 flex items-start gap-2 cursor-pointer">
-            <input type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-            <span className="text-[10px] text-gray-500 leading-relaxed">
-              I consent to receive SMS/WhatsApp messages from Garden State AI
-              about market updates and real estate services.
-              Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
-              Your mobile info will not be shared with third parties.{" "}
-              <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-              {" & "}
-              <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-            </span>
-          </label>
+          <div className="mt-2">
+            <SmsConsent checked={consent} onChange={setConsent} />
+          </div>
         </form>
       </div>
     </section>

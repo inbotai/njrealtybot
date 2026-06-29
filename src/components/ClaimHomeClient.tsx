@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatCurrency } from "@/lib/service-ladder/property-tax/calc";
+import SmsConsent from "./SmsConsent";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -33,12 +34,14 @@ export default function ClaimHomeClient() {
   const [purchasePrice, setPurchasePrice] = useState("");
   const [purchaseYear, setPurchaseYear] = useState("");
   const [loading, setLoading] = useState(false);
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ClaimResult | null>(null);
 
   async function handleClaim(e: React.FormEvent) {
     e.preventDefault();
     if (!address.trim() || !city.trim() || !name.trim() || !phone.trim()) return;
+    if (!consent) return;
     setLoading(true);
     setError(null);
 
@@ -76,15 +79,15 @@ export default function ClaimHomeClient() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-16 text-white">
+      <section className="bg-white py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h1 className="text-3xl font-extrabold md:text-5xl">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Track Your Home&apos;s{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Value
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Free monthly equity report — know what your home is worth, track your equity, and get notified of nearby sales.
           </p>
         </div>
@@ -139,19 +142,7 @@ export default function ClaimHomeClient() {
                   placeholder="john@email.com"
                   className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-gold focus:outline-none" />
               </div>
-              <label className="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox"
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold" />
-                <span className="text-[10px] text-gray-500 leading-relaxed">
-                  I consent to receive SMS/WhatsApp messages from Garden State AI
-                  about my home value and real estate services.
-                  Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.
-                  Your mobile info will not be shared with third parties.{" "}
-                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                  {" & "}
-                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                </span>
-              </label>
+              <SmsConsent checked={consent} onChange={setConsent} />
               <div className="border-t pt-4">
                 <p className="text-sm font-medium text-gray-700">Calculate your equity (optional)</p>
                 <p className="text-xs text-gray-400">This helps us show how much you&apos;d walk away with if you sold.</p>
@@ -182,7 +173,7 @@ export default function ClaimHomeClient() {
                   className="rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
                   Back
                 </button>
-                <button type="submit" disabled={loading || !name.trim() || !phone.trim()}
+                <button type="submit" disabled={loading || !name.trim() || !phone.trim() || !consent}
                   className="flex-1 rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-50">
                   {loading ? "Analyzing..." : "Claim My Home"}
                 </button>

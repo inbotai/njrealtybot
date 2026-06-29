@@ -7,6 +7,7 @@ import HeroChat from "@/components/HeroChat";
 import HeroSeller from "@/components/HeroSeller";
 import { submitLead } from "@/lib/api";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import SmsConsent from "@/components/SmsConsent";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
@@ -49,84 +50,37 @@ export default function HomePage() {
     }
   }
 
-  // ── Logged in: full homepage with search + services ──
+  // ── Logged in: full homepage with search + CTAs ──
   if (isAdmin) {
     return (
-      <>
-        {/* Hero — full-screen search, Claude/Google style */}
-        <section className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center bg-navy text-white">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
-          <div className="relative mx-auto w-full max-w-3xl px-4 text-center">
-            <h1 className="text-5xl font-extrabold leading-tight md:text-6xl lg:text-7xl">
-              <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
-              <span className="text-white"> State </span>
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
-            </h1>
-            <p className="mt-4 text-lg text-gray-400 md:text-xl">
-              Search homes, get valuations, check your taxes, or ask Vale anything.
-            </p>
+      <section className="flex min-h-[calc(100vh-64px)] flex-col items-center justify-center bg-white px-4">
+        <div className="w-full max-w-2xl text-center mt-4">
+          <h1 className="mb-6 text-3xl sm:text-4xl font-bold text-navy">What can I help you search?</h1>
+          <HeroChat />
 
-            <div className="mt-10">
-              <HeroChat />
-            </div>
-
-            <button onClick={logout} className="mt-8 text-xs text-gray-600 hover:text-gray-400 transition">
-              Logout
-            </button>
-          </div>
-        </section>
-
-        {/* Three CTAs — Home Value + Tax Appeal + FSBO */}
-        <section className="bg-white py-8">
-          <div className="mx-auto max-w-4xl px-4 grid gap-4 md:grid-cols-3">
-            <a href="/sell" className="group rounded-xl bg-gradient-to-br from-navy to-indigo-900 p-6 text-center text-white transition hover:shadow-xl">
-              <p className="text-3xl">&#127968;</p>
-              <h2 className="mt-2 text-lg font-bold">What&apos;s Your Home Worth?</h2>
-              <p className="mt-1 text-xs text-gray-300">Free AI valuation in 30 seconds</p>
-              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Get Free Valuation</span>
+          {/* CTAs — prominent seller tools */}
+          <div className="mt-16 grid gap-4 sm:grid-cols-3">
+            <a href="/sell" className="group rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
+              <p className="text-3xl">🏠</p>
+              <h2 className="mt-3 text-base font-bold">What&apos;s My Home Worth?</h2>
+              <p className="mt-1 text-xs text-indigo-200">Free AI valuation in 30 seconds</p>
+              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Get Valuation →</span>
             </a>
-            <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-900 to-red-800 p-6 text-center text-white transition hover:shadow-xl">
-              <p className="text-3xl">&#128176;</p>
-              <h2 className="mt-2 text-lg font-bold">Are You Overpaying Taxes?</h2>
-              <p className="mt-1 text-xs text-gray-300">Compare your assessment to real sales</p>
-              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Check My Taxes</span>
+            <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-600 to-red-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
+              <p className="text-3xl">💰</p>
+              <h2 className="mt-3 text-base font-bold">Am I Overpaying Taxes?</h2>
+              <p className="mt-1 text-xs text-red-200">Compare to real sales data</p>
+              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Check Taxes →</span>
             </a>
-            <a href="/fsbo" className="group rounded-xl bg-gradient-to-br from-emerald-800 to-green-900 p-6 text-center text-white transition hover:shadow-xl">
-              <p className="text-3xl">&#128274;</p>
-              <h2 className="mt-2 text-lg font-bold">Selling on Your Own?</h2>
-              <p className="mt-1 text-xs text-gray-300">AI pricing + licensed agent backup</p>
-              <span className="mt-3 inline-block rounded-lg bg-gold px-5 py-2 text-sm font-bold text-navy group-hover:bg-yellow-400">Get FSBO Help</span>
+            <a href="/list" className="group rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
+              <p className="text-3xl">📝</p>
+              <h2 className="mt-3 text-base font-bold">List My Home</h2>
+              <p className="mt-1 text-xs text-emerald-200">Digital onboarding in 5 min</p>
+              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Start Listing →</span>
             </a>
           </div>
-        </section>
-
-        {/* Quick links grid */}
-        <section className="bg-gray-50 py-8">
-          <div className="mx-auto max-w-5xl px-4 grid gap-3 grid-cols-3 md:grid-cols-5">
-            <a href="/search" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-              <p className="text-2xl">&#128269;</p>
-              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Search Homes</h3>
-            </a>
-            <a href="/market" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-              <p className="text-2xl">&#128200;</p>
-              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Market Intel</h3>
-            </a>
-            <a href="/deals" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-              <p className="text-2xl">&#128176;</p>
-              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">Deals</h3>
-            </a>
-            <a href="/list" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-              <p className="text-2xl">&#128221;</p>
-              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">List My Home</h3>
-            </a>
-            <a href="/news" className="group rounded-xl border bg-white p-4 text-center shadow-sm transition hover:shadow-lg hover:border-gold">
-              <p className="text-2xl">&#128240;</p>
-              <h3 className="mt-1 text-sm font-semibold text-navy group-hover:text-gold">News</h3>
-            </a>
-          </div>
-        </section>
-
-      </>
+        </div>
+      </section>
     );
   }
 
@@ -151,13 +105,14 @@ function PublicHomepage() {
   const [waitlistName, setWaitlistName] = useState("");
   const [waitlistSent, setWaitlistSent] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistConsent, setWaitlistConsent] = useState(false);
   const [idxPassword, setIdxPassword] = useState("");
   const [idxError, setIdxError] = useState("");
   const [showIdxLogin, setShowIdxLogin] = useState(false);
 
   async function handleWaitlist(e: React.FormEvent) {
     e.preventDefault();
-    if (!waitlistPhone.trim() || waitlistLoading) return;
+    if (!waitlistPhone.trim() || waitlistLoading || !waitlistConsent) return;
     setWaitlistLoading(true);
     try {
       await submitLead({
@@ -200,16 +155,15 @@ function PublicHomepage() {
         ]
       }) }} />
       {/* Hero — seller valuation */}
-      <section className="relative overflow-hidden bg-navy py-20 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-4xl px-4 text-center">
-          <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+      <section className="bg-white py-12">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-navy">
             Find Out What Your Home Is{" "}
-            <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">
+            <span className="text-gold">
               Worth
             </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-500">
             Free AI-powered valuation in 30 seconds. No obligation.
           </p>
 
@@ -220,14 +174,14 @@ function PublicHomepage() {
       </section>
 
       {/* WhatsApp CTA banner */}
-      <div className="bg-navy px-4 pb-6">
+      <div className="bg-white px-4 pb-6">
         <div className="mx-auto max-w-4xl rounded-xl border border-[#25D366]/30 bg-gradient-to-r from-[#25D366]/15 via-[#25D366]/5 to-[#25D366]/15 px-6 py-5">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <div className="text-center sm:text-left">
-              <p className="text-sm font-bold text-white">
+              <p className="text-sm font-bold text-navy">
                 Chat with Vale on WhatsApp for the best experience
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-500">
                 Instant valuations, property photos, market alerts &amp; more — right on your phone
               </p>
             </div>
@@ -318,24 +272,10 @@ function PublicHomepage() {
                 required
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
               />
-              <label className="flex items-start gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
-                />
-                <span className="text-xs text-gray-500">
-                  I consent to receive SMS and WhatsApp messages from Garden State AI
-                  about property alerts, market updates, and real estate services at the phone number provided.
-                  Msg frequency varies. Msg & data rates may apply. Reply STOP to opt out.
-                  Your mobile information will not be shared with third parties for marketing purposes.{" "}
-                  <a href="/privacy" target="_blank" className="underline hover:text-gray-700">Privacy Policy</a>
-                  {" & "}
-                  <a href="/terms" target="_blank" className="underline hover:text-gray-700">Terms</a>.
-                </span>
-              </label>
+              <SmsConsent checked={waitlistConsent} onChange={setWaitlistConsent} />
               <button
                 type="submit"
-                disabled={!waitlistPhone.trim() || waitlistLoading}
+                disabled={!waitlistPhone.trim() || waitlistLoading || !waitlistConsent}
                 className="w-full rounded-lg bg-navy px-6 py-3 font-semibold text-white transition hover:bg-indigo-900 disabled:opacity-40"
               >
                 {waitlistLoading ? "..." : "Join the Waitlist"}

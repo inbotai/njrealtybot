@@ -13,6 +13,7 @@ const publicLinks = [
 
 const adminLinks = [
   { href: "/search", label: "Buy" },
+  { href: "/search?propertyType=Rental", label: "Rentals" },
   { href: "/sell", label: "Sell" },
   { href: "/list", label: "List My Home" },
   { href: "/property-tax", label: "Tax Appeal" },
@@ -66,62 +67,59 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-navy text-white shadow-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        {/* Logo */}
-        <Link href="/" className="shrink-0 text-sm font-bold tracking-tight md:text-base">
-          <span className="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite]">Garden</span>
-          <span className="text-white"> State </span>
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-[length:200%_auto] bg-clip-text text-transparent animate-[shimmer_3s_linear_infinite_0.5s]">AI</span>
+    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 px-4 py-3">
+        {/* Logo with icon */}
+        <Link href="/" className="shrink-0 flex items-center gap-2">
+          <svg viewBox="0 0 200 200" className="h-9 w-9">
+            <circle cx="100" cy="100" r="95" fill="#0f0a1e" />
+            <circle cx="100" cy="100" r="72" fill="none" stroke="#f59e0b" strokeWidth="3" />
+            <ellipse cx="100" cy="130" rx="45" ry="18" fill="#22c55e" />
+            <rect x="75" y="85" width="50" height="40" rx="2" fill="#fbbf24" />
+            <polygon points="100,55 65,90 135,90" fill="#ef4444" />
+            <rect x="92" y="100" width="16" height="25" rx="1" fill="#0f0a1e" />
+            <rect x="80" y="95" width="10" height="10" rx="1" fill="#60a5fa" />
+            <rect x="110" y="95" width="10" height="10" rx="1" fill="#60a5fa" />
+            <circle cx="60" cy="125" r="12" fill="#22c55e" />
+            <rect x="58" y="125" width="4" height="12" rx="1" fill="#92400e" />
+            <circle cx="140" cy="125" r="12" fill="#22c55e" />
+            <rect x="138" y="125" width="4" height="12" rx="1" fill="#92400e" />
+          </svg>
+          <span className="text-sm font-bold tracking-tight md:text-base">
+            <span className="text-gold">Garden</span>
+            <span className="text-gray-900"> State </span>
+            <span className="text-indigo-600">AI</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-6 lg:flex">
           {mainLinks.map((l) => (
             <Link key={l.href} href={l.href}
-              className="text-sm font-medium text-gray-200 transition hover:text-gold">
+              className="text-sm font-medium text-gray-900 transition hover:text-indigo-600">
               {l.label}
             </Link>
           ))}
           {isAdmin && showOpenHouse && (
             <Link href="/open-houses"
-              className="text-sm font-medium text-gray-200 transition hover:text-gold">
+              className="text-sm font-medium text-gray-900 transition hover:text-indigo-600">
               Open Houses
             </Link>
           )}
 
-          {/* More dropdown — admin only */}
-          {isAdmin && (
-            <div ref={moreRef} className="relative">
-              <button onClick={() => setMoreOpen(!moreOpen)}
-                className="flex items-center gap-1 text-sm font-medium text-gray-200 transition hover:text-gold">
-                More
-                <svg className={`h-3.5 w-3.5 transition ${moreOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {moreOpen && (
-                <div className="absolute right-0 top-full mt-2 w-44 rounded-lg bg-white py-1 shadow-xl">
-                  {dynamicMoreLinks.map((l) => (
-                    <Link key={l.href} href={l.href} onClick={() => setMoreOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600">
-                      {l.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+          {/* BHG Broker logo + Green Team — must be more prominent than Garden State AI */}
+          <div className="border-l border-gray-200 pl-5 flex items-center gap-3">
+            <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-14 w-auto" />
+            <div className="leading-tight">
+              <p className="text-sm font-bold text-gray-900 tracking-wide">GREEN TEAM</p>
+              <p className="text-xs text-gray-400">REALTY</p>
             </div>
-          )}
-
-          {/* BHG Broker logo */}
-          <div className="border-l border-white/20 pl-5">
-            <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-[72px] w-auto" />
           </div>
 
           {/* Admin indicator */}
           {isAdmin && (
             <button onClick={logout}
-              className="text-xs text-gray-400 hover:text-gray-200 transition">
+              className="text-xs text-gray-400 hover:text-gray-600 transition">
               Logout
             </button>
           )}
@@ -129,35 +127,29 @@ export default function Navbar() {
 
         {/* Mobile toggle */}
         <button onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-2xl lg:hidden" aria-label="Toggle menu">
+          className="text-2xl text-gray-900 lg:hidden" aria-label="Toggle menu">
           {mobileOpen ? "\u2715" : "\u2630"}
         </button>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-navy lg:hidden">
+        <div className="border-t border-gray-200 bg-white lg:hidden">
           {mainLinks.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5 hover:text-gold">
+              className="block px-4 py-3 text-sm text-gray-900 hover:bg-gray-50 hover:text-indigo-600">
               {l.label}
             </Link>
           ))}
           {isAdmin && showOpenHouse && (
             <Link href="/open-houses" onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5 hover:text-gold">
+              className="block px-4 py-3 text-sm text-gray-900 hover:bg-gray-50 hover:text-indigo-600">
               Open Houses
             </Link>
           )}
-          {isAdmin && dynamicMoreLinks.map((l) => (
-            <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5 hover:text-gold">
-              {l.label}
-            </Link>
-          ))}
           {isAdmin && (
             <button onClick={() => { logout(); setMobileOpen(false); }}
-              className="block w-full px-4 py-3 text-left text-sm text-gray-400 hover:bg-white/5">
+              className="block w-full px-4 py-3 text-left text-sm text-gray-400 hover:bg-gray-50">
               Logout
             </button>
           )}
