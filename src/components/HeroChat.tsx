@@ -10,9 +10,9 @@ import VoiceButton from "./VoiceButton";
 const suggestions = [
   { label: "Houses in Hoboken", params: "city=Hoboken" },
   { label: "Rentals in Jersey City", params: "city=Jersey+City&propertyType=Rental" },
-  { label: "3 bed in Jersey City", params: "city=Jersey+City&beds=3" },
-  { label: "What's my home worth?", href: "/sell" },
-  { label: "Am I overpaying taxes?", href: "/tax-shock" },
+  { label: "3 bed in Bergen County", params: "county=Bergen&beds=3" },
+  { label: "Multi-Family in Passaic", params: "county=Passaic&propertyType=Multi-Family" },
+  { label: "Under $400K in Essex", params: "county=Essex&maxPrice=400000" },
 ];
 
 export default function HeroChat() {
@@ -30,10 +30,25 @@ export default function HeroChat() {
     // Normalize accents for matching: análisis → analisis
     const qNorm = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Tax queries and CMA/valuation requests → send to Vale chat
-    // Vale handles the conversation and provides clickable links within the chat
-    if (/tax|taxes|impuesto|assessment|overpay|sobre.?tasado|appeal|chapter 123|worth|value|valuation|sell|vender|cma|cuanto vale|market analysis|analisis de mercado|how much/i.test(qNorm)) {
-      router.push(`/chat?q=${encodeURIComponent(q)}`);
+    // CMA / valuation → /sell page
+    if (/worth|value|valuaci|cma|cuanto vale|market analysis|analisis de mercado|how much.*worth/i.test(qNorm)) {
+      router.push("/sell");
+      return;
+    }
+
+    // Tax queries → /tax-shock or /appeal
+    if (/tax|taxes|impuesto|assessment|overpay|sobre.?tasado|appeal|chapter 123/i.test(qNorm)) {
+      if (/appeal|apelar|form.a-1|chapter 123/i.test(qNorm)) {
+        router.push("/appeal");
+      } else {
+        router.push("/tax-shock");
+      }
+      return;
+    }
+
+    // Sell / list home → /list
+    if (/\b(sell|vender|list)\b.*\b(home|house|casa|my)\b/i.test(qNorm) || /\b(quiero|want).*(sell|vender|list)/i.test(qNorm)) {
+      router.push("/list");
       return;
     }
 
@@ -90,24 +105,12 @@ export default function HeroChat() {
       {/* Search input */}
       <div className="flex overflow-hidden rounded-xl bg-white shadow-2xl px-4 py-2 items-center gap-2">
         {!voiceActive && (
-          <div className="flex items-center">
-            <svg viewBox="0 0 200 200" className="h-8 w-8 flex-shrink-0">
-              <circle cx="100" cy="100" r="100" fill="#0f0a1e" />
-              <circle cx="100" cy="105" r="52" fill="#4f46e5" />
-              <ellipse cx="82" cy="105" rx="6" ry="7" fill="#fcd34d" />
-              <ellipse cx="118" cy="105" rx="6" ry="7" fill="#fcd34d" />
-              <path d="M85 118Q100 130 115 118" fill="none" stroke="#ede9fe" strokeWidth="2.5" strokeLinecap="round" opacity=".6" />
-              <path d="M72 72L80 58L90 68L100 52L110 68L120 58L128 72" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        )}
-        {!voiceActive && (
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSearch(); } }}
-            placeholder="Search properties, request a CMA, sell your home, or click the mic to speak"
+            placeholder="Search type, an address, City, County"
             className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
           />
         )}
@@ -132,14 +135,9 @@ export default function HeroChat() {
           <button
             key={s.label}
             onClick={() => {
-              if (s.href) {
-                router.push(s.href);
-              } else {
-                router.push(`/search?${s.params}`);
-                openPanel();
-              }
+              router.push(`/search?${s.params}`);
             }}
-            className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full border border-gray-200 px-3.5 py-1.5 text-xs text-gray-500 transition hover:bg-gray-100 hover:text-navy hover:border-gray-300"
           >
             {s.label}
           </button>
