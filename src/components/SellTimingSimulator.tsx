@@ -284,7 +284,9 @@ export default function SellTimingSimulator() {
                         {market.appreciation !== null ? `${market.appreciation >= 0 ? "+" : ""}${market.appreciation}%` : "N/A"}
                       </p>
                       <p className="mt-1 text-xs text-gray-500">
-                        {market.trend === "up" ? "Prices rising" : market.trend === "down" ? "Prices declining" : "Prices stable"}
+                        {market.appreciation !== null
+                          ? (market.appreciation >= 2 ? "Prices rising" : market.appreciation <= -2 ? "Prices declining" : "Prices stable")
+                          : "Insufficient data"}
                       </p>
                     </div>
                     <div className="rounded-lg bg-gray-50 p-4">
