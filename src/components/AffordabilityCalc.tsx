@@ -20,7 +20,15 @@ export default function AffordabilityCalc() {
 
     const monthlyIncome = annualIncome / 12;
     // 28% front-end ratio (housing) or 36% back-end (total debt)
-    const maxHousing = Math.min(monthlyIncome * 0.28, monthlyIncome * 0.36 - monthlyDebt);
+    const frontEnd = monthlyIncome * 0.28;
+    const backEnd = monthlyIncome * 0.36 - monthlyDebt;
+    const maxHousing = Math.max(0, Math.min(frontEnd, backEnd));
+
+    if (maxHousing <= 0) {
+      setResult({ budget: 0, monthly: 0 });
+      return;
+    }
+
     // Subtract estimated taxes (~1.89% NJ avg) + insurance (~0.4%)
     const r = Number(rate) / 100 / 12;
     const n = 360; // 30 years
@@ -30,7 +38,7 @@ export default function AffordabilityCalc() {
     const loanAmount = maxPI / piRatio;
     const downPct = Number(down) / 100;
     const budget = Math.round(loanAmount / (1 - downPct));
-    setResult({ budget, monthly: Math.round(maxHousing) });
+    setResult({ budget: Math.max(0, budget), monthly: Math.round(maxHousing) });
   }
 
   return (
@@ -83,6 +91,18 @@ export default function AffordabilityCalc() {
             </form>
           ) : (
             <div className="text-center">
+              {result.budget <= 0 ? (
+                <div className="rounded-xl bg-white border border-red-200 p-8 shadow-sm">
+                  <p className="text-lg font-bold text-red-600">Your debts are too high relative to your income</p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Lenders typically require that total debts (including housing) stay below 36% of your gross income.
+                    Try reducing monthly debts or increasing your income to see what you can afford.
+                  </p>
+                  <button onClick={() => setResult(null)} className="mt-6 rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400">
+                    Recalculate
+                  </button>
+                </div>
+              ) : (
               <div className="rounded-xl bg-gradient-to-b from-navy to-indigo-900 p-8 text-white shadow-xl">
                 <p className="text-sm text-gray-300">You can afford up to</p>
                 <p className="mt-2 text-5xl font-extrabold text-gold">${result.budget.toLocaleString()}</p>
@@ -93,6 +113,9 @@ export default function AffordabilityCalc() {
                   With {down}% down (${Math.round(result.budget * Number(down) / 100).toLocaleString()}) at {rate}%
                 </p>
               </div>
+              )}
+              {result.budget > 0 && (
+              <>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button onClick={() => router.push(`/search?maxPrice=${result.budget}`)}
                   className="rounded-lg bg-navy px-6 py-3 font-semibold text-white hover:bg-indigo-900">
@@ -104,6 +127,8 @@ export default function AffordabilityCalc() {
                 </button>
               </div>
               <button onClick={() => setResult(null)} className="mt-4 text-sm text-gray-400 hover:text-navy">Recalculate</button>
+              </>
+              )}
 
               <div className="mt-8">
                 <LeadGate
