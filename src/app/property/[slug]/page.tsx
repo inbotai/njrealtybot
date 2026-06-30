@@ -95,6 +95,35 @@ export default async function PropertyPage({ params }: Props) {
     ? `${pr.lot_acres} acres (${Number(pr.lot_sqft).toLocaleString()} sqft)`
     : lotSqft ? `${Number(lotSqft).toLocaleString()} sqft` : null;
 
+  // ── Smart property type display ────────────────────────────
+  // MLS data can be misleading: a "duplex" in remarks with Condo type = duplex-style condo (2-floor unit), not multi-family
+  // A standalone duplex (2 units) sold as one = single family, not multi-family
+  const remarks = (listing.public_remarks || "").toLowerCase();
+  const rawType = listing.property_type || "";
+  const rawSubType = listing.property_sub_type || "";
+  let displayType = [rawType, rawSubType].filter(Boolean).join(" — ") || null;
+
+  const isDuplexMention = /\bduplex\b/.test(remarks);
+  if (isDuplexMention) {
+    if (/condo|townhouse/i.test(rawType)) {
+      // Condo building with duplex-style unit (2 floors within one unit)
+      displayType = "Condo — Duplex Style";
+    } else if (/multi/i.test(rawType)) {
+      // MLS says multi-family but a single duplex is really single family
+      displayType = "Single Family — Duplex";
+    } else if (!rawSubType || !/duplex/i.test(rawSubType)) {
+      // Remarks say duplex but type/subtype don't — add it
+      displayType = displayType ? `${displayType} — Duplex Style` : "Duplex";
+    }
+  }
+  // Standalone duplex sub-type without multi-family = single family
+  if (/duplex/i.test(rawSubType) && !/multi/i.test(rawType)) {
+    displayType = "Single Family — Duplex";
+  }
+
+  // Stories: filter out unreasonable values for residential (>4 stories likely rooms count, not stories)
+  const displayStories = listing.stories && listing.stories <= 4 ? listing.stories : null;
+
   const details = [
     { label: "Bedrooms", value: listing.bedrooms_total },
     { label: "Bathrooms", value: listing.bathrooms_total },
@@ -102,8 +131,8 @@ export default async function PropertyPage({ params }: Props) {
     { label: "Sq Ft", value: validSqft ? validSqft.toLocaleString() : null },
     { label: "Lot Size", value: lotDisplay },
     { label: "Year Built", value: listing.year_built },
-    { label: "Stories", value: listing.stories },
-    { label: "Property Type", value: [listing.property_type, listing.property_sub_type].filter(Boolean).join(" — ") || null },
+    { label: "Stories", value: displayStories },
+    { label: "Property Type", value: displayType },
     { label: "Parking Spaces", value: listing.parking_total },
     { label: "Garage", value: listing.garage_spaces },
   ].filter((d) => d.value != null);
