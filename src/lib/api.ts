@@ -106,7 +106,7 @@ export interface LeadData {
   phone: string;
   message: string;
   listing_id?: string;
-  lead_type: "info_request" | "showing_request" | "listing_request" | "buyer_waitlist";
+  lead_type: "info_request" | "showing_request" | "listing_request" | "buyer_waitlist" | "open_house_visitor";
   source?: string;
 }
 
