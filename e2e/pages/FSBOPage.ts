@@ -6,7 +6,6 @@ export default class FSBOPage {
   readonly valuationCTA: Locator;
   readonly taxCTA: Locator;
   readonly comparisonTable: Locator;
-  readonly guaranteeSection: Locator;
   readonly faqSection: Locator;
 
   constructor(page: Page) {
@@ -15,9 +14,6 @@ export default class FSBOPage {
     this.valuationCTA = page.getByRole("link", { name: /value|estimate|sell/i }).first();
     this.taxCTA = page.getByRole("link", { name: /tax/i }).first();
     this.comparisonTable = page.locator("table, [data-testid='comparison']").first();
-    this.guaranteeSection = page.locator(
-      "section:has-text('guarantee'), [data-testid='guarantee']"
-    ).first();
     this.faqSection = page.locator(
       "section:has-text('FAQ'), [data-testid='faq'], details"
     ).first();

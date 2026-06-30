@@ -21,7 +21,7 @@ function getNudge(pathname: string): { title: string; body: string; cta: string;
   if (pathname === "/sell" || pathname.startsWith("/sell")) {
     return {
       title: "Thinking about selling?",
-      body: "Get a free AI-powered valuation and our 90-day guarantee: if we don't sell it, we do it for free.",
+      body: "Get a free AI-powered valuation backed by real MLS data and comparable sales analysis.",
       cta: "Get My Valuation",
       interest: "sell",
     };

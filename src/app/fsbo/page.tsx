@@ -173,20 +173,6 @@ export default function FSBOPage() {
         </div>
       </section>
 
-      {/* ── Guarantee ── */}
-      <section className="bg-gray-50 py-12">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-navy md:text-3xl">Our Guarantee</h2>
-          <p className="mt-4 text-lg text-gray-500">
-            If we don&apos;t sell your home within 90 days at the right price, we&apos;ll sell it for free &mdash;{" "}
-            <strong className="text-gold">zero commission</strong>.
-          </p>
-          <Link href="/list" className="mt-8 inline-block rounded-lg bg-gold px-8 py-3 font-semibold text-navy transition hover:bg-yellow-500">
-            List My Home Now
-          </Link>
-        </div>
-      </section>
-
       {/* ── Stats Strip ── */}
       <section className="bg-gray-50 py-10">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 text-center sm:grid-cols-2 md:grid-cols-4">
