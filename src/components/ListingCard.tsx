@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/api";
 import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import ListingActions from "@/components/ListingActions";
+import { EstTotalMonthlyCost } from "@/components/TotalCostCard";
 
 const statusColors: Record<string, string> = {
   "For Sale": "bg-green-600",
@@ -107,6 +108,17 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             <span className="font-medium">{listing.living_area.toLocaleString()} Sqft</span>
           )}
         </div>
+
+        {listing.list_price && listing.list_price > 0 && listing.mls_status !== "Sold" && listing.property_type !== "Rental" && (
+          <div className="mt-2">
+            <EstTotalMonthlyCost
+              listPrice={listing.list_price}
+              annualTaxes={listing.tax_annual_amount}
+              hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
+              hoaFrequency={listing.association_fee_frequency}
+            />
+          </div>
+        )}
 
         {listing.listing_office_name && (
           <p className="mt-2 truncate text-xs text-gray-500">

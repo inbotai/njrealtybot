@@ -6,6 +6,7 @@ import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
 import PropertyPageVale from "@/components/PropertyPageVale";
 import MortgageCalculator from "@/components/MortgageCalculator";
+import TotalCostCard from "@/components/TotalCostCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import RequireAuth from "@/components/RequireAuth";
 import DemandBadge from "@/components/DemandBadge";
@@ -369,8 +370,19 @@ export default async function PropertyPage({ params }: Props) {
             )}
           </div>
 
-          {/* Sidebar: Vale chat */}
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* Total Cost of Ownership — hide for sold/rentals */}
+            {listing.list_price && !isSold && listing.property_type !== "Rental" && !/rent|lease/i.test(listing.mls_status || "") && (
+              <TotalCostCard
+                listPrice={listing.list_price}
+                annualTaxes={annualTax ?? null}
+                assessedValue={pr?.assessed_value ?? null}
+                hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
+                hoaFrequency={listing.association_fee_frequency ?? null}
+                publicRemarks={listing.public_remarks ?? null}
+              />
+            )}
             <PropertyPageVale listingId={listing.id} />
           </div>
         </div>
