@@ -5,22 +5,26 @@ import LeadGate from "@/components/LeadGate";
 
 
 const roomTypes = [
-  { id: "kitchen", label: "Kitchen", icon: "🍳", avgCost: "$15,000 – $40,000", avgRoi: "2.5x – 3.5x" },
-  { id: "bathroom", label: "Bathroom", icon: "🛁", avgCost: "$8,000 – $25,000", avgRoi: "2x – 3x" },
-  { id: "livingroom", label: "Living Room", icon: "🛋️", avgCost: "$5,000 – $15,000", avgRoi: "1.5x – 2x" },
-  { id: "exterior", label: "Exterior / Curb Appeal", icon: "🏡", avgCost: "$3,000 – $10,000", avgRoi: "2x – 4x" },
-  { id: "landscaping", label: "Landscaping", icon: "🌳", avgCost: "$2,000 – $8,000", avgRoi: "1.5x – 2.5x" },
+  { id: "kitchen", label: "Kitchen", icon: "🍳", avgCost: "$28,000 – $120,000", avgRoi: "55% – 80%" },
+  { id: "bathroom", label: "Bathroom", icon: "🛁", avgCost: "$25,000 – $75,000", avgRoi: "60% – 75%" },
+  { id: "exterior", label: "Exterior / Curb Appeal", icon: "🏡", avgCost: "$4,200 – $20,000", avgRoi: "70% – 95%" },
+  { id: "flooring", label: "Flooring", icon: "🪵", avgCost: "$3,500 – $6,000", avgRoi: "80% – 85%" },
+  { id: "systems", label: "Roof / HVAC", icon: "🔧", avgCost: "$8,000 – $22,000", avgRoi: "80% – 85%" },
 ];
 
 const roiData = [
-  { renovation: "Minor Kitchen Remodel", cost: "$15,000", valueAdded: "$45,000", roi: "200%", tier: "high" },
-  { renovation: "Bathroom Addition", cost: "$25,000", valueAdded: "$50,000", roi: "100%", tier: "high" },
-  { renovation: "New Garage Door", cost: "$4,000", valueAdded: "$16,000", roi: "300%", tier: "high" },
-  { renovation: "Exterior Paint / Siding", cost: "$8,000", valueAdded: "$20,000", roi: "150%", tier: "high" },
-  { renovation: "Hardwood Floor Refinish", cost: "$3,000", valueAdded: "$10,000", roi: "233%", tier: "medium" },
-  { renovation: "Landscaping / Curb Appeal", cost: "$5,000", valueAdded: "$12,000", roi: "140%", tier: "medium" },
-  { renovation: "Major Kitchen Remodel", cost: "$60,000", valueAdded: "$72,000", roi: "20%", tier: "low" },
-  { renovation: "Master Suite Addition", cost: "$100,000", valueAdded: "$80,000", roi: "-20%", tier: "low" },
+  { renovation: "Garage Door Replacement", cost: "$4,200 – $5,500", valueAdded: "$4,000 – $5,000", roi: "90 – 95%", tier: "high" },
+  { renovation: "Hardwood Floor Refinish", cost: "$3,500 – $6,000", valueAdded: "$3,000 – $5,000", roi: "80 – 85%", tier: "high" },
+  { renovation: "New Roof", cost: "$12,000 – $22,000", valueAdded: "$10,000 – $18,000", roi: "80 – 85%", tier: "high" },
+  { renovation: "HVAC Replacement", cost: "$8,000 – $15,000", valueAdded: "$7,000 – $12,000", roi: "80 – 85%", tier: "high" },
+  { renovation: "Minor Kitchen Remodel", cost: "$28,000 – $35,000", valueAdded: "$22,000 – $28,000", roi: "75 – 80%", tier: "high" },
+  { renovation: "Landscaping / Curb Appeal", cost: "$5,000 – $10,000", valueAdded: "$4,000 – $8,000", roi: "75 – 80%", tier: "medium" },
+  { renovation: "Bathroom Renovation", cost: "$25,000 – $35,000", valueAdded: "$18,000 – $25,000", roi: "70 – 75%", tier: "medium" },
+  { renovation: "Exterior Paint / Siding", cost: "$12,000 – $20,000", valueAdded: "$9,000 – $15,000", roi: "70 – 75%", tier: "medium" },
+  { renovation: "Window Replacement", cost: "$15,000 – $25,000", valueAdded: "$10,000 – $16,000", roi: "65 – 70%", tier: "medium" },
+  { renovation: "Bathroom Addition", cost: "$55,000 – $75,000", valueAdded: "$35,000 – $45,000", roi: "60 – 65%", tier: "medium" },
+  { renovation: "Major Kitchen Remodel", cost: "$75,000 – $120,000", valueAdded: "$45,000 – $65,000", roi: "55 – 60%", tier: "low" },
+  { renovation: "Master Suite Addition", cost: "$125,000 – $175,000", valueAdded: "$60,000 – $85,000", roi: "45 – 50%", tier: "low" },
 ];
 
 type RenovationType = {
@@ -34,17 +38,18 @@ type RenovationType = {
 };
 
 const renovationTypes: RenovationType[] = [
-  { id: "kitchen_minor", label: "Minor Kitchen Remodel", avgMultiplier: 2.5, minMultiplier: 1.8, maxMultiplier: 3.0, minBudget: 10000, maxBudget: 25000 },
-  { id: "kitchen_major", label: "Major Kitchen Remodel", avgMultiplier: 1.0, minMultiplier: 0.8, maxMultiplier: 1.2, minBudget: 40000, maxBudget: 80000 },
-  { id: "bathroom", label: "Bathroom Remodel", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 8000, maxBudget: 25000 },
-  { id: "bathroom_add", label: "Bathroom Addition", avgMultiplier: 1.6, minMultiplier: 1.3, maxMultiplier: 2.0, minBudget: 20000, maxBudget: 50000 },
-  { id: "garage_door", label: "Garage Door Replacement", avgMultiplier: 3.8, minMultiplier: 3.0, maxMultiplier: 4.5, minBudget: 2000, maxBudget: 6000 },
-  { id: "exterior_paint", label: "Exterior Paint / Siding", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 5000, maxBudget: 15000 },
-  { id: "hardwood", label: "Hardwood Floor Refinish", avgMultiplier: 3.0, minMultiplier: 2.5, maxMultiplier: 3.5, minBudget: 2000, maxBudget: 8000 },
-  { id: "landscaping", label: "Landscaping", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 2000, maxBudget: 10000 },
-  { id: "roof", label: "Roof Replacement", avgMultiplier: 0.8, minMultiplier: 0.6, maxMultiplier: 1.0, minBudget: 8000, maxBudget: 25000 },
-  { id: "windows", label: "Window Replacement", avgMultiplier: 0.85, minMultiplier: 0.7, maxMultiplier: 1.0, minBudget: 10000, maxBudget: 30000 },
-  { id: "basement", label: "Basement Finish", avgMultiplier: 0.65, minMultiplier: 0.5, maxMultiplier: 0.8, minBudget: 15000, maxBudget: 50000 },
+  { id: "garage_door", label: "Garage Door Replacement", avgMultiplier: 0.93, minMultiplier: 0.85, maxMultiplier: 1.0, minBudget: 3500, maxBudget: 6000 },
+  { id: "hardwood", label: "Hardwood Floor Refinish", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 2500, maxBudget: 7000 },
+  { id: "roof", label: "Roof Replacement", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 10000, maxBudget: 25000 },
+  { id: "hvac", label: "HVAC Replacement", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 7000, maxBudget: 16000 },
+  { id: "kitchen_minor", label: "Minor Kitchen Remodel", avgMultiplier: 0.78, minMultiplier: 0.70, maxMultiplier: 0.85, minBudget: 22000, maxBudget: 40000 },
+  { id: "landscaping", label: "Landscaping / Curb Appeal", avgMultiplier: 0.78, minMultiplier: 0.70, maxMultiplier: 0.85, minBudget: 3000, maxBudget: 12000 },
+  { id: "bathroom", label: "Bathroom Renovation", avgMultiplier: 0.73, minMultiplier: 0.65, maxMultiplier: 0.80, minBudget: 20000, maxBudget: 40000 },
+  { id: "exterior_paint", label: "Exterior Paint / Siding", avgMultiplier: 0.73, minMultiplier: 0.65, maxMultiplier: 0.80, minBudget: 10000, maxBudget: 22000 },
+  { id: "windows", label: "Window Replacement", avgMultiplier: 0.68, minMultiplier: 0.60, maxMultiplier: 0.75, minBudget: 12000, maxBudget: 28000 },
+  { id: "bathroom_add", label: "Bathroom Addition", avgMultiplier: 0.63, minMultiplier: 0.55, maxMultiplier: 0.70, minBudget: 45000, maxBudget: 80000 },
+  { id: "kitchen_major", label: "Major Kitchen Remodel", avgMultiplier: 0.58, minMultiplier: 0.50, maxMultiplier: 0.65, minBudget: 65000, maxBudget: 130000 },
+  { id: "master_suite", label: "Master Suite Addition", avgMultiplier: 0.48, minMultiplier: 0.40, maxMultiplier: 0.55, minBudget: 100000, maxBudget: 200000 },
 ];
 
 type CalcResult = {
@@ -67,26 +72,28 @@ function calcRoi(budget: number, reno: RenovationType): CalcResult {
     budgetWarning = `A typical ${reno.label.toLowerCase()} costs ${fmt(reno.minBudget)}–${fmt(reno.maxBudget)}. Your budget of ${fmt(budget)} is well above average — diminishing returns are likely.`;
   }
 
+  // Multiplier represents % of cost recovered (0.78 = 78% recovery)
   const valueAdded = budget * reno.avgMultiplier;
+  const recoveryPercent = reno.avgMultiplier * 100;
   const roiPercent = ((valueAdded - budget) / budget) * 100;
   const rangeMin = budget * reno.minMultiplier;
   const rangeMax = budget * reno.maxMultiplier;
-  const njAvgRoi = (reno.avgMultiplier - 1) * 100;
+  const njAvgRoi = recoveryPercent;
 
   let verdict: CalcResult["verdict"];
   let verdictLabel: string;
   if (budgetWarning && budget < reno.minBudget) {
     verdict = "red";
     verdictLabel = "Budget too low for this renovation type";
-  } else if (roiPercent >= 100) {
+  } else if (recoveryPercent >= 80) {
     verdict = "green";
-    verdictLabel = "Excellent investment — do it!";
-  } else if (roiPercent >= 0) {
+    verdictLabel = "Strong recovery — recommended upgrade";
+  } else if (recoveryPercent >= 60) {
     verdict = "yellow";
-    verdictLabel = "Breaks even — proceed with caution";
+    verdictLabel = "Moderate recovery — do it if you'll enjoy it";
   } else {
     verdict = "red";
-    verdictLabel = "Likely loses value — consider alternatives";
+    verdictLabel = "Low recovery — only if you need the space";
   }
 
   return { valueAdded, roiPercent, rangeMin, rangeMax, verdict, verdictLabel, njAvgRoi, budgetWarning };
@@ -235,7 +242,7 @@ export default function RenovateSimulator() {
                 Calculate ROI
               </button>
               <span className="text-xs text-gray-500">
-                NJ avg multiplier for {selectedReno.label}: {selectedReno.minMultiplier}x &ndash; {selectedReno.maxMultiplier}x
+                NJ avg recovery for {selectedReno.label}: {(selectedReno.minMultiplier * 100).toFixed(0)}% &ndash; {(selectedReno.maxMultiplier * 100).toFixed(0)}%
               </span>
             </div>
           </div>
@@ -256,13 +263,13 @@ export default function RenovateSimulator() {
                   <p className="mt-0.5 text-xs text-gray-400">Range: {fmt(result.rangeMin)} &ndash; {fmt(result.rangeMax)}</p>
                 </div>
 
-                {/* Net ROI */}
+                {/* Cost Recovery */}
                 <div className="text-center">
-                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Net ROI</p>
-                  <p className={`mt-1 text-2xl font-extrabold ${result.roiPercent >= 100 ? "text-green-600" : result.roiPercent >= 0 ? "text-yellow-600" : "text-red-500"}`}>
-                    {result.roiPercent >= 0 ? "+" : ""}{result.roiPercent.toFixed(0)}%
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Cost Recovery</p>
+                  <p className={`mt-1 text-2xl font-extrabold ${result.njAvgRoi >= 80 ? "text-green-600" : result.njAvgRoi >= 60 ? "text-yellow-600" : "text-red-500"}`}>
+                    {result.njAvgRoi.toFixed(0)}%
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-400">On a {fmt(parseInt(budgetStr))} investment</p>
+                  <p className="mt-0.5 text-xs text-gray-400">Of your {fmt(parseInt(budgetStr))} investment</p>
                 </div>
 
                 {/* Verdict */}
@@ -275,14 +282,14 @@ export default function RenovateSimulator() {
                   <p className="mt-1 text-xs text-gray-500">{result.verdictLabel}</p>
                 </div>
 
-                {/* NJ Average */}
+                {/* Net Cost */}
                 <div className="text-center">
-                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">NJ Average ROI</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Net Cost to You</p>
                   <p className="mt-1 text-2xl font-extrabold text-navy">
-                    {result.njAvgRoi >= 0 ? "+" : ""}{result.njAvgRoi.toFixed(0)}%
+                    {fmt(parseInt(budgetStr) - result.valueAdded)}
                   </p>
                   <p className="mt-0.5 text-xs text-gray-400">
-                    You&apos;re {result.roiPercent > result.njAvgRoi ? "above" : result.roiPercent < result.njAvgRoi ? "below" : "at"} average
+                    What you don&apos;t recover at sale
                   </p>
                 </div>
               </div>
@@ -294,7 +301,7 @@ export default function RenovateSimulator() {
                   valueProp="Get AI Renovation Renderings"
                   source="renovate_sim"
                   message={`${selectedReno.label} | Budget: ${fmt(parseInt(budgetStr))} | ROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}% | ${result.verdictLabel}`}
-                  resultsText={`🔨 *Renovation ROI Results*\n\nProject: ${selectedReno.label}\nBudget: ${fmt(parseInt(budgetStr))}\nValue Added: ${fmt(result.valueAdded)}\nROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}%\nVerdict: ${result.verdictLabel}\n\nGet a free CMA: gardenstate.ai/sell\n— Garden State AI`}
+                  resultsText={`🔨 *Renovation Analysis*\n\nProject: ${selectedReno.label}\nBudget: ${fmt(parseInt(budgetStr))}\nEst. Value Added: ${fmt(result.valueAdded)}\nCost Recovery: ${result.njAvgRoi.toFixed(0)}%\nNet Cost: ${fmt(parseInt(budgetStr) - result.valueAdded)}\nVerdict: ${result.verdictLabel}\n\nGet a free CMA: gardenstate.ai/sell\n— Garden State AI`}
                 />
               </div>
 
@@ -321,8 +328,8 @@ export default function RenovateSimulator() {
       {/* ROI table */}
       <section className="py-12 bg-white">
         <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-2xl font-bold text-navy">Renovation ROI Guide — New Jersey</h2>
-          <p className="mt-2 text-center text-sm text-gray-500">Based on national averages adjusted for the NJ market</p>
+          <h2 className="text-center text-2xl font-bold text-navy">Renovation Cost Recovery Guide — New Jersey</h2>
+          <p className="mt-2 text-center text-sm text-gray-500">Conservative estimates based on NAR 2025 Remodeling Impact Report, adjusted for NJ costs</p>
           <div className="mt-8 overflow-hidden rounded-xl border">
             <table className="w-full text-sm">
               <thead className="bg-navy text-white">
@@ -330,7 +337,7 @@ export default function RenovateSimulator() {
                   <th className="px-4 py-3 text-left font-medium">Renovation</th>
                   <th className="px-4 py-3 text-right font-medium">Avg. Cost</th>
                   <th className="px-4 py-3 text-right font-medium">Value Added</th>
-                  <th className="px-4 py-3 text-right font-medium">ROI</th>
+                  <th className="px-4 py-3 text-right font-medium">Recovery</th>
                 </tr>
               </thead>
               <tbody>
@@ -348,8 +355,9 @@ export default function RenovateSimulator() {
             </table>
           </div>
           <p className="mt-3 text-xs text-gray-400 text-center">
-            Source: National Association of Realtors 2025 Remodeling Impact Report, adjusted for NJ market.
-            Actual ROI varies by property condition, location, and market timing.
+            Source: NAR 2025 Remodeling Impact Report &amp; Remodeling Magazine Cost vs. Value 2025, adjusted for NJ labor &amp; material costs.
+            Recovery % = how much of your renovation cost you recoup at sale. Actual results vary by property condition, location, and market timing.
+            These are conservative estimates — not guarantees.
           </p>
         </div>
       </section>
