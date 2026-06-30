@@ -7,6 +7,7 @@ import ListingCard from "@/components/ListingCard";
 import PropertyPageVale from "@/components/PropertyPageVale";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import TotalCostCard from "@/components/TotalCostCard";
+import CommuteCard from "@/components/CommuteCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import RequireAuth from "@/components/RequireAuth";
 import DemandBadge from "@/components/DemandBadge";
@@ -383,6 +384,7 @@ export default async function PropertyPage({ params }: Props) {
                 publicRemarks={listing.public_remarks ?? null}
               />
             )}
+            <CommuteCard city={listing.city} />
             <PropertyPageVale listingId={listing.id} />
           </div>
         </div>

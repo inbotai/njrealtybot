@@ -6,6 +6,7 @@ import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import ListingActions from "@/components/ListingActions";
 import { EstTotalMonthlyCost } from "@/components/TotalCostCard";
+import { CommuteBadge } from "@/components/CommuteCard";
 
 const statusColors: Record<string, string> = {
   "For Sale": "bg-green-600",
@@ -108,6 +109,12 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             <span className="font-medium">{listing.living_area.toLocaleString()} Sqft</span>
           )}
         </div>
+
+        {listing.city && (
+          <div className="mt-2">
+            <CommuteBadge city={listing.city} />
+          </div>
+        )}
 
         {listing.list_price && listing.list_price > 0 && listing.mls_status !== "Sold" && listing.property_type !== "Rental" && (
           <div className="mt-2">
