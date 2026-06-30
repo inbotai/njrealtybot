@@ -163,10 +163,17 @@ export default function AdminDashboard() {
   async function deleteAllData() {
     if (!confirm("DELETE ALL leads, contacts, and chat messages? CANNOT be undone.")) return;
     if (!confirm("Are you SURE?")) return;
-    for (const u of users) await fetch(`${IDX_API}/api/idx/admin/users/${u.id}`, { method: "DELETE" }).catch(() => {});
-    for (const l of leads) await fetch(`${IDX_API}/api/idx/admin/leads/${l.id}`, { method: "DELETE" }).catch(() => {});
-    setUsers([]); setLeads([]);
-    alert("All data deleted.");
+    try {
+      const leadsRes = await fetch(`${IDX_API}/api/idx/admin/leads/all`, { method: "DELETE" });
+      const leadsData = leadsRes.ok ? await leadsRes.json() : null;
+      for (const u of users) {
+        await fetch(`${IDX_API}/api/idx/admin/users/${u.id}`, { method: "DELETE" });
+      }
+      setUsers([]); setLeads([]);
+      alert(`Deleted ${leadsData?.deleted || 0} leads and ${users.length} contacts.`);
+    } catch {
+      alert("Some deletions may have failed. Refresh to check.");
+    }
   }
 
   async function viewChat(phone: string) {
