@@ -4,7 +4,7 @@ import { fetchListing, fetchListings } from "@/lib/api";
 import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
-import PropertyPageVale from "@/components/PropertyPageVale";
+import ValeChatInline from "@/components/ValeChatInline";
 import TotalCostCard from "@/components/TotalCostCard";
 import CommuteCard from "@/components/CommuteCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
@@ -376,7 +376,7 @@ export default async function PropertyPage({ params }: Props) {
           {/* Sidebar */}
           <div className="space-y-6">
             <CommuteCard city={listing.city} />
-            <PropertyPageVale listingId={listing.id} />
+            <ValeChatInline listingId={listing.id} />
           </div>
         </div>
 

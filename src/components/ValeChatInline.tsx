@@ -37,8 +37,8 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function send() {
-    const text = input.trim();
+  async function send(overrideText?: string) {
+    const text = (overrideText || input).trim();
     if (!text || !sessionId || loading) return;
     setInput("");
     setMessages(prev => [...prev, { role: "user", text }]);
@@ -81,8 +81,19 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
         </div>
       </div>
 
+      {/* Quick action */}
+      <div className="px-4 pt-3">
+        <button
+          onClick={() => send("I'd like to schedule a showing for this property")}
+          disabled={loading || !sessionId}
+          className="w-full rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-sm font-medium text-navy hover:bg-gold/20 transition disabled:opacity-40"
+        >
+          Schedule a showing for this property
+        </button>
+      </div>
+
       {/* Messages */}
-      <div className="h-80 overflow-y-auto p-4 space-y-3">
+      <div className="h-52 overflow-y-auto p-4 space-y-3">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
