@@ -116,28 +116,16 @@ export default function RenovateSimulator() {
 
   return (
     <>
-      {/* Hero */}
+      {/* Hero + Before & After */}
       <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-navy">
-            Renovation{" "}
-            <span className="text-gold">
-              ROI Calculator
-            </span>
+            Thinking of Renovating{" "}
+            <span className="text-gold">Your Home?</span>
           </h1>
           <p className="mt-4 text-lg text-gray-500">
-            See how renovations would look and calculate the ROI — before spending a dollar.
-          </p>
-        </div>
-      </section>
-
-      {/* Before & After — AI Renovation */}
-      <section className="py-12 bg-gray-50">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-navy">See Your Home Renovated — Before You Spend a Dollar</h2>
-          <p className="mt-3 text-gray-500">
-            Send Vale a photo of any room and get an AI-generated renovation in seconds.
-            See exactly what new cabinets, countertops, flooring, and paint would look like in <strong>your</strong> home.
+            See exactly what your renovated home would look like — and whether it&apos;s worth the investment.
+            Get your AI before &amp; after photo sent directly to your phone.
           </p>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             <div className="text-center">
