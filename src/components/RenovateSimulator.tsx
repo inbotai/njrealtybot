@@ -29,20 +29,22 @@ type RenovationType = {
   avgMultiplier: number;
   minMultiplier: number;
   maxMultiplier: number;
+  minBudget: number;
+  maxBudget: number;
 };
 
 const renovationTypes: RenovationType[] = [
-  { id: "kitchen_minor", label: "Minor Kitchen Remodel", avgMultiplier: 2.5, minMultiplier: 1.8, maxMultiplier: 3.0 },
-  { id: "kitchen_major", label: "Major Kitchen Remodel", avgMultiplier: 1.0, minMultiplier: 0.8, maxMultiplier: 1.2 },
-  { id: "bathroom", label: "Bathroom Remodel", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5 },
-  { id: "bathroom_add", label: "Bathroom Addition", avgMultiplier: 1.6, minMultiplier: 1.3, maxMultiplier: 2.0 },
-  { id: "garage_door", label: "Garage Door Replacement", avgMultiplier: 3.8, minMultiplier: 3.0, maxMultiplier: 4.5 },
-  { id: "exterior_paint", label: "Exterior Paint / Siding", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5 },
-  { id: "hardwood", label: "Hardwood Floor Refinish", avgMultiplier: 3.0, minMultiplier: 2.5, maxMultiplier: 3.5 },
-  { id: "landscaping", label: "Landscaping", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5 },
-  { id: "roof", label: "Roof Replacement", avgMultiplier: 0.8, minMultiplier: 0.6, maxMultiplier: 1.0 },
-  { id: "windows", label: "Window Replacement", avgMultiplier: 0.85, minMultiplier: 0.7, maxMultiplier: 1.0 },
-  { id: "basement", label: "Basement Finish", avgMultiplier: 0.65, minMultiplier: 0.5, maxMultiplier: 0.8 },
+  { id: "kitchen_minor", label: "Minor Kitchen Remodel", avgMultiplier: 2.5, minMultiplier: 1.8, maxMultiplier: 3.0, minBudget: 10000, maxBudget: 25000 },
+  { id: "kitchen_major", label: "Major Kitchen Remodel", avgMultiplier: 1.0, minMultiplier: 0.8, maxMultiplier: 1.2, minBudget: 40000, maxBudget: 80000 },
+  { id: "bathroom", label: "Bathroom Remodel", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 8000, maxBudget: 25000 },
+  { id: "bathroom_add", label: "Bathroom Addition", avgMultiplier: 1.6, minMultiplier: 1.3, maxMultiplier: 2.0, minBudget: 20000, maxBudget: 50000 },
+  { id: "garage_door", label: "Garage Door Replacement", avgMultiplier: 3.8, minMultiplier: 3.0, maxMultiplier: 4.5, minBudget: 2000, maxBudget: 6000 },
+  { id: "exterior_paint", label: "Exterior Paint / Siding", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 5000, maxBudget: 15000 },
+  { id: "hardwood", label: "Hardwood Floor Refinish", avgMultiplier: 3.0, minMultiplier: 2.5, maxMultiplier: 3.5, minBudget: 2000, maxBudget: 8000 },
+  { id: "landscaping", label: "Landscaping", avgMultiplier: 2.0, minMultiplier: 1.5, maxMultiplier: 2.5, minBudget: 2000, maxBudget: 10000 },
+  { id: "roof", label: "Roof Replacement", avgMultiplier: 0.8, minMultiplier: 0.6, maxMultiplier: 1.0, minBudget: 8000, maxBudget: 25000 },
+  { id: "windows", label: "Window Replacement", avgMultiplier: 0.85, minMultiplier: 0.7, maxMultiplier: 1.0, minBudget: 10000, maxBudget: 30000 },
+  { id: "basement", label: "Basement Finish", avgMultiplier: 0.65, minMultiplier: 0.5, maxMultiplier: 0.8, minBudget: 15000, maxBudget: 50000 },
 ];
 
 type CalcResult = {
@@ -53,9 +55,18 @@ type CalcResult = {
   verdict: "green" | "yellow" | "red";
   verdictLabel: string;
   njAvgRoi: number;
+  budgetWarning: string | null;
 };
 
 function calcRoi(budget: number, reno: RenovationType): CalcResult {
+  // Check if budget is realistic for this renovation type
+  let budgetWarning: string | null = null;
+  if (budget < reno.minBudget) {
+    budgetWarning = `A typical ${reno.label.toLowerCase()} costs ${fmt(reno.minBudget)}–${fmt(reno.maxBudget)}. Your budget of ${fmt(budget)} is below the minimum — consider a less expensive renovation type.`;
+  } else if (budget > reno.maxBudget * 1.5) {
+    budgetWarning = `A typical ${reno.label.toLowerCase()} costs ${fmt(reno.minBudget)}–${fmt(reno.maxBudget)}. Your budget of ${fmt(budget)} is well above average — diminishing returns are likely.`;
+  }
+
   const valueAdded = budget * reno.avgMultiplier;
   const roiPercent = ((valueAdded - budget) / budget) * 100;
   const rangeMin = budget * reno.minMultiplier;
@@ -64,7 +75,10 @@ function calcRoi(budget: number, reno: RenovationType): CalcResult {
 
   let verdict: CalcResult["verdict"];
   let verdictLabel: string;
-  if (roiPercent >= 100) {
+  if (budgetWarning && budget < reno.minBudget) {
+    verdict = "red";
+    verdictLabel = "Budget too low for this renovation type";
+  } else if (roiPercent >= 100) {
     verdict = "green";
     verdictLabel = "Excellent investment — do it!";
   } else if (roiPercent >= 0) {
@@ -75,7 +89,7 @@ function calcRoi(budget: number, reno: RenovationType): CalcResult {
     verdictLabel = "Likely loses value — consider alternatives";
   }
 
-  return { valueAdded, roiPercent, rangeMin, rangeMax, verdict, verdictLabel, njAvgRoi };
+  return { valueAdded, roiPercent, rangeMin, rangeMax, verdict, verdictLabel, njAvgRoi, budgetWarning };
 }
 
 function fmt(n: number) {
@@ -200,6 +214,11 @@ export default function RenovateSimulator() {
           {/* Result card */}
           {result && (
             <div className="mt-6 rounded-2xl bg-white border-2 border-gold/30 p-6 md:p-8 animate-[fadeIn_0.3s_ease-out]">
+              {result.budgetWarning && (
+                <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800">
+                  {result.budgetWarning}
+                </div>
+              )}
               <div className="grid gap-6 md:grid-cols-4">
                 {/* Value Added */}
                 <div className="text-center">
