@@ -117,40 +117,14 @@ export default function RenovateSimulator() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* Average ROI by room */}
       <section className="py-12 bg-white">
         <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-2xl font-bold text-navy">How It Works</h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">1</div>
-              <h3 className="mt-3 font-semibold text-navy">Upload a Photo</h3>
-              <p className="mt-1 text-sm text-gray-600">Send Vale a photo of your kitchen, bathroom, or any room via WhatsApp</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">2</div>
-              <h3 className="mt-3 font-semibold text-navy">AI Renders the Remodel</h3>
-              <p className="mt-1 text-sm text-gray-600">Our AI shows you what the renovated room would look like in multiple styles</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">3</div>
-              <h3 className="mt-3 font-semibold text-navy">See the ROI</h3>
-              <p className="mt-1 text-sm text-gray-600">Get estimated cost, value added, and ROI — data-backed from NJ market comps</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Room selector */}
-      <section className="py-12 bg-gray-50">
-        <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-2xl font-bold text-navy">Choose a Room to Simulate</h2>
+          <h2 className="text-center text-2xl font-bold text-navy">Average Renovation ROI by Room</h2>
+          <p className="mt-2 text-center text-sm text-gray-500">Based on NJ market data and national remodeling reports</p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {roomTypes.map((room) => (
-              <div
-                key={room.id}
-                className="rounded-xl border-2 border-gray-200 bg-white p-4 text-center"
-              >
+              <div key={room.id} className="rounded-xl border-2 border-gray-200 bg-white p-4 text-center">
                 <div className="text-3xl">{room.icon}</div>
                 <p className="mt-2 text-sm font-semibold text-navy">{room.label}</p>
                 <p className="mt-1 text-xs text-gray-500">Cost: {room.avgCost}</p>
