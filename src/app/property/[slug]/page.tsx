@@ -357,8 +357,8 @@ export default async function PropertyPage({ params }: Props) {
               </p>
             </div>
 
-            {/* Mortgage Calculator */}
-            {listing.list_price && !isSold && (
+            {/* Mortgage Calculator — hide for rentals */}
+            {listing.list_price && !isSold && listing.property_type !== "Rental" && !/rent|lease/i.test(listing.mls_status || "") && (
               <div className="mt-8">
                 <MortgageCalculator
                   listPrice={listing.list_price}
