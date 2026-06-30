@@ -131,6 +131,47 @@ export default function RenovateSimulator() {
         </div>
       </section>
 
+      {/* Before & After — AI Renovation */}
+      <section className="py-12 bg-gray-50">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h2 className="text-2xl font-bold text-navy">See Your Home Renovated — Before You Spend a Dollar</h2>
+          <p className="mt-3 text-gray-500">
+            Send Vale a photo of any room and get an AI-generated renovation in seconds.
+            See exactly what new cabinets, countertops, flooring, and paint would look like in <strong>your</strong> home.
+          </p>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">1</div>
+              <h3 className="mt-3 font-semibold text-navy">Send a Photo</h3>
+              <p className="mt-1 text-sm text-gray-600">Text or WhatsApp a photo of your kitchen, bathroom, or any room to Vale</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">2</div>
+              <h3 className="mt-3 font-semibold text-navy">AI Renovates It</h3>
+              <p className="mt-1 text-sm text-gray-600">Our AI replaces cabinets, countertops, flooring, and paint — keeping your exact layout</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600">3</div>
+              <h3 className="mt-3 font-semibold text-navy">Get the ROI</h3>
+              <p className="mt-1 text-sm text-gray-600">See the estimated cost, value added, and ROI — data-backed from NJ market</p>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <a href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20see%20a%20renovation%20of%20my%20home"
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-bold text-white hover:bg-[#20bd5a]">
+              <svg viewBox="0 0 32 32" fill="currentColor" className="h-4 w-4"><path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z" /></svg>
+              Send Photo via WhatsApp
+            </a>
+            <a href="sms:+12015281095?body=Hi%20Vale!%20I%20want%20to%20see%20a%20renovation"
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-navy px-6 py-3 text-sm font-bold text-navy hover:bg-navy/5">
+              Send Photo via Text
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-gray-400">10 free renovation renders per user. Unlimited when you list with us.</p>
+        </div>
+      </section>
+
       {/* Average ROI by room */}
       <section className="py-12 bg-white">
         <div className="mx-auto max-w-4xl px-4">
@@ -332,10 +373,18 @@ export default function RenovateSimulator() {
           <p className="mt-2 text-gray-500">
             Get a free AI-powered valuation and see how renovations could maximize your sale price.
           </p>
-          <a href="/sell"
-            className="mt-6 inline-block rounded-xl bg-gold px-8 py-3.5 text-base font-bold text-navy hover:bg-yellow-400">
-            Get My Free Valuation
-          </a>
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <a href="/sell"
+              className="rounded-xl bg-gold px-8 py-3.5 text-base font-bold text-navy hover:bg-yellow-400">
+              Get My Free Valuation
+            </a>
+            <a href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20see%20a%20renovation%20of%20my%20home"
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-8 py-3.5 text-base font-bold text-white hover:bg-[#20bd5a]">
+              <svg viewBox="0 0 32 32" fill="currentColor" className="h-4 w-4"><path d="M16.004 0C7.165 0 .003 7.16.003 15.997c0 2.818.737 5.574 2.138 7.998L.012 32l8.207-2.1a15.94 15.94 0 007.785 1.988h.007C24.843 31.888 32 24.728 32 15.997 32 7.16 24.843 0 16.004 0zm7.33 22.269c-.4-.2-2.373-1.17-2.74-1.303-.37-.134-.64-.2-.91.2-.27.4-1.043 1.303-1.28 1.573-.236.267-.473.3-.873.1-.4-.2-1.69-.623-3.22-1.987-1.19-1.06-1.993-2.37-2.23-2.77-.233-.4-.024-.617.177-.817.183-.183.4-.473.6-.71.2-.237.267-.4.4-.667.134-.267.067-.5-.033-.7-.1-.2-.91-2.193-1.247-3.003-.33-.787-.663-.68-.91-.693l-.777-.013c-.267 0-.7.1-1.067.5-.367.4-1.4 1.37-1.4 3.34 0 1.97 1.434 3.873 1.634 4.14.2.267 2.82 4.307 6.834 6.037.955.413 1.7.66 2.28.843.958.304 1.83.26 2.52.158.77-.114 2.373-.97 2.71-1.907.333-.934.333-1.737.233-1.904-.1-.167-.367-.267-.767-.467z" /></svg>
+              Send a Photo to Vale
+            </a>
+          </div>
         </div>
       </section>
     </>

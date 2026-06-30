@@ -59,12 +59,18 @@ export default function HomePage() {
           <HeroChat />
 
           {/* CTAs — prominent seller tools */}
-          <div className="mt-16 grid gap-4 sm:grid-cols-3">
+          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <a href="/sell" className="group rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
               <p className="text-3xl">🏠</p>
               <h2 className="mt-3 text-base font-bold">What&apos;s My Home Worth?</h2>
               <p className="mt-1 text-xs text-indigo-200">Free AI valuation in 30 seconds</p>
               <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Get Valuation →</span>
+            </a>
+            <a href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20see%20a%20renovation%20of%20my%20home" target="_blank" rel="noopener noreferrer" className="group rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
+              <p className="text-3xl">✨</p>
+              <h2 className="mt-3 text-base font-bold">See Your Home Renovated</h2>
+              <p className="mt-1 text-xs text-amber-100">AI before &amp; after in seconds</p>
+              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Send a Photo →</span>
             </a>
             <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-600 to-red-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
               <p className="text-3xl">💰</p>
