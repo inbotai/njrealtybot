@@ -199,7 +199,7 @@ export default function ValeSidePanel() {
           )}
         </div>
         <p className="mt-2 text-center text-[10px] text-gray-400 leading-relaxed">
-          Powered by <span className="font-medium text-indigo-500">Vale</span> from InBot AI
+          Powered by <span className="font-medium text-indigo-500">Vale</span> from Garden State AI
           <br />
           By chatting, you consent to receive messages from Garden State AI.
           Msg & data rates may apply. Reply STOP to opt out.{" "}

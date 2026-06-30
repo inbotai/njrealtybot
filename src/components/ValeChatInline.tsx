@@ -126,7 +126,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       </div>
 
       <p className="px-4 pb-2 text-center text-[9px] text-gray-400 leading-relaxed">
-        Powered by <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Vale from InBot AI</a>
+        Powered by <a href="https://gardenstate.ai" className="text-indigo-400 hover:underline">Vale</a> from Garden State AI
         <br />
         By chatting, you agree to our{" "}
         <a href="/privacy" target="_blank" className="underline hover:text-indigo-400">Privacy Policy</a>
