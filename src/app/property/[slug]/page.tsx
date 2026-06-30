@@ -5,7 +5,6 @@ import PhotoGallery from "@/components/PhotoGallery";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
 import PropertyPageVale from "@/components/PropertyPageVale";
-import MortgageCalculator from "@/components/MortgageCalculator";
 import TotalCostCard from "@/components/TotalCostCard";
 import CommuteCard from "@/components/CommuteCard";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
@@ -359,13 +358,16 @@ export default async function PropertyPage({ params }: Props) {
               </p>
             </div>
 
-            {/* Mortgage Calculator — hide for rentals */}
+            {/* Total Cost of Ownership — below content, above sidebar on mobile */}
             {listing.list_price && !isSold && listing.property_type !== "Rental" && !/rent|lease/i.test(listing.mls_status || "") && (
               <div className="mt-8">
-                <MortgageCalculator
+                <TotalCostCard
                   listPrice={listing.list_price}
                   annualTaxes={annualTax ?? null}
+                  assessedValue={pr?.assessed_value ?? null}
                   hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
+                  hoaFrequency={listing.association_fee_frequency ?? null}
+                  publicRemarks={listing.public_remarks ?? null}
                 />
               </div>
             )}
@@ -373,17 +375,6 @@ export default async function PropertyPage({ params }: Props) {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Total Cost of Ownership — hide for sold/rentals */}
-            {listing.list_price && !isSold && listing.property_type !== "Rental" && !/rent|lease/i.test(listing.mls_status || "") && (
-              <TotalCostCard
-                listPrice={listing.list_price}
-                annualTaxes={annualTax ?? null}
-                assessedValue={pr?.assessed_value ?? null}
-                hoaMonthly={listing.association_fee ? Number(listing.association_fee) : null}
-                hoaFrequency={listing.association_fee_frequency ?? null}
-                publicRemarks={listing.public_remarks ?? null}
-              />
-            )}
             <CommuteCard city={listing.city} />
             <PropertyPageVale listingId={listing.id} />
           </div>
