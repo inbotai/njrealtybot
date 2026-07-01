@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
+
+const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
 
 const roomTypes = [
@@ -106,6 +108,176 @@ function fmt(n: number) {
 const verdictColors = { green: "bg-green-100 border-green-500 text-green-800", yellow: "bg-yellow-100 border-yellow-500 text-yellow-800", red: "bg-red-100 border-red-500 text-red-800" };
 const verdictDots = { green: "bg-green-500", yellow: "bg-yellow-500", red: "bg-red-500" };
 
+function WebUploadSection() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("myhome_phone"));
+  }, []);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image must be under 10 MB.");
+      return;
+    }
+    setSelectedFile(file);
+    setError(null);
+    setResultUrl(null);
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  async function handleUpload() {
+    if (!selectedFile) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedFile);
+      const phone = localStorage.getItem("myhome_phone");
+      if (phone) formData.append("phone", phone);
+
+      const res = await fetch(`${IDX_API}/api/idx/myhome/renovate-upload`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Upload failed. Please try again.");
+      }
+      const data = await res.json();
+      setResultUrl(data.imageUrl || data.url || null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+    }
+    setUploading(false);
+  }
+
+  function reset() {
+    setSelectedFile(null);
+    setPreview(null);
+    setResultUrl(null);
+    setError(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  return (
+    <div className="mt-8 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6">
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="h-px flex-1 bg-gray-300" />
+        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Or Upload Directly</span>
+        <div className="h-px flex-1 bg-gray-300" />
+      </div>
+
+      {!resultUrl ? (
+        <>
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-gold hover:bg-gold/5 transition"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+              {selectedFile ? selectedFile.name : "Choose Photo"}
+            </button>
+            <button
+              onClick={handleUpload}
+              disabled={!selectedFile || uploading}
+              className="inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-2.5 text-sm font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              {uploading ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                  Upload &amp; Renovate
+                </>
+              )}
+            </button>
+          </div>
+
+          {preview && (
+            <div className="mt-4 flex justify-center">
+              <div className="relative">
+                <img src={preview} alt="Selected photo" className="max-h-48 rounded-lg border border-gray-200 shadow-sm" />
+                <button onClick={reset} className="absolute -top-2 -right-2 rounded-full bg-gray-800 p-1 text-white hover:bg-gray-600 transition" title="Remove">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <p className="mt-3 text-center text-sm text-red-600">{error}</p>
+          )}
+
+          <p className="mt-4 text-center text-xs text-gray-400">
+            {isLoggedIn
+              ? "Your renders are automatically saved to your MyHome Log"
+              : "Renders are saved when you have a MyHome Log account"}
+          </p>
+        </>
+      ) : (
+        <div className="flex flex-col items-center gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 max-w-lg w-full">
+            {preview && (
+              <div className="text-center">
+                <p className="text-xs font-medium text-gray-500 mb-1">Before</p>
+                <img src={preview} alt="Original" className="rounded-lg border border-gray-200 shadow-sm w-full" />
+              </div>
+            )}
+            <div className="text-center">
+              <p className="text-xs font-medium text-gray-500 mb-1">After</p>
+              <img src={resultUrl} alt="AI Renovation" className="rounded-lg border-2 border-gold/40 shadow-sm w-full" />
+            </div>
+          </div>
+
+          {isLoggedIn ? (
+            <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-2.5 text-sm text-green-700 font-medium">
+              This render has been saved to your MyHome Log
+            </div>
+          ) : (
+            <div className="rounded-lg bg-indigo-50 border border-indigo-200 px-4 py-2.5 text-center">
+              <p className="text-sm text-indigo-700 font-medium">Create a free MyHome Log to save all your renders</p>
+              <a href="/my-home/log" className="mt-1 inline-block text-sm font-bold text-gold hover:text-yellow-600 transition">
+                Create MyHome Log &rarr;
+              </a>
+            </div>
+          )}
+
+          <button onClick={reset} className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">
+            Upload another photo
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function RenovateSimulator() {
   const [city, setCity] = useState("");
   const [renoId, setRenoId] = useState(renovationTypes[0].id);
@@ -164,6 +336,9 @@ export default function RenovateSimulator() {
             </a>
           </div>
           <p className="mt-4 text-xs text-gray-400">10 free renovation renders per user. Unlimited when you list with us.</p>
+
+          {/* Web Upload Section */}
+          <WebUploadSection />
         </div>
       </section>
 
