@@ -188,58 +188,49 @@ export default function MyHomeLog() {
     setLoading(true);
     setError("");
     try {
-      // OAuth via backend — redirects to Google/Apple, comes back with email
-      const callbackUrl = `${window.location.origin}/my-home/log?auth=callback`;
-      const res = await fetch(`${IDX_API}/api/idx/myhome/auth/social`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider, callbackUrl }),
+      const { supabaseAuth } = await import("@/lib/supabase-auth");
+      const { error: authError } = await supabaseAuth.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/my-home/log?auth=callback`,
+        },
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url) {
-          // Redirect to OAuth provider
-          window.location.href = data.url;
-          return;
-        }
-        if (data.email) {
-          setEmail(data.email);
-          setLoginStep("phone");
-        }
-      } else {
-        // Fallback: simple email input if OAuth not configured yet
-        const inputEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
-        if (!inputEmail) { setLoading(false); return; }
-        setEmail(inputEmail);
-        setLoginStep("phone");
-      }
-    } catch {
-      // Fallback: simple email input
-      const inputEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
-      if (!inputEmail) { setLoading(false); return; }
-      setEmail(inputEmail);
-      setLoginStep("phone");
+      if (authError) throw authError;
+      // Browser will redirect to Google/Apple — when it comes back,
+      // the useEffect callback handler will pick up the session
+      return;
+    } catch (err) {
+      console.error("OAuth error:", err);
+      setError("Login failed. Please try again.");
     }
     setLoading(false);
   }
 
-  // Handle OAuth callback
+  // Handle OAuth callback — check for Supabase session
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("auth") === "callback") {
-      const callbackEmail = params.get("email");
-      const callbackPhone = params.get("phone");
-      if (callbackEmail) {
-        setEmail(callbackEmail);
-        if (callbackPhone) {
-          setPhone(callbackPhone);
-          loginWithPhone(callbackPhone.replace(/\D/g, ""));
-        } else {
-          setLoginStep("phone");
+      (async () => {
+        try {
+          const { supabaseAuth } = await import("@/lib/supabase-auth");
+          const { data: { session } } = await supabaseAuth.auth.getSession();
+          if (session?.user?.email) {
+            setEmail(session.user.email);
+            // If we already have a phone from a previous session, auto-login
+            const savedPhone = localStorage.getItem("myhome_phone");
+            if (savedPhone) {
+              setPhone(savedPhone);
+              await loginWithPhone(savedPhone);
+            } else {
+              setLoginStep("phone");
+            }
+          }
+        } catch (err) {
+          console.error("OAuth callback error:", err);
         }
-      }
-      // Clean URL
-      window.history.replaceState({}, "", "/my-home/log");
+        // Clean URL
+        window.history.replaceState({}, "", "/my-home/log");
+      })();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -299,6 +290,7 @@ export default function MyHomeLog() {
 
   async function loginWithPhone(cleaned: string) {
     try {
+      localStorage.setItem("myhome_phone", cleaned);
       const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`);
       if (res.ok) {
         const data = await res.json();
