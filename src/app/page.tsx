@@ -59,7 +59,7 @@ export default function HomePage() {
           <HeroChat />
 
           {/* CTAs — prominent seller tools */}
-          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <a href="/sell" className="group rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
               <p className="text-3xl">🏠</p>
               <h2 className="mt-3 text-base font-bold">What&apos;s My Home Worth?</h2>
@@ -83,6 +83,12 @@ export default function HomePage() {
               <h2 className="mt-3 text-base font-bold">List My Home</h2>
               <p className="mt-1 text-xs text-emerald-200">Digital onboarding in 5 min</p>
               <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Start Listing →</span>
+            </a>
+            <a href="/my-home/log" className="group rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
+              <p className="text-3xl">🏡</p>
+              <h2 className="mt-3 text-base font-bold">MyHome Log</h2>
+              <p className="mt-1 text-xs text-purple-200">Track improvements &amp; ROI</p>
+              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Open Log →</span>
             </a>
           </div>
         </div>
