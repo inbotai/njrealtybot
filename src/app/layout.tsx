@@ -77,13 +77,13 @@ export default async function RootLayout({
           <ValeProvider>
             {!isV2 && (isIdx ? <NavbarIdx /> : <Navbar />)}
             {!isV2 && !isIdx && <AppSidebar />}
+            {!isV2 && <MyHomeLogCTA />}
             <main className="flex-1">{children}</main>
             {!isV2 && (isIdx ? <FooterIdx /> : <Footer />)}
             {!isV2 && !isPropertyPage && <ValeSidePanel />}
             {!isIdx && !isV2 && <WhatsAppWidget />}
             {!isV2 && <ExitIntent />}
             {!isV2 && <ProactiveVale />}
-            {!isV2 && <MyHomeLogCTA />}
             <TrackingPixels />
             <Suspense><ActivityTracker /></Suspense>
           </ValeProvider>
