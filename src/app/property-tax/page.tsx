@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import PropertyTaxAppeal from "@/components/PropertyTaxAppeal";
-import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
   title: "Property Tax Appeal | Are You Overpaying?",
@@ -19,9 +18,9 @@ export const metadata: Metadata = {
     description:
       "Free NJ Chapter 123 analysis with real comparable sales. See your estimated overpayment instantly.",
   },
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 };
 
 export default function PropertyTaxPage() {
-  return <RequireAuth><PropertyTaxAppeal /></RequireAuth>;
+  return <PropertyTaxAppeal />;
 }

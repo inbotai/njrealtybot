@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { useAdmin } from "./AdminAuth";
 
 const publicLinks = [
-  { href: "/sell", label: "Sell" },
-  { href: "/fsbo", label: "FSBO" },
-  { href: "/chat", label: "Vale" },
+  { href: "/sell", label: "Home Value" },
+  { href: "/property-tax", label: "Tax Appeal" },
+  { href: "/renovate", label: "Renovations" },
+  { href: "/my-home/log", label: "MyHome Log" },
+  { href: "/list", label: "Sell My Home" },
 ];
 
 const adminLinks = [
