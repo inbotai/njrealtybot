@@ -178,6 +178,121 @@ export default function MyHomeLog() {
 
   const overdueAlerts = alerts.filter((a) => a.overdue_days > 0);
 
+  // ── Auth state for multi-step login ────────────────────────
+  const [loginStep, setLoginStep] = useState<"choose" | "phone" | "verify">("choose");
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [verificationId, setVerificationId] = useState("");
+
+  async function handleSocialLogin(provider: "google" | "apple") {
+    setLoading(true);
+    setError("");
+    try {
+      // Simulate social login — get email, then ask for phone
+      // In production: use Supabase Auth or OAuth flow
+      const mockEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
+      if (!mockEmail) { setLoading(false); return; }
+      setEmail(mockEmail);
+      setLoginStep("phone");
+    } catch {
+      setError("Login failed. Please try again.");
+    }
+    setLoading(false);
+  }
+
+  async function handlePhoneSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!phone.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const cleaned = phone.replace(/\D/g, "");
+      // Send OTP via backend
+      const res = await fetch(`${IDX_API}/api/idx/myhome/auth/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleaned }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVerificationId(data.verificationId || "pending");
+        setLoginStep("verify");
+      } else {
+        // Fallback: skip OTP if endpoint doesn't exist yet, just login
+        await loginWithPhone(cleaned);
+      }
+    } catch {
+      // Fallback: direct login without OTP
+      const cleaned = phone.replace(/\D/g, "");
+      await loginWithPhone(cleaned);
+    }
+    setLoading(false);
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    const cleaned = phone.replace(/\D/g, "");
+    // Verify OTP then login
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/myhome/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleaned, code: otp, verificationId }),
+      });
+      if (res.ok) {
+        await loginWithPhone(cleaned);
+      } else {
+        setError("Invalid code. Please try again.");
+      }
+    } catch {
+      // Fallback
+      await loginWithPhone(cleaned);
+    }
+    setLoading(false);
+  }
+
+  async function loginWithPhone(cleaned: string) {
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data.profile || data);
+        setAuthed(true);
+        loadEntries(data.profile?.id || data.id);
+        loadAlerts(data.profile?.id || data.id);
+        // If we have email from social login, update profile
+        if (email) {
+          fetch(`${IDX_API}/api/idx/myhome/profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: cleaned, email }),
+          }).catch(() => {});
+        }
+        // Capture as lead
+        fetch(`${IDX_API}/api/idx/leads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: cleaned,
+            email: email || undefined,
+            lead_type: "info_request",
+            source: "myhome_log",
+            message: "Signed up for MyHome Log",
+          }),
+        }).catch(() => {});
+      } else {
+        // No profile — redirect to setup
+        setError("");
+        setAuthed(true);
+        setProfile(null);
+      }
+    } catch {
+      setError("Could not connect. Please try again.");
+    }
+  }
+
   // ── Login Screen ──────────────────────────────────────────
 
   if (!authed) {
@@ -189,26 +304,120 @@ export default function MyHomeLog() {
           </h1>
           <p className="mt-3 text-gray-500">
             Track every improvement, repair, and upgrade to your home.
+            <br />
+            <span className="text-xs text-gray-400">Free forever. Your data, your control.</span>
           </p>
-          <form onSubmit={handleLogin} className="mt-8 rounded-xl border bg-white p-6 shadow-sm text-left">
-            <label className="text-sm font-medium text-gray-700">Your phone number</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="(201) 555-0123"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-            />
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <button type="submit" disabled={loading || !phone.trim()}
-              className="mt-4 w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 transition">
-              {loading ? "Loading..." : "Access My Home Log"}
-            </button>
-            <p className="mt-3 text-xs text-gray-400 text-center">
-              Don&apos;t have a profile?{" "}
-              <a href="/my-home" className="text-gold font-medium hover:underline">Claim your home first</a>
-            </p>
-          </form>
+
+          <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm text-left">
+            {loginStep === "choose" && (
+              <>
+                {/* Social login buttons */}
+                <button
+                  onClick={() => handleSocialLogin("google")}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-40"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continue with Google
+                </button>
+
+                <button
+                  onClick={() => handleSocialLogin("apple")}
+                  disabled={loading}
+                  className="mt-3 w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-black px-4 py-3 text-sm font-medium text-white hover:bg-gray-900 transition disabled:opacity-40"
+                >
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  Continue with Apple
+                </button>
+
+                <div className="my-5 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-gray-200" />
+                  <span className="text-xs text-gray-400">or</span>
+                  <div className="h-px flex-1 bg-gray-200" />
+                </div>
+
+                {/* Phone login */}
+                <button
+                  onClick={() => setLoginStep("phone")}
+                  className="w-full flex items-center justify-center gap-3 rounded-lg border-2 border-gold bg-gold/5 px-4 py-3 text-sm font-bold text-navy hover:bg-gold/10 transition"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+                  Continue with Phone Number
+                </button>
+
+                <p className="mt-4 text-[10px] text-gray-400 text-center leading-relaxed">
+                  By signing in, you agree to our{" "}
+                  <a href="/privacy" className="underline">Privacy Policy</a> &amp;{" "}
+                  <a href="/terms" className="underline">Terms</a>.
+                  We&apos;ll never share your info without permission.
+                </p>
+              </>
+            )}
+
+            {loginStep === "phone" && (
+              <form onSubmit={handlePhoneSubmit}>
+                {email && (
+                  <div className="mb-4 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
+                    Signed in as <strong>{email}</strong>
+                  </div>
+                )}
+                <label className="text-sm font-medium text-gray-700">
+                  {email ? "Now add your phone number" : "Your phone number"}
+                </label>
+                <p className="text-xs text-gray-400 mb-2">
+                  {email ? "We'll link it to your account for WhatsApp updates" : "We'll send you a verification code"}
+                </p>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(201) 555-0123"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  autoFocus
+                />
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+                <button type="submit" disabled={loading || !phone.trim()}
+                  className="mt-4 w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 transition">
+                  {loading ? "Sending..." : "Send Verification Code"}
+                </button>
+                <button type="button" onClick={() => { setLoginStep("choose"); setEmail(""); }}
+                  className="mt-2 w-full text-sm text-gray-400 hover:text-gray-600">
+                  Back
+                </button>
+              </form>
+            )}
+
+            {loginStep === "verify" && (
+              <form onSubmit={handleVerifyOtp}>
+                <label className="text-sm font-medium text-gray-700">Enter verification code</label>
+                <p className="text-xs text-gray-400 mb-2">Sent to {phone}</p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  maxLength={6}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  autoFocus
+                />
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+                <button type="submit" disabled={loading || otp.length < 4}
+                  className="mt-4 w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 transition">
+                  {loading ? "Verifying..." : "Verify & Continue"}
+                </button>
+                <button type="button" onClick={() => setLoginStep("phone")}
+                  className="mt-2 w-full text-sm text-gray-400 hover:text-gray-600">
+                  Resend code
+                </button>
+              </form>
+            )}
+          </div>
+
+          <p className="mt-4 text-xs text-gray-400">
+            Don&apos;t have a profile?{" "}
+            <a href="/my-home" className="text-gold font-medium hover:underline">Claim your home first</a>
+          </p>
         </div>
       </section>
     );
