@@ -291,6 +291,101 @@ function PublicHomepage() {
         </div>
       </section>
 
+      {/* MyHome Log CTA */}
+      <section className="py-16 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="grid gap-8 md:grid-cols-2 items-center">
+            {/* Left — visual */}
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-200/40 via-purple-200/30 to-gold/20 blur-xl" />
+              <div className="relative rounded-2xl bg-white border border-gray-200 shadow-xl p-6 space-y-3">
+                {/* Fake timeline entries */}
+                <div className="flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3">
+                  <span className="text-xl">🏠</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800">Roof Replacement</p>
+                    <p className="text-xs text-gray-500">Bergen Roofing &middot; 30-yr warranty</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-navy">$18,000</p>
+                    <p className="text-xs text-green-600 font-medium">+$15,000 value</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3">
+                  <span className="text-xl">🍳</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800">Kitchen Countertops</p>
+                    <p className="text-xs text-gray-500">NJ Stone Works &middot; Quartz</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-navy">$4,800</p>
+                    <p className="text-xs text-green-600 font-medium">+$3,744 value</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
+                  <span className="text-xl">🔧</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800">HVAC Service</p>
+                    <p className="text-xs text-gray-500">Comfort Air NJ &middot; Annual tune-up</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-navy">$185</p>
+                    <p className="text-xs text-gray-400">Maintenance</p>
+                  </div>
+                </div>
+                {/* Summary bar */}
+                <div className="mt-2 flex items-center justify-between rounded-lg bg-navy p-3">
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">Total Invested</p>
+                    <p className="text-lg font-bold text-white">$22,985</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-gray-400 uppercase">Value Added</p>
+                    <p className="text-lg font-bold text-green-400">+$18,744</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — copy + CTA */}
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 mb-4">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                NEW — Free for all homeowners
+              </div>
+              <h2 className="text-3xl font-bold text-navy leading-tight">
+                Every Dollar You Put Into Your Home
+                <span className="text-gold"> Should Pay You Back</span>
+              </h2>
+              <p className="mt-4 text-gray-600 leading-relaxed">
+                Track every repair, upgrade, and improvement — with AI that calculates exactly how much value each one adds to your home. When it&apos;s time to sell, your MyHome Log becomes your secret weapon: better valuations, pre-filled disclosures, and a verified history that builds buyer trust.
+              </p>
+              <ul className="mt-5 space-y-2.5">
+                {[
+                  "AI estimates value impact of every improvement",
+                  "Never lose a receipt, warranty, or contractor name",
+                  "Pre-fills your seller disclosure when you list",
+                  "Share a verified Property History with buyers",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="/my-home/log"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white hover:from-indigo-700 hover:to-purple-700 transition shadow-md hover:shadow-lg">
+                  Start My Home Log — Free
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+              </div>
+              <p className="mt-3 text-xs text-gray-400">No credit card. No commitment. Your data stays yours.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials — placeholder */}
       <section className="py-16">
         <div className="mx-auto max-w-4xl px-4">
