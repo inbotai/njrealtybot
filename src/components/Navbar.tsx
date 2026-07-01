@@ -30,6 +30,7 @@ const moreLinks = [
   { href: "/net-proceeds", label: "Net Proceeds" },
   { href: "/afford", label: "Affordability" },
   { href: "/my-home", label: "Track My Home" },
+  { href: "/my-home/log", label: "MyHome Log" },
   { href: "/alerts", label: "Price Alerts" },
   { href: "/news", label: "News" },
   { href: "/contact", label: "Contact" },
