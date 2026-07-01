@@ -569,7 +569,7 @@ export default function MyHomeLog() {
 
       {/* Summary Cards */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SummaryCard label="Estimated Value" value={profile?.estimated_value ? fmt(profile.estimated_value) : "--"} sub="CMA estimate" />
+        <SummaryCard label="Estimated Value" value={profile?.estimated_value ? fmt(profile.estimated_value) : null} sub={profile?.estimated_value ? "AI estimate" : null} cta={!profile?.estimated_value ? { label: "Get Estimate", href: "/sell" } : undefined} />
         <SummaryCard label="Total Invested" value={fmt(totalInvested)} sub={`${entries.length} entries`} accent />
         <SummaryCard label="Value Added" value={fmt(totalValueAdded)} sub="Est. impact" positive />
         <SummaryCard label="Total Entries" value={String(entries.length)} sub={filtered.length !== entries.length ? `${filtered.length} shown` : "all time"} />
@@ -612,12 +612,43 @@ export default function MyHomeLog() {
         </div>
       </div>
 
-      {/* Timeline */}
-      {grouped.length === 0 ? (
-        <div className="rounded-xl border bg-white p-12 text-center shadow-sm">
-          <p className="text-gray-400">{entries.length === 0 ? "No entries yet. Add your first home improvement!" : "No entries match your filters."}</p>
+      {/* Onboarding — empty state */}
+      {entries.length === 0 && (
+        <div className="mt-6 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-8 text-center">
+          <h3 className="text-lg font-bold text-navy">Welcome to Your Home Log!</h3>
+          <p className="mt-2 text-sm text-gray-500">Start tracking your home improvements to know your ROI and sell smarter.</p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-left">
+            {[
+              { icon: "\u{1F50D}", title: "Home Inspection", desc: "Log your purchase inspection report" },
+              { icon: "\u{1F527}", title: "First Repairs", desc: "Any fixes you made after moving in" },
+              { icon: "\u{1F3A8}", title: "Paint & Cosmetics", desc: "Interior or exterior paint jobs" },
+              { icon: "\u{1F512}", title: "Security Updates", desc: "New locks, alarm system, cameras" },
+              { icon: "\u2744\uFE0F", title: "HVAC Service", desc: "Heating & cooling maintenance" },
+              { icon: "\u{1F3E0}", title: "Major Upgrades", desc: "Kitchen, bathroom, roof, windows" },
+            ].map((s) => (
+              <button key={s.title} onClick={() => { setShowAdd(true); }}
+                className="rounded-xl border bg-white p-4 text-left hover:border-indigo-300 hover:shadow-sm transition">
+                <span className="text-xl">{s.icon}</span>
+                <p className="mt-1 text-sm font-semibold text-navy">{s.title}</p>
+                <p className="text-xs text-gray-400">{s.desc}</p>
+              </button>
+            ))}
+          </div>
+
+          <button onClick={() => { setShowAdd(true); setEditEntry(null); }}
+            className="mt-6 rounded-xl bg-gold px-8 py-3 font-bold text-navy hover:bg-yellow-400 transition">
+            + Add Your First Entry
+          </button>
         </div>
-      ) : (
+      )}
+
+      {/* Timeline */}
+      {entries.length > 0 && grouped.length === 0 ? (
+        <div className="rounded-xl border bg-white p-12 text-center shadow-sm">
+          <p className="text-gray-400">No entries match your filters.</p>
+        </div>
+      ) : grouped.length > 0 ? (
         <div className="space-y-6">
           {grouped.map(([monthKey, items]) => (
             <div key={monthKey}>
@@ -702,7 +733,7 @@ export default function MyHomeLog() {
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       {/* Bottom Actions */}
       <div className="mt-8 flex flex-wrap gap-3 border-t pt-6">
@@ -777,8 +808,9 @@ export default function MyHomeLog() {
 
 // ── Summary Card ────────────────────────────────────────────
 
-function SummaryCard({ label, value, sub, accent, positive }: {
-  label: string; value: string; sub: string; accent?: boolean; positive?: boolean;
+function SummaryCard({ label, value, sub, accent, positive, cta }: {
+  label: string; value: string | null; sub: string | null; accent?: boolean; positive?: boolean;
+  cta?: { label: string; href: string };
 }) {
   return (
     <div className={`rounded-xl p-4 shadow-sm ring-1 ${
@@ -787,12 +819,20 @@ function SummaryCard({ label, value, sub, accent, positive }: {
       <p className={`text-[10px] font-medium uppercase tracking-wider ${accent ? "text-gray-400" : "text-gray-500"}`}>
         {label}
       </p>
-      <p className={`mt-1 text-xl font-extrabold ${
-        accent ? "text-white" : positive ? "text-green-700" : "text-navy"
-      }`}>
-        {value}
-      </p>
-      <p className={`mt-0.5 text-[10px] ${accent ? "text-gray-500" : "text-gray-400"}`}>{sub}</p>
+      {value ? (
+        <p className={`mt-1 text-xl font-extrabold ${
+          accent ? "text-white" : positive ? "text-green-700" : "text-navy"
+        }`}>
+          {value}
+        </p>
+      ) : cta ? (
+        <a href={cta.href} className="mt-1 inline-block text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+          {cta.label} &rarr;
+        </a>
+      ) : (
+        <p className={`mt-1 text-xl font-extrabold ${accent ? "text-white" : "text-navy"}`}>--</p>
+      )}
+      {sub && <p className={`mt-0.5 text-[10px] ${accent ? "text-gray-500" : "text-gray-400"}`}>{sub}</p>}
     </div>
   );
 }

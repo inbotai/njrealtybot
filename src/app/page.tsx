@@ -380,20 +380,20 @@ function PublicHomepage() {
         </div>
       </section>
 
-      {/* Testimonials — placeholder */}
-      <section className="py-16">
+      {/* Social proof stats */}
+      <section className="py-16 bg-white">
         <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-center text-2xl font-bold text-navy">What Homeowners Say</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <h2 className="text-center text-2xl font-bold text-navy">Trusted by NJ Homeowners</h2>
+          <div className="mt-10 flex flex-wrap justify-center gap-10 sm:gap-16">
             {[
-              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner who used our valuation service." },
-              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner who sold with Garden State AI." },
-              { name: "Coming Soon", city: "NJ", text: "Testimonial from a real homeowner about the CMA experience." },
-            ].map((t, i) => (
-              <div key={i} className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5">
-                <p className="text-sm text-gray-400 italic">&quot;{t.text}&quot;</p>
-                <p className="mt-3 text-sm font-semibold text-gray-400">{t.name}</p>
-                <p className="text-xs text-gray-300">{t.city}</p>
+              { value: "15,000+", label: "Properties Analyzed" },
+              { value: "130+", label: "NJ Cities Covered" },
+              { value: "$2.1B+", label: "Property Value Tracked" },
+              { value: "24/7", label: "Vale AI Available" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <p className="text-3xl font-bold text-navy">{s.value}</p>
+                <p className="mt-1 text-sm text-gray-500">{s.label}</p>
               </div>
             ))}
           </div>

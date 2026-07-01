@@ -226,14 +226,16 @@ export default function MyHomeAddEntry({ profileId, entry, onClose, onSaved }: {
 
           <div>
             <label className="text-sm font-medium text-gray-700">Photos</label>
-            <div className="mt-1 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-4 py-6 text-center">
-              <div>
-                <svg className="mx-auto h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="mt-1 text-xs text-gray-400">Drag photos here or tap to upload</p>
-                <p className="text-[10px] text-gray-300">Coming soon</p>
-              </div>
+            <div className="mt-1 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-center">
+              <svg className="mx-auto h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+              </svg>
+              <p className="mt-2 text-xs text-gray-400">Send photos to Vale via WhatsApp and they&apos;ll be linked to your log</p>
+              <a href="https://wa.me/12015281095?text=Hi%20Vale!%20I%20want%20to%20add%20photos%20to%20my%20home%20log"
+                target="_blank" rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800">
+                Send via WhatsApp &rarr;
+              </a>
             </div>
           </div>
 
