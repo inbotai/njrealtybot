@@ -128,25 +128,16 @@ export default function SellTimingSimulator() {
         return;
       }
 
-      // Build annual rate from real data, combining multiple signals
-      let annualRate = 3.5; // NJ baseline
-      if (inv.appreciation !== null) {
-        annualRate = inv.appreciation;
-      }
-      // Adjust by absorption (seller's market = faster appreciation)
+      // API returns annualized appreciation already blended with NJ baseline
+      let annualRate = inv.appreciation ?? 4.0; // NJ baseline fallback
+      // Minor absorption adjustment (API already factors this into appreciation)
       const abs = stats.absorptionMonths ? parseFloat(stats.absorptionMonths) : null;
       if (abs !== null) {
-        if (abs < 3) annualRate += 2;       // very hot market
-        else if (abs < 4) annualRate += 1;  // seller's market
-        else if (abs > 8) annualRate -= 2;  // buyer's market
-        else if (abs > 6) annualRate -= 1;  // cooling
+        if (abs < 3) annualRate += 1;       // very hot market nudge
+        else if (abs > 7) annualRate -= 1;  // cooling nudge
       }
-      // Adjust by trend
-      if (stats.trend === "up" && inv.appreciation === null) annualRate += 1;
-      if (stats.trend === "down") annualRate -= 1.5;
-
-      // Cap annual rate to realistic range — even extreme NJ markets don't exceed 20%/yr
-      annualRate = Math.max(-10, Math.min(20, annualRate));
+      // Cap to realistic NJ range
+      annualRate = Math.max(-5, Math.min(12, annualRate));
 
       setMarket(mkt);
 
