@@ -129,15 +129,8 @@ export default function SellTimingSimulator() {
       }
 
       // API returns annualized appreciation already blended with NJ baseline
-      let annualRate = inv.appreciation ?? 4.0; // NJ baseline fallback
-      // Minor absorption adjustment (API already factors this into appreciation)
-      const abs = stats.absorptionMonths ? parseFloat(stats.absorptionMonths) : null;
-      if (abs !== null) {
-        if (abs < 3) annualRate += 1;       // very hot market nudge
-        else if (abs > 7) annualRate -= 1;  // cooling nudge
-      }
-      // Cap to realistic NJ range
-      annualRate = Math.max(-5, Math.min(12, annualRate));
+      // Use directly — no additional adjustments to avoid double-counting
+      const annualRate = Math.max(-3, Math.min(8, inv.appreciation ?? 3.5));
 
       setMarket(mkt);
 
