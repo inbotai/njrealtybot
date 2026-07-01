@@ -60,7 +60,7 @@ export default function HomePage() {
 
           {/* Seller tools — vivid cards */}
           <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {/* Hero card — Home Value */}
+            {/* Hero card — Home Value (full width) */}
             <a href="/sell" className="group relative col-span-full overflow-hidden rounded-2xl bg-gradient-to-br from-gold via-amber-400 to-orange-400 p-6 text-left shadow-lg transition hover:shadow-2xl hover:scale-[1.01]">
               <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
               <div className="relative">
@@ -68,14 +68,14 @@ export default function HomePage() {
                   <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
                 </div>
                 <h3 className="text-xl font-bold text-white">What&apos;s My Home Worth?</h3>
-                <p className="mt-1 text-sm text-white/80">Free AI-powered estimate in 30 seconds. Know your number before anyone else.</p>
+                <p className="mt-1 text-sm text-white/80">Your neighbors are checking. Homes in your area may be worth more than you think. Get your number — free, instant, no strings.</p>
                 <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-white group-hover:gap-2 transition-all">
                   Get My Estimate <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </span>
               </div>
             </a>
 
-            {/* Tax Appeal */}
+            {/* 2x2 grid: Tax, Reno, MyHome, Sell Timing */}
             <a href="/tax-shock" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 p-5 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
               <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
               <div className="relative">
@@ -83,14 +83,13 @@ export default function HomePage() {
                   <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
                 </div>
                 <h3 className="text-lg font-bold text-white">Am I Overpaying Taxes?</h3>
-                <p className="mt-1 text-xs text-white/75">Many NJ homeowners are paying too much. Check in 60 seconds.</p>
+                <p className="mt-1 text-xs text-white/75">NJ property taxes went up again. If your home is over-assessed, you could be losing thousands every year.</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:gap-2 transition-all">
                   Check Now <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </span>
               </div>
             </a>
 
-            {/* Renovation ROI */}
             <a href="/renovate" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 p-5 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
               <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
               <div className="relative">
@@ -98,14 +97,13 @@ export default function HomePage() {
                   <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z" /></svg>
                 </div>
                 <h3 className="text-lg font-bold text-white">Will This Reno Pay Off?</h3>
-                <p className="mt-1 text-xs text-white/75">AI renders + real ROI data. See the value before you spend.</p>
+                <p className="mt-1 text-xs text-white/75">Not every upgrade adds value. See exactly which renovations increase your home&apos;s price — before you spend a dollar.</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:gap-2 transition-all">
                   Calculate ROI <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </span>
               </div>
             </a>
 
-            {/* MyHome Log */}
             <a href="/my-home/log" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-5 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
               <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
               <div className="relative">
@@ -113,9 +111,23 @@ export default function HomePage() {
                   <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" /></svg>
                 </div>
                 <h3 className="text-lg font-bold text-white">Track Every Dollar</h3>
-                <p className="mt-1 text-xs text-white/75">Your home&apos;s digital history. Log upgrades, know your equity.</p>
+                <p className="mt-1 text-xs text-white/75">Every repair, every upgrade, every receipt — in one place. When you sell, buyers pay more for a documented home.</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:gap-2 transition-all">
                   Start Logging <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </span>
+              </div>
+            </a>
+
+            <a href="/sell-timing" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 p-5 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
+              <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+              <div className="relative">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 className="text-lg font-bold text-white">Sell Now or Wait?</h3>
+                <p className="mt-1 text-xs text-white/75">Timing is everything. See if your town&apos;s market favors sellers right now — or if waiting could cost you.</p>
+                <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:gap-2 transition-all">
+                  See Analysis <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </span>
               </div>
             </a>
@@ -129,7 +141,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-white">I&apos;m Ready to Sell</h3>
-                  <p className="mt-1 text-sm text-gray-400">AI-powered listing with full MLS access. We handle everything.</p>
+                  <p className="mt-1 text-sm text-gray-400">List on the MLS, get AI-powered marketing, and connect with a top local agent. Your home deserves maximum exposure.</p>
                 </div>
                 <svg className="h-6 w-6 shrink-0 text-gold group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </div>
