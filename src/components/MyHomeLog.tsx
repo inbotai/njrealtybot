@@ -5,6 +5,12 @@ import MyHomeAddEntry, { type HomeEntry } from "./MyHomeAddEntry";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
+/** Build headers with phone auth for requireOwner middleware */
+function phoneHeaders(p: string): Record<string, string> {
+  const cleaned = p.replace(/\D/g, "");
+  return cleaned ? { "x-myhome-phone": cleaned } : {};
+}
+
 // ── Types ───────────────────────────────────────────────────
 
 interface MyHomeProfile {
@@ -91,6 +97,16 @@ export default function MyHomeLog() {
   const [editEntry, setEditEntry] = useState<HomeEntry | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
+  // ── Auto-restore session ──────────────────────────────────
+  useEffect(() => {
+    const saved = localStorage.getItem("myhome_phone");
+    if (saved && !authed) {
+      setPhone(saved);
+      loginWithPhone(saved);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Auth ──────────────────────────────────────────────────
 
   async function handleLogin(e: React.FormEvent) {
@@ -100,7 +116,9 @@ export default function MyHomeLog() {
     setError("");
     try {
       const cleaned = phone.replace(/\D/g, "");
-      const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`);
+      const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`, {
+        headers: phoneHeaders(cleaned),
+      });
       if (!res.ok) {
         setError("No profile found. Claim your home first to get started.");
         setLoading(false);
@@ -117,30 +135,40 @@ export default function MyHomeLog() {
     setLoading(false);
   }
 
-  const loadEntries = useCallback(async (profileId: string) => {
+  const loadEntries = useCallback(async (profileId: string, ownerPhone?: string) => {
+    const p = ownerPhone || phone || localStorage.getItem("myhome_phone") || "";
     try {
-      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${profileId}?status=active`);
+      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${profileId}?status=active`, {
+        headers: phoneHeaders(p),
+      });
       if (res.ok) {
         const data = await res.json();
         setEntries(data.entries || data || []);
       }
     } catch { /* silent */ }
-  }, []);
+  }, [phone]);
 
-  const loadAlerts = useCallback(async (profileId: string) => {
+  const loadAlerts = useCallback(async (profileId: string, ownerPhone?: string) => {
+    const p = ownerPhone || phone || localStorage.getItem("myhome_phone") || "";
     try {
-      const res = await fetch(`${IDX_API}/api/idx/myhome/maintenance/${profileId}`);
+      const res = await fetch(`${IDX_API}/api/idx/myhome/maintenance/${profileId}`, {
+        headers: phoneHeaders(p),
+      });
       if (res.ok) {
         const data = await res.json();
         setAlerts(data.alerts || data || []);
       }
     } catch { /* silent */ }
-  }, []);
+  }, [phone]);
 
   async function deleteEntry(id: string) {
     if (!confirm("Delete this entry?")) return;
     try {
-      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${id}`, { method: "DELETE" });
+      const p = phone || localStorage.getItem("myhome_phone") || "";
+      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${id}`, {
+        method: "DELETE",
+        headers: phoneHeaders(p),
+      });
       if (!res.ok) throw new Error(`Delete failed (${res.status})`);
       setEntries((prev) => prev.filter((e) => e.id !== id));
     } catch {
@@ -210,30 +238,39 @@ export default function MyHomeLog() {
 
   // Handle OAuth callback — check for Supabase session
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("auth") === "callback") {
-      (async () => {
-        try {
-          const { supabaseAuth } = await import("@/lib/supabase-auth");
-          const { data: { session } } = await supabaseAuth.auth.getSession();
-          if (session?.user?.email) {
-            setEmail(session.user.email);
-            // If we already have a phone from a previous session, auto-login
-            const savedPhone = localStorage.getItem("myhome_phone");
-            if (savedPhone) {
-              setPhone(savedPhone);
-              await loginWithPhone(savedPhone);
-            } else {
-              setLoginStep("phone");
-            }
-          }
-        } catch (err) {
-          console.error("OAuth callback error:", err);
+    const url = new URL(window.location.href);
+    const isCallback = url.searchParams.get("auth") === "callback";
+    // Also detect hash-based tokens (implicit flow)
+    const hasHash = window.location.hash.includes("access_token");
+    if (!isCallback && !hasHash) return;
+
+    (async () => {
+      try {
+        const { supabaseAuth } = await import("@/lib/supabase-auth");
+
+        // Exchange code if present (PKCE flow)
+        const code = url.searchParams.get("code");
+        if (code) {
+          await supabaseAuth.auth.exchangeCodeForSession(code);
         }
-        // Clean URL
-        window.history.replaceState({}, "", "/my-home/log");
-      })();
-    }
+
+        const { data: { session } } = await supabaseAuth.auth.getSession();
+        if (session?.user?.email) {
+          setEmail(session.user.email);
+          const savedPhone = localStorage.getItem("myhome_phone");
+          if (savedPhone) {
+            setPhone(savedPhone);
+            await loginWithPhone(savedPhone);
+          } else {
+            setLoginStep("phone");
+          }
+        }
+      } catch (err) {
+        console.error("OAuth callback error:", err);
+      }
+      // Clean URL
+      window.history.replaceState({}, "", "/my-home/log");
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -287,13 +324,15 @@ export default function MyHomeLog() {
   async function loginWithPhone(cleaned: string) {
     try {
       localStorage.setItem("myhome_phone", cleaned);
-      const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`);
+      const res = await fetch(`${IDX_API}/api/idx/myhome/profile/${encodeURIComponent(cleaned)}`, {
+        headers: phoneHeaders(cleaned),
+      });
       if (res.ok) {
         const data = await res.json();
         setProfile(data.profile || data);
         setAuthed(true);
-        loadEntries(data.profile?.id || data.id);
-        loadAlerts(data.profile?.id || data.id);
+        loadEntries(data.profile?.id || data.id, cleaned);
+        loadAlerts(data.profile?.id || data.id, cleaned);
         // If we have email from social login, update profile
         if (email) {
           fetch(`${IDX_API}/api/idx/myhome/profile`, {
@@ -797,6 +836,7 @@ export default function MyHomeLog() {
       {showAdd && (
         <MyHomeAddEntry
           profileId={profile!.id}
+          ownerPhone={phone || localStorage.getItem("myhome_phone") || ""}
           entry={editEntry}
           onClose={() => { setShowAdd(false); setEditEntry(null); }}
           onSaved={() => { setShowAdd(false); setEditEntry(null); loadEntries(profile!.id); }}

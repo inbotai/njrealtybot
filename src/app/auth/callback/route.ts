@@ -15,5 +15,5 @@ export async function GET(request: NextRequest) {
   }
 
   // Redirect to MyHome Log after successful auth
-  return NextResponse.redirect(new URL('/my-home/log', request.url));
+  return NextResponse.redirect(new URL('/my-home/log?auth=callback', request.url));
 }

@@ -51,8 +51,9 @@ function getCategoryStyle(cat: string) {
 
 // ── Add/Edit Entry Modal ────────────────────────────────────
 
-export default function MyHomeAddEntry({ profileId, entry, onClose, onSaved }: {
+export default function MyHomeAddEntry({ profileId, ownerPhone, entry, onClose, onSaved }: {
   profileId: string;
+  ownerPhone?: string;
   entry: HomeEntry | null;
   onClose: () => void;
   onSaved: () => void;
@@ -99,9 +100,13 @@ export default function MyHomeAddEntry({ profileId, entry, onClose, onSaved }: {
       const url = isEdit
         ? `${IDX_API}/api/idx/myhome/entries/${entry!.id}`
         : `${IDX_API}/api/idx/myhome/entries`;
+      const p = ownerPhone || localStorage.getItem("myhome_phone") || "";
       const res = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(p ? { "x-myhome-phone": p.replace(/\D/g, "") } : {}),
+        },
         body: JSON.stringify(body),
       });
       if (res.ok) {
