@@ -128,7 +128,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
           disabled={loading}
         />
         <button
-          onClick={send}
+          onClick={() => send()}
           disabled={loading || !input.trim()}
           className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
         >
