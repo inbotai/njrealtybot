@@ -444,6 +444,107 @@ export default function MyHomeLog() {
     );
   }
 
+  // ── Profile setup state ───────────────────────────────────
+  const [setupName, setSetupName] = useState("");
+  const [setupAddress, setSetupAddress] = useState("");
+  const [setupCity, setSetupCity] = useState("");
+  const [setupZip, setSetupZip] = useState("");
+  const [setupSaving, setSetupSaving] = useState(false);
+
+  async function handleSetupProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!setupAddress.trim() || !setupCity.trim()) return;
+    setSetupSaving(true);
+    try {
+      const cleaned = phone.replace(/\D/g, "");
+      const res = await fetch(`${IDX_API}/api/idx/myhome/profile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: cleaned,
+          full_name: setupName.trim() || undefined,
+          email: email || undefined,
+          address: setupAddress.trim(),
+          city: setupCity.trim(),
+          zip: setupZip.trim() || undefined,
+          state: "NJ",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const p = data.profile || data;
+        setProfile(p);
+        loadEntries(p.id);
+        loadAlerts(p.id);
+      } else {
+        setError("Could not create profile. Try again.");
+      }
+    } catch {
+      setError("Connection error. Try again.");
+    }
+    setSetupSaving(false);
+  }
+
+  // ── Profile Setup Screen ─────────────────────────────────
+
+  if (authed && !profile) {
+    return (
+      <section className="flex min-h-[70vh] items-center justify-center bg-white py-12">
+        <div className="mx-auto max-w-md px-4">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-navy">
+              Set Up Your <span className="text-gold">Home</span> Profile
+            </h1>
+            <p className="mt-2 text-sm text-gray-500">Tell us about your property to get started</p>
+          </div>
+          <form onSubmit={handleSetupProfile} className="rounded-xl border bg-white p-6 shadow-sm space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Your Name</label>
+              <input
+                type="text" value={setupName} onChange={(e) => setSetupName(e.target.value)}
+                placeholder="John Smith"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Property Address *</label>
+              <input
+                type="text" value={setupAddress} onChange={(e) => setSetupAddress(e.target.value)}
+                placeholder="123 Main Street"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                required autoFocus
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700">City *</label>
+                <input
+                  type="text" value={setupCity} onChange={(e) => setSetupCity(e.target.value)}
+                  placeholder="Hoboken"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">ZIP</label>
+                <input
+                  type="text" value={setupZip} onChange={(e) => setSetupZip(e.target.value)}
+                  placeholder="07030"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                />
+              </div>
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <button type="submit" disabled={setupSaving || !setupAddress.trim() || !setupCity.trim()}
+              className="w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 transition">
+              {setupSaving ? "Creating..." : "Create My Home Profile"}
+            </button>
+          </form>
+        </div>
+      </section>
+    );
+  }
+
   // ── Dashboard ─────────────────────────────────────────────
 
   return (
