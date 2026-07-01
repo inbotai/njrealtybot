@@ -67,6 +67,7 @@ export default async function RootLayout({
   const isIdx = hdrs.get("x-idx-subdomain") === "true";
   const pathname = hdrs.get("x-next-pathname") || hdrs.get("x-invoke-path") || "";
   const isV2 = pathname === "/v2";
+  const isPropertyPage = pathname.startsWith("/property/");
 
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
@@ -77,7 +78,7 @@ export default async function RootLayout({
             {!isV2 && !isIdx && <AppSidebar />}
             <main className="flex-1">{children}</main>
             {!isV2 && (isIdx ? <FooterIdx /> : <Footer />)}
-            {!isV2 && <ValeSidePanel />}
+            {!isV2 && !isPropertyPage && <ValeSidePanel />}
             {!isIdx && !isV2 && <WhatsAppWidget />}
             {!isV2 && <ExitIntent />}
             {!isV2 && <ProactiveVale />}
