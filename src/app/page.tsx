@@ -58,38 +58,27 @@ export default function HomePage() {
           <h1 className="mb-6 text-3xl sm:text-4xl font-bold text-navy">What can I help you search?</h1>
           <HeroChat />
 
-          {/* CTAs — prominent seller tools */}
-          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <a href="/sell" className="group rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
-              <p className="text-3xl">🏠</p>
-              <h2 className="mt-3 text-base font-bold">What&apos;s My Home Worth?</h2>
-              <p className="mt-1 text-xs text-indigo-200">Free AI valuation in 30 seconds</p>
-              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Get Valuation →</span>
-            </a>
-            <a href="/renovate" className="group rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
-              <p className="text-3xl">✨</p>
-              <h2 className="mt-3 text-base font-bold">Thinking of Renovating?</h2>
-              <p className="mt-1 text-xs text-amber-100">See the ROI + AI before &amp; after</p>
-              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">See Renovation ROI →</span>
-            </a>
-            <a href="/tax-shock" className="group rounded-xl bg-gradient-to-br from-red-600 to-red-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
-              <p className="text-3xl">💰</p>
-              <h2 className="mt-3 text-base font-bold">Am I Overpaying Taxes?</h2>
-              <p className="mt-1 text-xs text-red-200">Compare to real sales data</p>
-              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Check Taxes →</span>
-            </a>
-            <a href="/list" className="group rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
-              <p className="text-3xl">📝</p>
-              <h2 className="mt-3 text-base font-bold">List My Home</h2>
-              <p className="mt-1 text-xs text-emerald-200">Digital onboarding in 5 min</p>
-              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Start Listing →</span>
-            </a>
-            <a href="/my-home/log" className="group rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 p-6 text-center text-white transition hover:shadow-xl hover:scale-[1.02]">
-              <p className="text-3xl">🏡</p>
-              <h2 className="mt-3 text-base font-bold">MyHome Log</h2>
-              <p className="mt-1 text-xs text-purple-200">Track improvements &amp; ROI</p>
-              <span className="mt-3 inline-block rounded-lg bg-white/20 px-4 py-1.5 text-xs font-bold group-hover:bg-white/30 transition">Open Log →</span>
-            </a>
+          {/* Tools grid — clean, monochrome design */}
+          <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { href: "/sell", icon: "M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819", title: "Home Valuation", desc: "Free AI estimate in 30 seconds" },
+              { href: "/renovate", icon: "M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z", title: "Renovation ROI", desc: "AI before & after + cost recovery" },
+              { href: "/tax-shock", icon: "M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z", title: "Tax Appeal Check", desc: "Are you overpaying property taxes?" },
+              { href: "/list", icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z", title: "List My Home", desc: "Digital onboarding in 5 minutes" },
+              { href: "/my-home/log", icon: "M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75", title: "MyHome Log", desc: "Track improvements & know your ROI" },
+              { href: "/chat", icon: "M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z", title: "Ask Vale", desc: "AI assistant for any question" },
+            ].map((t) => (
+              <a key={t.href} href={t.href} className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-md">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy/5 text-navy group-hover:bg-indigo-50 group-hover:text-indigo-600 transition">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={t.icon} /></svg>
+                </div>
+                <div className="min-w-0 text-left">
+                  <p className="text-sm font-semibold text-navy group-hover:text-indigo-600 transition">{t.title}</p>
+                  <p className="text-xs text-gray-400">{t.desc}</p>
+                </div>
+                <svg className="ml-auto h-4 w-4 shrink-0 text-gray-300 group-hover:text-indigo-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              </a>
+            ))}
           </div>
         </div>
       </section>
