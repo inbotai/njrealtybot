@@ -145,6 +145,9 @@ export default function SellTimingSimulator() {
       if (stats.trend === "up" && inv.appreciation === null) annualRate += 1;
       if (stats.trend === "down") annualRate -= 1.5;
 
+      // Cap annual rate to realistic range — even extreme NJ markets don't exceed 20%/yr
+      annualRate = Math.max(-10, Math.min(20, annualRate));
+
       setMarket(mkt);
 
       const now: Projection = {
@@ -259,6 +262,18 @@ export default function SellTimingSimulator() {
                   );
                 })}
               </div>
+
+              {/* Low data quality warning */}
+              {market && ((market.soldCount < 5) || (market.appreciation !== null && Math.abs(market.appreciation) > 15)) && (
+                <div className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+                  <p className="font-semibold">Limited Data Notice</p>
+                  <p className="mt-1">
+                    {market.soldCount < 5 && `Only ${market.soldCount} recent sales found in ${city}. `}
+                    {market.appreciation !== null && Math.abs(market.appreciation) > 15 && "The detected price trend is unusually high. "}
+                    Projections may be less reliable. Consider comparing with nearby cities for a fuller picture.
+                  </p>
+                </div>
+              )}
 
               {/* Real market data */}
               {market && (
