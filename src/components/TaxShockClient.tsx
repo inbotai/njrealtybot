@@ -178,7 +178,7 @@ export default function TaxShockClient() {
         </section>
 
         {/* Reveal Section */}
-        <section ref={resultRef} className="bg-[#0a0f1a] py-16 text-white min-h-[70vh]">
+        <section ref={resultRef} className="bg-white py-16 min-h-[70vh]">
           <div className="mx-auto max-w-2xl px-4 space-y-8">
 
             {/* Step 1: Found property */}
@@ -190,7 +190,7 @@ export default function TaxShockClient() {
 
             {/* Step 2: Assessment */}
             <div className={`transition-all duration-700 ${revealStep >= 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+              <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm">Your Tax Assessment</p>
                 <p className="text-4xl font-extrabold mt-1">
                   <AnimCounter target={result.assessedValue} />
@@ -201,22 +201,22 @@ export default function TaxShockClient() {
 
             {/* Step 3: Market Value */}
             <div className={`transition-all duration-700 ${revealStep >= 3 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+              <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm">Comparable Sales Value</p>
-                <p className="text-4xl font-extrabold mt-1 text-blue-400">
+                <p className="text-4xl font-extrabold mt-1 text-indigo-600">
                   <AnimCounter target={result.estimatedMarketValueMid} />
                 </p>
                 <p className="text-gray-500 text-xs mt-1">Based on {result.comparables?.length || 0} recent comparable sales</p>
                 {result.zestimate && (
-                  <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="mt-3 pt-3 border-t border-gray-200">
                     <p className="text-gray-400 text-sm">{result.zestimateSource === "redfin" ? "Redfin Estimate" : "Zestimate (Zillow)"}</p>
-                    <p className="text-2xl font-bold mt-1 text-emerald-400">
+                    <p className="text-2xl font-bold mt-1 text-emerald-600">
                       <AnimCounter target={result.zestimate} />
                     </p>
                   </div>
                 )}
                 {result.isOverAssessed && (
-                  <p className="text-red-400 mt-2 font-semibold">
+                  <p className="text-red-600 mt-2 font-semibold">
                     Your assessment is {Math.round(((result.assessedValue / result.estimatedMarketValueMid) - 1) * 100)}% above market value
                   </p>
                 )}
@@ -227,50 +227,50 @@ export default function TaxShockClient() {
             <div className={`transition-all duration-700 ${revealStep >= 4 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
               {/* Property type warning */}
               {result.propertyTypeWarning && (
-                <div className="rounded-xl bg-amber-900/30 border border-amber-500/30 p-4 mb-4 text-sm text-amber-300">
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-4 text-sm text-amber-700">
                   <span className="font-bold">&#x26A0; Property Type Notice:</span> {result.propertyTypeWarning}
                 </div>
               )}
 
               {strength === "strong" || strength === "moderate" ? (
-                <div className="rounded-2xl bg-gradient-to-r from-emerald-900/50 to-green-900/50 border-2 border-emerald-500/30 p-8 text-center">
-                  <p className="text-emerald-400 text-sm uppercase tracking-widest font-bold">You May Be Overpaying</p>
-                  <p className="text-4xl font-extrabold text-emerald-400 mt-3">
+                <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-8 text-center">
+                  <p className="text-emerald-600 text-sm uppercase tracking-widest font-bold">You May Be Overpaying</p>
+                  <p className="text-4xl font-extrabold text-emerald-600 mt-3">
                     <AnimCounter target={savingsLow} duration={1500} /> — <AnimCounter target={savingsHigh} duration={1500} /><span className="text-2xl">/year</span>
                   </p>
-                  <p className="text-gray-400 text-sm mt-2">Conservative estimate</p>
+                  <p className="text-gray-500 text-sm mt-2">Conservative estimate</p>
                   {savings5yr > 0 && (
-                    <p className="text-gray-300 mt-3 text-lg">
-                      Potential 5-year savings: <span className="text-white font-bold"><AnimCounter target={savings5yr} duration={1800} /></span>
+                    <p className="text-gray-600 mt-3 text-lg">
+                      Potential 5-year savings: <span className="text-navy font-bold"><AnimCounter target={savings5yr} duration={1800} /></span>
                     </p>
                   )}
                 </div>
               ) : strength === "weak" ? (
-                <div className="rounded-2xl bg-amber-900/20 border-2 border-amber-500/30 p-8 text-center">
-                  <p className="text-amber-400 text-sm uppercase tracking-widest font-bold">Marginal Case</p>
-                  <p className="text-2xl font-bold text-white mt-2">Your assessment is near the upper limit but within range</p>
-                  <p className="text-gray-400 mt-2">Potential savings would be small. An appeal carries risk.</p>
+                <div className="rounded-2xl bg-amber-50 border-2 border-amber-200 p-8 text-center">
+                  <p className="text-amber-600 text-sm uppercase tracking-widest font-bold">Marginal Case</p>
+                  <p className="text-2xl font-bold text-navy mt-2">Your assessment is near the upper limit but within range</p>
+                  <p className="text-gray-500 mt-2">Potential savings would be small. An appeal carries risk.</p>
                 </div>
               ) : (
-                <div className="rounded-2xl bg-blue-900/30 border-2 border-blue-500/30 p-8 text-center">
-                  <p className="text-blue-400 text-sm uppercase tracking-widest font-bold">No Case for Appeal</p>
-                  <p className="text-2xl font-bold text-white mt-2">Your assessment is in line with market value</p>
-                  <p className="text-gray-400 mt-2">Filing an appeal is not recommended at this time</p>
+                <div className="rounded-2xl bg-blue-50 border-2 border-blue-200 p-8 text-center">
+                  <p className="text-blue-600 text-sm uppercase tracking-widest font-bold">No Case for Appeal</p>
+                  <p className="text-2xl font-bold text-navy mt-2">Your assessment is in line with market value</p>
+                  <p className="text-gray-500 mt-2">Filing an appeal is not recommended at this time</p>
                 </div>
               )}
 
               {/* Appeal risk warning — always shown */}
-              <div className="rounded-xl bg-red-900/20 border border-red-500/20 p-4 mt-4 text-xs text-red-300/80">
+              <div className="rounded-xl bg-red-50 border border-red-200 p-4 mt-4 text-xs text-red-600">
                 <span className="font-bold">&#x26A0; Important:</span> {result.appealRiskWarning}
               </div>
             </div>
 
             {/* Step 5: Case Strength (from backend) */}
             <div className={`transition-all duration-700 ${revealStep >= 5 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+              <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm mb-3">Case Strength</p>
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 h-4 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
                     <div className={`h-full rounded-full transition-all duration-1000 ${caseBgColor(strength)}`}
                       style={{ width: `${casePercent(strength)}%` }} />
                   </div>
@@ -278,10 +278,10 @@ export default function TaxShockClient() {
                 </div>
                 <p className="mt-3 text-sm text-gray-400">{result.caseStrengthExplanation}</p>
                 <div className="mt-4 space-y-2 text-sm">
-                  {result.chapter123Result === "over_assessed" && <p className="text-emerald-400">&#x2705; Chapter 123: Over-assessed</p>}
+                  {result.chapter123Result === "over_assessed" && <p className="text-emerald-600">&#x2705; Chapter 123: Over-assessed</p>}
                   {result.chapter123Result === "within_range" && <p className="text-gray-500">&#x2796; Chapter 123: Within range</p>}
-                  {result.chapter123Result === "under_assessed" && <p className="text-red-400">&#x274C; Chapter 123: Under-assessed — do NOT appeal</p>}
-                  {result.comparables?.length >= 3 && <p className="text-emerald-400">&#x2705; {result.comparables.length} comparable sales analyzed</p>}
+                  {result.chapter123Result === "under_assessed" && <p className="text-red-600">&#x274C; Chapter 123: Under-assessed — do NOT appeal</p>}
+                  {result.comparables?.length >= 3 && <p className="text-emerald-600">&#x2705; {result.comparables.length} comparable sales analyzed</p>}
                   {result.filingDeadline && <p className="text-gray-400">&#x1F4C5; Filing deadline: {result.filingDeadline}</p>}
                 </div>
               </div>
@@ -290,7 +290,7 @@ export default function TaxShockClient() {
             {/* Step 6: Comparable Properties */}
             {result.comparables?.length > 0 && (
               <div className={`transition-all duration-700 ${revealStep >= 6 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-                <div className="rounded-xl bg-white/5 border border-white/10 p-6">
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                   <p className="text-gray-400 text-sm uppercase tracking-widest mb-1">Similar Properties That Sold Recently</p>
                   <p className="text-gray-500 text-xs mb-4">These comparable sales in {result.city} support a lower assessment</p>
 
@@ -299,11 +299,11 @@ export default function TaxShockClient() {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-gold text-xs font-bold uppercase">Your Property</p>
-                        <p className="text-white text-sm font-semibold truncate">{result.address}</p>
+                        <p className="text-navy text-sm font-semibold truncate">{result.address}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-gray-400 text-xs">Assessment</p>
-                        <p className="text-white font-bold">${result.assessedValue?.toLocaleString()}</p>
+                        <p className="text-navy font-bold">${result.assessedValue?.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -311,12 +311,12 @@ export default function TaxShockClient() {
                   {/* Comp list */}
                   <div className="space-y-2">
                     {result.comparables.slice(0, 5).map((c: any, i: number) => (
-                      <div key={i} className="rounded-lg bg-white/5 p-3 flex justify-between items-center">
+                      <div key={i} className="rounded-lg bg-gray-50 p-3 flex justify-between items-center">
                         <div className="min-w-0 flex-1">
-                          <p className="text-white text-sm truncate">{c.address}</p>
+                          <p className="text-navy text-sm truncate">{c.address}</p>
                           <div className="flex gap-3 text-xs text-gray-500 mt-0.5 flex-wrap">
                             {c.distanceMiles != null && c.distanceMiles > 0 && (
-                              <span className="text-blue-400">{c.distanceMiles < 0.1 ? "< 0.1" : c.distanceMiles.toFixed(1)} mi away</span>
+                              <span className="text-indigo-500">{c.distanceMiles < 0.1 ? "< 0.1" : c.distanceMiles.toFixed(1)} mi away</span>
                             )}
                             {c.bedrooms && <span>{c.bedrooms}bd</span>}
                             {c.bathrooms && <span>{c.bathrooms}ba</span>}
@@ -325,9 +325,9 @@ export default function TaxShockClient() {
                           </div>
                         </div>
                         <div className="text-right ml-4">
-                          <p className="text-white font-bold text-sm">${c.salePrice?.toLocaleString()}</p>
+                          <p className="text-navy font-bold text-sm">${c.salePrice?.toLocaleString()}</p>
                           {result.assessedValue > 0 && c.salePrice > 0 && (
-                            <p className={`text-xs font-medium ${c.salePrice < result.assessedValue ? "text-emerald-400" : "text-gray-500"}`}>
+                            <p className={`text-xs font-medium ${c.salePrice < result.assessedValue ? "text-emerald-600" : "text-gray-400"}`}>
                               {c.salePrice < result.assessedValue
                                 ? `$${(result.assessedValue - c.salePrice).toLocaleString()} below your assessment`
                                 : `$${(c.salePrice - result.assessedValue).toLocaleString()} above`
@@ -341,9 +341,9 @@ export default function TaxShockClient() {
 
                   {/* Average comp price vs assessment */}
                   {result.comparables.length >= 2 && (
-                    <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                    <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
                       <p className="text-gray-400 text-sm">Avg sale price of similar homes</p>
-                      <p className="text-white font-bold">
+                      <p className="text-navy font-bold">
                         ${Math.round(result.comparables.reduce((sum: number, c: any) => sum + (c.salePrice || 0), 0) / result.comparables.length).toLocaleString()}
                       </p>
                     </div>
@@ -434,7 +434,7 @@ export default function TaxShockClient() {
                     <button onClick={() => {
                       const text = `I just found out I might be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes! Check yours free:`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(text + " https://gardenstate.ai/tax-shock")}`, "_blank");
-                    }} className="rounded-full bg-white/10 px-4 py-2 text-xs text-gray-300 hover:bg-white/20 transition">
+                    }} className="rounded-full bg-gray-100 px-4 py-2 text-xs text-gray-500 hover:bg-gray-200 transition">
                       Share with neighbors
                     </button>
                   </div>
@@ -451,7 +451,7 @@ export default function TaxShockClient() {
               </p>
 
               {/* Path to sell */}
-              <div className="mt-6 rounded-xl border border-white/10 p-5 text-center">
+              <div className="mt-6 rounded-xl border border-gray-200 p-5 text-center">
                 <p className="text-gray-400 text-sm">Thinking about selling instead?</p>
                 <a href="/value" className="mt-2 inline-block text-gold font-semibold hover:text-yellow-400 transition">
                   Find out what your home is worth &rarr;
