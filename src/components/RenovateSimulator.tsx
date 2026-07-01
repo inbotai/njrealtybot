@@ -284,9 +284,16 @@ export default function RenovateSimulator() {
   const [budgetStr, setBudgetStr] = useState("");
   const [result, setResult] = useState<CalcResult | null>(null);
 
+  const [budgetError, setBudgetError] = useState("");
+
   function handleCalc() {
     const budget = parseInt(budgetStr.replace(/\D/g, ""), 10);
-    if (!budget || budget <= 0) return;
+    if (!budget || budget <= 0) {
+      setBudgetError("Enter a budget amount");
+      setResult(null);
+      return;
+    }
+    setBudgetError("");
     const reno = renovationTypes.find((r) => r.id === renoId)!;
     setResult(calcRoi(budget, reno));
   }
@@ -402,7 +409,7 @@ export default function RenovateSimulator() {
                   inputMode="numeric"
                   placeholder="e.g. 15000"
                   value={budgetStr}
-                  onChange={(e) => { setBudgetStr(e.target.value.replace(/[^0-9]/g, "")); setResult(null); }}
+                  onChange={(e) => { setBudgetStr(e.target.value.replace(/[^0-9]/g, "")); setResult(null); setBudgetError(""); }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
@@ -416,6 +423,7 @@ export default function RenovateSimulator() {
               >
                 Calculate ROI
               </button>
+              {budgetError && <span className="text-xs text-red-500">{budgetError}</span>}
               <span className="text-xs text-gray-500">
                 NJ avg recovery for {selectedReno.label}: {(selectedReno.minMultiplier * 100).toFixed(0)}% &ndash; {(selectedReno.maxMultiplier * 100).toFixed(0)}%
               </span>
@@ -475,7 +483,7 @@ export default function RenovateSimulator() {
                   inline={true}
                   valueProp="Get AI Renovation Renderings"
                   source="renovate_sim"
-                  message={`${selectedReno.label} | Budget: ${fmt(parseInt(budgetStr))} | ROI: ${result.roiPercent >= 0 ? "+" : ""}${result.roiPercent.toFixed(0)}% | ${result.verdictLabel}`}
+                  message={`${selectedReno.label} | Budget: ${fmt(parseInt(budgetStr))} | Recovery: ${result.njAvgRoi.toFixed(0)}% | ${result.verdictLabel}`}
                   resultsText={`🔨 *Renovation Analysis*\n\nProject: ${selectedReno.label}\nBudget: ${fmt(parseInt(budgetStr))}\nEst. Value Added: ${fmt(result.valueAdded)}\nCost Recovery: ${result.njAvgRoi.toFixed(0)}%\nNet Cost: ${fmt(parseInt(budgetStr) - result.valueAdded)}\nVerdict: ${result.verdictLabel}\n\nGet a free CMA: gardenstate.ai/sell\n— Garden State AI`}
                 />
               </div>

@@ -140,9 +140,12 @@ export default function MyHomeLog() {
   async function deleteEntry(id: string) {
     if (!confirm("Delete this entry?")) return;
     try {
-      await fetch(`${IDX_API}/api/idx/myhome/entries/${id}`, { method: "DELETE" });
+      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Delete failed (${res.status})`);
       setEntries((prev) => prev.filter((e) => e.id !== id));
-    } catch { /* silent */ }
+    } catch {
+      setError("Failed to delete entry. Please try again.");
+    }
     setMenuOpen(null);
   }
 
@@ -477,10 +480,11 @@ export default function MyHomeLog() {
         loadEntries(p.id);
         loadAlerts(p.id);
       } else {
-        setError("Could not create profile. Try again.");
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.error || `Could not create profile (${res.status}). Try again.`);
       }
-    } catch {
-      setError("Connection error. Try again.");
+    } catch (err: any) {
+      setError(err?.message || "Connection error. Try again.");
     }
     setSetupSaving(false);
   }

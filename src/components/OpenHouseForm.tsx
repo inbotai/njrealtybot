@@ -34,6 +34,13 @@ export default function OpenHouseForm({ listingId, mlsNumber }: OpenHouseFormPro
       return;
     }
 
+    const cleanedPhone = form.phone.replace(/\D/g, "");
+    if (cleanedPhone.length < 10) {
+      setErrorMsg("Please enter a valid 10-digit phone number");
+      setStatus("error");
+      return;
+    }
+
     if (!consent) {
       setErrorMsg("Please accept the messaging consent to continue.");
       setStatus("error");

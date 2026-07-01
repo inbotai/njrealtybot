@@ -68,13 +68,18 @@ export default function MyHomeAddEntry({ profileId, entry, onClose, onSaved }: {
   const [warrantyExpiry, setWarrantyExpiry] = useState(entry?.warranty_expiry?.slice(0, 10) || "");
   const [notes, setNotes] = useState(entry?.notes || "");
   const [saving, setSaving] = useState(false);
+  const [titleError, setTitleError] = useState("");
   const [result, setResult] = useState<{ value_impact: number; recovery_pct: number } | null>(null);
 
   const showWarranty = ["repair", "upgrade", "maintenance"].includes(category);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      setTitleError("Title is required");
+      return;
+    }
+    setTitleError("");
     setSaving(true);
 
     const body = {
@@ -147,9 +152,10 @@ export default function MyHomeAddEntry({ profileId, entry, onClose, onSaved }: {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700">Title *</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required
+            <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} required
               placeholder="Kitchen countertop replacement"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-gold focus:outline-none" />
+              className={`mt-1 w-full rounded-lg border px-4 py-2.5 text-sm focus:border-gold focus:outline-none ${titleError ? "border-red-400" : "border-gray-300"}`} />
+            {titleError && <p className="mt-1 text-xs text-red-600">{titleError}</p>}
           </div>
 
           <div>

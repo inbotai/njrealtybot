@@ -124,10 +124,16 @@ export default function TotalCostCard({
     const total = monthlyMortgage + monthlyTax + monthlyInsurance + hoa + monthlyMaintenance;
 
     // Tax appeal potential
+    // NJ equalization ratios typically range 80-100%, meaning assessed values
+    // are expected to be 80-100% of market value. Using 85% as threshold:
+    // if assessed > 85% of list price, the property may be over-assessed
+    // relative to what the county's equalization ratio would justify.
+    // Example: listed at $500K, assessed at $450K (90%) — borderline.
+    // Listed at $400K, assessed at $450K (112%) — clear over-assessment.
+    // The savings estimate uses the effective tax rate applied to the
+    // over-assessed portion, divided by 12 for monthly savings display.
     let taxAppealSavings = 0;
     if (assessedValue && listPrice && annualTaxes && annualTaxes > 0 && assessedValue > listPrice * 0.85) {
-      // If assessed value is higher than 85% of list price, there may be appeal potential
-      // Rough estimate: (assessed - listPrice * 0.85) / assessed * annualTax / 12
       const overAssessment = assessedValue - listPrice * 0.85;
       if (overAssessment > 0) {
         const taxRate = annualTaxes / assessedValue;
