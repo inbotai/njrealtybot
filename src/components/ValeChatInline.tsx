@@ -15,6 +15,8 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const vid = localStorage.getItem("vale_vid") || "";
@@ -33,9 +35,16 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       .catch((err) => { console.error("chat/start failed:", err); setMessages([{ role: "assistant", text: "Hi! I'm Vale. Ask me anything about this property." }]); });
   }, [listingId]);
 
+  // Scroll within the chat container only — don't scroll the whole page
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+    // Focus input after Vale responds so user can type next message
+    if (!loading && messages.length > 0) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [messages, loading]);
 
   async function send(overrideText?: string) {
     const text = (overrideText || input).trim();
@@ -64,7 +73,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div data-vale-widget className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Header */}
       <div className="flex items-center gap-3 rounded-t-xl bg-indigo-600 px-4 py-3">
         <svg viewBox="0 0 200 200" className="h-8 w-8">
@@ -84,7 +93,11 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       {/* Quick action */}
       <div className="px-4 pt-3">
         <button
-          onClick={() => send("I'd like to schedule a showing for this property")}
+          onClick={() => {
+            send("I'd like to schedule a showing for this property");
+            // Scroll the widget into view so user sees the conversation
+            chatContainerRef.current?.closest("[data-vale-widget]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
           disabled={loading || !sessionId}
           className="w-full rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-sm font-medium text-navy hover:bg-gold/20 transition disabled:opacity-40"
         >
@@ -93,7 +106,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       </div>
 
       {/* Messages */}
-      <div className="h-52 overflow-y-auto p-4 space-y-3">
+      <div ref={chatContainerRef} className="h-52 overflow-y-auto p-4 space-y-3">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
@@ -120,6 +133,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       {/* Input */}
       <div className="flex gap-2 border-t border-gray-100 p-3">
         <input
+          ref={inputRef}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
