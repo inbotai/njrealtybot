@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import MyHomeAddEntry, { type HomeEntry } from "./MyHomeAddEntry";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
@@ -188,17 +188,61 @@ export default function MyHomeLog() {
     setLoading(true);
     setError("");
     try {
-      // Simulate social login — get email, then ask for phone
-      // In production: use Supabase Auth or OAuth flow
-      const mockEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
-      if (!mockEmail) { setLoading(false); return; }
-      setEmail(mockEmail);
-      setLoginStep("phone");
+      // OAuth via backend — redirects to Google/Apple, comes back with email
+      const callbackUrl = `${window.location.origin}/my-home/log?auth=callback`;
+      const res = await fetch(`${IDX_API}/api/idx/myhome/auth/social`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, callbackUrl }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          // Redirect to OAuth provider
+          window.location.href = data.url;
+          return;
+        }
+        if (data.email) {
+          setEmail(data.email);
+          setLoginStep("phone");
+        }
+      } else {
+        // Fallback: simple email input if OAuth not configured yet
+        const inputEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
+        if (!inputEmail) { setLoading(false); return; }
+        setEmail(inputEmail);
+        setLoginStep("phone");
+      }
     } catch {
-      setError("Login failed. Please try again.");
+      // Fallback: simple email input
+      const inputEmail = prompt(`Enter your ${provider === "google" ? "Gmail" : "Apple ID"} email:`);
+      if (!inputEmail) { setLoading(false); return; }
+      setEmail(inputEmail);
+      setLoginStep("phone");
     }
     setLoading(false);
   }
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("auth") === "callback") {
+      const callbackEmail = params.get("email");
+      const callbackPhone = params.get("phone");
+      if (callbackEmail) {
+        setEmail(callbackEmail);
+        if (callbackPhone) {
+          setPhone(callbackPhone);
+          loginWithPhone(callbackPhone.replace(/\D/g, ""));
+        } else {
+          setLoginStep("phone");
+        }
+      }
+      // Clean URL
+      window.history.replaceState({}, "", "/my-home/log");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handlePhoneSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -16,6 +16,7 @@ import ActivityTracker from "@/components/ActivityTracker";
 import ExitIntent from "@/components/ExitIntent";
 import ProactiveVale from "@/components/ProactiveVale";
 import AppSidebar from "@/components/AppSidebar";
+import MyHomeLogCTA from "@/components/MyHomeLogCTA";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -82,6 +83,7 @@ export default async function RootLayout({
             {!isIdx && !isV2 && <WhatsAppWidget />}
             {!isV2 && <ExitIntent />}
             {!isV2 && <ProactiveVale />}
+            {!isV2 && <MyHomeLogCTA />}
             <TrackingPixels />
             <Suspense><ActivityTracker /></Suspense>
           </ValeProvider>
