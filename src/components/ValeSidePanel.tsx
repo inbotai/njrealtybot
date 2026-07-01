@@ -70,7 +70,8 @@ export default function ValeSidePanel() {
     send(q);
   }, [input, send]);
 
-  if (!panelOpen) return null;
+  // Property pages use their own compact ValeChatInline — never show the full side panel there
+  if (!panelOpen || pathname.startsWith("/property/")) return null;
 
   const panelWidth = expanded ? 480 : 400;
 
