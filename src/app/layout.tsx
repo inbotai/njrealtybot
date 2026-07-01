@@ -14,7 +14,6 @@ import TrackingPixels from "@/components/TrackingPixels";
 import { Suspense } from "react";
 import ActivityTracker from "@/components/ActivityTracker";
 import ExitIntent from "@/components/ExitIntent";
-import ProactiveVale from "@/components/ProactiveVale";
 import AppSidebar from "@/components/AppSidebar";
 import MyHomeLogCTA from "@/components/MyHomeLogCTA";
 
@@ -83,7 +82,6 @@ export default async function RootLayout({
             {!isV2 && !isPropertyPage && <ValeSidePanel />}
             {!isIdx && !isV2 && <WhatsAppWidget />}
             {!isV2 && <ExitIntent />}
-            {!isV2 && <ProactiveVale />}
             <TrackingPixels />
             <Suspense><ActivityTracker /></Suspense>
           </ValeProvider>
