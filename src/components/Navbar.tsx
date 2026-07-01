@@ -55,7 +55,8 @@ export default function Navbar() {
     ? moreLinks
     : [{ href: "/open-houses", label: "Open Houses" }, ...moreLinks];
   const isListingPage = pathname === "/search" || pathname.startsWith("/property/")
-    || pathname === "/deals" || pathname === "/open-houses";
+    || pathname === "/deals" || pathname === "/open-houses"
+    || pathname === "/list" || pathname === "/fsbo";
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -108,14 +109,16 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* BHG Broker logo + Green Team — must be more prominent than Garden State AI */}
-          <div className="border-l border-gray-200 pl-5 flex items-center gap-3">
-            <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-14 w-auto" />
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-gray-900 tracking-wide">GREEN TEAM</p>
-              <p className="text-xs text-gray-400">REALTY</p>
+          {/* BHG Green Team — only on listing/transaction pages */}
+          {isListingPage && (
+            <div className="border-l border-gray-200 pl-5 flex items-center gap-2">
+              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-10 w-auto opacity-70" />
+              <div className="leading-tight">
+                <p className="text-[10px] font-semibold text-gray-500 tracking-wide">GREEN TEAM</p>
+                <p className="text-[9px] text-gray-400">REALTY</p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Admin indicator */}
           {isAdmin && (

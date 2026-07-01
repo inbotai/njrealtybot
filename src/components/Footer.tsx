@@ -1,18 +1,37 @@
-import Link from "next/link";
+"use client";
 
-/* SEO link arrays — rendered as sr-only for crawlers, not visible to users */
-const sellerLinks = [
-  { href: "/sell", label: "Sell Your Home" },
-  { href: "/my-home", label: "Track My Home Value" },
-  { href: "/sell-timing", label: "Sell Now vs Wait" },
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const toolLinks = [
+  { href: "/my-home/log", label: "MyHome Log" },
+  { href: "/sell", label: "Home Valuation" },
   { href: "/property-tax", label: "Tax Appeal" },
-  { href: "/comp-alerts", label: "Comp Alerts" },
   { href: "/renovate", label: "Renovation ROI" },
-  { href: "/net-proceeds", label: "Net Proceeds" },
+  { href: "/sell-timing", label: "Sell Now vs Wait" },
   { href: "/market", label: "Market Reports" },
 ];
 
-const buyerLinks = [
+const companyLinks = [
+  { href: "/about", label: "About" },
+  { href: "/news", label: "News" },
+  { href: "/contact", label: "Contact" },
+  { href: "/chat", label: "Ask Vale" },
+];
+
+const legalLinks = [
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Service" },
+];
+
+/* SEO link arrays — sr-only for crawlers */
+const seoSellerLinks = [
+  { href: "/sell", label: "Sell Your Home" },
+  { href: "/my-home", label: "Track My Home Value" },
+  { href: "/net-proceeds", label: "Net Proceeds" },
+  { href: "/comp-alerts", label: "Comp Alerts" },
+];
+const seoBuyerLinks = [
   { href: "/search", label: "Search Homes" },
   { href: "/deals", label: "Deals & Price Drops" },
   { href: "/open-houses", label: "Open Houses" },
@@ -21,68 +40,151 @@ const buyerLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isListingPage = pathname === "/search" || pathname.startsWith("/property/")
+    || pathname === "/deals" || pathname === "/open-houses"
+    || pathname === "/list" || pathname === "/fsbo";
+
   return (
-    <footer className="mt-auto bg-white border-t border-gray-200">
-      <div className="mx-auto max-w-5xl px-4 py-10">
-        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between">
-          {/* Left — BHG logo + agent info */}
-          <div className="text-center sm:text-left">
-            <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-12 w-auto mx-auto sm:mx-0" />
-            <div className="mt-3 flex items-center gap-2 justify-center sm:justify-start">
-              <div className="text-xs leading-tight">
-                <p className="font-bold text-gray-900 tracking-wide">GREEN TEAM REALTY</p>
+    <footer className="mt-auto bg-gray-50 border-t border-gray-200">
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        {/* Main footer grid */}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Brand */}
+          <div>
+            <Link href="/" className="flex items-center gap-2">
+              <svg viewBox="0 0 200 200" className="h-8 w-8">
+                <circle cx="100" cy="100" r="95" fill="#0f0a1e" />
+                <circle cx="100" cy="100" r="72" fill="none" stroke="#f59e0b" strokeWidth="3" />
+                <ellipse cx="100" cy="130" rx="45" ry="18" fill="#22c55e" />
+                <rect x="75" y="85" width="50" height="40" rx="2" fill="#fbbf24" />
+                <polygon points="100,55 65,90 135,90" fill="#ef4444" />
+                <rect x="92" y="100" width="16" height="25" rx="1" fill="#0f0a1e" />
+              </svg>
+              <span className="text-sm font-bold">
+                <span className="text-gold">Garden</span>
+                <span className="text-gray-900"> State </span>
+                <span className="text-indigo-600">AI</span>
+              </span>
+            </Link>
+            <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+              New Jersey&apos;s AI-powered platform for homeowners. Track your home, understand your taxes, and sell smarter.
+            </p>
+            <div className="mt-4 space-y-1">
+              <p className="text-xs text-gray-600">
+                <a href="tel:+12015281095" className="hover:text-indigo-600 transition">(201) 528-1095</a>
+              </p>
+              <p className="text-xs text-gray-600">
+                <a href="mailto:info@gardenstate.ai" className="hover:text-indigo-600 transition">info@gardenstate.ai</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Tools */}
+          <div>
+            <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Homeowner Tools</p>
+            <ul className="mt-3 space-y-2">
+              {toolLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-xs text-gray-500 hover:text-indigo-600 transition">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Company</p>
+            <ul className="mt-3 space-y-2">
+              {companyLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-xs text-gray-500 hover:text-indigo-600 transition">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Legal</p>
+            <ul className="mt-3 space-y-2">
+              {legalLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-xs text-gray-500 hover:text-indigo-600 transition">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+            {/* Equal Housing + Realtor logos */}
+            <div className="mt-4 flex items-center gap-3">
+              <img src="/equal-housing-opportunity.svg" alt="Equal Housing Opportunity" className="h-6 w-auto opacity-60"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <img src="/realtor-logo.svg" alt="Realtor" className="h-6 w-auto opacity-60"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Brokerage info — only on listing pages */}
+        {isListingPage && (
+          <div className="mt-8 rounded-lg border border-gray-200 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-10 w-auto opacity-70" />
+              <div className="text-[10px] text-gray-500 leading-relaxed">
+                <p>Real estate listing and transaction services provided by <strong>Better Homes and Gardens Real Estate | Green Team</strong>, a licensed New Jersey real estate brokerage. 293 Route 94, Vernon, NJ 07462.</p>
               </div>
             </div>
-            <div className="mt-3">
-              <p className="text-xs font-semibold text-gray-900">Julio Reynoso</p>
-              <p className="text-[11px] text-gray-500">Licensed Real Estate Agent</p>
-              <p className="mt-1 text-[11px] text-gray-400">293 Route 94, Vernon, NJ 07462</p>
-            </div>
           </div>
+        )}
 
-          {/* Center — Contact */}
-          <div className="text-center">
-            <p className="text-xs font-semibold text-gray-900">Contact</p>
-            <p className="mt-2 text-xs text-gray-600">
-              <a href="tel:+12015281095" className="hover:text-indigo-600 transition">(201) 528-1095</a>
-            </p>
-            <p className="mt-1 text-xs text-gray-600">
-              <a href="mailto:info@gardenstate.ai" className="hover:text-indigo-600 transition">info@gardenstate.ai</a>
-            </p>
-            <p className="mt-2 text-[11px] text-gray-400">
-              Office: 973.814.7344 | Fax: 845.920.7669
-            </p>
-          </div>
-
-          {/* Right — Links */}
-          <div className="text-center sm:text-right">
-            <div className="flex flex-wrap justify-center sm:justify-end gap-x-4 gap-y-2 text-xs">
-              <Link href="/news" className="text-gray-600 hover:text-indigo-600 transition">News</Link>
-              <Link href="/privacy" className="text-gray-600 hover:text-indigo-600 transition">Privacy Policy</Link>
-              <Link href="/terms" className="text-gray-600 hover:text-indigo-600 transition">Terms of Service</Link>
-              <Link href="/contact" className="text-gray-600 hover:text-indigo-600 transition">Contact</Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Platform disclaimer */}
-        <div className="mt-8 border-t border-gray-100 pt-4 text-center text-[10px] text-gray-400 space-y-1">
+        {/* Disclaimers */}
+        <div className="mt-8 border-t border-gray-200 pt-6 space-y-3 text-[10px] text-gray-400 leading-relaxed">
+          {/* Platform disclaimer — always shown */}
           <p>
-            Garden State AI is an AI-powered real estate platform. Property search and listing services are provided
-            through IDX (GSMLS/NJMLS) by Better Homes and Gardens | Green Team, 293 Route 94, Vernon, NJ 07462.
+            gardenstate.ai is a technology platform providing AI-powered tools and market intelligence for homeowners.
+            gardenstate.ai is not a licensed real estate brokerage and does not provide real estate brokerage services.
           </p>
-          <p>All buying and selling services are handled by licensed real estate agents.</p>
-          <p>&copy; {new Date().getFullYear()} Garden State AI. All rights reserved.</p>
-        </div>
 
-        {/* SEO-only links — hidden from users, visible to crawlers */}
-        <nav aria-label="For Sellers" className="sr-only">
-          {sellerLinks.map(l => <Link key={l.href} href={l.href}>{l.label}</Link>)}
-        </nav>
-        <nav aria-label="For Buyers" className="sr-only">
-          {buyerLinks.map(l => <Link key={l.href} href={l.href}>{l.label}</Link>)}
-        </nav>
+          {/* Estimates disclaimer — always shown */}
+          <p>
+            Home valuations, market analyses, tax appeal estimates, and renovation ROI calculations are AI-generated estimates
+            for informational purposes only. They are not appraisals, legal advice, or tax advice. Consult a licensed appraiser,
+            attorney, or tax professional for official guidance.
+          </p>
+
+          {/* MLS disclaimer — only on listing pages */}
+          {isListingPage && (
+            <p>
+              The data relating to real estate for sale on this website appears in part through the IDX program of NJMLS and GSMLS.
+              Information deemed reliable but not guaranteed. Data provided for consumer&apos;s personal, non-commercial use only.
+            </p>
+          )}
+
+          {/* Brokerage disclaimer — only on listing pages */}
+          {isListingPage && (
+            <p>
+              Real estate listing, transaction, and brokerage services are provided by Better Homes and Gardens Real Estate | Green Team,
+              a licensed New Jersey real estate brokerage. gardenstate.ai facilitates technology and does not participate in real estate
+              transactions as a principal or agent.
+            </p>
+          )}
+
+          {/* Equal Housing — always shown */}
+          <p className="flex items-center gap-2">
+            <span>Equal Housing Opportunity.</span>
+          </p>
+
+          {/* Copyright */}
+          <p>&copy; {new Date().getFullYear()} Garden State AI LLC. All rights reserved.</p>
+        </div>
       </div>
+
+      {/* SEO-only links */}
+      <nav aria-label="For Sellers" className="sr-only">
+        {seoSellerLinks.map(l => <Link key={l.href} href={l.href}>{l.label}</Link>)}
+      </nav>
+      <nav aria-label="For Buyers" className="sr-only">
+        {seoBuyerLinks.map(l => <Link key={l.href} href={l.href}>{l.label}</Link>)}
+      </nav>
     </footer>
   );
 }
