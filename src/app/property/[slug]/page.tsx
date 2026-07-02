@@ -11,6 +11,7 @@ import MLSDisclaimer from "@/components/MLSDisclaimer";
 import RequireAuth from "@/components/RequireAuth";
 import DemandBadge from "@/components/DemandBadge";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
+import VerifiedHomeBadge from "@/components/VerifiedHomeBadge";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
@@ -250,6 +251,7 @@ export default async function PropertyPage({ params }: Props) {
                 )}
                 <DemandBadge listingId={listing.id} />
                 <MatchScoreBadge listingId={listing.id} />
+                <VerifiedHomeBadge address={address} city={listing.city || ""} />
               </div>
             </div>
 

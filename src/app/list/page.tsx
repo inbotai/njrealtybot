@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ListingOnboardingWizard from "@/components/ListingOnboardingWizard";
 import ValeHelper from "@/components/ValeHelper";
+import SocialProofSlot from "@/components/SocialProofSlot";
 
 export const metadata: Metadata = {
   title: { absolute: "List Your NJ Home — Digital Onboarding | Garden State AI" },
@@ -33,6 +34,7 @@ export const metadata: Metadata = {
 
 export default function ListPage() {
   return (
+    <>
     <div className="mx-auto max-w-6xl px-4 py-12">
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 max-w-3xl">
@@ -48,5 +50,7 @@ export default function ListPage() {
         </div>
       </div>
     </div>
+    <SocialProofSlot />
+  </>
   );
 }

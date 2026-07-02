@@ -359,11 +359,21 @@ export interface BlogPostAPI {
   published_at: string | null;
   created_at: string;
   updated_at?: string;
+  article_type?: string | null;
+  town?: string | null;
+  county?: string | null;
+  fair_housing_flag?: boolean;
 }
 
-export async function fetchBlogPosts(): Promise<BlogPostAPI[]> {
+export async function fetchBlogPosts(filters?: {
+  town?: string;
+  articleType?: string;
+}): Promise<BlogPostAPI[]> {
   try {
-    const res = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`, {
+    const params = new URLSearchParams({ limit: "50" });
+    if (filters?.town) params.set("town", filters.town);
+    if (filters?.articleType) params.set("article_type", filters.articleType);
+    const res = await fetch(`${IDX_API}/api/idx/blog/posts?${params}`, {
       cache: "no-store",
     });
     if (!res.ok) return [];
