@@ -10,8 +10,8 @@ import HeroChat from "./HeroChat";
 const HOMEOWNER_CHIPS: Array<{ label: string; href: string }> = [
   { label: "Am I overpaying taxes?", href: "/tax-shock" },
   { label: "What's my home worth?", href: "/sell" },
+  { label: "Is NJ holding my money?", href: "/benefits" },
   { label: "Should I sell in 2026?", href: "/sell-timing" },
-  { label: "What sold near me?", href: "/comp-alerts" },
   { label: "Renovation ROI", href: "/renovate" },
 ];
 
