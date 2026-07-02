@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import RenovateSimulator from "@/components/RenovateSimulator";
-import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Home Renovation ROI Calculator \u2014 What Adds the Most Value? | Garden State AI" },
@@ -31,5 +30,5 @@ export const metadata: Metadata = {
 };
 
 export default function RenovatePage() {
-  return <RequireAuth><RenovateSimulator /></RequireAuth>;
+  return <RenovateSimulator />;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import SellTimingSimulator from "@/components/SellTimingSimulator";
-import RequireAuth from "@/components/RequireAuth";
+
 
 export const metadata: Metadata = {
   title: { absolute: "Should I Sell My NJ Home Now or Wait? AI Timing Tool | Garden State AI" },
@@ -31,5 +31,5 @@ export const metadata: Metadata = {
 };
 
 export default function SellTimingPage() {
-  return <RequireAuth><SellTimingSimulator /></RequireAuth>;
+  return <SellTimingSimulator />;
 }

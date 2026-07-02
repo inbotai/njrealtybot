@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import AffordabilityCalc from "@/components/AffordabilityCalc";
-import RequireAuth from "@/components/RequireAuth";
+
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Home Affordability Calculator \u2014 What Can I Afford? | Garden State AI" },
@@ -30,5 +30,5 @@ export const metadata: Metadata = {
 };
 
 export default function AffordPage() {
-  return <RequireAuth><AffordabilityCalc /></RequireAuth>;
+  return <AffordabilityCalc />;
 }

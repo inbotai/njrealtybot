@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CompAlertsClient from "@/components/CompAlertsClient";
-import RequireAuth from "@/components/RequireAuth";
+
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Comp Alerts \u2014 Real-Time Comparable Sales Notifications | Garden State AI" },
@@ -31,5 +31,5 @@ export const metadata: Metadata = {
 };
 
 export default function CompAlertsPage() {
-  return <RequireAuth><CompAlertsClient /></RequireAuth>;
+  return <CompAlertsClient />;
 }
