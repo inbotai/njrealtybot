@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import VoiceButton from "./VoiceButton";
 import LeadGate from "@/components/LeadGate";
+import SaveToLogCTA from "./SaveToLogCTA";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -457,6 +458,19 @@ export default function TaxShockClient() {
                   Find out what your home is worth &rarr;
                 </a>
               </div>
+
+              {/* Save to MyHome Log */}
+              <SaveToLogCTA
+                toolType="tax_appeal"
+                address={result.address}
+                city={result.city}
+                data={{
+                  assessed_value: result.assessedValue,
+                  estimated_value: result.estimatedMarketValueMid,
+                  overpayment: result.overpaymentHigh,
+                  case_strength: result.caseStrength,
+                }}
+              />
             </div>
           </div>
         </section>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import VoiceButton from "./VoiceButton";
 import MarketPoll from "./MarketPoll";
+import SaveToLogCTA from "./SaveToLogCTA";
 
 const testimonials = [
   { name: "Maria G.", city: "Bloomfield", text: "Vale gave me an instant estimate and connected me with an agent the same day. Sold above asking!" },
@@ -73,6 +74,11 @@ export default function SellPageClient() {
               Or click the microphone and say your address
             </p>
           </form>
+
+          {/* Save to MyHome Log CTA */}
+          <div className="mt-10">
+            <SaveToLogCTA toolType="cma" headline="Already know your address? Save it to start tracking." />
+          </div>
         </div>
       </section>    </>
   );
