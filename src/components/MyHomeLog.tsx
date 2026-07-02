@@ -79,6 +79,24 @@ function getCategoryStyle(cat: string) {
 // ── Component ───────────────────────────────────────────────
 
 export default function MyHomeLog() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return (
+      <section className="flex min-h-[70vh] items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-navy" />
+          <p className="mt-3 text-sm text-gray-400">Loading MyHome Log...</p>
+        </div>
+      </section>
+    );
+  }
+
+  return <MyHomeLogInner />;
+}
+
+function MyHomeLogInner() {
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState<MyHomeProfile | null>(null);
   const [entries, setEntries] = useState<HomeEntry[]>([]);
@@ -219,6 +237,12 @@ export default function MyHomeLog() {
     setError("");
     try {
       const { supabaseAuth } = await import("@/lib/supabase-auth");
+      if (!supabaseAuth) {
+        setError("Auth not configured. Use phone number instead.");
+        setLoginStep("phone");
+        setLoading(false);
+        return;
+      }
       const { error: authError } = await supabaseAuth.auth.signInWithOAuth({
         provider,
         options: {
@@ -247,6 +271,7 @@ export default function MyHomeLog() {
     (async () => {
       try {
         const { supabaseAuth } = await import("@/lib/supabase-auth");
+        if (!supabaseAuth) return;
 
         // Exchange code if present (PKCE flow)
         const code = url.searchParams.get("code");
