@@ -368,18 +368,63 @@ export default function MyHomeLog() {
 
   if (!authed) {
     return (
-      <section className="flex min-h-[70vh] items-center justify-center bg-white py-12">
-        <div className="mx-auto max-w-md px-4 text-center">
-          <h1 className="text-3xl font-bold text-navy">
-            My<span className="text-gold">Home</span> Log
-          </h1>
-          <p className="mt-3 text-gray-500">
-            Track every improvement, repair, and upgrade to your home.
-            <br />
-            <span className="text-xs text-gray-400">Free forever. Your data, your control.</span>
-          </p>
+      <section className="min-h-[80vh] bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid gap-8 md:grid-cols-2 items-start">
 
-          <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm text-left">
+            {/* Left — what you get */}
+            <div className="py-4">
+              <h1 className="text-3xl font-bold text-navy leading-tight">
+                Your Home's Complete{" "}
+                <span className="text-gold">History & Intelligence</span>
+              </h1>
+              <p className="mt-3 text-gray-500">
+                Every valuation, tax analysis, renovation, and market insight — saved automatically. Free forever.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                {[
+                  { icon: "📊", title: "Home Value Tracking", desc: "Monthly updates on what your home is worth" },
+                  { icon: "🏛️", title: "Tax Assessment History", desc: "Know if you're overpaying — with the evidence" },
+                  { icon: "🔨", title: "Renovation & Improvement Log", desc: "AI calculates value impact of every dollar" },
+                  { icon: "📈", title: "Sell Timing Intelligence", desc: "Your town's market conditions, updated monthly" },
+                  { icon: "📬", title: "Monthly Digest Email", desc: "Value, nearby sales, maintenance — in one email" },
+                  { icon: "📋", title: "Seller-Ready Package", desc: "CMA + net proceeds + history — auto-generated" },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-start gap-3 rounded-xl bg-white border border-gray-100 p-3 shadow-sm">
+                    <span className="text-xl shrink-0 mt-0.5">{item.icon}</span>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">{item.title}</p>
+                      <p className="text-xs text-gray-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex gap-6 text-center">
+                {[
+                  { v: "Free", l: "No credit card" },
+                  { v: "Private", l: "Your data stays yours" },
+                  { v: "24/7", l: "Vale on WhatsApp" },
+                ].map((s) => (
+                  <div key={s.l}>
+                    <p className="text-lg font-bold text-navy">{s.v}</p>
+                    <p className="text-[10px] text-gray-400">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — login/register */}
+            <div className="rounded-2xl border bg-white p-6 shadow-lg">
+              <h2 className="text-xl font-bold text-navy text-center">
+                Sign in to your My<span className="text-gold">Home</span> Log
+              </h2>
+              <p className="mt-1 text-sm text-gray-500 text-center">
+                New here? Enter your phone to create your free log.
+              </p>
+
+              <div className="mt-6">
             {loginStep === "choose" && (
               <>
                 {/* Social login buttons */}
@@ -475,12 +520,14 @@ export default function MyHomeLog() {
               </form>
             )}
 
-          </div>
+              </div>
 
-          <p className="mt-4 text-xs text-gray-400">
-            Don&apos;t have a profile?{" "}
-            <a href="/my-home" className="text-gold font-medium hover:underline">Claim your home first</a>
-          </p>
+              <p className="mt-4 text-xs text-gray-400 text-center">
+                Already have an account? Just enter the same phone number.
+              </p>
+            </div>
+
+          </div>
         </div>
       </section>
     );
