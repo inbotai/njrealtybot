@@ -75,8 +75,8 @@ export default function ContactPage() {
 
           <div className="rounded-xl bg-white p-6 shadow-md">
             <h3 className="font-bold text-navy">Email</h3>
-            <a href="mailto:julio@inbot.ai" className="mt-1 block text-sm text-gray-600 hover:text-gold">
-              julio@inbot.ai
+            <a href="mailto:info@gardenstate.ai" className="mt-1 block text-sm text-gray-600 hover:text-gold">
+              info@gardenstate.ai
             </a>
           </div>
 

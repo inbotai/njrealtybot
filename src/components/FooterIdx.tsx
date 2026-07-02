@@ -26,8 +26,8 @@ export default function FooterIdx() {
               </p>
               <p className="text-[10px] text-gray-600">
                 Powered by{" "}
-                <a href="https://inbot.ai" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 transition">
-                  InBot AI
+                <a href="https://gardenstate.ai" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 transition">
+                  Garden State AI
                 </a>
               </p>
             </div>

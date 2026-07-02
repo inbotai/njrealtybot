@@ -158,7 +158,7 @@ export default function FSBOPage() {
               { n: "1", icon: "📊", title: "Free AI Valuation", desc: "Get your home's real value in 30 seconds" },
               { n: "2", icon: "📝", title: "Digital Onboarding", desc: "Sign docs digitally, 100% remote" },
               { n: "3", icon: "🚀", title: "AI-Powered Marketing", desc: "MLS listing + AI description + virtual staging" },
-              { n: "4", icon: "🤖", title: "Negotiate with AI", desc: "AI ranks offers, generates counter-strategies, agent approves" },
+              { n: "4", icon: "🤝", title: "AI-Assisted Negotiation", desc: "AI analyzes offers and suggests strategy; your licensed agent negotiates and approves everything" },
             ].map((s) => (
               <div key={s.n} className="text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/10 text-3xl">
