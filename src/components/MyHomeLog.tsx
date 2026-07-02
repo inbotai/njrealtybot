@@ -6,8 +6,12 @@ import SmsConsent from "./SmsConsent";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
-/** Build headers with phone auth for requireOwner middleware */
+/** Build headers with owner token or legacy phone auth */
 function phoneHeaders(p: string): Record<string, string> {
+  // Prefer signed token if available
+  const token = typeof window !== "undefined" ? localStorage.getItem("myhome_token") : null;
+  if (token) return { Authorization: `Bearer ${token}` };
+  // Legacy fallback
   const cleaned = p.replace(/\D/g, "");
   return cleaned ? { "x-myhome-phone": cleaned } : {};
 }
@@ -337,6 +341,11 @@ function MyHomeLogInner() {
         body: JSON.stringify({ phone: cleaned, code: otp }),
       });
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        // Store signed owner token for secure API access
+        if (data.ownerToken) {
+          localStorage.setItem("myhome_token", data.ownerToken);
+        }
         await loginWithPhone(cleaned);
       } else {
         const data = await res.json().catch(() => ({}));
