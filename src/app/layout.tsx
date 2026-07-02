@@ -21,11 +21,11 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
+    default: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     template: "%s | Garden State AI",
   },
   description:
-    "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
+    "Enter your address \u2014 get your home's value, your property-tax verdict, and your best time to sell. Free, in 30 seconds. Powered by real MLS, tax, and municipal data.",
   keywords: [
     "New Jersey real estate AI",
     "NJ property tax appeal",
@@ -41,16 +41,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Garden State AI",
-    title: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
+    title: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     description:
-      "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
+      "Enter your address \u2014 get your home's value, your property-tax verdict, and your best time to sell. Free, in 30 seconds. Powered by real MLS, tax, and municipal data.",
     url: "https://gardenstate.ai/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Garden State AI \u2014 NJ Real Estate, Property Taxes & AI Tools",
+    title: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     description:
-      "New Jersey's AI real estate platform. Value your home, check if you're overpaying property taxes, generate your appeal, find homes, and ask Vale anything \u2014 free.",
+      "Enter your address \u2014 get your home's value, your property-tax verdict, and your best time to sell. Free, in 30 seconds. Powered by real MLS, tax, and municipal data.",
   },
   icons: {
     icon: "/icon.svg",
