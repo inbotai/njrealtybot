@@ -18,3 +18,13 @@ export const IDX_PUBLIC_ENABLED = false;
  *   IDX_SUBDOMAIN = "https://idxlistings.gardenstate.ai"
  */
 export const IDX_SUBDOMAIN = "";
+
+/**
+ * DEALS_NEUTRAL_MODE = true → deal cards show only neutral facts:
+ *   "703 days on market — area avg 72 · relisted 3 times · 0 price reductions"
+ *   No probability percentages, no "overpriced", no predicted prices.
+ * DEALS_NEUTRAL_MODE = false → current behavior (probability badge + signals).
+ *
+ * Default: true (conservative). Flip to false after broker sign-off.
+ */
+export const DEALS_NEUTRAL_MODE = true;

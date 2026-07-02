@@ -5,6 +5,7 @@ import { fetchDeals, type DealOpportunity } from "@/lib/api";
 import Link from "next/link";
 import { submitLead } from "@/lib/api";
 import SmsConsent from "./SmsConsent";
+import { DEALS_NEUTRAL_MODE } from "@/lib/config";
 
 function dealSlug(d: DealOpportunity): string {
   const full = [d.address, d.city, "NJ"].filter(Boolean).join(" ");
@@ -31,21 +32,23 @@ function DealCard({ d, isRental }: { d: DealOpportunity; isRental?: boolean }) {
           <p className="text-lg font-bold text-gray-900">
             ${d.listPrice.toLocaleString()}{isRental ? "/mo" : ""}
           </p>
-          {!isRental && d.predictedDrop > 0 && (
-            <p className="text-sm font-medium text-green-600">
-              Predicted: ${d.predictedPrice.toLocaleString()} (-{d.predictedDrop}%)
-            </p>
-          )}
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-          d.probability >= 60 ? "bg-green-100 text-green-800"
-          : d.probability >= 40 ? "bg-yellow-100 text-yellow-800"
-          : "bg-gray-100 text-gray-600"
-        }`}>
-          {isRental ? "Great deal" : `${d.probability}% probability`}
-        </span>
+        {!DEALS_NEUTRAL_MODE && (
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            d.probability >= 60 ? "bg-green-100 text-green-800"
+            : d.probability >= 40 ? "bg-yellow-100 text-yellow-800"
+            : "bg-gray-100 text-gray-600"
+          }`}>
+            {isRental ? "Great deal" : `${d.probability}% probability`}
+          </span>
+        )}
+        {DEALS_NEUTRAL_MODE && d.signals.length > 0 && (
+          <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+            {d.signals.length} market signal{d.signals.length > 1 ? "s" : ""}
+          </span>
+        )}
         {d.signals.map((s, i) => (
           <span key={i} className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">{s}</span>
         ))}
