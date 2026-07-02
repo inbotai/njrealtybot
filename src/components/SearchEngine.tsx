@@ -285,7 +285,7 @@ export default function SearchEngine() {
   // Brokerage banner — IDX compliance: must be prominent when showing listings
   const BrokerageBanner = () => (
     <div className="flex items-center gap-4 rounded-xl bg-navy/5 border border-navy/10 px-5 py-3">
-      <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-14 w-auto shrink-0" />
+      <img src="/bhg-green-team-logo-dark.jpg" alt="Better Homes and Gardens Real Estate | Green Team" className="h-20 w-auto shrink-0" />
       <div className="text-sm leading-tight">
         <p className="font-bold text-navy">Better Homes and Gardens Real Estate | Green Team</p>
         <p className="text-gray-500 text-xs mt-0.5">Property search provided through IDX (GSMLS/NJMLS)</p>
@@ -348,7 +348,7 @@ export default function SearchEngine() {
                     &larr; See All Results
                   </button>
                   <span className="hidden sm:inline text-[10px] text-gray-300">|</span>
-                  <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="hidden sm:block h-8 w-auto" />
+                  <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="hidden sm:block h-10 w-auto" />
                 </div>
                 <span className="text-xs text-gray-400">{detailIndex + 1} of {currentListings.length}</span>
                 <div className="flex gap-2">
@@ -610,7 +610,7 @@ export default function SearchEngine() {
                     )}
                   </div>
                   <div className="mt-2 flex items-center justify-center gap-2">
-                    {hasListings && <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="h-6 w-auto" />}
+                    {hasListings && <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="h-8 w-auto" />}
                     <p className="text-[10px] text-gray-400">
                       {hasListings ? "Listing data provided through IDX by BHG Real Estate | Green Team" : "Powered by Vale AI \u00b7 BHG Real Estate | Green Team \u00b7 60,000+ MLS listings"}
                     </p>
