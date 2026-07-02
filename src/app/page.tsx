@@ -136,14 +136,14 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Benefits card */}
-          <a href="/benefits" className="mt-4 group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900 to-yellow-900 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.01]">
-            <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-gold/20 blur-2xl" />
+          {/* Benefits card — full width */}
+          <a href="/benefits" className="block mt-4 group relative rounded-2xl bg-gradient-to-br from-amber-900 to-yellow-900 p-7 text-left shadow-md transition hover:shadow-xl hover:scale-[1.01]">
+            <div className="absolute -right-10 -bottom-10 h-36 w-36 rounded-full bg-gold/15 blur-3xl" />
             <div className="relative">
               <span className="inline-block rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-3">ANCHOR + Senior Freeze + StayNJ</span>
-              <h3 className="text-xl font-bold text-white">Is New Jersey Holding Your Money?</h3>
-              <p className="mt-2 text-sm text-amber-100/80">Check all your property tax relief programs in <span className="text-gold font-semibold">60 seconds</span>. Thousands of NJ homeowners qualify and don't know it.</p>
-              <span className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy group-hover:gap-3 transition-all">
+              <h3 className="text-2xl font-bold text-white">Is New Jersey Holding Your Money?</h3>
+              <p className="mt-2 text-base text-amber-100/80">Check all your property tax relief programs in <span className="text-gold font-semibold">60 seconds</span>. Thousands of NJ homeowners qualify and don't know it.</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy group-hover:gap-3 transition-all">
                 Check My Benefits — Free <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </span>
             </div>
