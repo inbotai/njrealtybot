@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import SmsConsent from "./SmsConsent";
+import SaveToLogCTA from "./SaveToLogCTA";
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 import { submitLead } from "@/lib/api";
 
@@ -331,15 +332,18 @@ export default function SellTimingSimulator() {
                 <SellTimingLeadCapture city={city} propertyType={propertyType} projections={projections} fmt={fmt} />
               </div>
 
+              {/* Save to MyHome Log */}
+              <SaveToLogCTA
+                toolType="sell_timing"
+                city={city}
+                data={{ projections: projections.map(p => ({ months: p.months, value: p.value })) }}
+              />
+
               {/* CTAs */}
               <div className="mt-10 space-y-4 text-center">
                 <Link href="/sell"
                   className="inline-block w-full max-w-md rounded-lg bg-gold px-8 py-4 text-lg font-bold text-navy hover:bg-yellow-400">
                   Ready to Sell? Get Your Free Valuation
-                </Link>
-                <br />
-                <Link href="/my-home" className="inline-block text-sm font-medium text-gray-500 underline hover:text-navy">
-                  Not sure? Track your home value
                 </Link>
               </div>
             </>
