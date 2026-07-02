@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SellPageClient from "@/components/SellPageClient";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import SocialProofSlot from "@/components/SocialProofSlot";
 
 export const metadata: Metadata = {
   title: { absolute: "Free NJ Home Valuation \u2014 What's My House Worth? | Garden State AI" },
@@ -46,6 +47,7 @@ export default function SellPage() {
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
       }) }} />
       <SellPageClient />
+      <SocialProofSlot />
       <div className="mx-auto max-w-2xl px-4 pb-8">
         <NewsletterSignup />
       </div>
