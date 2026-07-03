@@ -415,20 +415,52 @@ function MyHomeLogInner() {
                 <span className="text-gold">History & Intelligence</span>
               </h1>
               <p className="mt-3 text-gray-500">
-                Every valuation, tax analysis, renovation, and market insight — saved automatically. Free forever.
+                Every improvement you make adds value. Your MyHome Log proves it — to buyers, to appraisers, and to you.
               </p>
 
-              <div className="mt-6 space-y-3">
+              {/* Hero benefit: Receipt Scanner */}
+              <div className="mt-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-purple-900 p-5 text-white">
+                <div className="flex items-start gap-3">
+                  <span className="text-3xl shrink-0">📸</span>
+                  <div>
+                    <h3 className="text-lg font-bold">Just Snap a Photo</h3>
+                    <p className="mt-1 text-sm text-indigo-100/90">
+                      Text a photo of any receipt or invoice to Vale — she reads the amount, contractor, and category, calculates how much <span className="text-gold font-semibold">value it adds to your home</span>, and saves it to your log automatically. No typing.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3-step visual */}
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="rounded-lg bg-white/10 p-3 text-center">
+                    <p className="text-2xl">📱</p>
+                    <p className="text-[10px] font-semibold mt-1 text-indigo-200">1. Send Photo</p>
+                    <p className="text-[9px] text-indigo-300/80">WhatsApp or text</p>
+                  </div>
+                  <div className="rounded-lg bg-white/10 p-3 text-center">
+                    <p className="text-2xl">🤖</p>
+                    <p className="text-[10px] font-semibold mt-1 text-indigo-200">2. Vale Analyzes</p>
+                    <p className="text-[9px] text-indigo-300/80">Amount + value impact</p>
+                  </div>
+                  <div className="rounded-lg bg-white/10 p-3 text-center">
+                    <p className="text-2xl">✅</p>
+                    <p className="text-[10px] font-semibold mt-1 text-indigo-200">3. Saved to Log</p>
+                    <p className="text-[9px] text-indigo-300/80">With ROI calculated</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Other benefits */}
+              <div className="mt-4 space-y-2">
                 {[
-                  { icon: "📊", title: "Home Value Tracking", desc: "Monthly updates on what your home is worth" },
-                  { icon: "🏛️", title: "Tax Assessment History", desc: "Know if you're overpaying — with the evidence" },
-                  { icon: "🔨", title: "Renovation & Improvement Log", desc: "AI calculates value impact of every dollar" },
-                  { icon: "📈", title: "Sell Timing Intelligence", desc: "Your town's market conditions, updated monthly" },
-                  { icon: "📬", title: "Monthly Digest Email", desc: "Value, nearby sales, maintenance — in one email" },
-                  { icon: "📋", title: "Seller-Ready Package", desc: "CMA + net proceeds + history — auto-generated" },
+                  { icon: "📊", title: "Value Tracking", desc: "Watch your home's worth grow as you invest" },
+                  { icon: "🏛️", title: "Tax Analysis Saved", desc: "Every assessment check, documented with evidence" },
+                  { icon: "🔨", title: "Renovation ROI", desc: "AI calculates how much each upgrade adds to your price" },
+                  { icon: "📬", title: "Monthly Digest", desc: "Your value, nearby sales, and maintenance — one email" },
+                  { icon: "📋", title: "Seller-Ready Package", desc: "When you sell, everything's ready — verified history buyers trust" },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start gap-3 rounded-xl bg-white border border-gray-100 p-3 shadow-sm">
-                    <span className="text-xl shrink-0 mt-0.5">{item.icon}</span>
+                    <span className="text-lg shrink-0 mt-0.5">{item.icon}</span>
                     <div>
                       <p className="font-semibold text-gray-900 text-sm">{item.title}</p>
                       <p className="text-xs text-gray-500">{item.desc}</p>
