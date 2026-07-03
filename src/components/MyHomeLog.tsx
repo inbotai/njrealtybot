@@ -120,6 +120,13 @@ function MyHomeLogInner() {
   const [editEntry, setEditEntry] = useState<HomeEntry | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
+  // Setup profile form (used in both login screen and setup screen)
+  const [setupName, setSetupName] = useState("");
+  const [setupAddress, setSetupAddress] = useState("");
+  const [setupCity, setSetupCity] = useState("");
+  const [setupZip, setSetupZip] = useState("");
+  const [setupSaving, setSetupSaving] = useState(false);
+
   // ── Auto-restore session ──────────────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem("myhome_phone");
@@ -495,21 +502,35 @@ function MyHomeLogInner() {
               <div className="mt-6">
             {loginStep === "choose" && (
               <>
-                {/* Phone-only login — direct to phone input */}
+                {/* Phone-only login — name + phone required */}
                 <form onSubmit={handlePhoneSubmit}>
-                  <label className="text-sm font-medium text-gray-700">Your phone number</label>
-                  <p className="text-xs text-gray-400 mb-2">We'll send a verification code via SMS</p>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(201) 555-0123"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-                    autoFocus
-                  />
+                  <div className="mb-3">
+                    <label className="text-sm font-medium text-gray-700">Your full name</label>
+                    <input
+                      type="text"
+                      value={setupName}
+                      onChange={(e) => setSetupName(e.target.value)}
+                      placeholder="John Smith"
+                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="text-sm font-medium text-gray-700">Your phone number</label>
+                    <p className="text-xs text-gray-400 mb-1">We'll send a verification code via SMS</p>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(201) 555-0123"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                      required
+                    />
+                  </div>
                   <SmsConsent checked={smsConsent} onChange={setSmsConsent} />
                   {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-                  <button type="submit" disabled={loading || !phone.trim() || !smsConsent}
+                  <button type="submit" disabled={loading || !phone.trim() || !setupName.trim() || !smsConsent}
                     className="mt-4 w-full rounded-lg bg-gold px-6 py-3 font-bold text-navy hover:bg-yellow-400 disabled:opacity-40 transition">
                     {loading ? "Sending code..." : "Send Verification Code"}
                   </button>
@@ -596,12 +617,7 @@ function MyHomeLogInner() {
     );
   }
 
-  // ── Profile setup state ───────────────────────────────────
-  const [setupName, setSetupName] = useState("");
-  const [setupAddress, setSetupAddress] = useState("");
-  const [setupCity, setSetupCity] = useState("");
-  const [setupZip, setSetupZip] = useState("");
-  const [setupSaving, setSetupSaving] = useState(false);
+  // ── Profile setup state (declared at top of component) ────
 
   async function handleSetupProfile(e: React.FormEvent) {
     e.preventDefault();
