@@ -137,20 +137,7 @@ export default function Footer() {
         )}
 
         {/* Disclaimers */}
-        <div className="mt-8 border-t border-gray-200 pt-6 space-y-3 text-[10px] text-gray-400 leading-relaxed">
-          {/* Platform disclaimer — always shown */}
-          <p>
-            gardenstate.ai is a technology platform providing AI-powered tools and market intelligence for homeowners.
-            gardenstate.ai is not a licensed real estate brokerage and does not provide real estate brokerage services.
-          </p>
-
-          {/* Estimates disclaimer — always shown */}
-          <p>
-            Home valuations, market analyses, tax appeal estimates, and renovation ROI calculations are AI-generated estimates
-            for informational purposes only. They are not appraisals, legal advice, or tax advice. Consult a licensed appraiser,
-            attorney, or tax professional for official guidance.
-          </p>
-
+        <div className="mt-8 border-t border-gray-200 pt-6 space-y-4 text-[10px] text-gray-400 leading-relaxed">
           {/* MLS disclaimer — only on listing pages */}
           {isListingPage && (
             <p>
@@ -159,14 +146,39 @@ export default function Footer() {
             </p>
           )}
 
-          {/* Brokerage disclaimer — only on listing pages */}
+          {/* Brokerage info — only on listing pages */}
           {isListingPage && (
-            <p>
-              Real estate listing, transaction, and brokerage services are provided by Better Homes and Gardens Real Estate | Green Team,
-              a licensed New Jersey real estate brokerage. gardenstate.ai facilitates technology and does not participate in real estate
-              transactions as a principal or agent.
-            </p>
+            <div className="space-y-3">
+              <p>
+                Property listings provided by GardenState.ai through authorized access to GSMLS and NJMLS.
+              </p>
+              <p>
+                Brokerage: <strong className="text-gray-500">Better Homes and Gardens Real Estate Green Team</strong> — 293 Route 94, Vernon, NJ 07462
+                <br />
+                Real Estate Agent: <strong className="text-gray-500">Julio Reynoso</strong>
+              </p>
+              <p>
+                GardenState.ai is an independent Artificial Intelligence platform. We are not affiliated with, sponsored by,
+                or part of Garden State MLS (GSMLS) or NJMLS.
+              </p>
+              <p>
+                All listings are displayed in accordance with IDX regulations of the State of New Jersey.
+              </p>
+            </div>
           )}
+
+          {/* Estimates disclaimer — always shown */}
+          <p>
+            Home valuations, market analyses, tax appeal estimates, and renovation ROI calculations are AI-generated estimates
+            for informational purposes only. They are not appraisals, legal advice, or tax advice. Consult a licensed appraiser,
+            attorney, or tax professional for official guidance.
+          </p>
+
+          {/* Platform disclaimer — always shown */}
+          <p>
+            gardenstate.ai is a technology platform providing AI-powered tools and market intelligence for homeowners.
+            gardenstate.ai is not a licensed real estate brokerage and does not provide real estate brokerage services.
+          </p>
 
           {/* Equal Housing — always shown */}
           <p className="flex items-center gap-2">
