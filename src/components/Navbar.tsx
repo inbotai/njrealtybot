@@ -182,10 +182,10 @@ export default function Navbar() {
           {/* BHG branding on transaction pages */}
           {isBhgPage(pathname) && (
             <div className="border-l border-gray-200 pl-5 flex items-center gap-2">
-              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-10 w-auto opacity-70" />
+              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-11 w-auto opacity-70" />
               <div className="leading-tight">
-                <p className="text-[10px] font-semibold text-gray-500 tracking-wide">GREEN TEAM</p>
-                <p className="text-[9px] text-gray-400">REALTY</p>
+                <p className="text-[11px] font-semibold text-gray-500 tracking-wide">GREEN TEAM</p>
+                <p className="text-[10px] text-gray-400">REALTY</p>
               </div>
             </div>
           )}
