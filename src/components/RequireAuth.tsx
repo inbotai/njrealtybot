@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAdmin } from "@/components/AdminAuth";
 import { IDX_PUBLIC_ENABLED } from "@/lib/config";
+import AdminLoginGate from "@/components/AdminLoginGate";
 
 /**
  * Gates IDX/buyer-side routes behind admin auth during Phase 1.
  * When IDX_PUBLIC_ENABLED flips to true, this wrapper becomes a no-op.
  *
- * Usage:  wrap any page content with <RequireAuth>...</RequireAuth>
- * For admin-only routes (like /admin), pass alwaysRequire to ignore the flag.
+ * Shows a login form instead of redirecting so shared links work —
+ * user enters password, then sees the page they originally requested.
  */
 export default function RequireAuth({
   children,
@@ -20,24 +19,21 @@ export default function RequireAuth({
   alwaysRequire?: boolean;
 }) {
   const { isAdmin, authLoaded } = useAdmin();
-  const router = useRouter();
 
   const needsAuth = alwaysRequire || !IDX_PUBLIC_ENABLED;
-
-  useEffect(() => {
-    // Wait for auth to hydrate from sessionStorage before redirecting
-    if (authLoaded && needsAuth && !isAdmin) {
-      router.replace("/");
-    }
-  }, [authLoaded, needsAuth, isAdmin, router]);
 
   // Phase 2 or admin → render children
   if (!needsAuth || isAdmin) return <>{children}</>;
 
-  // Still loading auth or redirecting — show spinner
-  return (
-    <div className="flex h-[60vh] items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />
-    </div>
-  );
+  // Still loading auth from sessionStorage — show spinner
+  if (!authLoaded) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Not authenticated — show login form (stays on same URL)
+  return <AdminLoginGate>{children}</AdminLoginGate>;
 }
