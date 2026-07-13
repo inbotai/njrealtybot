@@ -10,7 +10,7 @@
  *   gardenstate.ai = AI services portal (valuations, staging, Vale, market reports)
  *   idxlistings.gardenstate.ai = IDX property search with brokerage branding
  */
-export const IDX_PUBLIC_ENABLED = true;
+export const IDX_PUBLIC_ENABLED = false;
 
 /**
  * IDX subdomain for property listings.
