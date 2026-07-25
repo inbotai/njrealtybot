@@ -175,12 +175,12 @@ export default function Navbar() {
             />
           ))}
 
-          {/* BHG branding — always visible */}
+          {/* BHG branding — always visible, larger than Garden State AI wordmark */}
           <div className="border-l border-gray-200 pl-5 flex items-center gap-2">
             <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-14 w-auto" />
             <div className="leading-tight">
-              <p className="text-xs font-semibold text-gray-700 tracking-wide">GREEN TEAM</p>
-              <p className="text-[11px] text-gray-700">REALTY</p>
+              <p className="text-base font-bold text-gray-900 tracking-wide md:text-lg">BHG Green Team</p>
+              <p className="text-sm font-semibold text-gray-700 md:text-base">Realty</p>
             </div>
           </div>
         </div>
