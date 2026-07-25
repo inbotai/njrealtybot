@@ -128,8 +128,8 @@ export default function Footer() {
         {isListingPage && (
           <div className="mt-8 rounded-lg border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-10 w-auto opacity-70" />
-              <div className="text-[10px] text-gray-500 leading-relaxed">
+              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-10 w-auto" />
+              <div className="text-[10px] text-gray-700 leading-relaxed">
                 <p>Real estate listing and transaction services provided by <strong>Better Homes and Gardens Real Estate | Green Team</strong>, a licensed New Jersey real estate brokerage. 293 Route 94, Vernon, NJ 07462.</p>
               </div>
             </div>
@@ -183,6 +183,12 @@ export default function Footer() {
           {/* Equal Housing — always shown */}
           <p className="flex items-center gap-2">
             <span>Equal Housing Opportunity.</span>
+          </p>
+
+          {/* Brokerage disclosure — global */}
+          <p className="text-sm text-gray-900 font-bold">
+            Julio C. Reynoso | BHG Green Team Realty | License ID # 261996 |{" "}
+            <a href="tel:+12018735655" className="underline hover:text-indigo-600 transition">201-873-5655</a>
           </p>
 
           {/* Copyright */}

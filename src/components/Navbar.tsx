@@ -159,14 +159,19 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        {/* Logo */}
+        {/* Logo + brokerage disclosure */}
         <Link href="/" className="shrink-0 flex items-center gap-2">
           <Logo />
-          <span className="text-sm font-bold tracking-tight md:text-base">
-            <span className="text-gold">Garden</span>
-            <span className="text-gray-900"> State </span>
-            <span className="text-indigo-600">AI</span>
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-tight md:text-base">
+              <span className="text-gold">Garden</span>
+              <span className="text-gray-900"> State </span>
+              <span className="text-indigo-600">AI</span>
+            </span>
+            <span className="text-base font-bold text-gray-900 leading-tight md:text-lg">
+              Operated by Julio C. Reynoso | BHG Green Team Realty
+            </span>
+          </div>
         </Link>
 
         {/* Desktop: 5 dropdown groups */}
@@ -185,10 +190,10 @@ export default function Navbar() {
           {/* BHG branding on transaction pages */}
           {isBhgPage(pathname) && (
             <div className="border-l border-gray-200 pl-5 flex items-center gap-2">
-              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-14 w-auto opacity-70" />
+              <img src="/bhg-logo-green.png" alt="Better Homes and Gardens Real Estate" className="h-14 w-auto" />
               <div className="leading-tight">
-                <p className="text-xs font-semibold text-gray-500 tracking-wide">GREEN TEAM</p>
-                <p className="text-[11px] text-gray-400">REALTY</p>
+                <p className="text-xs font-semibold text-gray-700 tracking-wide">GREEN TEAM</p>
+                <p className="text-[11px] text-gray-700">REALTY</p>
               </div>
             </div>
           )}
