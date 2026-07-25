@@ -187,7 +187,7 @@ export default function Footer() {
 
           {/* Brokerage disclosure — global */}
           <p className="text-sm text-gray-900 font-bold">
-            Julio C. Reynoso | <span className="text-base">BHG Green Team Realty</span> | License ID # 261996 |{" "}
+            Julio C. Reynoso | <span className="text-base font-extrabold">BHG Green Team Realty</span> | License ID # 261996 |{" "}
             <a href="tel:+12018735655" className="underline hover:text-indigo-600 transition">201-873-5655</a>
           </p>
 
