@@ -174,21 +174,26 @@ export default function Footer() {
             attorney, or tax professional for official guidance.
           </p>
 
-          {/* Platform disclaimer — always shown */}
-          <p>
-            gardenstate.ai is a technology platform providing AI-powered tools and market intelligence for homeowners.
-            gardenstate.ai is not a licensed real estate brokerage and does not provide real estate brokerage services.
+          {/* Brokerage disclosure — global */}
+          <p className="text-sm text-gray-900 font-bold">
+            Julio C. Reynoso | <span className="text-base font-extrabold">BHG Green Team Realty</span> | License ID # 261996 |{" "}
+            <a href="tel:+12018735655" className="underline hover:text-indigo-600 transition">201-873-5655</a>
+          </p>
+
+          {/* Control statement */}
+          <p className="text-xs text-gray-700">
+            This website is operated and controlled by Julio C. Reynoso of <span className="font-bold">BHG Green Team Realty</span>.
+          </p>
+
+          {/* Platform disclaimer */}
+          <p className="text-xs text-gray-700">
+            gardenstate.ai is a technology platform providing AI-powered tools. It is not a licensed real estate brokerage.
+            The AI tools and reports on this site are provided by Garden State AI and are not services of <span className="font-bold">BHG Green Team Realty</span>.
           </p>
 
           {/* Equal Housing — always shown */}
           <p className="flex items-center gap-2">
             <span>Equal Housing Opportunity.</span>
-          </p>
-
-          {/* Brokerage disclosure — global */}
-          <p className="text-sm text-gray-900 font-bold">
-            Julio C. Reynoso | <span className="text-base font-extrabold">BHG Green Team Realty</span> | License ID # 261996 |{" "}
-            <a href="tel:+12018735655" className="underline hover:text-indigo-600 transition">201-873-5655</a>
           </p>
 
           {/* Copyright */}
