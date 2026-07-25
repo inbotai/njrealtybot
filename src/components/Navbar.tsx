@@ -117,7 +117,7 @@ function NavDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-52 rounded-xl border border-gray-200 bg-white py-2 shadow-lg z-50">
+        <div className="absolute left-0 top-full w-52 pt-2 z-50"><div className="rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
           {group.items.map((item) => {
             const active = pathname === item.href;
             return (
@@ -135,7 +135,7 @@ function NavDropdown({
               </Link>
             );
           })}
-        </div>
+        </div></div>
       )}
     </div>
   );
