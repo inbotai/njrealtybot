@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -506,6 +507,7 @@ export default function RenovateSimulator() {
             </div>
           )}
         </div>
+        <AiToolDisclaimer />
       </section>
 
       {/* ROI table */}

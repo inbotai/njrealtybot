@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LeadGate from "@/components/LeadGate";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 interface ValuationResult {
   address: string;
@@ -267,6 +268,7 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
             </a>
           </div>
         </div>
+        <AiToolDisclaimer />
       </section>
     </>
   );

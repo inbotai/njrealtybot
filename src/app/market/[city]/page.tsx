@@ -4,6 +4,7 @@ import { fetchMarketReport, getPhotoUrl } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import IdxGate from "@/components/IdxGate";
 import MarketLeadCapture from "@/components/MarketLeadCapture";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 type Props = { params: Promise<{ city: string }> };
 
@@ -113,6 +114,11 @@ export default async function MarketPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* AI disclaimer */}
+      <div className="mx-auto max-w-5xl px-4">
+        <AiToolDisclaimer />
+      </div>
 
       {/* Market Alerts Lead Capture */}
       <MarketLeadCapture city={cityName} />

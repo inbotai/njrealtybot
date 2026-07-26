@@ -8,6 +8,7 @@ import {
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
 import type { LadderStage } from "@/lib/service-ladder/types";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -291,6 +292,7 @@ export default function PropertyTaxAppeal() {
               <p className="mt-6 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
                 {DISCLAIMER}
               </p>
+              <AiToolDisclaimer />
 
               {/* CTAs: Rung 2 + Rung 3 */}
               {analysis.isOverAssessed && (

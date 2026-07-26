@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import MyHomeAddEntry, { type HomeEntry } from "./MyHomeAddEntry";
 import SmsConsent from "./SmsConsent";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -957,6 +958,8 @@ function MyHomeLogInner() {
           List My Home
         </a>
       </div>
+
+      <AiToolDisclaimer />
 
       {/* Add/Edit Modal */}
       {showAdd && (

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
+import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -752,7 +753,10 @@ export default function AppealWizard() {
 
         {/* Persistent disclaimer */}
         {step >= 1 && step <= 6 && (
-          <p className="mt-8 text-[10px] text-gray-600 text-center">{DISCLAIMER}</p>
+          <>
+            <p className="mt-8 text-[10px] text-gray-600 text-center">{DISCLAIMER}</p>
+            <AiToolDisclaimer />
+          </>
         )}
       </div>
     </section>
