@@ -21,6 +21,7 @@ const listingTypes = [
 ];
 const statusOptions = [
   { label: "Active", value: "Active" },
+  { label: "All Statuses", value: "all" },
   { label: "Sold", value: "Sold" },
   { label: "Under Contract", value: "Under Contract" },
   { label: "Coming Soon", value: "Coming Soon" },
@@ -172,11 +173,15 @@ export default function SearchPageClient() {
     const zipMatch = trimmed.match(/^(\d{5})(-\d{4})?$/);
     // Detect county searches: "Passaic County", "Bergen County", etc.
     const countyMatch = trimmed.match(/^(.+?)\s+county$/i);
+    // Detect address searches: contains a number followed by text (e.g. "1 Sheba Dr")
+    const isAddress = /^\d+\s+\S/.test(trimmed);
     const next = zipMatch
       ? { ...filters, city: "", county: "", postalCode: zipMatch[1], q: "", page: "1" }
       : countyMatch
         ? { ...filters, city: "", county: countyMatch[1].trim(), postalCode: "", q: "", page: "1" }
-        : { ...filters, city: trimmed, county: "", postalCode: "", q: "", page: "1" };
+        : isAddress
+          ? { ...filters, city: "", county: "", postalCode: "", q: trimmed, status: "all", page: "1" }
+          : { ...filters, city: trimmed, county: "", postalCode: "", q: "", page: "1" };
     setFilters(next);
     doSearch(next);
     syncUrl(next);
