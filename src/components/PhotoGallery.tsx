@@ -72,11 +72,11 @@ export default function PhotoGallery({ mlsNumber, photoCount, address, isSold, s
   return (
     <div>
       {/* Main photo */}
-      <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden rounded-xl bg-gray-200">
+      <div className="relative aspect-[16/9] max-h-[500px] overflow-hidden rounded-xl bg-gray-900">
         <img
           src={photoUrl(displayIndex)}
           alt={`${address} — Photo ${displayIndex + 1}`}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           onError={() => handleError(displayIndex)}
         />
         {workingIndices.length > 1 && (
