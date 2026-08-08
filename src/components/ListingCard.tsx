@@ -17,38 +17,21 @@ const statusColors: Record<string, string> = {
   "Coming Soon": "bg-purple-600",
 };
 
-const OUR_OFFICE = "BETTER HOMES AND GARDENS";
-
-function isOurListing(listing: Listing): boolean {
-  return (listing.listing_office_name || "").toUpperCase().includes(OUR_OFFICE);
-}
-
-/** Determine which MLS logo to show based on mls_source_id */
-function getMlsLogo(listing: Listing): { src: string; alt: string } | null {
-  if (isOurListing(listing)) return null;
-  // GSMLS source ID
-  if (listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e") {
-    return { src: "/gsmls-logo.gif", alt: "GSMLS" };
-  }
-  return { src: "/njmls-idx-logo.jpg", alt: "NJMLS IDX" };
-}
-
 export default function ListingCard({ listing }: { listing: Listing }) {
   const photo = listing.primary_photo_url || (listing.photo_count !== 0 ? getPhotoUrl(listing.mls_number) : null);
   const statusColor = statusColors[listing.mls_status] || "bg-gray-600";
-  const mlsLogo = getMlsLogo(listing);
 
   return (
     <Link
       href={`/property/${generateSlug(listing)}`}
       className="group block overflow-hidden rounded-xl bg-white shadow-md transition hover:shadow-xl"
     >
-      <div className="relative aspect-[4/3] bg-gray-200">
+      <div className="relative aspect-[4/3] bg-gray-900">
         {photo ? (
           <img
             src={photo}
             alt={formatAddress(listing)}
-            className="h-full w-full object-cover transition group-hover:scale-105"
+            className="h-full w-full object-contain transition group-hover:scale-105"
             loading="lazy"
             onError={(e) => {
               const img = e.currentTarget;
@@ -85,11 +68,6 @@ export default function ListingCard({ listing }: { listing: Listing }) {
       </div>
 
       <div className="p-4">
-        {mlsLogo && (
-          <div className="mb-2 flex justify-end">
-            <img src={mlsLogo.src} alt={mlsLogo.alt} className="h-5 w-auto" />
-          </div>
-        )}
         <p className="text-xl font-bold text-navy">
           {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
         </p>
