@@ -84,8 +84,10 @@ export default function SearchPageClient() {
 
   function doSearch(f: typeof filters) {
     setLoading(true);
+    // If searching by address (q looks like "123 Main St"), search all statuses
+    const isAddressQuery = f.q && /^\d+\s+\S/.test(f.q.trim());
     const params: Record<string, string> = {
-      status: f.status || "Active",
+      status: isAddressQuery ? "all" : (f.status || "Active"),
       limit: "24",
       page: f.page,
       sort: f.sort || "newest",
