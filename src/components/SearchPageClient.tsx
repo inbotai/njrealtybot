@@ -67,6 +67,7 @@ export default function SearchPageClient() {
     q: searchParams.get("q") || "",
     city: searchParams.get("city") || "",
     county: searchParams.get("county") || "",
+    postalCode: searchParams.get("postalCode") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
     beds: searchParams.get("beds") || "",
@@ -90,6 +91,7 @@ export default function SearchPageClient() {
     };
     if (f.city) params.city = f.city;
     if (f.county) params.county = f.county;
+    if (f.postalCode) params.postalCode = f.postalCode;
     if (f.q) params.q = f.q;
     if (f.minPrice) params.minPrice = f.minPrice;
     if (f.maxPrice) params.maxPrice = f.maxPrice;
@@ -161,15 +163,20 @@ export default function SearchPageClient() {
   }, [filters.minPrice, filters.maxPrice, minPriceFocused, maxPriceFocused]);
 
   // City input — search on Enter or blur, NOT on every keystroke
-  const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.q);
+  const [cityInput, setCityInput] = useState(filters.city || filters.county || filters.postalCode || filters.q);
   const cityFocused = useRef(false);
 
   function submitCity(value: string) {
+    const trimmed = value.trim();
+    // Detect zip code searches: 5-digit or 5+4 format
+    const zipMatch = trimmed.match(/^(\d{5})(-\d{4})?$/);
     // Detect county searches: "Passaic County", "Bergen County", etc.
-    const countyMatch = value.match(/^(.+?)\s+county$/i);
-    const next = countyMatch
-      ? { ...filters, city: "", county: countyMatch[1].trim(), q: "", page: "1" }
-      : { ...filters, city: value, county: "", q: "", page: "1" };
+    const countyMatch = trimmed.match(/^(.+?)\s+county$/i);
+    const next = zipMatch
+      ? { ...filters, city: "", county: "", postalCode: zipMatch[1], q: "", page: "1" }
+      : countyMatch
+        ? { ...filters, city: "", county: countyMatch[1].trim(), postalCode: "", q: "", page: "1" }
+        : { ...filters, city: trimmed, county: "", postalCode: "", q: "", page: "1" };
     setFilters(next);
     doSearch(next);
     syncUrl(next);
@@ -178,15 +185,15 @@ export default function SearchPageClient() {
   // Sync cityInput when filters change externally (hero search, mount) — but not while typing
   useEffect(() => {
     if (!cityFocused.current) {
-      setCityInput(filters.city || filters.county || filters.q);
+      setCityInput(filters.city || filters.county || filters.postalCode || filters.q);
     }
-  }, [filters.city, filters.county, filters.q]);
+  }, [filters.city, filters.county, filters.postalCode, filters.q]);
 
   const allListings: Listing[] = results?.data || [];
   const { upcoming, newListings, active, underContract } = categorize(allListings);
   const currentPage = Number(filters.page);
   const totalPages = results?.totalPages || 1;
-  const locationName = filters.city || (filters.county ? `${filters.county} County` : "") || filters.q;
+  const locationName = filters.city || (filters.county ? `${filters.county} County` : "") || filters.postalCode || filters.q;
   const hasCity = !!locationName;
   const typeLabels: Record<string, string> = {
     Rental: "Rentals",
