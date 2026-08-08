@@ -395,10 +395,10 @@ export default async function PropertyPage({ params }: Props) {
                 {listing.co_listing_agent_name && (
                   <p><span className="font-semibold">Co-Listing Agent:</span> {listing.co_listing_agent_name}</p>
                 )}
-                {isSold && listing.buyer_office_name && (
+                {isSold && listing.buyer_office_name && listing.buyer_office_name !== listing.listing_office_name && (
                   <p><span className="font-semibold">Buyer Office:</span> {listing.buyer_office_name}</p>
                 )}
-                {isSold && listing.buyer_agent_name && (
+                {isSold && listing.buyer_agent_name && listing.buyer_agent_name !== listing.listing_agent_name && (
                   <p><span className="font-semibold">Buyer Agent:</span> {listing.buyer_agent_name}</p>
                 )}
                 {isSold && listing.close_date && (
