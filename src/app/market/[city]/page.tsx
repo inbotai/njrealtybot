@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchMarketReport, getPhotoUrl } from "@/lib/api";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, generateSlug } from "@/lib/utils";
 import IdxGate from "@/components/IdxGate";
 import MarketLeadCapture from "@/components/MarketLeadCapture";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
@@ -192,12 +192,13 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
   const photo = listing.primary_photo_url || (listing.photo_count > 0 ? getPhotoUrl(listing.mls_number) : null);
   const price = type === "sold" ? (listing.close_price || listing.list_price) : listing.list_price;
   const baths = (listing.bathrooms_full || 0) + (listing.bathrooms_half || 0) || listing.bathrooms_total || 0;
+  const slug = generateSlug(listing);
 
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-sm border">
-      <div className="relative aspect-[4/3] bg-gray-100">
+    <Link href={`/property/${slug}`} className="group block overflow-hidden rounded-xl bg-white shadow-sm border transition hover:shadow-lg">
+      <div className="relative aspect-[4/3] bg-gray-900">
         {photo ? (
-          <img src={photo} alt={listing.unparsed_address} className="h-full w-full object-cover" />
+          <img src={photo} alt={listing.unparsed_address} className="h-full w-full object-contain transition group-hover:scale-105" />
         ) : (
           <div className="flex h-full items-center justify-center text-gray-400 text-sm">No Photo</div>
         )}
@@ -206,17 +207,30 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
         </span>
       </div>
       <div className="p-3">
-        <p className="text-lg font-bold text-navy">{formatPrice(price || 0)}</p>
+        {type === "sold" && listing.close_price ? (
+          <>
+            <p className="text-lg font-bold text-navy">Sold {formatPrice(listing.close_price)}</p>
+            {listing.list_price && listing.list_price !== listing.close_price && (
+              <p className="text-xs text-gray-500">Listed at {formatPrice(listing.list_price)}</p>
+            )}
+          </>
+        ) : (
+          <p className="text-lg font-bold text-navy">{formatPrice(price || 0)}</p>
+        )}
         <p className="text-xs text-gray-600 truncate">{listing.unparsed_address}</p>
         <div className="mt-1 flex gap-2 text-xs text-gray-500">
           {listing.bedrooms_total && <span>{listing.bedrooms_total} Beds</span>}
           {baths > 0 && <span>{baths} Baths</span>}
           {listing.living_area && listing.living_area > 100 && <span>{listing.living_area.toLocaleString()} Sqft</span>}
+          {listing.year_built && listing.year_built < 9999 && <span>Built {listing.year_built}</span>}
         </div>
         {type === "sold" && listing.close_date && (
-          <p className="mt-1 text-xs text-gray-400">Sold: {listing.close_date}</p>
+          <p className="mt-1 text-xs text-gray-400">Sold: {new Date(listing.close_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+        )}
+        {listing.listing_office_name && (
+          <p className="mt-1 truncate text-xs text-gray-400">Listed by {listing.listing_office_name}</p>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
