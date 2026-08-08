@@ -224,9 +224,25 @@ export default async function PropertyPage({ params }: Props) {
             {/* Header: price, address, status */}
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-navy">
-                  {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
-                </h1>
+                {isSold && listing.close_price ? (
+                  <>
+                    <h1 className="text-3xl font-bold text-navy">
+                      Sold for {formatPrice(listing.close_price)}
+                    </h1>
+                    {listing.list_price && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        Listed at {formatPrice(listing.list_price)}
+                        {listing.original_list_price && listing.original_list_price !== listing.list_price && (
+                          <> (originally {formatPrice(listing.original_list_price)})</>
+                        )}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <h1 className="text-3xl font-bold text-navy">
+                    {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
+                  </h1>
+                )}
                 <p className="mt-1 text-lg text-gray-600">{address}</p>
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
                 {listing.mls_source_id === "e09b0ae1-6b61-401d-a5ee-2fa79d473f3e" ? (
@@ -368,7 +384,9 @@ export default async function PropertyPage({ params }: Props) {
 
             {/* Listing broker/agent info */}
             <div className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-bold text-gray-700">Listing Information</h3>
+              <h3 className="text-sm font-bold text-gray-700">
+                {isSold ? "Transaction Information" : "Listing Information"}
+              </h3>
               <div className="mt-2 space-y-1 text-sm text-gray-600">
                 {listing.listing_office_name && (
                   <p><span className="font-semibold">Listing Office:</span> {listing.listing_office_name}
@@ -378,6 +396,18 @@ export default async function PropertyPage({ params }: Props) {
                   <p><span className="font-semibold">Listing Agent:</span> {listing.listing_agent_name}
                     {listing.listing_agent_phone ? ` — ${listing.listing_agent_phone}` : ""}
                     {listing.listing_agent_email ? ` — ${listing.listing_agent_email}` : ""}</p>
+                )}
+                {listing.co_listing_agent_name && (
+                  <p><span className="font-semibold">Co-Listing Agent:</span> {listing.co_listing_agent_name}</p>
+                )}
+                {isSold && listing.buyer_office_name && (
+                  <p><span className="font-semibold">Buyer Office:</span> {listing.buyer_office_name}</p>
+                )}
+                {isSold && listing.buyer_agent_name && (
+                  <p><span className="font-semibold">Buyer Agent:</span> {listing.buyer_agent_name}</p>
+                )}
+                {isSold && listing.close_date && (
+                  <p><span className="font-semibold">Closing Date:</span> {new Date(listing.close_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
                 )}
               </div>
               <p className="mt-3 text-xs text-gray-400">

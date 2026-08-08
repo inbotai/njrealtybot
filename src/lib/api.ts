@@ -64,6 +64,11 @@ export interface Listing {
   close_date?: string | null;
   property_sub_type?: string | null;
   directions?: string | null;
+  buyer_agent_name?: string | null;
+  buyer_agent_mls_id?: string | null;
+  buyer_office_name?: string | null;
+  buyer_office_mls_id?: string | null;
+  co_listing_agent_name?: string | null;
   listing_photos?: ListingPhoto[];
   public_records?: {
     tax_annual?: number;
