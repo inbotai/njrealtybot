@@ -82,12 +82,14 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           {listing.mls_status}
         </span>
         <ListingActions listingId={listing.id} slug={generateSlug(listing)} address={formatAddress(listing)} />
-        {mlsLogo && (
-          <img src={mlsLogo.src} alt={mlsLogo.alt} className="absolute bottom-2 right-2 h-6 w-auto opacity-90" />
-        )}
       </div>
 
       <div className="p-4">
+        {mlsLogo && (
+          <div className="mb-2 flex justify-end">
+            <img src={mlsLogo.src} alt={mlsLogo.alt} className="h-5 w-auto" />
+          </div>
+        )}
         <p className="text-xl font-bold text-navy">
           {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
         </p>
