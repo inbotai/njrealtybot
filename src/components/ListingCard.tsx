@@ -81,7 +81,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
               {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
             </p>
           )}
-          <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-5 w-auto flex-shrink-0" />
+          <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-3.5 w-auto flex-shrink-0" />
         </div>
         <p className="mt-1 text-sm text-gray-600 truncate">
           {formatAddress(listing)}
