@@ -76,80 +76,81 @@ export default function HomePage() {
       {/* Proof strip */}
       <ProofStrip />
 
-      {/* Tool cards */}
+      {/* Property Tax — Hero section */}
       <section className="py-14 bg-white">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Tax — HERO, full width */}
-            <a href="/tax-shock" className="group relative col-span-full overflow-hidden rounded-2xl bg-gradient-to-br from-red-900 to-red-800 p-7 text-left shadow-lg transition hover:shadow-2xl hover:scale-[1.01]">
-              <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-red-500/15 blur-3xl" />
-              <div className="relative">
-                <span className="inline-block rounded-full bg-red-500/30 px-3 py-1 text-xs font-bold text-red-300 mb-3">Free — No Signup Required</span>
-                <h3 className="text-2xl font-bold text-white">NJ Homeowners: Are You Overpaying Property Taxes?</h3>
-                <p className="mt-2 text-base text-red-100/80">Over-assessed homes lose <span className="text-red-300 font-semibold">$1,000–$3,000/year</span> in taxes they don't owe. We use <span className="text-white font-semibold">real MLS comparable sales</span> — not generic estimates — to find out if you're overpaying. 60-second check.</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-red-900 group-hover:gap-3 transition-all">
-                  Check My Property Taxes — Free <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                </span>
-              </div>
-            </a>
-
-            {/* Home Value */}
-            <a href="/sell" className="group relative overflow-hidden rounded-2xl bg-navy p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
-              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-gold/20 blur-xl" />
-              <div className="relative">
-                <h3 className="text-xl font-bold text-white">Your Home's Value Changed This Month</h3>
-                <p className="mt-2 text-sm text-gray-300">NJ home prices shifted. Your neighbors already checked — <span className="text-gold font-semibold">have you?</span></p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gold group-hover:gap-2 transition-all">Get My Number &rarr;</span>
-              </div>
-            </a>
-
-            {/* Reno — dark green */}
-            <a href="/renovate" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900 to-emerald-800 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
-              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-emerald-500/20 blur-xl" />
-              <div className="relative">
-                <h3 className="text-xl font-bold text-white">Before You Renovate, Check the ROI</h3>
-                <p className="mt-2 text-sm text-emerald-100/80">Not every upgrade adds value. Some <span className="text-emerald-300 font-semibold">lose you money</span> at resale. See the data before you spend.</p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-300 group-hover:gap-2 transition-all">Calculate ROI &rarr;</span>
-              </div>
-            </a>
-
-            {/* MyHome Log — dark indigo */}
-            <a href="/my-home" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 to-purple-900 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
-              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-indigo-500/20 blur-xl" />
-              <div className="relative">
-                <span className="inline-block rounded-full bg-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-300 mb-3">Free</span>
-                <h3 className="text-xl font-bold text-white">Every Receipt You Lose Costs You at Closing</h3>
-                <p className="mt-2 text-sm text-indigo-100/80">Track improvements, build a verified history. <span className="text-indigo-300 font-semibold">Documented homes sell for more.</span></p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-indigo-300 group-hover:gap-2 transition-all">Start My Log &rarr;</span>
-              </div>
-            </a>
-
-            {/* Sell Timing — dark blue */}
-            <a href="/sell-timing" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900 to-cyan-900 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
-              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-blue-500/20 blur-xl" />
-              <div className="relative">
-                <h3 className="text-xl font-bold text-white">Every Month You Wait Could Cost — or Earn — You Thousands</h3>
-                <p className="mt-2 text-sm text-blue-100/80">See your town's <span className="text-cyan-300 font-semibold">real market data</span>: is demand rising or dropping? The answer changes your price.</p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 group-hover:gap-2 transition-all">See My Timing &rarr;</span>
-              </div>
-            </a>
-          </div>
-
-          {/* Benefits card — full width */}
-          <a href="/benefits" className="block mt-4 group relative rounded-2xl bg-gradient-to-br from-amber-900 to-yellow-900 p-7 text-left shadow-md transition hover:shadow-xl hover:scale-[1.01]">
-            <div className="absolute -right-10 -bottom-10 h-36 w-36 rounded-full bg-gold/15 blur-3xl" />
+        <div className="mx-auto max-w-4xl px-4 space-y-4">
+          {/* Tax Shock — primary CTA */}
+          <a href="/tax-shock" className="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-red-900 to-red-800 p-8 text-left shadow-lg transition hover:shadow-2xl hover:scale-[1.01]">
+            <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-red-500/15 blur-3xl" />
             <div className="relative">
-              <span className="inline-block rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-3">ANCHOR + Senior Freeze + StayNJ</span>
-              <h3 className="text-2xl font-bold text-white">Is New Jersey Holding Your Money?</h3>
-              <p className="mt-2 text-base text-amber-100/80">Check all your property tax relief programs in <span className="text-gold font-semibold">60 seconds</span>. Thousands of NJ homeowners qualify and don't know it.</p>
-              <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy group-hover:gap-3 transition-all">
-                Check My Benefits — Free <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+              <span className="inline-block rounded-full bg-red-500/30 px-3 py-1 text-xs font-bold text-red-300 mb-3">Free — No Signup Required</span>
+              <h2 className="text-3xl font-bold text-white">Are You Overpaying Property Taxes?</h2>
+              <p className="mt-3 text-lg text-red-100/80">NJ has the <span className="text-white font-semibold">highest property taxes in the country</span>. Over-assessed homes lose <span className="text-red-300 font-semibold">$1,000–$3,000/year</span> in taxes they don't owe.</p>
+              <p className="mt-2 text-sm text-red-200/70">We use <span className="text-white font-semibold">real MLS comparable sales</span> — not generic estimates — to find out if you're overpaying. 60-second check.</p>
+              <span className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-white px-6 py-3 text-base font-bold text-red-900 group-hover:gap-3 transition-all shadow-md">
+                Check My Property Taxes — Free <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </span>
             </div>
           </a>
 
-          {/* Vale card */}
-          <div className="mt-4 rounded-2xl border border-[#25D366]/30 bg-gradient-to-r from-[#25D366]/10 via-white to-[#25D366]/10 p-5">
+          {/* Tax Appeal + Benefits — two columns */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* Tax Appeal */}
+            <a href="/appeal" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-800 to-orange-900 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
+              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-orange-500/20 blur-xl" />
+              <div className="relative">
+                <span className="inline-block rounded-full bg-orange-500/30 px-2.5 py-0.5 text-xs font-bold text-orange-300 mb-3">Fight Back</span>
+                <h3 className="text-xl font-bold text-white">File a Property Tax Appeal</h3>
+                <p className="mt-2 text-sm text-orange-100/80">We build your case with <span className="text-orange-300 font-semibold">MLS comparables</span>, assessment analysis, and everything you need to file.</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-orange-300 group-hover:gap-2 transition-all">Start My Appeal &rarr;</span>
+              </div>
+            </a>
+
+            {/* Benefits checker */}
+            <a href="/benefits" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900 to-yellow-900 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
+              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-gold/20 blur-xl" />
+              <div className="relative">
+                <span className="inline-block rounded-full bg-gold/20 px-2.5 py-0.5 text-xs font-bold text-gold mb-3">ANCHOR + Senior Freeze + StayNJ</span>
+                <h3 className="text-xl font-bold text-white">NJ Tax Relief Programs</h3>
+                <p className="mt-2 text-sm text-amber-100/80">Thousands of homeowners qualify for <span className="text-gold font-semibold">tax credits and rebates</span> and don't know it. 60-second check.</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gold group-hover:gap-2 transition-all">Check My Benefits &rarr;</span>
+              </div>
+            </a>
+          </div>
+
+          {/* Social proof stats */}
+          <div className="grid grid-cols-3 gap-4 rounded-2xl bg-gray-50 p-6 text-center">
+            <div>
+              <p className="text-2xl font-bold text-red-700">~40%</p>
+              <p className="text-xs text-gray-500 mt-1">of NJ homes are over-assessed</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-navy">$14,000+</p>
+              <p className="text-xs text-gray-500 mt-1">avg NJ property tax bill</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-700">$1,000–$3,000</p>
+              <p className="text-xs text-gray-500 mt-1">avg annual savings with appeal</p>
+            </div>
+          </div>
+
+          {/* Search properties — secondary */}
+          <a href="/search" className="group relative block overflow-hidden rounded-2xl bg-navy p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.01]">
+            <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-gold/20 blur-xl" />
+            <div className="relative flex items-center gap-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold text-navy">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white">Search NJ Properties</h3>
+                <p className="mt-1 text-sm text-gray-400">60,000+ MLS listings. Active, sold, rentals. All of New Jersey.</p>
+              </div>
+              <svg className="h-6 w-6 shrink-0 text-gold group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </div>
+          </a>
+
+          {/* Vale WhatsApp */}
+          <div className="rounded-2xl border border-[#25D366]/30 bg-gradient-to-r from-[#25D366]/10 via-white to-[#25D366]/10 p-5">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white">
                 <svg viewBox="0 0 32 32" fill="currentColor" className="h-6 w-6">
@@ -157,39 +158,17 @@ export default function HomePage() {
                 </svg>
               </div>
               <div className="text-center sm:text-left flex-1">
-                <h3 className="font-bold text-navy">Ask Vale Anything</h3>
-                <p className="text-sm text-gray-500">Your AI real-estate partner, 24/7 on WhatsApp. "What did homes sell for on my street?"</p>
+                <h3 className="font-bold text-navy">Ask Vale About Your Property Taxes</h3>
+                <p className="text-sm text-gray-500">AI real-estate partner on WhatsApp. "Am I overpaying taxes on my home?"</p>
               </div>
-              <a
-                href={WA_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#20bd5a] hover:shadow-lg whitespace-nowrap"
-              >
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#20bd5a] hover:shadow-lg whitespace-nowrap">
                 Message Vale
               </a>
             </div>
           </div>
-
-          {/* Ready to Sell — full width CTA */}
-          <a href="/list" className="mt-4 group relative flex overflow-hidden rounded-2xl border-2 border-navy bg-navy p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.01]">
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-gold/10 blur-2xl" />
-            <div className="relative flex items-center gap-5 w-full">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold text-navy">
-                <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white">I'm Ready to Sell</h3>
-                <p className="mt-1 text-sm text-gray-400">AI-powered marketing + licensed agent. Your home deserves maximum exposure.</p>
-              </div>
-              <svg className="h-6 w-6 shrink-0 text-gold group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-            </div>
-          </a>
         </div>
       </section>
-
-      {/* MyHome Log CTA section — kept from original */}
-      <MyHomeLogSection />
 
       {/* Newsletter */}
       <section className="bg-white py-6">
