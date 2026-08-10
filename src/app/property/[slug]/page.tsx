@@ -382,29 +382,55 @@ export default async function PropertyPage({ params }: Props) {
               <h3 className="text-sm font-bold text-gray-700">
                 {isSold ? "Transaction Information" : "Listing Information"}
               </h3>
-              <div className="mt-2 space-y-1 text-sm text-gray-600">
-                {listing.listing_office_name && (
-                  <p><span className="font-semibold">Listing Office:</span> {listing.listing_office_name}
-                    {listing.listing_office_phone ? ` — ${listing.listing_office_phone}` : ""}</p>
-                )}
-                {listing.listing_agent_name && (
-                  <p><span className="font-semibold">Listing Agent:</span> {listing.listing_agent_name}
-                    {listing.listing_agent_phone ? ` — ${listing.listing_agent_phone}` : ""}
-                    {listing.listing_agent_email ? ` — ${listing.listing_agent_email}` : ""}</p>
-                )}
-                {listing.co_listing_agent_name && (
-                  <p><span className="font-semibold">Co-Listing Agent:</span> {listing.co_listing_agent_name}</p>
-                )}
-                {isSold && listing.buyer_office_name && listing.buyer_office_name !== listing.listing_office_name && (
-                  <p><span className="font-semibold">Buyer Office:</span> {listing.buyer_office_name}</p>
-                )}
-                {isSold && listing.buyer_agent_name && listing.buyer_agent_name !== listing.listing_agent_name && (
-                  <p><span className="font-semibold">Buyer Agent:</span> {listing.buyer_agent_name}</p>
-                )}
-                {isSold && listing.close_date && (
-                  <p><span className="font-semibold">Closing Date:</span> {new Date(listing.close_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
-                )}
-              </div>
+              {isSold ? (
+                <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg bg-gray-50 p-3 space-y-1">
+                    <p className="text-xs font-bold text-gray-500 uppercase">Listed By</p>
+                    {listing.listing_agent_name && (
+                      <p className="text-sm font-semibold text-gray-800">{listing.listing_agent_name}</p>
+                    )}
+                    {listing.listing_office_name && (
+                      <p className="text-sm text-gray-600">{listing.listing_office_name}</p>
+                    )}
+                    {listing.listing_agent_phone && (
+                      <p className="text-xs text-gray-500">{listing.listing_agent_phone}</p>
+                    )}
+                  </div>
+                  <div className="rounded-lg bg-gray-50 p-3 space-y-1">
+                    <p className="text-xs font-bold text-gray-500 uppercase">Bought With</p>
+                    {listing.buyer_agent_name ? (
+                      <p className="text-sm font-semibold text-gray-800">{listing.buyer_agent_name}</p>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">Not available</p>
+                    )}
+                    {listing.buyer_office_name ? (
+                      <p className="text-sm text-gray-600">{listing.buyer_office_name}</p>
+                    ) : !listing.buyer_agent_name && (
+                      <p className="text-xs text-gray-400">Agent info will be available after next sync</p>
+                    )}
+                  </div>
+                  {listing.close_date && (
+                    <p className="sm:col-span-2 text-sm text-gray-600">
+                      <span className="font-semibold">Closing Date:</span> {new Date(listing.close_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-2 space-y-1 text-sm text-gray-600">
+                  {listing.listing_office_name && (
+                    <p><span className="font-semibold">Listing Office:</span> {listing.listing_office_name}
+                      {listing.listing_office_phone ? ` — ${listing.listing_office_phone}` : ""}</p>
+                  )}
+                  {listing.listing_agent_name && (
+                    <p><span className="font-semibold">Listing Agent:</span> {listing.listing_agent_name}
+                      {listing.listing_agent_phone ? ` — ${listing.listing_agent_phone}` : ""}
+                      {listing.listing_agent_email ? ` — ${listing.listing_agent_email}` : ""}</p>
+                  )}
+                  {listing.co_listing_agent_name && (
+                    <p><span className="font-semibold">Co-Listing Agent:</span> {listing.co_listing_agent_name}</p>
+                  )}
+                </div>
+              )}
               <p className="mt-3 text-xs text-gray-400">
                 Information deemed reliable but not guaranteed. Data provided for consumer&apos;s
                 personal, non-commercial use only.
