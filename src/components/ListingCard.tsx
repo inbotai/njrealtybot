@@ -119,11 +119,22 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           </div>
         )}
 
-        {listing.listing_office_name && (
+        {listing.mls_status === "Sold" ? (
+          <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+            {(listing.listing_agent_name || listing.listing_office_name) && (
+              <p className="truncate">Listed by: {listing.listing_agent_name || listing.listing_office_name}
+                {listing.listing_agent_name && listing.listing_office_name ? `, ${listing.listing_office_name}` : ""}</p>
+            )}
+            {(listing.buyer_agent_name || listing.buyer_office_name) && (
+              <p className="truncate">Sold by: {listing.buyer_agent_name || listing.buyer_office_name}
+                {listing.buyer_agent_name && listing.buyer_office_name ? `, ${listing.buyer_office_name}` : ""}</p>
+            )}
+          </div>
+        ) : listing.listing_office_name ? (
           <p className="mt-2 truncate text-xs text-gray-500">
             Listed by {listing.listing_office_name}
           </p>
-        )}
+        ) : null}
       </div>
     </Link>
   );

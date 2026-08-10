@@ -233,9 +233,20 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
         {type === "sold" && listing.close_date && (
           <p className="mt-1 text-xs text-gray-400">Sold: {new Date(listing.close_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
         )}
-        {listing.listing_office_name && (
+        {type === "sold" ? (
+          <div className="mt-1 space-y-0.5 text-xs text-gray-400">
+            {(listing.listing_agent_name || listing.listing_office_name) && (
+              <p className="truncate">Listed by: {listing.listing_agent_name || listing.listing_office_name}
+                {listing.listing_agent_name && listing.listing_office_name ? `, ${listing.listing_office_name}` : ""}</p>
+            )}
+            {(listing.buyer_agent_name || listing.buyer_office_name) && (
+              <p className="truncate">Sold by: {listing.buyer_agent_name || listing.buyer_office_name}
+                {listing.buyer_agent_name && listing.buyer_office_name ? `, ${listing.buyer_office_name}` : ""}</p>
+            )}
+          </div>
+        ) : listing.listing_office_name ? (
           <p className="mt-1 truncate text-xs text-gray-400">Listed by {listing.listing_office_name}</p>
-        )}
+        ) : null}
       </div>
     </Link>
   );
