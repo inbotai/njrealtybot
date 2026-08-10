@@ -22,26 +22,7 @@ export default function MLSDisclaimer() {
           </div>
         </div>
 
-        {/* GSMLS Disclaimer — exact mandatory text from IDX Display Guidelines */}
-        <div className="mt-4 flex items-start gap-4">
-          <img src="/gsmls-logo.gif" alt="GSMLS - Garden State MLS" className="mt-1 h-10 w-auto flex-shrink-0" />
-          <div>
-            <p className="text-xs leading-relaxed">
-              The data displayed relating to real estate for sale comes in part from the IDX
-              Program of Garden State Multiple Listing Service, L.L.C. Real estate listings
-              held by other brokerage firms are marked as IDX Listing.
-            </p>
-          </div>
-        </div>
-
-        {/* N.J.A.C. 11:5.6.1 Disclosure — mandatory per GSMLS */}
-        <p className="mt-4 text-xs leading-relaxed">
-          Notice: The dissemination of listings displayed herein does not constitute the consent
-          required by N.J.A.C. 11:5.6.1(n) for the advertisement of listings exclusively for
-          sale by another broker. Any such consent must be obtained in writing from the listing broker.
-        </p>
-
-        {/* Consumer disclaimer — mandatory per both NJMLS and GSMLS */}
+        {/* Consumer disclaimer — mandatory per NJMLS */}
         <p className="mt-3 text-xs leading-relaxed">
           This information is being provided for Consumers&apos; personal, non-commercial use and
           may not be used for any purpose other than to identify prospective properties Consumers
@@ -52,13 +33,12 @@ export default function MLSDisclaimer() {
         <div className="mt-4 space-y-1 text-[10px] text-gray-500">
           <p>Information deemed reliable but not guaranteed. Last date updated: {lastUpdated}.</p>
           <p>&copy; {year} New Jersey Multiple Listing Service, Inc. All rights reserved.</p>
-          <p>Information deemed reliable but not guaranteed. Copyright &copy; {year} Garden State Multiple Listing Service, L.L.C. All rights reserved.</p>
         </div>
 
         {/* GardenState.ai IDX Disclosure */}
         <div className="mt-4 border-t border-white/10 pt-4 space-y-2 text-xs leading-relaxed">
           <p>
-            Property listings provided by GardenState.ai through authorized access to GSMLS and NJMLS.
+            Property listings provided by GardenState.ai through authorized access to NJMLS.
           </p>
           <p>
             Brokerage: Better Homes and Gardens Real Estate Green Team — 293 Route 94, Vernon, NJ 07462
@@ -68,7 +48,7 @@ export default function MLSDisclaimer() {
           </p>
           <p>
             GardenState.ai is an independent Artificial Intelligence platform.
-            We are not affiliated with, sponsored by, or part of Garden State MLS (GSMLS) or NJMLS.
+            We are not affiliated with, sponsored by, or part of NJMLS.
           </p>
           <p>
             All listings are displayed in accordance with IDX regulations of the State of New Jersey.
