@@ -69,9 +69,18 @@ export default function ListingCard({ listing }: { listing: Listing }) {
 
       <div className="p-4">
         <div className="flex items-start justify-between">
-          <p className="text-xl font-bold text-navy">
-            {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
-          </p>
+          {listing.mls_status === "Sold" && listing.close_price ? (
+            <div>
+              <p className="text-xl font-bold text-navy">Sold {formatPrice(listing.close_price)}</p>
+              {listing.list_price && listing.list_price !== listing.close_price && (
+                <p className="text-xs text-gray-500">Listed at {formatPrice(listing.list_price)}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xl font-bold text-navy">
+              {listing.list_price ? formatPrice(listing.list_price) : "Price TBD"}
+            </p>
+          )}
           <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-5 w-auto flex-shrink-0" />
         </div>
         <p className="mt-1 text-sm text-gray-600 truncate">
