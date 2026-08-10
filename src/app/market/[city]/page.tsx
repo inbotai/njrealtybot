@@ -209,13 +209,19 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
       <div className="p-3">
         {type === "sold" && listing.close_price ? (
           <>
-            <p className="text-lg font-bold text-navy">Sold {formatPrice(listing.close_price)}</p>
+            <div className="flex items-start justify-between">
+              <p className="text-lg font-bold text-navy">Sold {formatPrice(listing.close_price)}</p>
+              <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-5 w-auto flex-shrink-0" />
+            </div>
             {listing.list_price && listing.list_price !== listing.close_price && (
               <p className="text-xs text-gray-500">Listed at {formatPrice(listing.list_price)}</p>
             )}
           </>
         ) : (
-          <p className="text-lg font-bold text-navy">{formatPrice(price || 0)}</p>
+          <div className="flex items-start justify-between">
+            <p className="text-lg font-bold text-navy">{formatPrice(price || 0)}</p>
+            <img src="/njmls-idx-logo.jpg" alt="NJMLS IDX" className="h-5 w-auto flex-shrink-0" />
+          </div>
         )}
         <p className="text-xs text-gray-600 truncate">{listing.unparsed_address}</p>
         <div className="mt-1 flex gap-2 text-xs text-gray-500">
