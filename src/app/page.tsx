@@ -80,27 +80,26 @@ export default function HomePage() {
       <section className="py-14 bg-white">
         <div className="mx-auto max-w-4xl px-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* Home Value — full width, dark bg */}
-            <a href="/sell" className="group relative col-span-full overflow-hidden rounded-2xl bg-navy p-7 text-left shadow-lg transition hover:shadow-2xl hover:scale-[1.01]">
-              <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-gold/15 blur-3xl" />
+            {/* Tax — HERO, full width */}
+            <a href="/tax-shock" className="group relative col-span-full overflow-hidden rounded-2xl bg-gradient-to-br from-red-900 to-red-800 p-7 text-left shadow-lg transition hover:shadow-2xl hover:scale-[1.01]">
+              <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-red-500/15 blur-3xl" />
               <div className="relative">
-                <span className="inline-block rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-3">Most Popular</span>
-                <h3 className="text-2xl font-bold text-white">Your Home's Value Changed This Month</h3>
-                <p className="mt-2 text-base text-gray-300">NJ home prices shifted in June. Your neighbors already checked — <span className="text-gold font-semibold">have you?</span></p>
-                <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy group-hover:gap-3 transition-all">
-                  Get My Number — Free <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                <span className="inline-block rounded-full bg-red-500/30 px-3 py-1 text-xs font-bold text-red-300 mb-3">Free — No Signup Required</span>
+                <h3 className="text-2xl font-bold text-white">NJ Homeowners: Are You Overpaying Property Taxes?</h3>
+                <p className="mt-2 text-base text-red-100/80">Over-assessed homes lose <span className="text-red-300 font-semibold">$1,000–$3,000/year</span> in taxes they don't owe. We use <span className="text-white font-semibold">real MLS comparable sales</span> — not generic estimates — to find out if you're overpaying. 60-second check.</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-red-900 group-hover:gap-3 transition-all">
+                  Check My Property Taxes — Free <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </span>
               </div>
             </a>
 
-            {/* Tax — dark red */}
-            <a href="/tax-shock" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-900 to-red-800 p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
-              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-red-500/20 blur-xl" />
+            {/* Home Value */}
+            <a href="/sell" className="group relative overflow-hidden rounded-2xl bg-navy p-6 text-left shadow-md transition hover:shadow-xl hover:scale-[1.02]">
+              <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-gold/20 blur-xl" />
               <div className="relative">
-                <span className="inline-block rounded-full bg-red-500/30 px-2.5 py-0.5 text-xs font-bold text-red-300 mb-3">Deadline Approaching</span>
-                <h3 className="text-xl font-bold text-white">NJ Raised Taxes Again</h3>
-                <p className="mt-2 text-sm text-red-100/80">Over-assessed homes lose <span className="text-red-300 font-semibold">$1,000–$3,000/year</span> in taxes they don't owe. 60-second check.</p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-red-300 group-hover:gap-2 transition-all">Am I Overpaying? &rarr;</span>
+                <h3 className="text-xl font-bold text-white">Your Home's Value Changed This Month</h3>
+                <p className="mt-2 text-sm text-gray-300">NJ home prices shifted. Your neighbors already checked — <span className="text-gold font-semibold">have you?</span></p>
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gold group-hover:gap-2 transition-all">Get My Number &rarr;</span>
               </div>
             </a>
 
