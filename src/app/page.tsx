@@ -7,6 +7,7 @@ import HomeHero from "@/components/HomeHero";
 import ProofStrip from "@/components/ProofStrip";
 import { submitLead } from "@/lib/api";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import MLSDisclaimer from "@/components/MLSDisclaimer";
 import SmsConsent from "@/components/SmsConsent";
 
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
@@ -176,6 +177,8 @@ export default function HomePage() {
           <NewsletterSignup />
         </div>
       </section>
+
+      <MLSDisclaimer />
 
       {/* Agent login — subtle */}
       <AgentAccess isAdmin={isAdmin} login={login} logout={logout}
