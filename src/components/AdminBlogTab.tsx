@@ -77,7 +77,22 @@ export default function AdminBlogTab({ password }: { password: string }) {
     await fetchArticles();
   }
 
-  function openEdit(article: BlogArticle) {
+  async function openEdit(article: BlogArticle) {
+    // Fetch full article with content from the slug endpoint
+    try {
+      const res = await fetch(`${IDX_API}/api/idx/blog/posts/${article.slug}`);
+      if (res.ok) {
+        const full = await res.json();
+        const merged = { ...article, ...full };
+        setEditing(merged);
+        setEditTitle(merged.title);
+        setEditExcerpt(merged.excerpt);
+        setEditContent(merged.content_html || merged.content || "");
+        setEditTags((merged.tags || []).join(", "));
+        setPreview(false);
+        return;
+      }
+    } catch { /* fallback below */ }
     setEditing(article);
     setEditTitle(article.title);
     setEditExcerpt(article.excerpt);
