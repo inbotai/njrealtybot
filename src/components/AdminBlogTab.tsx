@@ -36,8 +36,21 @@ export default function AdminBlogTab({ password }: { password: string }) {
   async function fetchArticles() {
     setLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/admin/blog/articles`, { headers });
-      if (res.ok) setArticles(await res.json());
+      // Use public endpoint (returns published articles) + admin endpoint (returns all including drafts)
+      // Try admin first, fall back to public
+      let data: BlogArticle[] = [];
+      const adminRes = await fetch(`${IDX_API}/api/idx/admin/blog/articles`, { headers }).catch(() => null);
+      if (adminRes?.ok) {
+        data = await adminRes.json();
+      } else {
+        // Fallback: public endpoint (published only)
+        const pubRes = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`);
+        if (pubRes.ok) {
+          const json = await pubRes.json();
+          data = (json.posts || []).map((p: any) => ({ ...p, status: "published" }));
+        }
+      }
+      setArticles(data);
     } catch { /* ignore */ }
     setLoading(false);
   }
