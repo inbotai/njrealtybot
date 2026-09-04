@@ -106,8 +106,43 @@ export default function PropertyTaxAppeal() {
   async function handleLeadSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!leadConsent) return;
-    // TODO: wire to backend lead capture endpoint
-    // await provider.captureLead({ ...leadForm, address, county, estimatedOverpayment });
+
+    // Parse address into street + city
+    const parts = address.split(",").map((s) => s.trim());
+    const street = parts[0] || address;
+    const city = parts[1] || analysis?.city || "";
+
+    // 1. Claim home for equity tracking + tax monitoring
+    try {
+      await fetch(`${IDX_API}/api/idx/claim-home`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: street,
+          city,
+          name: leadForm.fullName || "Homeowner",
+          phone: leadForm.phone || "",
+          email: leadForm.email || undefined,
+        }),
+      });
+    } catch { /* best effort */ }
+
+    // 2. Capture lead with tax appeal context
+    try {
+      await fetch(`${IDX_API}/api/idx/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: leadForm.fullName,
+          email: leadForm.email,
+          phone: leadForm.phone,
+          message: `Tax appeal interest: ${address}. Assessed: $${analysis?.assessedValue?.toLocaleString() || "?"}. Overpayment: $${analysis?.overpaymentHigh?.toLocaleString() || "?"}. Likelihood: ${analysis?.appealLikelihood || "?"}`,
+          lead_type: "info_request",
+          source: "tax_appeal_page",
+        }),
+      });
+    } catch { /* best effort */ }
+
     setLeadSubmitted(true);
     setStage("connect");
   }
