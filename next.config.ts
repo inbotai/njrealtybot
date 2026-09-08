@@ -25,6 +25,22 @@ const nextConfig: NextConfig = {
   // Remove x-powered-by header (don't advertise Next.js)
   poweredByHeader: false,
 
+  // Redirect njrealtybot.com → gardenstate.ai (single domain, single brand)
+  redirects: async () => [
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: "njrealtybot.com" }],
+      destination: "https://gardenstate.ai/:path*",
+      permanent: true,
+    },
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: "www.njrealtybot.com" }],
+      destination: "https://gardenstate.ai/:path*",
+      permanent: true,
+    },
+  ],
+
   headers: async () => [
     {
       source: "/(.*)",
