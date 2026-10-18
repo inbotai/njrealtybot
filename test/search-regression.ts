@@ -337,16 +337,18 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
     /fetch\(\s*`\$\{IDX_API\}\/api\/idx\/(admin|blog\/articles)/.test(text)
   );
   const myhome = adminFiles.find((f) => f.file.endsWith("MyHomeAdmin.tsx"))!.text;
+  const proxyAllowsProfiles = proxy.includes("myhome\\/admin\\/profiles");
+  const proxyAllowsBlogWrites = proxy.includes("blog\\/articles");
   check(
     "ADMIN-001",
     "Admin blog, leads, and MyHome go through the proxy with the real profiles route",
     directAdmin.length === 0 &&
       myhome.includes("/api/idx/myhome/admin/profiles") &&
       myhome.includes("/api/idx/myhome/admin/entries") &&
-      proxy.includes("/api/idx/myhome/admin/profiles") &&
-      proxy.includes("/api/idx/blog/articles") &&
+      proxyAllowsProfiles &&
+      proxyAllowsBlogWrites &&
       !adminFiles.some(({ text }) => text.includes("Bearer")),
-    directAdmin.map((f) => f.file).join(", ") || "proxied",
+    directAdmin.map((f) => f.file).join(", ") || `proxied profiles=${proxyAllowsProfiles} blog=${proxyAllowsBlogWrites}`,
   );
 
   return results;
