@@ -4,25 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useVale } from "./ValeProvider";
 import VoiceButton from "./VoiceButton";
-
-/** Format chat message: strip IDs, convert markdown links + bold + URLs to HTML */
-function formatChatMessage(text: string): string {
-  return text
-    .replace(/\[ID:[a-f0-9-]+\]/gi, "")
-    .trim()
-    // Escape HTML first
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    // Markdown links: [text](url)
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
-    // Markdown bold: **text**
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    // gardenstate.ai links as clickable
-    .replace(/(?<!")gardenstate\.ai\/([\w-]+)/g, '<a href="/$1" class="text-indigo-600 underline hover:text-indigo-800">gardenstate.ai/$1</a>')
-    // Bare URLs (not already in an href)
-    .replace(/(?<!")(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
-    // wa.me links
-    .replace(/(?<!")(wa\.me\/\d+)/g, '<a href="https://$1" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>');
-}
+import { renderChatMarkdown } from "@/lib/chat-markdown";
 
 /** Contextual message based on current page */
 function getContextMessage(pathname: string): string {
@@ -150,9 +132,11 @@ export default function ValeSidePanel() {
                   ? "bg-indigo-600 text-white"
                   : "bg-gray-100 text-gray-800"
               }`}>
-                <p className="text-[15px] leading-relaxed whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: formatChatMessage(msg.text) }}
-                />
+                {msg.role === "assistant" ? (
+                  <div className="text-[15px] leading-relaxed" dangerouslySetInnerHTML={{ __html: renderChatMarkdown(msg.text) }} />
+                ) : (
+                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                )}
               </div>
             </div>
           ))}

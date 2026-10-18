@@ -5,6 +5,7 @@ import { useAdmin } from "@/components/AdminAuth";
 import { useRouter } from "next/navigation";
 import HomeHero from "@/components/HomeHero";
 import ProofStrip from "@/components/ProofStrip";
+import ActiveListingsLine from "@/components/ActiveListingsLine";
 import { submitLead } from "@/lib/api";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
@@ -13,7 +14,7 @@ import SmsConsent from "@/components/SmsConsent";
 const WA_LINK = "https://wa.me/12015281095?text=Hi%20Vale!%20I%27m%20interested%20in%20NJ%20real%20estate";
 
 export default function HomePage() {
-  const { isAdmin, login, logout, changePassword } = useAdmin();
+  const { isAdmin, login, logout } = useAdmin();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showChangePw, setShowChangePw] = useState(false);
@@ -22,10 +23,11 @@ export default function HomePage() {
   const [pwMsg, setPwMsg] = useState("");
   const router = useRouter();
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!login(password)) {
-      setError("Invalid password");
+    const result = await login(password);
+    if (!result.ok) {
+      setError(result.error || "Invalid password");
       setTimeout(() => setError(""), 3000);
     } else {
       router.refresh();
@@ -34,14 +36,7 @@ export default function HomePage() {
 
   function handleChangePw(e: React.FormEvent) {
     e.preventDefault();
-    if (!login(password)) { setPwMsg("Current password is incorrect"); return; }
-    if (newPw.length < 4) { setPwMsg("Minimum 4 characters"); return; }
-    if (newPw !== confirmPw) { setPwMsg("Passwords don't match"); return; }
-    if (changePassword(newPw)) {
-      setPwMsg("Password updated!");
-      setNewPw(""); setConfirmPw(""); setPassword("");
-      setTimeout(() => { setShowChangePw(false); setPwMsg(""); }, 1500);
-    }
+    setPwMsg("Passwords are set in the hosting environment (ADMIN_PASSWORDS), not in the browser.");
   }
 
   return (
@@ -144,7 +139,7 @@ export default function HomePage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-white">Search NJ Properties</h3>
-                <p className="mt-1 text-sm text-gray-400">60,000+ MLS listings. Active, sold, rentals. All of New Jersey.</p>
+                <ActiveListingsLine className="mt-1 text-sm text-gray-400" />
               </div>
               <svg className="h-6 w-6 shrink-0 text-gold group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </div>

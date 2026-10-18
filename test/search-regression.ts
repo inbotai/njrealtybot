@@ -7,6 +7,14 @@
  * Tests the full pipeline: hero parse → API search → results
  */
 
+import { readFileSync, readdirSync, statSync } from "fs";
+import { join } from "path";
+import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
+import { compsSupportMessage, formatRatio } from "../src/lib/tax-display";
+import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
+import { renderChatMarkdown } from "../src/lib/chat-markdown";
+import { splitStreetAndCity } from "../src/lib/address";
+
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
 interface TestCase {
@@ -225,6 +233,88 @@ async function runSearchTest(test: TestCase): Promise<{ pass: boolean; detail: s
   };
 }
 
+function walkSource(dir: string, out: string[] = []): string[] {
+  for (const name of readdirSync(dir)) {
+    if (name === "node_modules" || name.startsWith(".")) continue;
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) walkSource(full, out);
+    else if (/\.(ts|tsx)$/.test(name)) out.push(full);
+  }
+  return out;
+}
+
+function runLocalTests(): { id: string; description: string; pass: boolean; detail: string }[] {
+  const results: { id: string; description: string; pass: boolean; detail: string }[] = [];
+  const check = (id: string, description: string, pass: boolean, detail: string) => {
+    results.push({ id, description, pass, detail });
+  };
+
+  check(
+    "TAX-001",
+    "Common level range percentage points are not scaled twice",
+    formatPercent(54.03) === "54.03%" && formatPercent(73.09) === "73.09%" && formatPercent(0.6356) === "63.56%",
+    `54.03→${formatPercent(54.03)} 73.09→${formatPercent(73.09)} 0.6356→${formatPercent(0.6356)}`,
+  );
+
+  const compCopy = compsSupportMessage({
+    city: "Bloomfield",
+    assessedValue: 382300,
+    comparables: [{ salePrice: 510000 }, { salePrice: 730000 }],
+  });
+  check(
+    "TAX-002",
+    "Comps above the assessment do not claim to support a reduction",
+    compCopy.includes("above your assessment") && compCopy.includes("do not support a lower assessment"),
+    compCopy,
+  );
+
+  check(
+    "TAX-003",
+    "Property ratio and equalization ratio stay distinct",
+    formatRatio(61.74) === "61.74%" && formatRatio(0.6356) === "63.56%" && formatRatio(61.74) !== formatRatio(0.6356),
+    `${formatRatio(61.74)} vs ${formatRatio(0.6356)}`,
+  );
+
+  const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;
+  const over = calcRoi(25000, hardwood);
+  const typical = calcRoi(5000, hardwood);
+  check(
+    "RENO-001",
+    "$25k hardwood refinish does not keep catalog recovery or a Yes verdict",
+    over.njAvgRoi < 50 && over.verdict === "red" && typical.njAvgRoi >= 80 && typical.verdict === "green",
+    `25k recovery ${over.njAvgRoi.toFixed(1)}% ${over.verdict}; 5k recovery ${typical.njAvgRoi.toFixed(1)}% ${typical.verdict}`,
+  );
+
+  const md = renderChatMarkdown("### Estimate\n\n**$500,000**\n\n---\n\n<script>alert(1)</script>");
+  check(
+    "UI-007",
+    "Chat markdown renders formatting and escapes HTML",
+    md.includes("<h3") && md.includes("<strong>") && md.includes("<hr") && !md.includes("<script") && md.includes("&lt;script&gt;"),
+    md,
+  );
+
+  const parsed = splitStreetAndCity("36 Clark Ave, Bloomfield, NJ");
+  check(
+    "UI-008",
+    "Home report address keeps the city for the pricing API",
+    parsed.street === "36 Clark Ave" && parsed.city === "Bloomfield",
+    JSON.stringify(parsed),
+  );
+
+  const offenders = walkSource(join(process.cwd(), "src")).filter((file) => {
+    const text = readFileSync(file, "utf8");
+    return /60,000\+|60K\+/.test(text) || /const ADMIN_API_TOKEN\s*=\s*["']/.test(text) || /DEFAULT_PASSWORDS\s*=\s*\[/.test(text);
+  });
+  check(
+    "COPY-001",
+    "Active-listing claims and admin secrets are not hardcoded in src",
+    offenders.length === 0,
+    offenders.join(", ") || "clean",
+  );
+
+  return results;
+}
+
 async function main() {
   console.log("═══════════════════════════════════════════════════");
   console.log("  NJ Realty Bot — Search Regression Tests");
@@ -232,6 +322,18 @@ async function main() {
 
   let passed = 0;
   let failed = 0;
+
+  for (const test of runLocalTests()) {
+    if (test.pass) {
+      console.log(`  ✅ ${test.id}: ${test.description}`);
+      console.log(`     → ${test.detail}`);
+      passed++;
+    } else {
+      console.log(`  ❌ ${test.id}: ${test.description}`);
+      console.log(`     → ${test.detail}`);
+      failed++;
+    }
+  }
 
   for (const test of TESTS) {
     try {
@@ -256,7 +358,7 @@ async function main() {
   }
 
   console.log(`\n═══════════════════════════════════════════════════`);
-  console.log(`  Results: ${passed} passed, ${failed} failed, ${TESTS.length} total`);
+  console.log(`  Results: ${passed} passed, ${failed} failed, ${TESTS.length + runLocalTests().length} total`);
   console.log(`═══════════════════════════════════════════════════`);
 
   if (failed > 0) process.exit(1);

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import VoiceButton from "./VoiceButton";
 import SellScoreResult from "./SellScoreResult";
+import { splitStreetAndCity } from "@/lib/address";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -21,6 +22,8 @@ interface ValuationResult {
   city: string;
   pricePerSqft: number | null;
   yearBuilt: number | null;
+  methodology?: string | null;
+  confidence?: string | null;
 }
 
 function computeSellScore(data: any): { score: number; label: string; season: string } {
@@ -72,12 +75,14 @@ function computeSellScore(data: any): { score: number; label: string; season: st
 }
 
 export default function ValuePageClient() {
-  const [address, setAddress] = useState("");
+  const searchParams = useSearchParams();
+  const initialAddress = searchParams.get("address") || "";
+  const [address, setAddress] = useState(initialAddress);
   const [voiceActive, setVoiceActive] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!initialAddress);
   const [result, setResult] = useState<ValuationResult | null>(null);
   const [error, setError] = useState("");
-  const router = useRouter();
+  const autoRan = useRef(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -95,11 +100,18 @@ export default function ValuePageClient() {
     setError("");
     setResult(null);
 
+    const { street, city } = splitStreetAndCity(addr);
+    if (!city) {
+      setError("Include the city so we can pull comparable sales. Example: 36 Clark Ave, Bloomfield");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(`${IDX_API}/api/idx/intelligence/pricing-estimate`, {
+      const res = await fetch(`${IDX_API}/api/idx/pricing/estimate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: addr }),
+        body: JSON.stringify({ address: street, city }),
       });
 
       if (!res.ok) {
@@ -109,7 +121,8 @@ export default function ValuePageClient() {
       }
 
       const data = await res.json();
-      const { score, label, season } = computeSellScore(data);
+      const confidence = typeof data.confidence === "string" ? data.confidence.toLowerCase() : "";
+      const { score, label, season } = computeSellScore({ ...data, confidence });
 
       setResult({
         address: data.address || addr,
@@ -122,9 +135,11 @@ export default function ValuePageClient() {
         sellScoreLabel: label,
         seasonFactor: season,
         equityEstimate: data.equityEstimate || null,
-        city: data.city || "",
+        city: data.city || city,
         pricePerSqft: data.pricePerSqft || null,
         yearBuilt: data.yearBuilt || null,
+        methodology: data.methodology || null,
+        confidence: data.confidence || null,
       });
     } catch {
       setError("Something went wrong. Please try again.");
@@ -133,9 +148,33 @@ export default function ValuePageClient() {
     }
   }
 
+  useEffect(() => {
+    if (autoRan.current) return;
+    const addr = searchParams.get("address");
+    if (!addr) return;
+    autoRan.current = true;
+    setAddress(addr);
+    fetchValuation(addr);
+  }, [searchParams]);
+
   // Result view
   if (result) {
     return <SellScoreResult result={result} onReset={() => { setResult(null); setAddress(""); }} />;
+  }
+
+  if (loading) {
+    return (
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-lg px-4 text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />
+          <h1 className="mt-6 text-2xl font-bold text-navy">Preparing your home report</h1>
+          <p className="mt-2 text-base text-gray-700">{address}</p>
+          <p className="mt-3 text-sm text-gray-500">
+            Pulling recent sales and a value range for this address. This usually takes a few seconds.
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (

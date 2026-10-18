@@ -7,6 +7,7 @@ import type { Listing } from "@/lib/api";
 import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import VoiceButton from "./VoiceButton";
+import { renderChatMarkdown } from "@/lib/chat-markdown";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -14,11 +15,6 @@ interface ChatMessage {
   role: "user" | "assistant";
   text: string;
   listings?: Listing[];
-}
-
-/** Strip [ID:uuid] markers from text */
-function cleanText(text: string): string {
-  return text.replace(/\[ID:[a-f0-9-]{36}\]/gi, "").trim();
 }
 
 /** Compact listing card for inline chat display */
@@ -79,6 +75,7 @@ export default function ValeChatPage() {
   const [voiceActive, setVoiceActive] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionRef = useRef<string | null>(null);
+  const sessionPromise = useRef<Promise<string> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const autoSent = useRef(false);
@@ -95,24 +92,32 @@ export default function ValeChatPage() {
 
   const ensureSession = useCallback(async (): Promise<string> => {
     if (sessionRef.current) return sessionRef.current;
-    const vid = localStorage.getItem("vale_vid") || "";
-    const body: Record<string, string> = {};
-    if (vid) body.visitorId = vid;
-    const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!r.ok) throw new Error(`Session start failed: ${r.status}`);
-    const d = await r.json();
-    if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
-    sessionRef.current = d.sessionId;
-    setSessionId(d.sessionId);
-    if (d.greeting) {
-      setMessages([{ role: "assistant", text: d.greeting }]);
+    if (sessionPromise.current) return sessionPromise.current;
+    sessionPromise.current = (async () => {
+      const vid = localStorage.getItem("vale_vid") || "";
+      const body: Record<string, string> = {};
+      if (vid) body.visitorId = vid;
+      const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!r.ok) throw new Error(`Session start failed: ${r.status}`);
+      const d = await r.json();
+      if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
+      sessionRef.current = d.sessionId;
+      setSessionId(d.sessionId);
+      if (d.greeting) {
+        setMessages((prev) => (prev.length ? prev : [{ role: "assistant", text: d.greeting }]));
+      }
+      return d.sessionId as string;
+    })();
+    try {
+      return await sessionPromise.current;
+    } finally {
+      sessionPromise.current = null;
     }
-    return d.sessionId;
   }, []);
 
   // Start session on mount
@@ -181,21 +186,18 @@ export default function ValeChatPage() {
   );
 
   // Auto-send query from URL param (e.g. /chat?q=cma+for+123+main+st)
+  const pendingQuestion = searchParams.get("q");
   useEffect(() => {
     try {
-      const q = searchParams.get("q");
+      const q = pendingQuestion;
       if (q && !autoSent.current) {
         autoSent.current = true;
-        // Wait for session to be ready, then send
-        const timer = setTimeout(() => {
-          send(q).catch((err) => console.error("[Vale chat] auto-send error:", err));
-        }, 500);
-        return () => clearTimeout(timer);
+        send(q).catch((err) => console.error("[Vale chat] auto-send error:", err));
       }
     } catch (err) {
       console.error("[Vale chat] URL param error:", err);
     }
-  }, [searchParams, send]);
+  }, [pendingQuestion, send]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -309,7 +311,11 @@ export default function ValeChatPage() {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{cleanText(msg.text)}</p>
+                  {msg.role === "assistant" ? (
+                    <div dangerouslySetInnerHTML={{ __html: renderChatMarkdown(msg.text) }} />
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  )}
                 </div>
               </div>
 
@@ -327,7 +333,7 @@ export default function ValeChatPage() {
           {/* Loading indicator */}
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-gray-100 px-4 py-3">
+              <div className="max-w-[85%] rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-600">
                 <div className="flex items-center gap-1.5">
                   <span
                     className="h-2 w-2 rounded-full bg-indigo-400 animate-bounce"
@@ -342,6 +348,10 @@ export default function ValeChatPage() {
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
+                <p className="mt-2 font-medium text-navy">Vale is preparing your answer</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Comparable sales and tax lookups often take 15–30 seconds. You can leave this tab open.
+                </p>
               </div>
             </div>
           )}

@@ -5,58 +5,65 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 interface AdminContextType {
   isAdmin: boolean;
   authLoaded: boolean;
-  login: (password: string) => boolean;
-  logout: () => void;
+  login: (password: string) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
   changePassword: (newPassword: string) => boolean;
 }
 
 const AdminContext = createContext<AdminContextType>({
   isAdmin: false,
   authLoaded: false,
-  login: () => false,
-  logout: () => {},
+  login: async () => ({ ok: false }),
+  logout: async () => {},
   changePassword: () => false,
 });
 
 export function useAdmin() { return useContext(AdminContext); }
-
-const ADMIN_HASH = "njrb2026admin";
-const DEFAULT_PASSWORDS = ["Vale2026!@1", "vale2026", "gardenstate2026"];
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoaded, setAuthLoaded] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("njrb_admin");
-    if (token === ADMIN_HASH) setIsAdmin(true);
-    setAuthLoaded(true);
+    let cancelled = false;
+    fetch("/api/admin/session")
+      .then((r) => (r.ok ? r.json() : { isAdmin: false }))
+      .then((d) => { if (!cancelled) setIsAdmin(!!d.isAdmin); })
+      .catch(() => { if (!cancelled) setIsAdmin(false); })
+      .finally(() => { if (!cancelled) setAuthLoaded(true); });
+    return () => { cancelled = true; };
   }, []);
 
-  const login = (password: string): boolean => {
-    const trimmed = password.trim();
-    // Check custom password first, then defaults
-    let customPw: string | null = null;
-    try { customPw = localStorage.getItem("gsai_password"); } catch {}
-    const validPasswords = customPw ? [customPw, ...DEFAULT_PASSWORDS] : DEFAULT_PASSWORDS;
-    const valid = validPasswords.includes(trimmed);
-    if (valid) {
-      sessionStorage.setItem("njrb_admin", ADMIN_HASH);
-      setIsAdmin(true);
+  const login = async (password: string): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setIsAdmin(true);
+        return { ok: true };
+      }
+      setIsAdmin(false);
+      const data = await res.json().catch(() => ({}));
+      return { ok: false, error: data.error || "Invalid password" };
+    } catch {
+      setIsAdmin(false);
+      return { ok: false, error: "Could not reach the login service." };
     }
-    return valid;
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("njrb_admin");
+  const logout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST", credentials: "same-origin" });
+    } catch { /* still clear local state */ }
     setIsAdmin(false);
   };
 
-  const changePassword = (newPassword: string): boolean => {
-    if (newPassword.length < 4) return false;
-    try { localStorage.setItem("gsai_password", newPassword); } catch {}
-    return true;
-  };
+  // Passwords live in server env (ADMIN_PASSWORDS). The browser must not store them.
+  const changePassword = (_newPassword: string): boolean => false;
 
   return (
     <AdminContext.Provider value={{ isAdmin, authLoaded, login, logout, changePassword }}>

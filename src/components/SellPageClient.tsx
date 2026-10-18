@@ -22,17 +22,24 @@ const stats = [
 export default function SellPageClient() {
   const [address, setAddress] = useState("");
   const [voiceActive, setVoiceActive] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  function goToReport(value: string) {
+    const q = value.trim();
+    if (!q || loading) return;
+    setLoading(true);
+    router.push(`/value?address=${encodeURIComponent(q)}`);
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!address.trim()) return;
-    router.push(`/chat?q=${encodeURIComponent(`CMA for ${address}`)}`);
+    goToReport(address);
   }
 
   function handleVoice(text: string) {
-    // If they say an address, go to CMA
-    router.push(`/chat?q=${encodeURIComponent(`CMA for ${text}`)}`);
+    setAddress(text);
+    goToReport(text);
   }
 
   return (
@@ -56,22 +63,23 @@ export default function SellPageClient() {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Enter your property address... (e.g. 36 Clark Ave, Bloomfield)"
-                  className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
+                  disabled={loading}
+                  className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400 disabled:bg-gray-50"
                 />
               )}
               <VoiceButton onTranscript={handleVoice} onRecordingChange={setVoiceActive} />
               {!voiceActive && (
                 <button
                   type="submit"
-                  disabled={!address.trim()}
+                  disabled={!address.trim() || loading}
                   className="rounded-lg bg-gold px-6 py-2.5 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
                 >
-                  Get Free Estimate
+                  {loading ? "Preparing report…" : "Get Free Estimate"}
                 </button>
               )}
             </div>
             <p className="mt-3 text-sm text-gray-400">
-              Or click the microphone and say your address
+              {loading ? "Opening your home report…" : "Or click the microphone and say your address"}
             </p>
           </form>
 

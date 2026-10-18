@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { renderChatMarkdown } from "@/lib/chat-markdown";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -88,10 +89,12 @@ export default function ValeHelper({ context, title = "Ask Vale", placeholder = 
           <div key={i} className={msg.role === "user" ? "flex justify-end" : ""}>
             <div className={`max-w-[90%] rounded-xl px-3 py-2 text-[13px] leading-relaxed ${
               msg.role === "user"
-                ? "bg-indigo-600 text-white"
+                ? "bg-indigo-600 text-white whitespace-pre-wrap"
                 : "bg-gray-100 text-gray-800"
             }`}>
-              {msg.text}
+              {msg.role === "assistant" ? (
+                <div dangerouslySetInnerHTML={{ __html: renderChatMarkdown(msg.text) }} />
+              ) : msg.text}
             </div>
           </div>
         ))}

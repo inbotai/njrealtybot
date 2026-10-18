@@ -36,6 +36,13 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | CMA-003 | CMA from search page hero went to search instead of chat | Search page hero missing CMA detection | Added same CMA regex to search page hero |
 | CMA-004 | "análisis de mercado" not detected as CMA | Accented á not matched by regex | Normalize accents before regex test |
 | UI-006 | Price input only accepts 1 digit | updateFilter fires doSearch on every keystroke | Local state + search on blur/Enter (same pattern as city input UI-001) |
+| TAX-001 | Common Level Range showed 5403%–7309% | API sends percentage points (54.03); formatPercent multiplied by 100 again | formatPercent treats values above 2 as already-percent |
+| TAX-002 | Tax Shock said comps support a lower assessment when every sale was above it | Headline was hardcoded | Copy is derived from sale price vs assessment |
+| TAX-003 | Property ratio 61.7% looked like it contradicted equalization 63.56% | Different measures rendered without labels | Both pages label property ratio vs county equalization ratio |
+| UI-007 | /chat showed raw markdown | Assistant text rendered as plain text | Safe markdown renderer (bold, headings, rules, lists, links) |
+| UI-008 | Get My Report / Get Free Estimate dumped into a blank chat for 15–30s | Address boxes redirected to /chat?q=CMA | They open /value, which loads a report from the pricing API with a visible waiting state |
+| RENO-001 | $25k floor refinish kept 83% recovery and “Worth it? Yes” | Recovery ignored spend above the typical budget | Spend above the typical maximum recovers at a declining rate |
+| COPY-001 | Homepage claimed 60,000+ MLS listings | Figure mixed MLS estimates and did not match the active search index (~9,100) | Claims use the live active listing total |
 
 ### Adding New Bugs
 

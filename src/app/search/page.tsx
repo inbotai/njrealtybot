@@ -2,35 +2,40 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import SearchPageClient from "@/components/SearchPageClient";
 import RequireAuth from "@/components/RequireAuth";
+import { fetchActiveListingCount, formatActiveCount } from "@/lib/listing-inventory";
 
-export const metadata: Metadata = {
-  title: { absolute: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI" },
-  description:
-    "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
-  keywords: [
-    "search NJ homes for sale",
-    "New Jersey MLS search",
-    "NJ homes for sale by city",
-    "GSMLS listings NJ",
-    "NJMLS property search",
-  ],
-  alternates: {
-    canonical: "https://gardenstate.ai/search",
-  },
-  openGraph: {
-    type: "website",
-    title: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI",
-    description:
-      "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
-    url: "https://gardenstate.ai/search",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Search NJ Homes for Sale \u2014 60,000+ MLS Listings | Garden State AI",
-    description:
-      "Search all active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const active = await fetchActiveListingCount();
+  const countLabel = `${formatActiveCount(active)} Active MLS Listings`;
+  const title = `Search NJ Homes for Sale — ${countLabel} | Garden State AI`;
+  const description =
+    "Search active MLS listings in New Jersey. Filter by city, price, beds, baths, property type, square footage, and more. Updated daily from GSMLS and NJMLS.";
+  return {
+    title: { absolute: title },
+    description,
+    keywords: [
+      "search NJ homes for sale",
+      "New Jersey MLS search",
+      "NJ homes for sale by city",
+      "GSMLS listings NJ",
+      "NJMLS property search",
+    ],
+    alternates: {
+      canonical: "https://gardenstate.ai/search",
+    },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: "https://gardenstate.ai/search",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 function SearchFallback() {
   return (

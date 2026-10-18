@@ -18,6 +18,8 @@ interface ValuationResult {
   city: string;
   pricePerSqft: number | null;
   yearBuilt: number | null;
+  methodology?: string | null;
+  confidence?: string | null;
 }
 
 function fmt(n: number) {
@@ -134,6 +136,9 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
                 <p className="mt-2 text-sm text-gray-500">
                   Range: {fmt(result.lowRange)} &ndash; {fmt(result.highRange)}
                 </p>
+              )}
+              {result.methodology && (
+                <p className="mt-2 text-xs text-gray-400">{result.methodology}</p>
               )}
 
               <div className="mt-6 space-y-3">

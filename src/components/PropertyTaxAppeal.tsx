@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
+import { ratioRelationshipCopy } from "@/lib/tax-display";
+import AnalysisWait from "./AnalysisWait";
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
 import type { LadderStage } from "@/lib/service-ladder/types";
@@ -20,6 +22,7 @@ interface TaxAnalysisResult {
   taxAnnual: number;
   eqRatio: number;
   eqRatioEffective: number;
+  estimatedPropertyRatio?: number;
   commonLevelRangeLow: number;
   commonLevelRangeHigh: number;
   impliedMarketValue: number;
@@ -53,6 +56,23 @@ export default function PropertyTaxAppeal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<TaxAnalysisResult | null>(null);
+  const [loadingNote, setLoadingNote] = useState("Looking up the public assessment…");
+
+  useEffect(() => {
+    if (!loading) return;
+    const notes = [
+      "Looking up the public assessment…",
+      "Finding recent comparable sales…",
+      "Applying the county equalization ratio…",
+    ];
+    let i = 0;
+    setLoadingNote(notes[0]);
+    const timer = setInterval(() => {
+      i = Math.min(i + 1, notes.length - 1);
+      setLoadingNote(notes[i]);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [loading]);
 
   // Rung 3 lead form
   const [leadForm, setLeadForm] = useState<Partial<TaxAppealLead>>({});
@@ -193,6 +213,8 @@ export default function PropertyTaxAppeal() {
         </div>
       </section>
 
+      {loading && <AnalysisWait title="Checking this property" note={loadingNote} />}
+
       {/* Results */}
       {analysis && (
         <section className="pb-16">
@@ -255,11 +277,15 @@ export default function PropertyTaxAppeal() {
                 <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Current Assessment</dt>
-                    <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue * analysis.eqRatioEffective)}</dd>
+                    <dd className="font-medium">{formatCurrency(analysis.assessedValue)}</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
-                    <dt className="text-gray-600">Equalization Ratio</dt>
-                    <dd className="font-medium">{formatPercent(analysis.eqRatioEffective)}</dd>
+                    <dt className="text-gray-600">County Equalization Ratio</dt>
+                    <dd className="font-medium">{formatPercent(analysis.eqRatioEffective || analysis.eqRatio)}</dd>
+                  </div>
+                  <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
+                    <dt className="text-gray-600">Your Property Ratio</dt>
+                    <dd className="font-medium">{formatPercent(analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN))}</dd>
                   </div>
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Implied Market Value</dt>
@@ -290,37 +316,66 @@ export default function PropertyTaxAppeal() {
                     </dd>
                   </div>
                 </dl>
+                <p className="mt-3 text-xs leading-relaxed text-gray-500">
+                  {ratioRelationshipCopy({
+                    propertyRatio: analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN),
+                    equalization: analysis.eqRatioEffective || analysis.eqRatio,
+                    rangeLow: analysis.commonLevelRangeLow,
+                    rangeHigh: analysis.commonLevelRangeHigh,
+                  })}
+                </p>
               </div>
 
               {/* Comps table */}
               <div className="mt-6 border-t pt-6">
                 <h3 className="text-sm font-semibold text-gray-700">Comparable Sales Used</h3>
-                <div className="mt-3 overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b text-xs uppercase text-gray-500">
-                        <th className="pb-2 pr-4">Address</th>
-                        <th className="pb-2 pr-4">Sale Price</th>
-                        <th className="pb-2 pr-4">Sale Date</th>
-                        <th className="pb-2 pr-4">Sqft</th>
-                        <th className="pb-2 pr-4">Beds</th>
-                        <th className="pb-2">Distance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analysis.comparables.map((comp, i) => (
-                        <tr key={i} className="border-b last:border-0">
-                          <td className="py-2 pr-4 font-medium">{comp.address}</td>
-                          <td className="py-2 pr-4">{formatCurrency(comp.salePrice)}</td>
-                          <td className="py-2 pr-4">{comp.saleDate}</td>
-                          <td className="py-2 pr-4">{comp.livingAreaSqft?.toLocaleString() ?? "—"}</td>
-                          <td className="py-2 pr-4">{comp.bedrooms ?? "—"}</td>
-                          <td className="py-2">{comp.distanceMiles} mi</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                {(() => {
+                  const showSqft = analysis.comparables.some((c) => (c.livingAreaSqft ?? 0) > 0);
+                  const showDistance = analysis.comparables.some((c) => (c.distanceMiles ?? 0) > 0);
+                  return (
+                    <>
+                      {(!showSqft || !showDistance) && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          {!showSqft && !showDistance
+                            ? "Square footage and distance are not in this MLS feed, so those columns are omitted."
+                            : !showSqft
+                              ? "Square footage is not in this MLS feed, so that column is omitted."
+                              : "Distance is not in this MLS feed, so that column is omitted."}
+                        </p>
+                      )}
+                      <div className="mt-3 overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b text-xs uppercase text-gray-500">
+                              <th className="pb-2 pr-4">Address</th>
+                              <th className="pb-2 pr-4">Sale Price</th>
+                              <th className="pb-2 pr-4">Sale Date</th>
+                              {showSqft && <th className="pb-2 pr-4">Sqft</th>}
+                              <th className="pb-2 pr-4">Beds</th>
+                              {showDistance && <th className="pb-2">Distance</th>}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {analysis.comparables.map((comp, i) => (
+                              <tr key={i} className="border-b last:border-0">
+                                <td className="py-2 pr-4 font-medium">{comp.address}</td>
+                                <td className="py-2 pr-4">{formatCurrency(comp.salePrice)}</td>
+                                <td className="py-2 pr-4">{comp.saleDate}</td>
+                                {showSqft && (
+                                  <td className="py-2 pr-4">{(comp.livingAreaSqft ?? 0) > 0 ? comp.livingAreaSqft!.toLocaleString() : "Not in MLS"}</td>
+                                )}
+                                <td className="py-2 pr-4">{comp.bedrooms ?? "—"}</td>
+                                {showDistance && (
+                                  <td className="py-2">{(comp.distanceMiles ?? 0) > 0 ? `${comp.distanceMiles} mi` : "—"}</td>
+                                )}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Disclaimer */}
@@ -372,7 +427,7 @@ export default function PropertyTaxAppeal() {
                     should be approximately{" "}
                     {formatCurrency(Math.round(analysis.estimatedMarketValueMid * analysis.eqRatioEffective))}.
                     The current assessment of{" "}
-                    {formatCurrency(Math.round(analysis.impliedMarketValue * analysis.eqRatioEffective))}{" "}
+                    {formatCurrency(analysis.assessedValue)}{" "}
                     exceeds this by{" "}
                     {formatCurrency(
                       Math.round(

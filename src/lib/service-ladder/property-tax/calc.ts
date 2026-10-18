@@ -126,5 +126,10 @@ export function formatCurrency(n: number): string {
 }
 
 export function formatPercent(n: number): string {
-  return `${(n * 100).toFixed(2)}%`;
+  if (!Number.isFinite(n)) return "—";
+  // IDX mixes ratios (0.6356) with percentage points (54.03, 63.56).
+  // NJ director ratios as decimals stay under ~1.5, so values above 2
+  // are already percentage points and must not be scaled again.
+  const pct = Math.abs(n) > 2 ? n : n * 100;
+  return `${pct.toFixed(2)}%`;
 }

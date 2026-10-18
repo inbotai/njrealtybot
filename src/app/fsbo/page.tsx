@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ValeHelper from "@/components/ValeHelper";
+import { fetchActiveListingCount, formatActiveCount } from "@/lib/listing-inventory";
 
 export const metadata: Metadata = {
   title: { absolute: "Selling Your NJ Home Without an Agent? Get AI-Powered Help | Garden State AI" },
@@ -40,7 +41,8 @@ const faqItems = [
   },
 ];
 
-export default function FSBOPage() {
+export default async function FSBOPage() {
+  const activeListings = formatActiveCount(await fetchActiveListingCount());
   return (
     <>
       <script
@@ -177,7 +179,7 @@ export default function FSBOPage() {
       <section className="bg-gray-50 py-10">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 text-center sm:grid-cols-2 md:grid-cols-4">
           {[
-            ["60,000+", "MLS Listings Analyzed"],
+            [activeListings, "Active MLS Listings"],
             ["21", "NJ Counties Covered"],
             ["$30K+", "More on Average vs FSBO"],
             ["24/7", "AI Support"],
