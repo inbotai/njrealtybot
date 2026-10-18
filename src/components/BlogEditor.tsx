@@ -6,8 +6,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import { adminProxy } from "@/lib/admin-client";
 
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 const CATEGORIES = ["market", "news", "tips", "guide", "development"];
 
 interface BlogArticle {
@@ -124,17 +124,10 @@ export default function BlogEditor({
     };
 
     try {
-      // Delete old article first if editing (no PUT without auth)
       if (article?.id) {
-        await fetch(`${IDX_API}/api/idx/blog/articles/${article.id}`, {
-          method: "DELETE",
-        });
+        await adminProxy(`/api/idx/blog/articles/${article.id}`, "DELETE");
       }
-      const res = await fetch(`${IDX_API}/api/idx/blog/articles`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await adminProxy("/api/idx/blog/articles", "POST", payload);
       if (res.ok) {
         setStatus(publishStatus === "published" ? "Published!" : "Saved as draft!");
         setTimeout(onSaved, 800);

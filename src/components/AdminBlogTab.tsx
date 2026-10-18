@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { adminProxy } from "@/lib/admin-client";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -19,7 +20,7 @@ interface BlogArticle {
   created_at: string;
 }
 
-export default function AdminBlogTab({ password }: { password: string }) {
+export default function AdminBlogTab() {
   const [articles, setArticles] = useState<BlogArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -31,19 +32,16 @@ export default function AdminBlogTab({ password }: { password: string }) {
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
 
-  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${password}` };
-
   async function fetchArticles() {
     setLoading(true);
     try {
-      // Use public endpoint (returns published articles) + admin endpoint (returns all including drafts)
-      // Try admin first, fall back to public
+      // Admin list includes drafts. Public posts are the fallback when the session cannot read them.
       let data: BlogArticle[] = [];
-      const adminRes = await fetch(`${IDX_API}/api/idx/admin/blog/articles`, { headers }).catch(() => null);
+      const adminRes = await adminProxy("/api/idx/admin/blog/articles").catch(() => null);
       if (adminRes?.ok) {
-        data = await adminRes.json();
+        const json = await adminRes.json();
+        data = Array.isArray(json) ? json : json.articles || json.posts || [];
       } else {
-        // Fallback: public endpoint (published only)
         const pubRes = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`);
         if (pubRes.ok) {
           const json = await pubRes.json();
@@ -60,7 +58,7 @@ export default function AdminBlogTab({ password }: { password: string }) {
   async function generateArticle() {
     setGenerating(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/admin/blog/generate`, { method: "POST", headers });
+      const res = await adminProxy("/api/idx/admin/blog/generate", "POST");
       if (res.ok) await fetchArticles();
     } catch { /* ignore */ }
     setGenerating(false);
@@ -68,12 +66,12 @@ export default function AdminBlogTab({ password }: { password: string }) {
 
   async function togglePublish(article: BlogArticle) {
     const action = article.status === "published" ? "unpublish" : "publish";
-    await fetch(`${IDX_API}/api/idx/admin/blog/articles/${article.id}/${action}`, { method: "POST", headers });
+    await adminProxy(`/api/idx/admin/blog/articles/${article.id}/${action}`, "POST");
     await fetchArticles();
   }
 
   async function deleteArticle(id: string) {
-    await fetch(`${IDX_API}/api/idx/admin/blog/articles/${id}`, { method: "DELETE", headers });
+    await adminProxy(`/api/idx/admin/blog/articles/${id}`, "DELETE");
     await fetchArticles();
   }
 
@@ -104,14 +102,11 @@ export default function AdminBlogTab({ password }: { password: string }) {
   async function saveEdit() {
     if (!editing) return;
     setSaving(true);
-    await fetch(`${IDX_API}/api/idx/admin/blog/articles/${editing.id}`, {
-      method: "PUT", headers,
-      body: JSON.stringify({
-        title: editTitle,
-        excerpt: editExcerpt,
-        content: editContent,
-        tags: editTags.split(",").map(t => t.trim()).filter(Boolean),
-      }),
+    await adminProxy(`/api/idx/admin/blog/articles/${editing.id}`, "PUT", {
+      title: editTitle,
+      excerpt: editExcerpt,
+      content: editContent,
+      tags: editTags.split(",").map(t => t.trim()).filter(Boolean),
     });
     setEditing(null);
     await fetchArticles();

@@ -43,6 +43,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | UI-008 | Get My Report / Get Free Estimate dumped into a blank chat for 15–30s | Address boxes redirected to /chat?q=CMA | They open /value, which loads a report from the pricing API with a visible waiting state |
 | RENO-001 | $25k floor refinish kept 83% recovery and “Worth it? Yes” | Recovery ignored spend above the typical budget | Spend above the typical maximum recovers at a declining rate |
 | COPY-001 | Homepage claimed 60,000+ MLS listings | Figure mixed MLS estimates and did not match the active search index (~9,100) | Claims use the live active listing total |
+| ADMIN-001 | Admin blog, leads, and MyHome called Railway from the browser | Blog tab sent the UI password as Bearer; MyHome used a profiles path the API does not serve | Those calls go through /api/admin/proxy; profiles use /api/idx/myhome/admin/profiles |
 
 ### Adding New Bugs
 

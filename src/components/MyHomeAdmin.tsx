@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+import { adminProxy } from "@/lib/admin-client";
 
 // ── Types ───────────────────────────────────────────────────
 
@@ -68,7 +67,7 @@ export default function MyHomeAdmin() {
   const loadProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/admin/myhome/profiles?limit=100`);
+      const res = await adminProxy("/api/idx/myhome/admin/profiles?limit=100");
       if (res.ok) {
         const data = await res.json();
         setProfiles(data.profiles || data || []);
@@ -82,10 +81,12 @@ export default function MyHomeAdmin() {
   async function loadEntries(profileId: string) {
     setEntriesLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/myhome/entries/${profileId}?status=active`);
+      const q = encodeURIComponent(profileId);
+      const res = await adminProxy(`/api/idx/myhome/admin/entries?profile_id=${q}&profileId=${q}&status=active`);
       if (res.ok) {
         const data = await res.json();
-        setEntries(data.entries || data || []);
+        const list: AdminEntry[] = data.entries || data || [];
+        setEntries(list.filter((e) => !e.profile_id || e.profile_id === profileId));
       } else {
         setEntries([]);
       }

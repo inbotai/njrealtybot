@@ -9,11 +9,18 @@ const ALLOWED: Array<{ method: string; test: RegExp }> = [
   { method: "DELETE", test: /^\/api\/idx\/admin\/leads\/all$/ },
   { method: "DELETE", test: /^\/api\/idx\/admin\/users\/[A-Za-z0-9-]+$/ },
   { method: "GET", test: /^\/api\/idx\/admin\/chat-by-phone\/[^/?#]+$/ },
+  { method: "PUT", test: /^\/api\/idx\/admin\/leads\/[A-Za-z0-9-]+$/ },
+  { method: "GET", test: /^\/api\/idx\/admin\/follow-ups(\?.*)?$/ },
+  { method: "GET", test: /^\/api\/idx\/admin\/drip-campaigns(\?.*)?$/ },
   { method: "GET", test: /^\/api\/idx\/admin\/blog\/articles$/ },
   { method: "POST", test: /^\/api\/idx\/admin\/blog\/generate$/ },
   { method: "POST", test: /^\/api\/idx\/admin\/blog\/articles\/[A-Za-z0-9-]+\/(publish|unpublish)$/ },
   { method: "PUT", test: /^\/api\/idx\/admin\/blog\/articles\/[A-Za-z0-9-]+$/ },
   { method: "DELETE", test: /^\/api\/idx\/admin\/blog\/articles\/[A-Za-z0-9-]+$/ },
+  { method: "POST", test: /^\/api\/idx\/blog\/articles$/ },
+  { method: "DELETE", test: /^\/api\/idx\/blog\/articles\/[A-Za-z0-9-]+$/ },
+  { method: "GET", test: /^\/api\/idx\/myhome\/admin\/profiles(\?.*)?$/ },
+  { method: "GET", test: /^\/api\/idx\/myhome\/admin\/entries(\?.*)?$/ },
 ];
 
 function allowed(method: string, path: string): boolean {

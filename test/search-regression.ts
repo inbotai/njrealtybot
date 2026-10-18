@@ -323,6 +323,34 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
     offenders.join(", ") || "clean",
   );
 
+  const adminFiles = [
+    "src/components/AdminBlogTab.tsx",
+    "src/components/BlogManager.tsx",
+    "src/components/BlogEditor.tsx",
+    "src/components/LeadPipeline.tsx",
+    "src/components/MyHomeAdmin.tsx",
+  ].map((file) => ({ file, text: readFileSync(join(process.cwd(), file), "utf8") }));
+  const proxy = readFileSync(join(process.cwd(), "src/app/api/admin/proxy/route.ts"), "utf8");
+  const directAdmin = adminFiles.filter(({ text }) =>
+    text.includes("Authorization:") ||
+    text.includes("/api/idx/admin/myhome/profiles") ||
+    /fetch\(\s*`\$\{IDX_API\}\/api\/idx\/(admin|blog\/articles)/.test(text)
+  );
+  const myhome = adminFiles.find((f) => f.file.endsWith("MyHomeAdmin.tsx"))!.text;
+  const proxyAllowsProfiles = proxy.includes("myhome\\/admin\\/profiles");
+  const proxyAllowsBlogWrites = proxy.includes("blog\\/articles");
+  check(
+    "ADMIN-001",
+    "Admin blog, leads, and MyHome go through the proxy with the real profiles route",
+    directAdmin.length === 0 &&
+      myhome.includes("/api/idx/myhome/admin/profiles") &&
+      myhome.includes("/api/idx/myhome/admin/entries") &&
+      proxyAllowsProfiles &&
+      proxyAllowsBlogWrites &&
+      !adminFiles.some(({ text }) => text.includes("Bearer")),
+    directAdmin.map((f) => f.file).join(", ") || `proxied profiles=${proxyAllowsProfiles} blog=${proxyAllowsBlogWrites}`,
+  );
+
   return results;
 }
 
