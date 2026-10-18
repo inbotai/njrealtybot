@@ -6,6 +6,25 @@ import { useAdmin } from "./AdminAuth";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
+async function postChat(path: "start" | "message", body: unknown, asAdmin: boolean, signal?: AbortSignal) {
+  if (asAdmin) {
+    const proxied = await fetch("/api/admin/proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ path: `/api/idx/chat/${path}`, method: "POST", body }),
+      signal,
+    });
+    if (proxied.status !== 401 && proxied.status !== 503) return proxied;
+  }
+  return fetch(`${IDX_API}/api/idx/chat/${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
 export interface ValeMessage {
   role: "user" | "assistant";
   text: string;
@@ -38,8 +57,6 @@ export function useVale() {
   return ctx;
 }
 
-const ADMIN_API_TOKEN = "njrb-admin-2026-xk9";
-
 export default function ValeProvider({ children }: { children: ReactNode }) {
   const { isAdmin } = useAdmin();
   const [messages, setMessages] = useState<ValeMessage[]>([]);
@@ -65,14 +82,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
     const body: any = {};
     if (vid) body.visitorId = vid;
     if (listingId) body.listingId = listingId;
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (isAdmin) headers["X-Admin-Token"] = ADMIN_API_TOKEN;
-    const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(10000),
-    });
+    const r = await postChat("start", body, isAdmin, AbortSignal.timeout(10000));
     if (!r.ok) throw new Error(`chat/start ${r.status}`);
     const d = await r.json();
     if (d.visitorId) localStorage.setItem("vale_vid", d.visitorId);
@@ -80,7 +90,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
     setSessionId(d.sessionId);
     setMessages([{ role: "assistant", text: d.greeting }]);
     return d.sessionId;
-  }, []);
+  }, [isAdmin]);
 
   const send = useCallback(async (text: string) => {
     if (!text.trim() || loading) return;
@@ -89,27 +99,15 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const sid = await ensureSession(currentListingId);
-      const msgHeaders: Record<string, string> = { "Content-Type": "application/json" };
-      if (isAdmin) msgHeaders["X-Admin-Token"] = ADMIN_API_TOKEN;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 60000);
-      const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
-        method: "POST",
-        headers: msgHeaders,
-        body: JSON.stringify({ sessionId: sid, message: text }),
-        signal: controller.signal,
-      });
+      const r = await postChat("message", { sessionId: sid, message: text }, isAdmin, controller.signal);
       clearTimeout(timeout);
       // Session expired (server restart) — auto-create new session and retry once
       if (r.status === 410) {
         sessionRef.current = null;
         const newSid = await ensureSession(currentListingId);
-        const r2 = await fetch(`${IDX_API}/api/idx/chat/message`, {
-          method: "POST",
-          headers: msgHeaders,
-          body: JSON.stringify({ sessionId: newSid, message: text }),
-          signal: AbortSignal.timeout(60000),
-        });
+        const r2 = await postChat("message", { sessionId: newSid, message: text }, isAdmin, AbortSignal.timeout(60000));
         if (!r2.ok) throw new Error(`chat/message retry ${r2.status}`);
         const d2 = await r2.json();
         const reply2 = d2.reply || d2.error || "Something went wrong.";
@@ -139,7 +137,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       setMessages(prev => [...prev, { role: "assistant", text: "Connection error. Try again." }]);
     }
     setLoading(false);
-  }, [loading, ensureSession, currentListingId]);
+  }, [loading, ensureSession, currentListingId, isAdmin]);
 
   const togglePanel = useCallback(() => setPanelOpen(p => !p), []);
   const openPanel = useCallback(() => setPanelOpen(true), []);

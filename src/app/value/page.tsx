@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ValuePageClient from "@/components/ValuePageClient";
 
 export const metadata: Metadata = {
@@ -19,5 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default function ValuePage() {
-  return <ValuePageClient />;
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center py-24">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent" />
+      </div>
+    }>
+      <ValuePageClient />
+    </Suspense>
+  );
 }

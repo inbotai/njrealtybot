@@ -16,9 +16,9 @@ export interface MarketingStat {
 export const MARKETING_STATS: Record<string, MarketingStat> = {
   // MLS data — verifiable from our database
   MLS_LISTINGS: {
-    value: "60,000+",
-    label: "MLS listings analyzed",
-    source: "Internal: NJMLS ~25K + GSMLS ~37K+ (active + sold)",
+    value: "9,000+",
+    label: "Active MLS listings",
+    source: "IDX GET /api/idx/listings total (active inventory only). Measured 9,098 on 2026-10-18. Homepage and proof strip use the live total. Sold records are a separate status=Sold count and are not included in this claim.",
   },
   NJ_TOWNS: {
     value: "450+",

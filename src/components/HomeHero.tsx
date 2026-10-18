@@ -28,7 +28,7 @@ export default function HomeHero() {
     const q = (text || address).trim();
     if (!q || loading) return;
     setLoading(true);
-    router.push(`/chat?q=${encodeURIComponent(`CMA for ${q}`)}`);
+    router.push(`/value?address=${encodeURIComponent(q)}`);
   }
 
   return (
@@ -87,7 +87,8 @@ export default function HomeHero() {
                     onChange={(e) => setAddress(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
                     placeholder="Enter your NJ address (e.g. 36 Clark Ave, Bloomfield)"
-                    className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400"
+                    disabled={loading}
+                    className="flex-1 px-2 py-3 text-base text-gray-800 outline-none placeholder:text-gray-400 disabled:bg-gray-50"
                     autoFocus
                   />
                 )}
@@ -101,10 +102,13 @@ export default function HomeHero() {
                     disabled={!address.trim() || loading}
                     className="rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy transition hover:bg-yellow-400 disabled:opacity-40"
                   >
-                    {loading ? "..." : "Get My Report"}
+                    {loading ? "Preparing report…" : "Get My Report"}
                   </button>
                 )}
               </div>
+              {loading && (
+                <p className="mt-3 text-sm font-medium text-navy">Opening your home report…</p>
+              )}
 
               {/* Homeowner chips */}
               <div className="mt-5 flex flex-wrap justify-center gap-2">

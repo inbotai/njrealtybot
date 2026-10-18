@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -148,7 +149,7 @@ export default function AppealWizard() {
         // Build narrative from Chapter 123 analysis
         const parts: string[] = [];
         if (data.chapter123Result === "over_assessed" && data.eqRatio) {
-          parts.push(`Under NJ Chapter 123, the county equalization ratio is ${(data.eqRatio * 100).toFixed(2)}%. Based on ${data.comparables?.length || 0} comparable sales, the estimated market value is $${Math.round(data.estimatedMarketValueMid || 0).toLocaleString()}, placing the current assessment above the Common Level Range upper bound.`);
+          parts.push(`Under NJ Chapter 123, the county equalization ratio is ${formatPercent(data.eqRatio)}. Based on ${data.comparables?.length || 0} comparable sales, the estimated market value is $${Math.round(data.estimatedMarketValueMid || 0).toLocaleString()}, placing the current assessment above the Common Level Range upper bound.`);
         }
         if (data.caseStrengthExplanation) {
           parts.push(data.caseStrengthExplanation);

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminBlogTab from "./AdminBlogTab";
-
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+import { adminProxy } from "@/lib/admin-client";
 
 interface Lead {
   id: string;
@@ -50,7 +49,7 @@ type Tab = "leads" | "contacts" | "blog";
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [users, setUsers] = useState<IdxUser[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -65,34 +64,36 @@ export default function AdminDashboard() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
 
-  const DEFAULT_PASSWORDS = ["vale2026", "Vale2026!@1", "gardenstate2026"];
-
-  function getValidPasswords(): string[] {
-    try {
-      const custom = localStorage.getItem("admin_password");
-      return custom ? [custom, ...DEFAULT_PASSWORDS] : DEFAULT_PASSWORDS;
-    } catch { return DEFAULT_PASSWORDS; }
-  }
-
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (getValidPasswords().includes(password.trim())) {
-      setAuthed(true); setLoginError(false);
-      try { localStorage.setItem("admin_auth", "1"); } catch {}
-    } else { setLoginError(true); }
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ password: password.trim() }),
+      });
+      if (res.ok) { setAuthed(true); setLoginError(""); }
+      else {
+        const data = await res.json().catch(() => ({}));
+        setLoginError(data.error || "Incorrect password");
+      }
+    } catch {
+      setLoginError("Could not reach the login service.");
+    }
   }
 
   function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
-    if (newPassword.length < 6) { setPasswordMsg("Minimum 6 characters"); return; }
-    if (newPassword !== confirmPassword) { setPasswordMsg("Passwords don't match"); return; }
-    try { localStorage.setItem("admin_password", newPassword); } catch {}
-    setPasswordMsg("Password updated!");
-    setNewPassword(""); setConfirmPassword("");
-    setTimeout(() => { setShowChangePassword(false); setPasswordMsg(""); }, 1500);
+    setPasswordMsg("Passwords are set in the hosting environment (ADMIN_PASSWORDS), not in the browser.");
   }
 
-  useEffect(() => { try { if (localStorage.getItem("admin_auth") === "1") setAuthed(true); } catch {} }, []);
+  useEffect(() => {
+    fetch("/api/admin/session")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.isAdmin) setAuthed(true); })
+      .catch(() => {});
+  }, []);
   useEffect(() => { if (authed) loadData(); }, [authed, tab]);
 
   async function loadData() {
@@ -100,16 +101,16 @@ export default function AdminDashboard() {
     try {
       if (tab === "leads") {
         const [leadsRes, usersRes] = await Promise.all([
-          fetch(`${IDX_API}/api/idx/admin/leads?limit=100`),
-          fetch(`${IDX_API}/api/idx/admin/users`),
+          adminProxy("/api/idx/admin/leads?limit=100"),
+          adminProxy("/api/idx/admin/users"),
         ]);
         if (leadsRes.ok) setLeads((await leadsRes.json()).leads || []);
         if (usersRes.ok) setUsers((await usersRes.json()).users || []);
       } else if (tab === "contacts") {
-        const res = await fetch(`${IDX_API}/api/idx/admin/users`);
+        const res = await adminProxy("/api/idx/admin/users");
         if (res.ok) setUsers((await res.json()).users || []);
       }
-      const statsRes = await fetch(`${IDX_API}/api/idx/admin/stats`);
+      const statsRes = await adminProxy("/api/idx/admin/stats");
       if (statsRes.ok) setStats(await statsRes.json());
     } catch { /* silent */ }
     setLoading(false);
@@ -121,11 +122,11 @@ export default function AdminDashboard() {
         <form onSubmit={handleLogin} className="w-80 space-y-4 rounded-xl bg-white p-8 shadow-lg">
           <h2 className="text-xl font-bold text-navy">Admin Access</h2>
           <input type="password" value={password}
-            onChange={(e) => { setPassword(e.target.value); setLoginError(false); }}
+            onChange={(e) => { setPassword(e.target.value); setLoginError(""); }}
             placeholder="Password"
             className={`w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500 ${loginError ? "border-red-400" : ""}`}
             autoFocus />
-          {loginError && <p className="text-sm text-red-500">Incorrect password</p>}
+          {loginError && <p className="text-sm text-red-500">{loginError}</p>}
           <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-white font-medium hover:bg-indigo-700">Login</button>
         </form>
       </div>
@@ -150,13 +151,13 @@ export default function AdminDashboard() {
 
   async function deleteLead(id: string) {
     if (!confirm("Delete this lead?")) return;
-    await fetch(`${IDX_API}/api/idx/admin/leads/${id}`, { method: "DELETE" }).catch(() => {});
+    await adminProxy(`/api/idx/admin/leads/${id}`, "DELETE").catch(() => {});
     setLeads(prev => prev.filter(l => l.id !== id));
   }
 
   async function deleteUser(id: string) {
     if (!confirm("Delete this contact and ALL their data?")) return;
-    await fetch(`${IDX_API}/api/idx/admin/users/${id}`, { method: "DELETE" }).catch(() => {});
+    await adminProxy(`/api/idx/admin/users/${id}`, "DELETE").catch(() => {});
     setUsers(prev => prev.filter(u => u.id !== id));
   }
 
@@ -164,10 +165,10 @@ export default function AdminDashboard() {
     if (!confirm("DELETE ALL leads, contacts, and chat messages? CANNOT be undone.")) return;
     if (!confirm("Are you SURE?")) return;
     try {
-      const leadsRes = await fetch(`${IDX_API}/api/idx/admin/leads/all`, { method: "DELETE" });
+      const leadsRes = await adminProxy("/api/idx/admin/leads/all", "DELETE");
       const leadsData = leadsRes.ok ? await leadsRes.json() : null;
       for (const u of users) {
-        await fetch(`${IDX_API}/api/idx/admin/users/${u.id}`, { method: "DELETE" });
+        await adminProxy(`/api/idx/admin/users/${u.id}`, "DELETE");
       }
       setUsers([]); setLeads([]);
       alert(`Deleted ${leadsData?.deleted || 0} leads and ${users.length} contacts.`);
@@ -179,7 +180,7 @@ export default function AdminDashboard() {
   async function viewChat(phone: string) {
     setChatLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/admin/chat-by-phone/${encodeURIComponent(phone)}`);
+      const res = await adminProxy(`/api/idx/admin/chat-by-phone/${encodeURIComponent(phone)}`);
       if (res.ok) setChatMessages((await res.json()).messages || []);
       else setChatMessages([]);
     } catch { setChatMessages([]); }
@@ -424,7 +425,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {tab === "blog" && <AdminBlogTab password={password || "vale2026"} />}
+      {tab === "blog" && <AdminBlogTab password={password} />}
 
       {/* Change Password Modal */}
       {showChangePassword && (

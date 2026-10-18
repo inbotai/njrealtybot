@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+import { fetchActiveListingCount, formatActiveCount } from "@/lib/listing-inventory";
 
 interface StatConfig {
   key: string;
@@ -12,7 +12,7 @@ interface StatConfig {
 }
 
 const STAT_CONFIGS: StatConfig[] = [
-  { key: "listings", label: "MLS Listings Analyzed", fallback: "60,000+", enabled: true },
+  { key: "listings", label: "Active MLS Listings", fallback: "9,000+", enabled: true },
   { key: "towns", label: "NJ Towns Covered", fallback: "450+", enabled: true },
   { key: "tax_analyses", label: "Tax Analyses Run", fallback: "", enabled: true },
   { key: "sales_this_month", label: "Sales Detected This Month", fallback: "", enabled: true },
@@ -28,19 +28,19 @@ export default function ProofStrip() {
   const [stats, setStats] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetch(`${IDX_API}/api/idx/blog/posts?limit=1`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        // Use total as a proxy for activity — real stats endpoint can be added later
-        const total = data?.total || 0;
-        setStats({
-          listings: "60,000+",
-          towns: "450+",
-          tax_analyses: total > 0 ? `${(total * 12).toLocaleString()}+` : "",
-          sales_this_month: "",
-        });
-      })
-      .catch(() => {});
+    const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+    Promise.all([
+      fetchActiveListingCount(),
+      fetch(`${IDX_API}/api/idx/blog/posts?limit=1`).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([active, blog]) => {
+      const total = blog?.total || 0;
+      setStats({
+        listings: formatActiveCount(active),
+        towns: "450+",
+        tax_analyses: total > 0 ? `${(total * 12).toLocaleString()}+` : "",
+        sales_this_month: "",
+      });
+    });
   }, []);
 
   const visibleStats = STAT_CONFIGS.filter((s) => {

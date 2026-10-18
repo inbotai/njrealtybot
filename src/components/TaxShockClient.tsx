@@ -6,6 +6,8 @@ import VoiceButton from "./VoiceButton";
 import LeadGate from "@/components/LeadGate";
 import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import AnalysisWait from "./AnalysisWait";
+import { assessmentHeadline, compsSupportMessage, ratioRelationshipCopy, reconcileExplanation } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -25,6 +27,9 @@ interface TaxResult {
   appealLikelihood: string;
   filingDeadline: string;
   eqRatio: number;
+  commonLevelRangeLow?: number;
+  commonLevelRangeHigh?: number;
+  estimatedPropertyRatio?: number;
   effectiveTaxRate: number;
   comparables: any[];
   caseStrength: "strong" | "moderate" | "weak" | "no_case";
@@ -97,9 +102,25 @@ export default function TaxShockClient() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<TaxResult | null>(null);
   const [error, setError] = useState("");
-  const [revealStep, setRevealStep] = useState(0);
+  const [loadingNote, setLoadingNote] = useState("Looking up the public assessment…");
   const resultRef = useRef<HTMLDivElement>(null);
   const autoRanRef = useRef(false);
+
+  useEffect(() => {
+    if (!loading) return;
+    const notes = [
+      "Looking up the public assessment…",
+      "Finding recent comparable sales…",
+      "Applying the county equalization ratio…",
+    ];
+    let i = 0;
+    setLoadingNote(notes[0]);
+    const timer = setInterval(() => {
+      i = Math.min(i + 1, notes.length - 1);
+      setLoadingNote(notes[i]);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [loading]);
 
   // Auto-run analysis if ?address= param is present (from Vale links)
   useEffect(() => {
@@ -127,7 +148,6 @@ export default function TaxShockClient() {
     setLoading(true);
     setError("");
     setResult(null);
-    setRevealStep(0);
 
     try {
       const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
@@ -145,12 +165,7 @@ export default function TaxShockClient() {
       const data = await res.json();
       setResult(data);
       setLoading(false);
-
-      // Animated reveal sequence
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-      for (let i = 1; i <= 7; i++) {
-        setTimeout(() => setRevealStep(i), i * 800);
-      }
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -158,9 +173,12 @@ export default function TaxShockClient() {
   }
 
 
-  const waText = result
-    ? `Hi Vale! I just found out I may be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes on ${result.address}. Can you help me with the appeal process?`
-    : "Hi Vale! I want to check if I'm overpaying property taxes.";
+  const supportsReduction = result?.caseStrength === "strong" || result?.caseStrength === "moderate";
+  const waText = !result
+    ? "Hi Vale! I want to check if I'm overpaying property taxes."
+    : supportsReduction
+      ? `Hi Vale! I just found out I may be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes on ${result.address}. Can you help me with the appeal process?`
+      : `Hi Vale! I checked the property taxes on ${result.address}. The comparable sales do not support a lower assessment. Can you review it with me?`;
 
   // ── Result View ──────────────────────────────────────────
   if (result) {
@@ -174,7 +192,7 @@ export default function TaxShockClient() {
         {/* Result Header */}
         <section className="bg-white py-6">
           <div className="mx-auto max-w-4xl px-4">
-            <button onClick={() => { setResult(null); setAddress(""); setRevealStep(0); }}
+            <button onClick={() => { setResult(null); setAddress(""); }}
               className="text-sm text-gray-400 hover:text-navy transition">&larr; Check another address</button>
           </div>
         </section>
@@ -184,14 +202,14 @@ export default function TaxShockClient() {
           <div className="mx-auto max-w-2xl px-4 space-y-8">
 
             {/* Step 1: Found property */}
-            <div className={`transition-all duration-700 ${revealStep >= 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div>
               <p className="text-gray-400 text-sm uppercase tracking-widest">Property Found</p>
               <h2 className="text-2xl font-bold mt-1">{result.address}</h2>
               <p className="text-gray-500">{result.city}, {result.county} County</p>
             </div>
 
             {/* Step 2: Assessment */}
-            <div className={`transition-all duration-700 ${revealStep >= 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div>
               <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm">Your Tax Assessment</p>
                 <p className="text-4xl font-extrabold mt-1">
@@ -202,7 +220,7 @@ export default function TaxShockClient() {
             </div>
 
             {/* Step 3: Market Value */}
-            <div className={`transition-all duration-700 ${revealStep >= 3 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div>
               <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm">Comparable Sales Value</p>
                 <p className="text-4xl font-extrabold mt-1 text-indigo-600">
@@ -226,7 +244,7 @@ export default function TaxShockClient() {
             </div>
 
             {/* Step 4: THE REVEAL — Conservative Result */}
-            <div className={`transition-all duration-700 ${revealStep >= 4 ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
+            <div>
               {/* Property type warning */}
               {result.propertyTypeWarning && (
                 <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-4 text-sm text-amber-700">
@@ -250,13 +268,23 @@ export default function TaxShockClient() {
               ) : strength === "weak" ? (
                 <div className="rounded-2xl bg-amber-50 border-2 border-amber-200 p-8 text-center">
                   <p className="text-amber-600 text-sm uppercase tracking-widest font-bold">Marginal Case</p>
-                  <p className="text-2xl font-bold text-navy mt-2">Your assessment is near the upper limit but within range</p>
+                  <p className="text-2xl font-bold text-navy mt-2">{assessmentHeadline({
+                    propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                    equalization: result.eqRatio,
+                    rangeLow: result.commonLevelRangeLow,
+                    rangeHigh: result.commonLevelRangeHigh,
+                  })}</p>
                   <p className="text-gray-500 mt-2">Potential savings would be small. An appeal carries risk.</p>
                 </div>
               ) : (
                 <div className="rounded-2xl bg-blue-50 border-2 border-blue-200 p-8 text-center">
                   <p className="text-blue-600 text-sm uppercase tracking-widest font-bold">No Case for Appeal</p>
-                  <p className="text-2xl font-bold text-navy mt-2">Your assessment is in line with market value</p>
+                  <p className="text-2xl font-bold text-navy mt-2">{assessmentHeadline({
+                    propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                    equalization: result.eqRatio,
+                    rangeLow: result.commonLevelRangeLow,
+                    rangeHigh: result.commonLevelRangeHigh,
+                  })}</p>
                   <p className="text-gray-500 mt-2">Filing an appeal is not recommended at this time</p>
                 </div>
               )}
@@ -268,7 +296,7 @@ export default function TaxShockClient() {
             </div>
 
             {/* Step 5: Case Strength (from backend) */}
-            <div className={`transition-all duration-700 ${revealStep >= 5 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div>
               <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                 <p className="text-gray-400 text-sm mb-3">Case Strength</p>
                 <div className="flex items-center gap-4">
@@ -278,7 +306,19 @@ export default function TaxShockClient() {
                   </div>
                   <span className={`text-lg font-extrabold ${caseColor(strength)}`}>{caseLabel(strength)}</span>
                 </div>
-                <p className="mt-3 text-sm text-gray-400">{result.caseStrengthExplanation}</p>
+                <p className="mt-3 text-sm text-gray-500">{reconcileExplanation(result.caseStrengthExplanation || "", {
+                  propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                  equalization: result.eqRatio,
+                  rangeHigh: result.commonLevelRangeHigh,
+                })}</p>
+                <p className="mt-3 text-xs leading-relaxed text-gray-500">
+                  {ratioRelationshipCopy({
+                    propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                    equalization: result.eqRatio,
+                    rangeLow: result.commonLevelRangeLow,
+                    rangeHigh: result.commonLevelRangeHigh,
+                  })}
+                </p>
                 <div className="mt-4 space-y-2 text-sm">
                   {result.chapter123Result === "over_assessed" && <p className="text-emerald-600">&#x2705; Chapter 123: Over-assessed</p>}
                   {result.chapter123Result === "within_range" && <p className="text-gray-500">&#x2796; Chapter 123: Within range</p>}
@@ -291,10 +331,14 @@ export default function TaxShockClient() {
 
             {/* Step 6: Comparable Properties */}
             {result.comparables?.length > 0 && (
-              <div className={`transition-all duration-700 ${revealStep >= 6 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+              <div>
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
                   <p className="text-gray-400 text-sm uppercase tracking-widest mb-1">Similar Properties That Sold Recently</p>
-                  <p className="text-gray-500 text-xs mb-4">These comparable sales in {result.city} support a lower assessment</p>
+                  <p className="text-gray-600 text-xs mb-4">{compsSupportMessage({
+                    city: result.city,
+                    assessedValue: result.assessedValue,
+                    comparables: result.comparables,
+                  })}</p>
 
                   {/* Your property header */}
                   <div className="rounded-lg bg-gold/10 border border-gold/30 p-3 mb-3">
@@ -355,7 +399,7 @@ export default function TaxShockClient() {
             )}
 
             {/* Step 7: CTA */}
-            <div className={`transition-all duration-700 ${revealStep >= 7 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div>
 
               {/* Social proof */}
               <p className="text-center text-gray-500 text-sm mb-6">
@@ -434,7 +478,9 @@ export default function TaxShockClient() {
                   {/* Share */}
                   <div className="flex justify-center gap-3 pt-2">
                     <button onClick={() => {
-                      const text = `I just found out I might be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes! Check yours free:`;
+                      const text = supportsReduction
+                        ? `I just found out I might be overpaying $${result.overpaymentHigh?.toLocaleString()}/year in property taxes! Check yours free:`
+                        : `I checked my NJ property taxes with Garden State AI. Check yours free:`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(text + " https://gardenstate.ai/tax-shock")}`, "_blank");
                     }} className="rounded-full bg-gray-100 px-4 py-2 text-xs text-gray-500 hover:bg-gray-200 transition">
                       Share with neighbors
@@ -516,6 +562,7 @@ export default function TaxShockClient() {
           </form>
         </div>
       </section>
+      {loading && <AnalysisWait title="Checking this address" note={loadingNote} />}
     </>
   );
 }

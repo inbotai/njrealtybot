@@ -6,6 +6,7 @@ import { parseSearchQuery, type Listing } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { getPhotoUrl } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
+import { renderChatMarkdown } from "@/lib/chat-markdown";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -612,7 +613,7 @@ export default function SearchEngine() {
                   <div className="mt-2 flex items-center justify-center gap-2">
                     {hasListings && <img src="/bhg-green-team-logo-dark.jpg" alt="BHG Green Team" className="h-8 w-auto" />}
                     <p className="text-[10px] text-gray-400">
-                      {hasListings ? "Listing data provided through IDX by BHG Real Estate | Green Team" : "Powered by Vale AI \u00b7 BHG Real Estate | Green Team \u00b7 60,000+ MLS listings"}
+                      {hasListings ? "Listing data provided through IDX by BHG Real Estate | Green Team" : "Powered by Vale AI \u00b7 BHG Real Estate | Green Team \u00b7 active NJ MLS listings"}
                     </p>
                   </div>
                 </div>
@@ -626,11 +627,5 @@ export default function SearchEngine() {
 }
 
 function formatResponse(text: string): string {
-  return text
-    .replace(/\[ID:[a-f0-9-]+\]/gi, "").trim()
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, "<strong class='text-navy'>$1</strong>")
-    .replace(/(?<!")(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-800">$1</a>')
-    .replace(/(?<!")gardenstate\.ai\/([\w-]+)/g, '<a href="/$1" class="text-indigo-600 underline hover:text-indigo-800">gardenstate.ai/$1</a>');
+  return renderChatMarkdown(text);
 }

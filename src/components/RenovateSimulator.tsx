@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import { calcRoi, fmtMoney as fmt, renovationTypes, type CalcResult } from "@/lib/renovate-roi";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -29,82 +30,6 @@ const roiData = [
   { renovation: "Major Kitchen Remodel", cost: "$75,000 – $120,000", valueAdded: "$45,000 – $65,000", roi: "55 – 60%", tier: "low" },
   { renovation: "Master Suite Addition", cost: "$125,000 – $175,000", valueAdded: "$60,000 – $85,000", roi: "45 – 50%", tier: "low" },
 ];
-
-type RenovationType = {
-  id: string;
-  label: string;
-  avgMultiplier: number;
-  minMultiplier: number;
-  maxMultiplier: number;
-  minBudget: number;
-  maxBudget: number;
-};
-
-const renovationTypes: RenovationType[] = [
-  { id: "garage_door", label: "Garage Door Replacement", avgMultiplier: 0.93, minMultiplier: 0.85, maxMultiplier: 1.0, minBudget: 3500, maxBudget: 6000 },
-  { id: "hardwood", label: "Hardwood Floor Refinish", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 2500, maxBudget: 7000 },
-  { id: "roof", label: "Roof Replacement", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 10000, maxBudget: 25000 },
-  { id: "hvac", label: "HVAC Replacement", avgMultiplier: 0.83, minMultiplier: 0.75, maxMultiplier: 0.90, minBudget: 7000, maxBudget: 16000 },
-  { id: "kitchen_minor", label: "Minor Kitchen Remodel", avgMultiplier: 0.78, minMultiplier: 0.70, maxMultiplier: 0.85, minBudget: 22000, maxBudget: 40000 },
-  { id: "landscaping", label: "Landscaping / Curb Appeal", avgMultiplier: 0.78, minMultiplier: 0.70, maxMultiplier: 0.85, minBudget: 3000, maxBudget: 12000 },
-  { id: "bathroom", label: "Bathroom Renovation", avgMultiplier: 0.73, minMultiplier: 0.65, maxMultiplier: 0.80, minBudget: 20000, maxBudget: 40000 },
-  { id: "exterior_paint", label: "Exterior Paint / Siding", avgMultiplier: 0.73, minMultiplier: 0.65, maxMultiplier: 0.80, minBudget: 10000, maxBudget: 22000 },
-  { id: "windows", label: "Window Replacement", avgMultiplier: 0.68, minMultiplier: 0.60, maxMultiplier: 0.75, minBudget: 12000, maxBudget: 28000 },
-  { id: "bathroom_add", label: "Bathroom Addition", avgMultiplier: 0.63, minMultiplier: 0.55, maxMultiplier: 0.70, minBudget: 45000, maxBudget: 80000 },
-  { id: "kitchen_major", label: "Major Kitchen Remodel", avgMultiplier: 0.58, minMultiplier: 0.50, maxMultiplier: 0.65, minBudget: 65000, maxBudget: 130000 },
-  { id: "master_suite", label: "Master Suite Addition", avgMultiplier: 0.48, minMultiplier: 0.40, maxMultiplier: 0.55, minBudget: 100000, maxBudget: 200000 },
-];
-
-type CalcResult = {
-  valueAdded: number;
-  roiPercent: number;
-  rangeMin: number;
-  rangeMax: number;
-  verdict: "green" | "yellow" | "red";
-  verdictLabel: string;
-  njAvgRoi: number;
-  budgetWarning: string | null;
-};
-
-function calcRoi(budget: number, reno: RenovationType): CalcResult {
-  // Check if budget is realistic for this renovation type
-  let budgetWarning: string | null = null;
-  if (budget < reno.minBudget) {
-    budgetWarning = `A typical ${reno.label.toLowerCase()} costs ${fmt(reno.minBudget)}–${fmt(reno.maxBudget)}. Your budget of ${fmt(budget)} is below the minimum — consider a less expensive renovation type.`;
-  } else if (budget > reno.maxBudget * 1.5) {
-    budgetWarning = `A typical ${reno.label.toLowerCase()} costs ${fmt(reno.minBudget)}–${fmt(reno.maxBudget)}. Your budget of ${fmt(budget)} is well above average — diminishing returns are likely.`;
-  }
-
-  // Multiplier represents % of cost recovered (0.78 = 78% recovery)
-  const valueAdded = budget * reno.avgMultiplier;
-  const recoveryPercent = reno.avgMultiplier * 100;
-  const roiPercent = ((valueAdded - budget) / budget) * 100;
-  const rangeMin = budget * reno.minMultiplier;
-  const rangeMax = budget * reno.maxMultiplier;
-  const njAvgRoi = recoveryPercent;
-
-  let verdict: CalcResult["verdict"];
-  let verdictLabel: string;
-  if (budgetWarning && budget < reno.minBudget) {
-    verdict = "red";
-    verdictLabel = "Budget too low for this renovation type";
-  } else if (recoveryPercent >= 80) {
-    verdict = "green";
-    verdictLabel = "Strong recovery — recommended upgrade";
-  } else if (recoveryPercent >= 60) {
-    verdict = "yellow";
-    verdictLabel = "Moderate recovery — do it if you'll enjoy it";
-  } else {
-    verdict = "red";
-    verdictLabel = "Low recovery — only if you need the space";
-  }
-
-  return { valueAdded, roiPercent, rangeMin, rangeMax, verdict, verdictLabel, njAvgRoi, budgetWarning };
-}
-
-function fmt(n: number) {
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-}
 
 const verdictColors = { green: "bg-green-100 border-green-500 text-green-800", yellow: "bg-yellow-100 border-yellow-500 text-yellow-800", red: "bg-red-100 border-red-500 text-red-800" };
 const verdictDots = { green: "bg-green-500", yellow: "bg-yellow-500", red: "bg-red-500" };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { renderChatMarkdown } from "@/lib/chat-markdown";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -169,12 +170,14 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
         <div ref={chatContainerRef} className="h-48 overflow-y-auto px-4 py-3 space-y-3">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                 m.role === "user"
-                  ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-br-sm shadow-sm"
+                  ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-br-sm shadow-sm whitespace-pre-wrap"
                   : "bg-gray-100 text-gray-800 rounded-bl-sm"
               }`}>
-                {m.text}
+                {m.role === "assistant" ? (
+                  <div dangerouslySetInnerHTML={{ __html: renderChatMarkdown(m.text) }} />
+                ) : m.text}
               </div>
             </div>
           ))}

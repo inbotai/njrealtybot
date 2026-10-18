@@ -8,7 +8,7 @@ import { useAdmin } from "@/components/AdminAuth";
  * Used on /admin page (and any route that always requires auth).
  */
 export default function AdminLoginGate({ children }: { children: React.ReactNode }) {
-  const { isAdmin, login, changePassword } = useAdmin();
+  const { isAdmin, login } = useAdmin();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showChangePw, setShowChangePw] = useState(false);
@@ -18,24 +18,18 @@ export default function AdminLoginGate({ children }: { children: React.ReactNode
 
   if (isAdmin) return <>{children}</>;
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!login(password)) {
-      setError("Invalid password");
+    const result = await login(password);
+    if (!result.ok) {
+      setError(result.error || "Invalid password");
       setTimeout(() => setError(""), 3000);
     }
   }
 
   function handleChangePw(e: React.FormEvent) {
     e.preventDefault();
-    if (!login(password)) { setPwMsg("Current password is incorrect"); return; }
-    if (newPw.length < 4) { setPwMsg("Minimum 4 characters"); return; }
-    if (newPw !== confirmPw) { setPwMsg("Passwords don't match"); return; }
-    if (changePassword(newPw)) {
-      setPwMsg("Password updated!");
-      setNewPw(""); setConfirmPw(""); setPassword("");
-      setTimeout(() => { setShowChangePw(false); setPwMsg(""); }, 1500);
-    }
+    setPwMsg("Passwords are set in the hosting environment (ADMIN_PASSWORDS), not in the browser.");
   }
 
   return (
