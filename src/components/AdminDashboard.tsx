@@ -425,7 +425,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {tab === "blog" && <AdminBlogTab password={password} />}
+      {tab === "blog" && <AdminBlogTab />}
 
       {/* Change Password Modal */}
       {showChangePassword && (

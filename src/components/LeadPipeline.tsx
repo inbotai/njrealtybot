@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+import { adminProxy } from "@/lib/admin-client";
 
 // ── Types ───────────────────────────────────────────────────
 
@@ -144,9 +143,9 @@ export default function LeadPipeline() {
     setLoading(true);
     try {
       const [leadsRes, followUpsRes, dripsRes] = await Promise.all([
-        fetch(`${IDX_API}/api/idx/admin/leads?limit=100`),
-        fetch(`${IDX_API}/api/idx/admin/follow-ups`).catch(() => null),
-        fetch(`${IDX_API}/api/idx/admin/drip-campaigns`).catch(() => null),
+        adminProxy("/api/idx/admin/leads?limit=100"),
+        adminProxy("/api/idx/admin/follow-ups").catch(() => null),
+        adminProxy("/api/idx/admin/drip-campaigns").catch(() => null),
       ]);
       if (leadsRes.ok) {
         const data = await leadsRes.json();
@@ -171,7 +170,7 @@ export default function LeadPipeline() {
   async function loadChat(phone: string) {
     setChatLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/admin/chat-by-phone/${encodeURIComponent(phone)}`);
+      const res = await adminProxy(`/api/idx/admin/chat-by-phone/${encodeURIComponent(phone)}`);
       if (res.ok) setChatMessages((await res.json()).messages || []);
       else setChatMessages([]);
     } catch { setChatMessages([]); }
@@ -301,11 +300,7 @@ export default function LeadPipeline() {
 
   async function markContacted(id: string) {
     try {
-      await fetch(`${IDX_API}/api/idx/admin/leads/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "contacted" }),
-      });
+      await adminProxy(`/api/idx/admin/leads/${id}`, "PUT", { status: "contacted" });
       setLeads(prev => prev.map(l => l.id === id ? { ...l, status: "contacted" } : l));
     } catch { /* silent */ }
   }

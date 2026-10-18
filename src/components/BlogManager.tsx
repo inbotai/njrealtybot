@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import BlogEditor from "@/components/BlogEditor";
+import { adminProxy } from "@/lib/admin-client";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -46,7 +47,7 @@ export default function BlogManager() {
   async function togglePublish(article: BlogArticle) {
     const action = article.status === "published" ? "unpublish" : "publish";
     try {
-      await fetch(`${IDX_API}/api/idx/blog/articles/${article.id}/${action}`, { method: "POST" });
+      await adminProxy(`/api/idx/admin/blog/articles/${article.id}/${action}`, "POST");
       await fetchArticles();
     } catch { /* ignore */ }
   }
@@ -54,7 +55,7 @@ export default function BlogManager() {
   async function deleteArticle(id: string) {
     if (!confirm("Are you sure you want to delete this article?")) return;
     try {
-      await fetch(`${IDX_API}/api/idx/blog/articles/${id}`, { method: "DELETE" });
+      await adminProxy(`/api/idx/blog/articles/${id}`, "DELETE");
       await fetchArticles();
     } catch { /* ignore */ }
   }
