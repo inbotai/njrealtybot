@@ -10,7 +10,7 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
-import { compsSupportMessage, formatRatio } from "../src/lib/tax-display";
+import { compsSupportMessage, formatRatio, reconcileExplanation } from "../src/lib/tax-display";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
@@ -273,6 +273,17 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
     "Property ratio and equalization ratio stay distinct",
     formatRatio(61.74) === "61.74%" && formatRatio(0.6356) === "63.56%" && formatRatio(61.74) !== formatRatio(0.6356),
     `${formatRatio(61.74)} vs ${formatRatio(0.6356)}`,
+  );
+
+  const reconciled = reconcileExplanation(
+    "Your Property Ratio (61.7%) is within the CLR but near the upper limit. Savings would be minimal.",
+    { propertyRatio: 61.74, equalization: 63.56, rangeHigh: 73.09 },
+  );
+  check(
+    "TAX-004",
+    "Near-the-upper-limit copy is corrected when the ratio is by the county average",
+    reconciled.includes("close to the county equalization ratio") && !/upper limit/i.test(reconciled),
+    reconciled,
   );
 
   const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;

@@ -7,7 +7,7 @@ import LeadGate from "@/components/LeadGate";
 import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
-import { assessmentHeadline, compsSupportMessage, ratioRelationshipCopy } from "@/lib/tax-display";
+import { assessmentHeadline, compsSupportMessage, ratioRelationshipCopy, reconcileExplanation } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -306,7 +306,11 @@ export default function TaxShockClient() {
                   </div>
                   <span className={`text-lg font-extrabold ${caseColor(strength)}`}>{caseLabel(strength)}</span>
                 </div>
-                <p className="mt-3 text-sm text-gray-500">{result.caseStrengthExplanation}</p>
+                <p className="mt-3 text-sm text-gray-500">{reconcileExplanation(result.caseStrengthExplanation || "", {
+                  propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                  equalization: result.eqRatio,
+                  rangeHigh: result.commonLevelRangeHigh,
+                })}</p>
                 <p className="mt-3 text-xs leading-relaxed text-gray-500">
                   {ratioRelationshipCopy({
                     propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),

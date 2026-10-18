@@ -63,6 +63,26 @@ export function assessmentHeadline(input: {
   return "Your assessment is inside the common level range";
 }
 
+/**
+ * The analysis API sometimes says the property ratio is "near the upper limit"
+ * even when it sits next to the county ratio and well below the range ceiling.
+ * Keep the rest of the sentence and correct that clause from the numbers.
+ */
+export function reconcileExplanation(
+  raw: string,
+  input: { propertyRatio: number; equalization: number; rangeHigh?: number | null },
+): string {
+  if (!raw || !/upper limit/i.test(raw)) return raw;
+  const p = toPercentPoints(input.propertyRatio);
+  const e = toPercentPoints(input.equalization);
+  const hi = input.rangeHigh == null ? null : toPercentPoints(input.rangeHigh);
+  if (p == null || hi == null || hi - p <= 5) return raw;
+  const phrase = e != null && Math.abs(p - e) <= 3
+    ? "and close to the county equalization ratio"
+    : "and inside the common level range";
+  return raw.replace(/but near the upper limit/i, phrase);
+}
+
 export function ratioRelationshipCopy(input: {
   propertyRatio: number;
   equalization: number;
