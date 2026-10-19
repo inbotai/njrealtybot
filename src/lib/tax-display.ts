@@ -106,3 +106,31 @@ export function ratioRelationshipCopy(input: {
   }
   return why;
 }
+
+/**
+ * NJ appeals are filed by April 1 of the tax year. Before that date (including
+ * April 1) the open tax year is the calendar year. After it, the next April 1
+ * belongs to the following tax year.
+ */
+export function nextAppealTaxYear(now = new Date()): number {
+  const year = now.getFullYear();
+  const april1 = new Date(year, 3, 1);
+  const today = new Date(year, now.getMonth(), now.getDate());
+  return today.getTime() <= april1.getTime() ? year : year + 1;
+}
+
+/** Prefer the API tax year. Fall back to the tax year whose April 1 deadline is next. */
+export function appealTaxYear(
+  data?: { taxYear?: unknown; ratioTaxYear?: unknown } | null,
+  now = new Date(),
+): number {
+  for (const raw of [data?.taxYear, data?.ratioTaxYear]) {
+    const n = typeof raw === "number" ? raw : typeof raw === "string" && raw.trim() ? Number(raw) : NaN;
+    if (Number.isInteger(n) && n >= 1990 && n <= 2100) return n;
+  }
+  return nextAppealTaxYear(now);
+}
+
+export function taxYearRatiosLabel(year: number): string {
+  return `Tax year ${year} ratios`;
+}

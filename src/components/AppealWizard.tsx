@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
+import { appealTaxYear, nextAppealTaxYear } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -75,7 +76,7 @@ const initialForm: FormData = {
   ownerName: "", ownerAddress: "", ownerCity: "", ownerState: "NJ", ownerZip: "",
   ownerPhone: "", ownerEmail: "",
   propertyAddress: "", propertyCity: "", propertyCounty: "", propertyZip: "",
-  block: "", lot: "", qualifier: "", taxYear: new Date().getFullYear().toString(),
+  block: "", lot: "", qualifier: "", taxYear: appealTaxYear().toString(),
   assessedTotal: "", assessedLand: "", assessedImprovement: "", currentTaxes: "", propertyClass: "2",
   claimedValue: "", appealReasons: [], appealNarrative: "",
   useGSAIComps: false,
@@ -129,6 +130,7 @@ export default function AppealWizard() {
         if (data.block) updated.block = data.block;
         if (data.lot) updated.lot = data.lot;
         if (data.qualifier) updated.qualifier = data.qualifier;
+        updated.taxYear = appealTaxYear(data).toString();
 
         // Assessment
         if (data.assessedValue) updated.assessedTotal = data.assessedValue.toString();
@@ -218,6 +220,7 @@ export default function AppealWizard() {
       });
       if (res.ok) {
         const data = await res.json();
+        update("taxYear", appealTaxYear(data).toString());
         if (data.comparables?.length) {
           const loaded = data.comparables.slice(0, 6).map((c: any) => ({
             address: c.address || "", salePrice: c.salePrice?.toString() || "",
@@ -397,7 +400,7 @@ export default function AppealWizard() {
                   {"\uD83C\uDFDB\uFE0F"} {form.propertyCounty || "County"} County Board of Taxation Website {"\u2192"}
                 </a>
                 <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3">
-                  <p className="text-red-700 text-sm font-semibold">{"\u23F0"} Deadline: April 1, {new Date().getFullYear() + (new Date().getMonth() >= 3 ? 1 : 0)}</p>
+                  <p className="text-red-700 text-sm font-semibold">{"\u23F0"} Deadline: April 1, {nextAppealTaxYear()}</p>
                   <p className="text-red-500 text-xs mt-1">Late filings are NOT accepted. File early to avoid missing the deadline.</p>
                 </div>
               </div>

@@ -44,6 +44,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | RENO-001 | $25k floor refinish kept 83% recovery and “Worth it? Yes” | Recovery ignored spend above the typical budget | Spend above the typical maximum recovers at a declining rate |
 | COPY-001 | Homepage claimed 60,000+ MLS listings | Figure mixed MLS estimates and did not match the active search index (~9,100) | Claims use the live active listing total |
 | ADMIN-001 | Admin blog, leads, and MyHome called Railway from the browser | Blog tab sent the UI password as Bearer; MyHome used a profiles path the API does not serve | Those calls go through /api/admin/proxy; profiles use /api/idx/myhome/admin/profiles |
+| TAX-005 | Appeal form and PDF said Tax Year 2026 against 2027 ratios | Tax Year defaulted to the calendar year and was never set from the analyze API | Form uses API taxYear, else the tax year whose April 1 deadline is next; results label that year |
 
 ### Adding New Bugs
 

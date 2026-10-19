@@ -10,7 +10,7 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
-import { compsSupportMessage, formatRatio, reconcileExplanation } from "../src/lib/tax-display";
+import { appealTaxYear, compsSupportMessage, formatRatio, reconcileExplanation, taxYearRatiosLabel } from "../src/lib/tax-display";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
@@ -284,6 +284,28 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
     "Near-the-upper-limit copy is corrected when the ratio is by the county average",
     reconciled.includes("close to the county equalization ratio") && !/upper limit/i.test(reconciled),
     reconciled,
+  );
+
+  const afterApril = appealTaxYear({}, new Date(2026, 9, 19));
+  const beforeApril = appealTaxYear({}, new Date(2026, 2, 15));
+  const onApril1 = appealTaxYear({}, new Date(2026, 3, 1));
+  const wizard = readFileSync(join(process.cwd(), "src/components/AppealWizard.tsx"), "utf8");
+  const propertyTax = readFileSync(join(process.cwd(), "src/components/PropertyTaxAppeal.tsx"), "utf8");
+  const taxShock = readFileSync(join(process.cwd(), "src/components/TaxShockClient.tsx"), "utf8");
+  check(
+    "TAX-005",
+    "Tax year comes from the API, otherwise the next April 1 tax year",
+    appealTaxYear({ taxYear: 2027 }) === 2027 &&
+      appealTaxYear({ ratioTaxYear: "2027" }) === 2027 &&
+      afterApril === 2027 &&
+      beforeApril === 2026 &&
+      onApril1 === 2026 &&
+      taxYearRatiosLabel(2027) === "Tax year 2027 ratios" &&
+      !wizard.includes("getFullYear()") &&
+      wizard.includes("appealTaxYear") &&
+      propertyTax.includes("taxYearRatiosLabel") &&
+      taxShock.includes("taxYearRatiosLabel"),
+    `api 2027; fallback Oct=${afterApril} Mar=${beforeApril} Apr1=${onApril1}`,
   );
 
   const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;

@@ -7,7 +7,7 @@ import LeadGate from "@/components/LeadGate";
 import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
-import { assessmentHeadline, compsSupportMessage, ratioRelationshipCopy, reconcileExplanation } from "@/lib/tax-display";
+import { appealTaxYear, assessmentHeadline, compsSupportMessage, ratioRelationshipCopy, reconcileExplanation, taxYearRatiosLabel } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -26,6 +26,8 @@ interface TaxResult {
   chapter123Result: string;
   appealLikelihood: string;
   filingDeadline: string;
+  taxYear?: number;
+  ratioTaxYear?: number;
   eqRatio: number;
   commonLevelRangeLow?: number;
   commonLevelRangeHigh?: number;
@@ -311,7 +313,8 @@ export default function TaxShockClient() {
                   equalization: result.eqRatio,
                   rangeHigh: result.commonLevelRangeHigh,
                 })}</p>
-                <p className="mt-3 text-xs leading-relaxed text-gray-500">
+                <p className="mt-3 text-xs font-medium text-gray-500">{taxYearRatiosLabel(appealTaxYear(result))}</p>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">
                   {ratioRelationshipCopy({
                     propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
                     equalization: result.eqRatio,
@@ -428,6 +431,8 @@ export default function TaxShockClient() {
                       caseStrength: result.caseStrength,
                       caseStrengthExplanation: result.caseStrengthExplanation,
                       filingDeadline: result.filingDeadline,
+                      taxYear: result.taxYear,
+                      ratioTaxYear: result.ratioTaxYear,
                       overpaymentLow: result.overpaymentLow,
                       overpaymentHigh: result.overpaymentHigh,
                       comparables: result.comparables?.slice(0, 6).map((c: any) => ({
