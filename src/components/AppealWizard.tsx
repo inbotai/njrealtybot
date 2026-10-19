@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
+import { appealTaxYear } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -75,7 +76,7 @@ const initialForm: FormData = {
   ownerName: "", ownerAddress: "", ownerCity: "", ownerState: "NJ", ownerZip: "",
   ownerPhone: "", ownerEmail: "",
   propertyAddress: "", propertyCity: "", propertyCounty: "", propertyZip: "",
-  block: "", lot: "", qualifier: "", taxYear: new Date().getFullYear().toString(),
+  block: "", lot: "", qualifier: "", taxYear: appealTaxYear().toString(),
   assessedTotal: "", assessedLand: "", assessedImprovement: "", currentTaxes: "", propertyClass: "2",
   claimedValue: "", appealReasons: [], appealNarrative: "",
   useGSAIComps: false,
@@ -129,6 +130,7 @@ export default function AppealWizard() {
         if (data.block) updated.block = data.block;
         if (data.lot) updated.lot = data.lot;
         if (data.qualifier) updated.qualifier = data.qualifier;
+        updated.taxYear = appealTaxYear(data).toString();
 
         // Assessment
         if (data.assessedValue) updated.assessedTotal = data.assessedValue.toString();
@@ -218,6 +220,7 @@ export default function AppealWizard() {
       });
       if (res.ok) {
         const data = await res.json();
+        update("taxYear", appealTaxYear(data).toString());
         if (data.comparables?.length) {
           const loaded = data.comparables.slice(0, 6).map((c: any) => ({
             address: c.address || "", salePrice: c.salePrice?.toString() || "",

@@ -5,7 +5,7 @@ import {
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
-import { ratioRelationshipCopy } from "@/lib/tax-display";
+import { appealTaxYear, ratioRelationshipCopy, taxYearRatiosLabel } from "@/lib/tax-display";
 import AnalysisWait from "./AnalysisWait";
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
@@ -34,6 +34,8 @@ interface TaxAnalysisResult {
   overpaymentHigh: number;
   appealLikelihood: "high" | "moderate" | "low";
   filingDeadline: string;
+  taxYear?: number;
+  ratioTaxYear?: number;
   zestimate?: number | null;
   zestimateSource?: string | null;
   comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; yearBuilt: number | null; distanceMiles: number | null; propertyType: string }[];
@@ -274,6 +276,7 @@ export default function PropertyTaxAppeal() {
               {/* Chapter 123 breakdown */}
               <div className="mt-6 border-t pt-6">
                 <h3 className="text-sm font-semibold text-gray-700">How We Calculated This</h3>
+                <p className="mt-1 text-xs text-gray-500">{taxYearRatiosLabel(appealTaxYear(analysis))}</p>
                 <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Current Assessment</dt>
