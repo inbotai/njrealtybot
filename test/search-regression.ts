@@ -10,7 +10,7 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, compsSupportMessage, formatRatio, reconcileExplanation, taxYearRatiosLabel } from "../src/lib/tax-display";
+import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxYearRatiosLabel } from "../src/lib/tax-display";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
@@ -306,6 +306,41 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
       propertyTax.includes("taxYearRatiosLabel") &&
       taxShock.includes("taxYearRatiosLabel"),
     `api 2027; fallback Oct=${afterApril} Mar=${beforeApril} Apr1=${onApril1}`,
+  );
+
+  const suppressed = describeTaxAppealResult({
+    savingsSuppressed: true,
+    address: "604 21ST ST",
+    overpaymentHigh: 0,
+    caseStrength: "no_case",
+    propertyTypeWarning: "This 8-unit property is a Class 4 commercial or apartment building. Consult a tax appeal attorney — this analysis does not estimate appeal savings.",
+  });
+  const normal = describeTaxAppealResult({
+    savingsSuppressed: false,
+    address: "119 W 21ST ST",
+    overpaymentHigh: 1521,
+    caseStrength: "weak",
+    propertyTypeWarning: "This appears to be a 2-family property. Comparable sales are other multi-unit homes, not condominiums or single-unit sales.",
+  });
+  const shock = readFileSync(join(process.cwd(), "src/components/TaxShockClient.tsx"), "utf8");
+  const propertyTaxPage = readFileSync(join(process.cwd(), "src/components/PropertyTaxAppeal.tsx"), "utf8");
+  check(
+    "TAX-006",
+    "Suppressed multi-unit analyses hide $0 savings and case strength",
+    suppressed.suppressed &&
+      !suppressed.showSavings &&
+      !suppressed.showCaseStrength &&
+      suppressed.warning.includes("Consult a tax appeal attorney") &&
+      !suppressed.valeMessage.includes("$0") &&
+      !/case strength/i.test(suppressed.valeMessage) &&
+      !normal.suppressed &&
+      normal.showSavings &&
+      normal.showCaseStrength &&
+      normal.valeMessage.includes("do not support a lower assessment") &&
+      shock.includes("appealView?.suppressed") &&
+      propertyTaxPage.includes("appealView.showSavings") &&
+      propertyTaxPage.includes("appealView.suppressed"),
+    suppressed.valeMessage,
   );
 
   const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;

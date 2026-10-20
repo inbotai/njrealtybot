@@ -5,7 +5,7 @@ import {
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, ratioRelationshipCopy, taxYearRatiosLabel } from "@/lib/tax-display";
+import { appealTaxYear, describeTaxAppealResult, ratioRelationshipCopy, taxYearRatiosLabel } from "@/lib/tax-display";
 import AnalysisWait from "./AnalysisWait";
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
@@ -32,10 +32,13 @@ interface TaxAnalysisResult {
   isOverAssessed: boolean;
   overpaymentLow: number;
   overpaymentHigh: number;
-  appealLikelihood: "high" | "moderate" | "low";
   filingDeadline: string;
   taxYear?: number;
   ratioTaxYear?: number;
+  savingsSuppressed?: boolean;
+  propertyTypeWarning?: string | null;
+  caseStrengthExplanation?: string | null;
+  appealLikelihood: "high" | "moderate" | "low" | "none" | string;
   zestimate?: number | null;
   zestimateSource?: string | null;
   comparables: { address: string; city: string; county: string; salePrice: number; saleDate: string; livingAreaSqft: number | null; bedrooms: number | null; bathrooms: number | null; yearBuilt: number | null; distanceMiles: number | null; propertyType: string }[];
@@ -158,7 +161,9 @@ export default function PropertyTaxAppeal() {
           full_name: leadForm.fullName,
           email: leadForm.email,
           phone: leadForm.phone,
-          message: `Tax appeal interest: ${address}. Assessed: $${analysis?.assessedValue?.toLocaleString() || "?"}. Overpayment: $${analysis?.overpaymentHigh?.toLocaleString() || "?"}. Likelihood: ${analysis?.appealLikelihood || "?"}`,
+          message: analysis?.savingsSuppressed
+            ? `Tax appeal interest: ${address}. ${describeTaxAppealResult(analysis).warning}`
+            : `Tax appeal interest: ${address}. Assessed: $${analysis?.assessedValue?.toLocaleString() || "?"}. Overpayment: $${analysis?.overpaymentHigh?.toLocaleString() || "?"}. Likelihood: ${analysis?.appealLikelihood || "?"}`,
           lead_type: "info_request",
           source: "tax_appeal_page",
         }),
@@ -218,7 +223,9 @@ export default function PropertyTaxAppeal() {
       {loading && <AnalysisWait title="Checking this property" note={loadingNote} />}
 
       {/* Results */}
-      {analysis && (
+      {analysis && (() => {
+        const appealView = describeTaxAppealResult(analysis);
+        return (
         <section className="pb-16">
           <div className="mx-auto max-w-4xl px-4">
             {/* Summary card */}
@@ -230,6 +237,7 @@ export default function PropertyTaxAppeal() {
                     NJ Chapter 123 Common Level Ratio Analysis
                   </p>
                 </div>
+                {appealView.showCaseStrength && (
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
                     analysis.appealLikelihood === "high"
@@ -245,10 +253,19 @@ export default function PropertyTaxAppeal() {
                       ? "Possible Case"
                       : "Unlikely Benefit"}
                 </span>
+                )}
               </div>
 
+              {appealView.suppressed && (
+                <div className="mt-4 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+                  <p className="text-xs font-bold uppercase tracking-widest text-amber-800">Consult a tax appeal attorney</p>
+                  <p className="mt-2 text-base font-medium">{appealView.warning}</p>
+                </div>
+              )}
+
               {/* Key numbers */}
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className={`mt-6 grid gap-4 ${appealView.showSavings ? "sm:grid-cols-3" : "sm:grid-cols-1"}`}>
+                {appealView.showSavings && (
                 <div className="rounded-lg bg-gray-50 p-4">
                   <p className="text-xs font-medium uppercase text-gray-500">Estimated Overpayment</p>
                   <p className="mt-1 text-2xl font-bold text-gray-900">
@@ -258,12 +275,15 @@ export default function PropertyTaxAppeal() {
                   </p>
                   <p className="text-xs text-gray-500">per year</p>
                 </div>
+                )}
+                {appealView.showCaseStrength && (
                 <div className="rounded-lg bg-gray-50 p-4">
                   <p className="text-xs font-medium uppercase text-gray-500">Appeal Likelihood</p>
                   <p className="mt-1 text-2xl font-bold capitalize text-gray-900">
                     {analysis.appealLikelihood}
                   </p>
                 </div>
+                )}
                 <div className="rounded-lg bg-gray-50 p-4">
                   <p className="text-xs font-medium uppercase text-gray-500">Filing Deadline</p>
                   <p className="mt-1 text-2xl font-bold text-gray-900">
@@ -552,7 +572,8 @@ export default function PropertyTaxAppeal() {
             */}
           </div>
         </section>
-      )}
+        );
+      })()}
 
       {/* How it works (shown before any analysis) */}
       {!analysis && !loading && (
