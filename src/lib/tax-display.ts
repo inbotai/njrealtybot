@@ -134,3 +134,56 @@ export function appealTaxYear(
 export function taxYearRatiosLabel(year: number): string {
   return `Tax year ${year} ratios`;
 }
+
+export function isSavingsSuppressed(data?: { savingsSuppressed?: unknown } | null): boolean {
+  return data?.savingsSuppressed === true;
+}
+
+/** Attorney notice for a suppressed multi-unit / Class 4 analysis. Empty when the API did not send one. */
+export function suppressedAppealWarning(data?: { propertyTypeWarning?: string | null; caseStrengthExplanation?: string | null } | null): string {
+  return (data?.propertyTypeWarning || data?.caseStrengthExplanation || "").trim();
+}
+
+/**
+ * What the tax screens and Vale follow-ups should show.
+ * A normal 1–4 family result keeps savings and case strength even if a property-type note is present.
+ */
+export function describeTaxAppealResult(data?: {
+  savingsSuppressed?: unknown;
+  propertyTypeWarning?: string | null;
+  caseStrengthExplanation?: string | null;
+  address?: string | null;
+  overpaymentHigh?: number | null;
+  caseStrength?: string | null;
+} | null): {
+  suppressed: boolean;
+  showSavings: boolean;
+  showCaseStrength: boolean;
+  warning: string;
+  valeMessage: string;
+} {
+  const suppressed = isSavingsSuppressed(data);
+  const warning = suppressedAppealWarning(data);
+  const address = data?.address || "this property";
+  if (suppressed) {
+    const notice = warning || "This analysis does not estimate appeal savings. Consult a tax appeal attorney.";
+    return {
+      suppressed: true,
+      showSavings: false,
+      showCaseStrength: false,
+      warning: notice,
+      valeMessage: `Hi Vale! I checked the property taxes on ${address}. ${notice}`,
+    };
+  }
+  const strength = data?.caseStrength;
+  const valeMessage = strength === "strong" || strength === "moderate"
+    ? `Hi Vale! I just found out I may be overpaying $${Number(data?.overpaymentHigh || 0).toLocaleString()}/year in property taxes on ${address}. Can you help me with the appeal process?`
+    : `Hi Vale! I checked the property taxes on ${address}. The comparable sales do not support a lower assessment. Can you review it with me?`;
+  return {
+    suppressed: false,
+    showSavings: true,
+    showCaseStrength: true,
+    warning,
+    valeMessage,
+  };
+}

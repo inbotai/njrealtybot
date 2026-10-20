@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, nextAppealTaxYear } from "@/lib/tax-display";
+import { appealTaxYear, describeTaxAppealResult, nextAppealTaxYear } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -145,18 +145,24 @@ export default function AppealWizard() {
           updated.claimedValue = Math.round(data.estimatedMarketValueMid).toString();
         }
 
-        // Pre-select appeal reasons
-        updated.appealReasons = ["Assessment exceeds true market value", "Assessment is not in line with comparable properties"];
+        const appealView = describeTaxAppealResult(data);
+        if (appealView.suppressed) {
+          updated.appealReasons = [];
+          updated.appealNarrative = appealView.warning;
+        } else {
+          // Pre-select appeal reasons
+          updated.appealReasons = ["Assessment exceeds true market value", "Assessment is not in line with comparable properties"];
 
-        // Build narrative from Chapter 123 analysis
-        const parts: string[] = [];
-        if (data.chapter123Result === "over_assessed" && data.eqRatio) {
-          parts.push(`Under NJ Chapter 123, the county equalization ratio is ${formatPercent(data.eqRatio)}. Based on ${data.comparables?.length || 0} comparable sales, the estimated market value is $${Math.round(data.estimatedMarketValueMid || 0).toLocaleString()}, placing the current assessment above the Common Level Range upper bound.`);
+          // Build narrative from Chapter 123 analysis
+          const parts: string[] = [];
+          if (data.chapter123Result === "over_assessed" && data.eqRatio) {
+            parts.push(`Under NJ Chapter 123, the county equalization ratio is ${formatPercent(data.eqRatio)}. Based on ${data.comparables?.length || 0} comparable sales, the estimated market value is $${Math.round(data.estimatedMarketValueMid || 0).toLocaleString()}, placing the current assessment above the Common Level Range upper bound.`);
+          }
+          if (data.caseStrengthExplanation) {
+            parts.push(data.caseStrengthExplanation);
+          }
+          if (parts.length) updated.appealNarrative = parts.join("\n\n");
         }
-        if (data.caseStrengthExplanation) {
-          parts.push(data.caseStrengthExplanation);
-        }
-        if (parts.length) updated.appealNarrative = parts.join("\n\n");
 
         // Comparables
         if (data.comparables?.length) {
