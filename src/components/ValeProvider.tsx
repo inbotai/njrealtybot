@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
 import type { Listing } from "@/lib/api";
 import { useAdmin } from "./AdminAuth";
+import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -79,7 +80,7 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
 
     lastListingRef.current = listingId || null;
     const vid = localStorage.getItem("vale_vid") || "";
-    const body: any = {};
+    const body: Record<string, unknown> = valeStartBody();
     if (vid) body.visitorId = vid;
     if (listingId) body.listingId = listingId;
     const r = await postChat("start", body, isAdmin, AbortSignal.timeout(10000));
@@ -101,23 +102,23 @@ export default function ValeProvider({ children }: { children: ReactNode }) {
       const sid = await ensureSession(currentListingId);
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 60000);
-      const r = await postChat("message", { sessionId: sid, message: text }, isAdmin, controller.signal);
+      const r = await postChat("message", { sessionId: sid, message: toValeModelMessage(text) }, isAdmin, controller.signal);
       clearTimeout(timeout);
       // Session expired (server restart) — auto-create new session and retry once
       if (r.status === 410) {
         sessionRef.current = null;
         const newSid = await ensureSession(currentListingId);
-        const r2 = await postChat("message", { sessionId: newSid, message: text }, isAdmin, AbortSignal.timeout(60000));
+        const r2 = await postChat("message", { sessionId: newSid, message: toValeModelMessage(text) }, isAdmin, AbortSignal.timeout(60000));
         if (!r2.ok) throw new Error(`chat/message retry ${r2.status}`);
         const d2 = await r2.json();
-        const reply2 = d2.reply || d2.error || "Something went wrong.";
+        const reply2 = finalizeValeReply(text, d2.reply || d2.error || "Something went wrong.");
         setMessages(prev => [...prev, { role: "assistant", text: reply2 }]);
         setLoading(false);
         return;
       }
       if (!r.ok) throw new Error(`chat/message ${r.status}`);
       const d = await r.json();
-      const reply = d.reply || d.error || "Something went wrong.";
+      const reply = finalizeValeReply(text, d.reply || d.error || "Something went wrong.");
       setMessages(prev => [...prev, { role: "assistant", text: reply }]);
 
       // Extract listing IDs from response and fetch them

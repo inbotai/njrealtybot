@@ -8,6 +8,7 @@ import { getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import VoiceButton from "./VoiceButton";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
+import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -95,8 +96,7 @@ export default function ValeChatPage() {
     if (sessionPromise.current) return sessionPromise.current;
     sessionPromise.current = (async () => {
       const vid = localStorage.getItem("vale_vid") || "";
-      const body: Record<string, string> = {};
-      if (vid) body.visitorId = vid;
+      const body = valeStartBody(vid ? { visitorId: vid } : {});
       const r = await fetch(`${IDX_API}/api/idx/chat/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,12 +141,12 @@ export default function ValeChatPage() {
         const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: sid, message: trimmed }),
+          body: JSON.stringify({ sessionId: sid, message: toValeModelMessage(trimmed) }),
           signal: AbortSignal.timeout(60000),
         });
         if (!r.ok) throw new Error(`Message failed: ${r.status}`);
         const d = await r.json();
-        const reply = d.reply || d.error || "Something went wrong.";
+        const reply = finalizeValeReply(trimmed, d.reply || d.error || "Something went wrong.");
 
         // Extract listing IDs and fetch them
         const ids = [...reply.matchAll(/\[ID:([a-f0-9-]{36})\]/gi)].map(

@@ -1,0 +1,3391 @@
+{
+  "year": 2025,
+  "source": "https://nj.gov/treasury/taxation/pdf/lpt/gtr/2025taxrates.pdf",
+  "description": "Official 2025 general and effective tax rates for every New Jersey municipality. General rate is per $100 of assessed value. Effective rate is per $100 of market value. Equalization ratio = effective / general.",
+  "municipalities": [
+    {
+      "county": "Atlantic",
+      "district": "ABSECON CITY",
+      "general": 3.517,
+      "effective": 2.41
+    },
+    {
+      "county": "Atlantic",
+      "district": "ATLANTIC CITY CITY",
+      "general": 3.38,
+      "effective": 2.155
+    },
+    {
+      "county": "Atlantic",
+      "district": "BRIGANTINE CITY",
+      "general": 1.953,
+      "effective": 1.084
+    },
+    {
+      "county": "Atlantic",
+      "district": "BUENA BORO",
+      "general": 3.408,
+      "effective": 2.708
+    },
+    {
+      "county": "Atlantic",
+      "district": "BUENA VISTA TWP",
+      "general": 3.018,
+      "effective": 2.187
+    },
+    {
+      "county": "Atlantic",
+      "district": "CORBIN CITY CITY",
+      "general": 2.247,
+      "effective": 1.355
+    },
+    {
+      "county": "Atlantic",
+      "district": "EGG HARBOR CITY",
+      "general": 5.568,
+      "effective": 3.124
+    },
+    {
+      "county": "Atlantic",
+      "district": "EGG HARBOR TWP",
+      "general": 3.401,
+      "effective": 2.284
+    },
+    {
+      "county": "Atlantic",
+      "district": "ESTELL MANOR CITY",
+      "general": 2.949,
+      "effective": 1.89
+    },
+    {
+      "county": "Atlantic",
+      "district": "FOLSOM BORO",
+      "general": 2.349,
+      "effective": 1.637
+    },
+    {
+      "county": "Atlantic",
+      "district": "GALLOWAY TWP",
+      "general": 3.39,
+      "effective": 2.083
+    },
+    {
+      "county": "Atlantic",
+      "district": "HAMILTON TWP",
+      "general": 3.52,
+      "effective": 2.179
+    },
+    {
+      "county": "Atlantic",
+      "district": "HAMMONTON TOWN",
+      "general": 2.817,
+      "effective": 2.066
+    },
+    {
+      "county": "Atlantic",
+      "district": "LINWOOD CITY",
+      "general": 3.929,
+      "effective": 2.746
+    },
+    {
+      "county": "Atlantic",
+      "district": "LONGPORT BORO",
+      "general": 1.111,
+      "effective": 0.698
+    },
+    {
+      "county": "Atlantic",
+      "district": "MARGATE CITY CITY",
+      "general": 1.787,
+      "effective": 0.92
+    },
+    {
+      "county": "Atlantic",
+      "district": "MULLICA TWP",
+      "general": 3.966,
+      "effective": 2.369
+    },
+    {
+      "county": "Atlantic",
+      "district": "NORTHFIELD CITY",
+      "general": 3.778,
+      "effective": 2.631
+    },
+    {
+      "county": "Atlantic",
+      "district": "PLEASANTVILLE CITY",
+      "general": 5.421,
+      "effective": 3.392
+    },
+    {
+      "county": "Atlantic",
+      "district": "PORT REPUBLIC CITY",
+      "general": 3.804,
+      "effective": 2.039
+    },
+    {
+      "county": "Atlantic",
+      "district": "SOMERS POINT CITY",
+      "general": 3.722,
+      "effective": 2.308
+    },
+    {
+      "county": "Atlantic",
+      "district": "VENTNOR CITY",
+      "general": 2.824,
+      "effective": 1.597
+    },
+    {
+      "county": "Atlantic",
+      "district": "WEYMOUTH TWP",
+      "general": 3.108,
+      "effective": 1.916
+    },
+    {
+      "county": "Bergen",
+      "district": "ALLENDALE BORO",
+      "general": 2.03,
+      "effective": 1.971
+    },
+    {
+      "county": "Bergen",
+      "district": "ALPINE BORO",
+      "general": 0.837,
+      "effective": 0.794
+    },
+    {
+      "county": "Bergen",
+      "district": "BERGENFIELD BORO",
+      "general": 3.738,
+      "effective": 2.202
+    },
+    {
+      "county": "Bergen",
+      "district": "BOGOTA BORO",
+      "general": 2.398,
+      "effective": 2.293
+    },
+    {
+      "county": "Bergen",
+      "district": "CARLSTADT BORO",
+      "general": 1.705,
+      "effective": 1.681
+    },
+    {
+      "county": "Bergen",
+      "district": "CLIFFSIDE PARK BORO",
+      "general": 2.836,
+      "effective": 1.92
+    },
+    {
+      "county": "Bergen",
+      "district": "CLOSTER BORO",
+      "general": 2.072,
+      "effective": 2.017
+    },
+    {
+      "county": "Bergen",
+      "district": "CRESSKILL BORO",
+      "general": 2.269,
+      "effective": 2.014
+    },
+    {
+      "county": "Bergen",
+      "district": "DEMAREST BORO",
+      "general": 1.805,
+      "effective": 1.924
+    },
+    {
+      "county": "Bergen",
+      "district": "DUMONT BORO",
+      "general": 2.34,
+      "effective": 2.346
+    },
+    {
+      "county": "Bergen",
+      "district": "ELMWOOD PARK BORO",
+      "general": 3.202,
+      "effective": 2.15
+    },
+    {
+      "county": "Bergen",
+      "district": "E RUTHERFORD BORO",
+      "general": 1.609,
+      "effective": 1.586
+    },
+    {
+      "county": "Bergen",
+      "district": "EDGEWATER BORO",
+      "general": 1.645,
+      "effective": 1.545
+    },
+    {
+      "county": "Bergen",
+      "district": "EMERSON BORO",
+      "general": 3.42,
+      "effective": 2.423
+    },
+    {
+      "county": "Bergen",
+      "district": "ENGLEWOOD CITY",
+      "general": 3.116,
+      "effective": 2.088
+    },
+    {
+      "county": "Bergen",
+      "district": "ENGLEWOOD CLIFFS BORO",
+      "general": 1.165,
+      "effective": 0.995
+    },
+    {
+      "county": "Bergen",
+      "district": "FAIRLAWN BORO",
+      "general": 3.661,
+      "effective": 2.202
+    },
+    {
+      "county": "Bergen",
+      "district": "FAIRVIEW BORO",
+      "general": 2.275,
+      "effective": 2.075
+    },
+    {
+      "county": "Bergen",
+      "district": "FORT LEE BORO",
+      "general": 2.7,
+      "effective": 1.839
+    },
+    {
+      "county": "Bergen",
+      "district": "FRANKLIN LAKES BORO",
+      "general": 1.904,
+      "effective": 1.4
+    },
+    {
+      "county": "Bergen",
+      "district": "GARFIELD CITY",
+      "general": 3.479,
+      "effective": 1.956
+    },
+    {
+      "county": "Bergen",
+      "district": "GLEN ROCK BORO",
+      "general": 3.407,
+      "effective": 2.436
+    },
+    {
+      "county": "Bergen",
+      "district": "HACKENSACK CITY",
+      "general": 3.209,
+      "effective": 2.527
+    },
+    {
+      "county": "Bergen",
+      "district": "HARRINGTON PARK BORO",
+      "general": 3.271,
+      "effective": 2.286
+    },
+    {
+      "county": "Bergen",
+      "district": "HASBROUCK HGHTS BORO",
+      "general": 2.657,
+      "effective": 2.354
+    },
+    {
+      "county": "Bergen",
+      "district": "HAWORTH BORO",
+      "general": 3.225,
+      "effective": 2.185
+    },
+    {
+      "county": "Bergen",
+      "district": "HILLSDALE BORO",
+      "general": 3.33,
+      "effective": 2.301
+    },
+    {
+      "county": "Bergen",
+      "district": "HOHOKUS BORO",
+      "general": 2.501,
+      "effective": 1.706
+    },
+    {
+      "county": "Bergen",
+      "district": "LEONIA BORO",
+      "general": 3.609,
+      "effective": 2.199
+    },
+    {
+      "county": "Bergen",
+      "district": "LITTLE FERRY BORO",
+      "general": 2.436,
+      "effective": 2.33
+    },
+    {
+      "county": "Bergen",
+      "district": "LODI BORO",
+      "general": 3.54,
+      "effective": 2.006
+    },
+    {
+      "county": "Bergen",
+      "district": "LYNDHURST TWP",
+      "general": 2.225,
+      "effective": 2.089
+    },
+    {
+      "county": "Bergen",
+      "district": "MAHWAH TWP",
+      "general": 2.127,
+      "effective": 1.563
+    },
+    {
+      "county": "Bergen",
+      "district": "MAYWOOD BORO",
+      "general": 2.156,
+      "effective": 2.1
+    },
+    {
+      "county": "Bergen",
+      "district": "MIDLAND PARK BORO",
+      "general": 3.688,
+      "effective": 2.372
+    },
+    {
+      "county": "Bergen",
+      "district": "MONTVALE BORO",
+      "general": 2.552,
+      "effective": 1.989
+    },
+    {
+      "county": "Bergen",
+      "district": "MOONACHIE BORO",
+      "general": 1.769,
+      "effective": 1.755
+    },
+    {
+      "county": "Bergen",
+      "district": "NEW MILFORD BORO",
+      "general": 2.178,
+      "effective": 2.261
+    },
+    {
+      "county": "Bergen",
+      "district": "NORTH ARLINGTON BORO",
+      "general": 2.236,
+      "effective": 2.187
+    },
+    {
+      "county": "Bergen",
+      "district": "NORTHVALE BORO",
+      "general": 3.328,
+      "effective": 2.266
+    },
+    {
+      "county": "Bergen",
+      "district": "NORWOOD BORO",
+      "general": 2.892,
+      "effective": 2.054
+    },
+    {
+      "county": "Bergen",
+      "district": "OAKLAND BORO",
+      "general": 2.185,
+      "effective": 2.168
+    },
+    {
+      "county": "Bergen",
+      "district": "OLD TAPPAN BORO",
+      "general": 2.346,
+      "effective": 1.785
+    },
+    {
+      "county": "Bergen",
+      "district": "ORADELL BORO",
+      "general": 2.295,
+      "effective": 2.251
+    },
+    {
+      "county": "Bergen",
+      "district": "PALISADES PARK BORO",
+      "general": 1.463,
+      "effective": 1.393
+    },
+    {
+      "county": "Bergen",
+      "district": "PARAMUS BORO",
+      "general": 1.499,
+      "effective": 1.434
+    },
+    {
+      "county": "Bergen",
+      "district": "PARK RIDGE BORO",
+      "general": 3.333,
+      "effective": 2.195
+    },
+    {
+      "county": "Bergen",
+      "district": "RAMSEY BORO",
+      "general": 2.059,
+      "effective": 2.068
+    },
+    {
+      "county": "Bergen",
+      "district": "RIDGEFIELD BORO",
+      "general": 1.694,
+      "effective": 1.723
+    },
+    {
+      "county": "Bergen",
+      "district": "RIDGEFIELD PARK VILLAGE",
+      "general": 3.061,
+      "effective": 2.598
+    },
+    {
+      "county": "Bergen",
+      "district": "RIDGEWOOD VILLAGE",
+      "general": 2.89,
+      "effective": 1.944
+    },
+    {
+      "county": "Bergen",
+      "district": "RIVEREDGE BORO",
+      "general": 2.42,
+      "effective": 2.459
+    },
+    {
+      "county": "Bergen",
+      "district": "RIVERVALE TWP",
+      "general": 2.801,
+      "effective": 2.236
+    },
+    {
+      "county": "Bergen",
+      "district": "ROCHELLE PARK TWP",
+      "general": 2.934,
+      "effective": 2.004
+    },
+    {
+      "county": "Bergen",
+      "district": "ROCKLEIGH BORO",
+      "general": 0.839,
+      "effective": 0.871
+    },
+    {
+      "county": "Bergen",
+      "district": "RUTHERFORD BORO",
+      "general": 3.2,
+      "effective": 2.314
+    },
+    {
+      "county": "Bergen",
+      "district": "SADDLE BROOK TWP",
+      "general": 2.373,
+      "effective": 2.173
+    },
+    {
+      "county": "Bergen",
+      "district": "SADDLE RIVER BORO",
+      "general": 1.067,
+      "effective": 1.03
+    },
+    {
+      "county": "Bergen",
+      "district": "SO HACKENSACK TWP",
+      "general": 1.851,
+      "effective": 1.885
+    },
+    {
+      "county": "Bergen",
+      "district": "TEANECK TWP",
+      "general": 2.292,
+      "effective": 2.219
+    },
+    {
+      "county": "Bergen",
+      "district": "TENAFLY BORO",
+      "general": 2.973,
+      "effective": 2.086
+    },
+    {
+      "county": "Bergen",
+      "district": "TETERBORO BORO",
+      "general": 1.05,
+      "effective": 0.891
+    },
+    {
+      "county": "Bergen",
+      "district": "UPPER SADDLE RIV BORO",
+      "general": 2.59,
+      "effective": 1.75
+    },
+    {
+      "county": "Bergen",
+      "district": "WALDWICK BORO",
+      "general": 2.295,
+      "effective": 2.167
+    },
+    {
+      "county": "Bergen",
+      "district": "WALLINGTON BORO",
+      "general": 1.95,
+      "effective": 2.013
+    },
+    {
+      "county": "Bergen",
+      "district": "WASHINGTON TWP",
+      "general": 2.859,
+      "effective": 1.943
+    },
+    {
+      "county": "Bergen",
+      "district": "WESTWOOD BORO",
+      "general": 2.162,
+      "effective": 2.11
+    },
+    {
+      "county": "Bergen",
+      "district": "WOODCLIFF LAKE BORO",
+      "general": 2.186,
+      "effective": 2.043
+    },
+    {
+      "county": "Bergen",
+      "district": "WOOD RIDGE BORO",
+      "general": 2.99,
+      "effective": 2.019
+    },
+    {
+      "county": "Bergen",
+      "district": "WYCKOFF TWP",
+      "general": 2.026,
+      "effective": 1.708
+    },
+    {
+      "county": "Burlington",
+      "district": "BASS RIVER TWP",
+      "general": 2.237,
+      "effective": 1.576
+    },
+    {
+      "county": "Burlington",
+      "district": "BEVERLY CITY",
+      "general": 4.957,
+      "effective": 3.18
+    },
+    {
+      "county": "Burlington",
+      "district": "BORDENTOWN CITY",
+      "general": 3.888,
+      "effective": 2.543
+    },
+    {
+      "county": "Burlington",
+      "district": "BORDENTOWN TWP",
+      "general": 3.469,
+      "effective": 2.022
+    },
+    {
+      "county": "Burlington",
+      "district": "BURLINGTON CITY",
+      "general": 4.441,
+      "effective": 2.978
+    },
+    {
+      "county": "Burlington",
+      "district": "BURLINGTON TWP",
+      "general": 2.944,
+      "effective": 2.017
+    },
+    {
+      "county": "Burlington",
+      "district": "CHESTERFIELD TWP",
+      "general": 3.41,
+      "effective": 2.305
+    },
+    {
+      "county": "Burlington",
+      "district": "CINNAMINSON TWP",
+      "general": 3.669,
+      "effective": 2.141
+    },
+    {
+      "county": "Burlington",
+      "district": "DELANCO TWP",
+      "general": 3.583,
+      "effective": 2.3
+    },
+    {
+      "county": "Burlington",
+      "district": "DELRAN TWP",
+      "general": 3.845,
+      "effective": 2.341
+    },
+    {
+      "county": "Burlington",
+      "district": "EASTAMPTON TWP",
+      "general": 3.459,
+      "effective": 2.168
+    },
+    {
+      "county": "Burlington",
+      "district": "EDGEWATER PARK TWP",
+      "general": 3.345,
+      "effective": 2.42
+    },
+    {
+      "county": "Burlington",
+      "district": "EVESHAM TWP",
+      "general": 3.451,
+      "effective": 2.288
+    },
+    {
+      "county": "Burlington",
+      "district": "FIELDSBORO BORO",
+      "general": 3.02,
+      "effective": 2.178
+    },
+    {
+      "county": "Burlington",
+      "district": "FLORENCE TWP",
+      "general": 2.79,
+      "effective": 2.381
+    },
+    {
+      "county": "Burlington",
+      "district": "HAINESPORT TWP",
+      "general": 2.948,
+      "effective": 1.924
+    },
+    {
+      "county": "Burlington",
+      "district": "LUMBERTON TWP",
+      "general": 3.039,
+      "effective": 2.106
+    },
+    {
+      "county": "Burlington",
+      "district": "MANSFIELD TWP",
+      "general": 3.222,
+      "effective": 2.229
+    },
+    {
+      "county": "Burlington",
+      "district": "MAPLE SHADE TWP",
+      "general": 3.958,
+      "effective": 2.441
+    },
+    {
+      "county": "Burlington",
+      "district": "MEDFORD TWP",
+      "general": 3.754,
+      "effective": 2.311
+    },
+    {
+      "county": "Burlington",
+      "district": "MEDFORD LAKES BORO",
+      "general": 4.023,
+      "effective": 2.443
+    },
+    {
+      "county": "Burlington",
+      "district": "MOORESTOWN TWP",
+      "general": 2.813,
+      "effective": 1.842
+    },
+    {
+      "county": "Burlington",
+      "district": "MT HOLLY TWP",
+      "general": 3.49,
+      "effective": 2.258
+    },
+    {
+      "county": "Burlington",
+      "district": "MT LAUREL TWP",
+      "general": 3.129,
+      "effective": 2.017
+    },
+    {
+      "county": "Burlington",
+      "district": "NEW HANOVER TWP",
+      "general": 3.22,
+      "effective": 1.584
+    },
+    {
+      "county": "Burlington",
+      "district": "NO HANOVER TWP",
+      "general": 2.488,
+      "effective": 1.753
+    },
+    {
+      "county": "Burlington",
+      "district": "PALMYRA BORO",
+      "general": 4.589,
+      "effective": 2.752
+    },
+    {
+      "county": "Burlington",
+      "district": "PEMBERTON BORO",
+      "general": 2.91,
+      "effective": 2.038
+    },
+    {
+      "county": "Burlington",
+      "district": "PEMBERTON TWP",
+      "general": 3.253,
+      "effective": 2.118
+    },
+    {
+      "county": "Burlington",
+      "district": "RIVERSIDE TWP",
+      "general": 4.09,
+      "effective": 2.567
+    },
+    {
+      "county": "Burlington",
+      "district": "RIVERTON BORO",
+      "general": 4.087,
+      "effective": 2.615
+    },
+    {
+      "county": "Burlington",
+      "district": "SHAMONG TWP",
+      "general": 3.323,
+      "effective": 2.052
+    },
+    {
+      "county": "Burlington",
+      "district": "SOUTHAMPTON TWP",
+      "general": 3.353,
+      "effective": 1.885
+    },
+    {
+      "county": "Burlington",
+      "district": "SPRINGFIELD TWP",
+      "general": 3.372,
+      "effective": 2.113
+    },
+    {
+      "county": "Burlington",
+      "district": "TABERNACLE TWP",
+      "general": 3.382,
+      "effective": 2.112
+    },
+    {
+      "county": "Burlington",
+      "district": "WASHINGTON TWP",
+      "general": 2.103,
+      "effective": 1.591
+    },
+    {
+      "county": "Burlington",
+      "district": "WESTAMPTON TWP",
+      "general": 3.079,
+      "effective": 2.154
+    },
+    {
+      "county": "Burlington",
+      "district": "WILLINGBORO TWP",
+      "general": 4.405,
+      "effective": 2.717
+    },
+    {
+      "county": "Burlington",
+      "district": "WOODLAND TWP",
+      "general": 2.982,
+      "effective": 2.398
+    },
+    {
+      "county": "Burlington",
+      "district": "WRIGHTSTOWN BORO",
+      "general": 3.777,
+      "effective": 2.051
+    },
+    {
+      "county": "Camden",
+      "district": "AUDUBON BORO",
+      "general": 4.2,
+      "effective": 2.825
+    },
+    {
+      "county": "Camden",
+      "district": "AUDUBON PARK BORO",
+      "general": 6.918,
+      "effective": 6.867
+    },
+    {
+      "county": "Camden",
+      "district": "BARRINGTON BORO",
+      "general": 4.999,
+      "effective": 3.006
+    },
+    {
+      "county": "Camden",
+      "district": "BELLMAWR BORO",
+      "general": 3.844,
+      "effective": 2.892
+    },
+    {
+      "county": "Camden",
+      "district": "BERLIN BORO",
+      "general": 3.472,
+      "effective": 2.519
+    },
+    {
+      "county": "Camden",
+      "district": "BERLIN TWP",
+      "general": 3.942,
+      "effective": 2.545
+    },
+    {
+      "county": "Camden",
+      "district": "BROOKLAWN BORO",
+      "general": 4.434,
+      "effective": 2.859
+    },
+    {
+      "county": "Camden",
+      "district": "CAMDEN CITY",
+      "general": 3.687,
+      "effective": 2.329
+    },
+    {
+      "county": "Camden",
+      "district": "CHERRY HILL TWNSHP",
+      "general": 4.348,
+      "effective": 2.598
+    },
+    {
+      "county": "Camden",
+      "district": "CHESILHURST BORO",
+      "general": 4.724,
+      "effective": 3.391
+    },
+    {
+      "county": "Camden",
+      "district": "CLEMENTON BORO",
+      "general": 4.776,
+      "effective": 3.162
+    },
+    {
+      "county": "Camden",
+      "district": "COLLINGSWOOD BORO",
+      "general": 2.231,
+      "effective": 2.438
+    },
+    {
+      "county": "Camden",
+      "district": "GIBBSBORO BORO",
+      "general": 4.663,
+      "effective": 3.48
+    },
+    {
+      "county": "Camden",
+      "district": "GLOUCESTER CITY",
+      "general": 5.293,
+      "effective": 3.251
+    },
+    {
+      "county": "Camden",
+      "district": "GLOUCESTER TWP",
+      "general": 4.179,
+      "effective": 2.703
+    },
+    {
+      "county": "Camden",
+      "district": "HADDON TWP",
+      "general": 2.179,
+      "effective": 2.4
+    },
+    {
+      "county": "Camden",
+      "district": "HADDONFIELD BORO",
+      "general": 3.315,
+      "effective": 2.563
+    },
+    {
+      "county": "Camden",
+      "district": "HADDON HEIGHTS BORO",
+      "general": 3.492,
+      "effective": 2.996
+    },
+    {
+      "county": "Camden",
+      "district": "HI NELLA BORO",
+      "general": 6.764,
+      "effective": 4.276
+    },
+    {
+      "county": "Camden",
+      "district": "LAUREL SPRINGS BORO",
+      "general": 5.729,
+      "effective": 3.793
+    },
+    {
+      "county": "Camden",
+      "district": "LAWNSIDE BORO",
+      "general": 4.876,
+      "effective": 3.103
+    },
+    {
+      "county": "Camden",
+      "district": "LINDENWOLD BORO",
+      "general": 4.769,
+      "effective": 3.287
+    },
+    {
+      "county": "Camden",
+      "district": "MAGNOLIA BORO",
+      "general": 4.967,
+      "effective": 2.961
+    },
+    {
+      "county": "Camden",
+      "district": "MERCHANTVILLE BORO",
+      "general": 5.502,
+      "effective": 3.559
+    },
+    {
+      "county": "Camden",
+      "district": "MOUNT EPHRAIM BORO",
+      "general": 5.349,
+      "effective": 3.341
+    },
+    {
+      "county": "Camden",
+      "district": "OAKLYN BORO",
+      "general": 5.625,
+      "effective": 3.296
+    },
+    {
+      "county": "Camden",
+      "district": "PENNSAUKEN TWP",
+      "general": 2.172,
+      "effective": 2.396
+    },
+    {
+      "county": "Camden",
+      "district": "PINE HILL BORO",
+      "general": 5.508,
+      "effective": 3.07
+    },
+    {
+      "county": "Camden",
+      "district": "RUNNEMEDE BORO",
+      "general": 4.781,
+      "effective": 2.856
+    },
+    {
+      "county": "Camden",
+      "district": "SOMERDALE BORO",
+      "general": 4.798,
+      "effective": 2.873
+    },
+    {
+      "county": "Camden",
+      "district": "STRATFORD BORO",
+      "general": 5.001,
+      "effective": 3.01
+    },
+    {
+      "county": "Camden",
+      "district": "TAVISTOCK BORO",
+      "general": 1.454,
+      "effective": 1.445
+    },
+    {
+      "county": "Camden",
+      "district": "VOORHEES TWP",
+      "general": 2.574,
+      "effective": 2.765
+    },
+    {
+      "county": "Camden",
+      "district": "WATERFORD TWP",
+      "general": 4.56,
+      "effective": 2.724
+    },
+    {
+      "county": "Camden",
+      "district": "WINSLOW TWP",
+      "general": 3.695,
+      "effective": 2.293
+    },
+    {
+      "county": "Camden",
+      "district": "WOODLYNNE BORO",
+      "general": 8.103,
+      "effective": 4.334
+    },
+    {
+      "county": "Cape May",
+      "district": "AVALON BORO",
+      "general": 0.608,
+      "effective": 0.348
+    },
+    {
+      "county": "Cape May",
+      "district": "CAPE MAY CITY",
+      "general": 1.093,
+      "effective": 0.587
+    },
+    {
+      "county": "Cape May",
+      "district": "CAPE MAY POINT BORO",
+      "general": 0.766,
+      "effective": 0.416
+    },
+    {
+      "county": "Cape May",
+      "district": "DENNIS TWP",
+      "general": 2.145,
+      "effective": 1.395
+    },
+    {
+      "county": "Cape May",
+      "district": "LOWER TWP",
+      "general": 2.018,
+      "effective": 1.014
+    },
+    {
+      "county": "Cape May",
+      "district": "MIDDLE TWP",
+      "general": 2.082,
+      "effective": 1.388
+    },
+    {
+      "county": "Cape May",
+      "district": "NORTH WILDWOOD CITY",
+      "general": 1.585,
+      "effective": 0.878
+    },
+    {
+      "county": "Cape May",
+      "district": "OCEAN CITY CITY",
+      "general": 1.16,
+      "effective": 0.64
+    },
+    {
+      "county": "Cape May",
+      "district": "SEA ISLE CITY CITY",
+      "general": 0.905,
+      "effective": 0.453
+    },
+    {
+      "county": "Cape May",
+      "district": "STONE HARBOR BORO",
+      "general": 0.776,
+      "effective": 0.413
+    },
+    {
+      "county": "Cape May",
+      "district": "UPPER TWP",
+      "general": 2.303,
+      "effective": 1.437
+    },
+    {
+      "county": "Cape May",
+      "district": "WEST CAPE MAY BORO",
+      "general": 1.444,
+      "effective": 0.69
+    },
+    {
+      "county": "Cape May",
+      "district": "WEST WILDWOOD BORO",
+      "general": 2.07,
+      "effective": 1.036
+    },
+    {
+      "county": "Cape May",
+      "district": "WILDWOOD CITY",
+      "general": 3.084,
+      "effective": 1.577
+    },
+    {
+      "county": "Cape May",
+      "district": "WILDWOOD CREST BORO",
+      "general": 1.447,
+      "effective": 0.863
+    },
+    {
+      "county": "Cape May",
+      "district": "WOODBINE BORO",
+      "general": 1.712,
+      "effective": 1.391
+    },
+    {
+      "county": "Cumberland",
+      "district": "BRIDGETON CITY",
+      "general": 5.79,
+      "effective": 3.625
+    },
+    {
+      "county": "Cumberland",
+      "district": "COMMERCIAL TWP",
+      "general": 2.758,
+      "effective": 2.164
+    },
+    {
+      "county": "Cumberland",
+      "district": "DEERFIELD TWP",
+      "general": 3.894,
+      "effective": 2.594
+    },
+    {
+      "county": "Cumberland",
+      "district": "DOWNE TWP",
+      "general": 2.933,
+      "effective": 2.453
+    },
+    {
+      "county": "Cumberland",
+      "district": "FAIRFIELD TWP",
+      "general": 2.975,
+      "effective": 2.599
+    },
+    {
+      "county": "Cumberland",
+      "district": "GREENWICH TWP",
+      "general": 3.642,
+      "effective": 2.807
+    },
+    {
+      "county": "Cumberland",
+      "district": "HOPEWELL TWP",
+      "general": 3.693,
+      "effective": 2.501
+    },
+    {
+      "county": "Cumberland",
+      "district": "LAWRENCE TWP",
+      "general": 2.98,
+      "effective": 2.452
+    },
+    {
+      "county": "Cumberland",
+      "district": "MAURICE RIVER TWP",
+      "general": 2.668,
+      "effective": 2.307
+    },
+    {
+      "county": "Cumberland",
+      "district": "MILLVILLE CITY",
+      "general": 4.056,
+      "effective": 2.427
+    },
+    {
+      "county": "Cumberland",
+      "district": "SHILOH BORO",
+      "general": 3.147,
+      "effective": 2.638
+    },
+    {
+      "county": "Cumberland",
+      "district": "STOW CREEK TWP",
+      "general": 2.995,
+      "effective": 2.612
+    },
+    {
+      "county": "Cumberland",
+      "district": "UPPER DEERFIELD TWP",
+      "general": 3.293,
+      "effective": 2.511
+    },
+    {
+      "county": "Cumberland",
+      "district": "VINELAND CITY",
+      "general": 3.309,
+      "effective": 2.193
+    },
+    {
+      "county": "Essex",
+      "district": "BELLEVILLE TWP",
+      "general": 4.157,
+      "effective": 2.71
+    },
+    {
+      "county": "Essex",
+      "district": "BLOOMFIELD TWP",
+      "general": 3.489,
+      "effective": 2.391
+    },
+    {
+      "county": "Essex",
+      "district": "CALDWELL BORO TWP",
+      "general": 3.257,
+      "effective": 2.254
+    },
+    {
+      "county": "Essex",
+      "district": "CEDAR GROVE TWP",
+      "general": 2.603,
+      "effective": 1.943
+    },
+    {
+      "county": "Essex",
+      "district": "EAST ORANGE CITY",
+      "general": 3.241,
+      "effective": 2.886
+    },
+    {
+      "county": "Essex",
+      "district": "ESSEX FELLS TWP",
+      "general": 2.311,
+      "effective": 1.885
+    },
+    {
+      "county": "Essex",
+      "district": "FAIRFIELD TWP",
+      "general": 2.081,
+      "effective": 1.645
+    },
+    {
+      "county": "Essex",
+      "district": "GLEN RIDGE TWP",
+      "general": 3.508,
+      "effective": 2.257
+    },
+    {
+      "county": "Essex",
+      "district": "IRVINGTON TWP",
+      "general": 2.587,
+      "effective": 2.913
+    },
+    {
+      "county": "Essex",
+      "district": "LIVINGSTON TWP",
+      "general": 2.531,
+      "effective": 1.882
+    },
+    {
+      "county": "Essex",
+      "district": "MAPLEWOOD TWP",
+      "general": 2.401,
+      "effective": 2.434
+    },
+    {
+      "county": "Essex",
+      "district": "MILLBURN TWP",
+      "general": 2.019,
+      "effective": 1.571
+    },
+    {
+      "county": "Essex",
+      "district": "MONTCLAIR TWP",
+      "general": 3.516,
+      "effective": 2.16
+    },
+    {
+      "county": "Essex",
+      "district": "NEWARK CITY",
+      "general": 3.999,
+      "effective": 1.845
+    },
+    {
+      "county": "Essex",
+      "district": "NORTH CALDWELL TWP",
+      "general": 2.308,
+      "effective": 1.769
+    },
+    {
+      "county": "Essex",
+      "district": "NUTLEY TWP",
+      "general": 2.699,
+      "effective": 2.426
+    },
+    {
+      "county": "Essex",
+      "district": "ORANGE CITY TWP",
+      "general": 4.03,
+      "effective": 3.765
+    },
+    {
+      "county": "Essex",
+      "district": "ROSELAND BORO",
+      "general": 1.862,
+      "effective": 1.817
+    },
+    {
+      "county": "Essex",
+      "district": "SOUTH ORANGE VILLAGE TWP",
+      "general": 2.584,
+      "effective": 2.469
+    },
+    {
+      "county": "Essex",
+      "district": "VERONA TWP",
+      "general": 3.165,
+      "effective": 2.216
+    },
+    {
+      "county": "Essex",
+      "district": "WEST CALDWELL TWP",
+      "general": 2.749,
+      "effective": 2.096
+    },
+    {
+      "county": "Essex",
+      "district": "WEST ORANGE TWP",
+      "general": 2.627,
+      "effective": 3.08
+    },
+    {
+      "county": "Gloucester",
+      "district": "CLAYTON BORO",
+      "general": 2.569,
+      "effective": 2.586
+    },
+    {
+      "county": "Gloucester",
+      "district": "DEPTFORD TWP",
+      "general": 3.44,
+      "effective": 2.309
+    },
+    {
+      "county": "Gloucester",
+      "district": "EAST GREENWICH TWP",
+      "general": 3.187,
+      "effective": 2.141
+    },
+    {
+      "county": "Gloucester",
+      "district": "ELK TWP",
+      "general": 3.688,
+      "effective": 2.361
+    },
+    {
+      "county": "Gloucester",
+      "district": "FRANKLIN TWP",
+      "general": 3.741,
+      "effective": 2.328
+    },
+    {
+      "county": "Gloucester",
+      "district": "GLASSBORO BORO",
+      "general": 3.637,
+      "effective": 2.341
+    },
+    {
+      "county": "Gloucester",
+      "district": "GREENWICH TWP",
+      "general": 3.566,
+      "effective": 2.337
+    },
+    {
+      "county": "Gloucester",
+      "district": "HARRISON TWP",
+      "general": 3.3,
+      "effective": 2.138
+    },
+    {
+      "county": "Gloucester",
+      "district": "LOGAN TWP",
+      "general": 1.445,
+      "effective": 1.487
+    },
+    {
+      "county": "Gloucester",
+      "district": "MANTUA TWP",
+      "general": 2.516,
+      "effective": 2.287
+    },
+    {
+      "county": "Gloucester",
+      "district": "MONROE TWP",
+      "general": 3.769,
+      "effective": 2.473
+    },
+    {
+      "county": "Gloucester",
+      "district": "NATIONAL PARK BORO",
+      "general": 4.783,
+      "effective": 3.111
+    },
+    {
+      "county": "Gloucester",
+      "district": "NEWFIELD BORO",
+      "general": 3.743,
+      "effective": 2.441
+    },
+    {
+      "county": "Gloucester",
+      "district": "PAULSBORO BORO",
+      "general": 4.854,
+      "effective": 3.225
+    },
+    {
+      "county": "Gloucester",
+      "district": "PITMAN BORO",
+      "general": 3.596,
+      "effective": 2.817
+    },
+    {
+      "county": "Gloucester",
+      "district": "SO HARRISON TWP",
+      "general": 3.306,
+      "effective": 2.049
+    },
+    {
+      "county": "Gloucester",
+      "district": "SWEDESBORO BORO",
+      "general": 4.358,
+      "effective": 2.672
+    },
+    {
+      "county": "Gloucester",
+      "district": "WASHINGTON TWP",
+      "general": 3.665,
+      "effective": 2.412
+    },
+    {
+      "county": "Gloucester",
+      "district": "WENONAH BORO",
+      "general": 4.481,
+      "effective": 3.02
+    },
+    {
+      "county": "Gloucester",
+      "district": "WEST DEPTFORD TWP",
+      "general": 3.483,
+      "effective": 2.279
+    },
+    {
+      "county": "Gloucester",
+      "district": "WESTVILLE BORO",
+      "general": 5.387,
+      "effective": 3.169
+    },
+    {
+      "county": "Gloucester",
+      "district": "WOODBURY CITY",
+      "general": 4.865,
+      "effective": 3.254
+    },
+    {
+      "county": "Gloucester",
+      "district": "WOODBURY HEIGHTS BORO",
+      "general": 4.832,
+      "effective": 3.217
+    },
+    {
+      "county": "Gloucester",
+      "district": "WOOLWICH TWP",
+      "general": 3.377,
+      "effective": 2.314
+    },
+    {
+      "county": "Hudson",
+      "district": "BAYONNE CITY",
+      "general": 2.88,
+      "effective": 1.987
+    },
+    {
+      "county": "Hudson",
+      "district": "EAST NEWARK BORO",
+      "general": 3.076,
+      "effective": 1.62
+    },
+    {
+      "county": "Hudson",
+      "district": "GUTTENBERG TOWN",
+      "general": 4.181,
+      "effective": 2.435
+    },
+    {
+      "county": "Hudson",
+      "district": "HARRISON TOWN",
+      "general": 2.384,
+      "effective": 1.704
+    },
+    {
+      "county": "Hudson",
+      "district": "HOBOKEN CITY",
+      "general": 1.805,
+      "effective": 1.07
+    },
+    {
+      "county": "Hudson",
+      "district": "JERSEY CITY CITY",
+      "general": 2.335,
+      "effective": 1.847
+    },
+    {
+      "county": "Hudson",
+      "district": "KEARNY TOWN",
+      "general": 10.848,
+      "effective": 1.985
+    },
+    {
+      "county": "Hudson",
+      "district": "NORTH BERGEN TWP",
+      "general": 1.828,
+      "effective": 1.661
+    },
+    {
+      "county": "Hudson",
+      "district": "SECAUCUS TOWN",
+      "general": 4.268,
+      "effective": 1.549
+    },
+    {
+      "county": "Hudson",
+      "district": "UNION CITY CITY",
+      "general": 1.848,
+      "effective": 1.859
+    },
+    {
+      "county": "Hudson",
+      "district": "WEEHAWKEN TWP",
+      "general": 2.046,
+      "effective": 1.853
+    },
+    {
+      "county": "Hudson",
+      "district": "WEST NEW YORK TOWN",
+      "general": 8.707,
+      "effective": 1.771
+    },
+    {
+      "county": "Hunterdon",
+      "district": "ALEXANDRIA TWP",
+      "general": 3.081,
+      "effective": 2.197
+    },
+    {
+      "county": "Hunterdon",
+      "district": "BETHLEHEM TWP",
+      "general": 2.021,
+      "effective": 2.35
+    },
+    {
+      "county": "Hunterdon",
+      "district": "BLOOMSBURY BORO",
+      "general": 3.667,
+      "effective": 2.391
+    },
+    {
+      "county": "Hunterdon",
+      "district": "CALIFON BORO",
+      "general": 3.897,
+      "effective": 2.905
+    },
+    {
+      "county": "Hunterdon",
+      "district": "CLINTON TOWN",
+      "general": 2.948,
+      "effective": 2.808
+    },
+    {
+      "county": "Hunterdon",
+      "district": "CLINTON TWP",
+      "general": 3.104,
+      "effective": 2.501
+    },
+    {
+      "county": "Hunterdon",
+      "district": "DELAWARE TWP",
+      "general": 2.883,
+      "effective": 1.946
+    },
+    {
+      "county": "Hunterdon",
+      "district": "EAST AMWELL TWP",
+      "general": 2.621,
+      "effective": 1.782
+    },
+    {
+      "county": "Hunterdon",
+      "district": "FLEMINGTON BORO",
+      "general": 2.736,
+      "effective": 2.984
+    },
+    {
+      "county": "Hunterdon",
+      "district": "FRANKLIN TWP",
+      "general": 3.005,
+      "effective": 2.664
+    },
+    {
+      "county": "Hunterdon",
+      "district": "FRENCHTOWN BORO",
+      "general": 2.731,
+      "effective": 2.7
+    },
+    {
+      "county": "Hunterdon",
+      "district": "GLEN GARDNER BORO",
+      "general": 2.057,
+      "effective": 2.405
+    },
+    {
+      "county": "Hunterdon",
+      "district": "HAMPTON BORO",
+      "general": 4.016,
+      "effective": 3.483
+    },
+    {
+      "county": "Hunterdon",
+      "district": "HIGH BRIDGE BORO",
+      "general": 3.324,
+      "effective": 3.152
+    },
+    {
+      "county": "Hunterdon",
+      "district": "HOLLAND TWP",
+      "general": 3.346,
+      "effective": 2.152
+    },
+    {
+      "county": "Hunterdon",
+      "district": "KINGWOOD TWP",
+      "general": 2.606,
+      "effective": 1.897
+    },
+    {
+      "county": "Hunterdon",
+      "district": "LAMBERTVILLE CITY",
+      "general": 2.126,
+      "effective": 1.902
+    },
+    {
+      "county": "Hunterdon",
+      "district": "LEBANON BORO",
+      "general": 2.776,
+      "effective": 2.273
+    },
+    {
+      "county": "Hunterdon",
+      "district": "LEBANON TWP",
+      "general": 2.969,
+      "effective": 2.196
+    },
+    {
+      "county": "Hunterdon",
+      "district": "MILFORD BORO",
+      "general": 4.027,
+      "effective": 2.944
+    },
+    {
+      "county": "Hunterdon",
+      "district": "RARITAN TWP",
+      "general": 3.029,
+      "effective": 2.121
+    },
+    {
+      "county": "Hunterdon",
+      "district": "READINGTON TWP",
+      "general": 2.798,
+      "effective": 2.031
+    },
+    {
+      "county": "Hunterdon",
+      "district": "STOCKTON BORO",
+      "general": 2.055,
+      "effective": 1.952
+    },
+    {
+      "county": "Hunterdon",
+      "district": "TEWKSBURY TWP",
+      "general": 2.519,
+      "effective": 1.972
+    },
+    {
+      "county": "Hunterdon",
+      "district": "UNION TWP",
+      "general": 2.197,
+      "effective": 2.085
+    },
+    {
+      "county": "Hunterdon",
+      "district": "WEST AMWELL TWP",
+      "general": 2.128,
+      "effective": 2.187
+    },
+    {
+      "county": "Mercer",
+      "district": "EAST WINDSOR TWP",
+      "general": 3.627,
+      "effective": 2.341
+    },
+    {
+      "county": "Mercer",
+      "district": "EWING TWP",
+      "general": 4.051,
+      "effective": 2.69
+    },
+    {
+      "county": "Mercer",
+      "district": "HAMILTON TWP",
+      "general": 3.708,
+      "effective": 2.434
+    },
+    {
+      "county": "Mercer",
+      "district": "HIGHTSTOWN BORO",
+      "general": 5.109,
+      "effective": 3.028
+    },
+    {
+      "county": "Mercer",
+      "district": "HOPEWELL BORO",
+      "general": 3.498,
+      "effective": 2.545
+    },
+    {
+      "county": "Mercer",
+      "district": "HOPEWELL TWP",
+      "general": 3.129,
+      "effective": 2.343
+    },
+    {
+      "county": "Mercer",
+      "district": "LAWRENCE TWP",
+      "general": 3.165,
+      "effective": 2.376
+    },
+    {
+      "county": "Mercer",
+      "district": "PENNINGTON BORO",
+      "general": 3.308,
+      "effective": 2.42
+    },
+    {
+      "county": "Mercer",
+      "district": "TRENTON CITY",
+      "general": 5.89,
+      "effective": 3.468
+    },
+    {
+      "county": "Mercer",
+      "district": "ROBBINSVILLE TWP",
+      "general": 3.488,
+      "effective": 2.345
+    },
+    {
+      "county": "Mercer",
+      "district": "WEST WINDSOR TWP",
+      "general": 3.162,
+      "effective": 2.08
+    },
+    {
+      "county": "Mercer",
+      "district": "PRINCETON",
+      "general": 2.733,
+      "effective": 1.814
+    },
+    {
+      "county": "Middlesex",
+      "district": "CARTERET BORO",
+      "general": 1.568,
+      "effective": 1.76
+    },
+    {
+      "county": "Middlesex",
+      "district": "CRANBURY TWP",
+      "general": 1.836,
+      "effective": 1.454
+    },
+    {
+      "county": "Middlesex",
+      "district": "DUNELLEN BORO",
+      "general": 2.448,
+      "effective": 2.399
+    },
+    {
+      "county": "Middlesex",
+      "district": "EAST BRUNSWICK TWP",
+      "general": 12.177,
+      "effective": 2.287
+    },
+    {
+      "county": "Middlesex",
+      "district": "EDISON TWP",
+      "general": 5.725,
+      "effective": 2.005
+    },
+    {
+      "county": "Middlesex",
+      "district": "HELMETTA BORO",
+      "general": 3.558,
+      "effective": 2.054
+    },
+    {
+      "county": "Middlesex",
+      "district": "HIGHLAND PARK BORO",
+      "general": 2.723,
+      "effective": 2.802
+    },
+    {
+      "county": "Middlesex",
+      "district": "JAMESBURG BORO",
+      "general": 6.955,
+      "effective": 2.631
+    },
+    {
+      "county": "Middlesex",
+      "district": "METUCHEN BORO",
+      "general": 7.255,
+      "effective": 2.374
+    },
+    {
+      "county": "Middlesex",
+      "district": "MIDDLESEX BORO",
+      "general": 2.12,
+      "effective": 2.164
+    },
+    {
+      "county": "Middlesex",
+      "district": "MILLTOWN BORO",
+      "general": 6.951,
+      "effective": 2.5
+    },
+    {
+      "county": "Middlesex",
+      "district": "MONROE TWP",
+      "general": 2.74,
+      "effective": 1.557
+    },
+    {
+      "county": "Middlesex",
+      "district": "NEW BRUNSWICK CITY",
+      "general": 2.688,
+      "effective": 2.092
+    },
+    {
+      "county": "Middlesex",
+      "district": "NORTH BRUNSWICK TWP",
+      "general": 6.571,
+      "effective": 2.352
+    },
+    {
+      "county": "Middlesex",
+      "district": "OLD BRIDGE TWP",
+      "general": 6.094,
+      "effective": 1.836
+    },
+    {
+      "county": "Middlesex",
+      "district": "PERTH AMBOY CITY",
+      "general": 3.178,
+      "effective": 2.296
+    },
+    {
+      "county": "Middlesex",
+      "district": "PISCATAWAY TWP",
+      "general": 1.75,
+      "effective": 1.708
+    },
+    {
+      "county": "Middlesex",
+      "district": "PLAINSBORO TWP",
+      "general": 2.766,
+      "effective": 2.294
+    },
+    {
+      "county": "Middlesex",
+      "district": "SAYREVILLE BORO",
+      "general": 6.259,
+      "effective": 2.098
+    },
+    {
+      "county": "Middlesex",
+      "district": "SOUTH AMBOY CITY",
+      "general": 3.217,
+      "effective": 2.056
+    },
+    {
+      "county": "Middlesex",
+      "district": "SOUTH BRUNSWICK TWP",
+      "general": 5.578,
+      "effective": 1.938
+    },
+    {
+      "county": "Middlesex",
+      "district": "SOUTH PLAINFIELD BORO",
+      "general": 7.316,
+      "effective": 2.023
+    },
+    {
+      "county": "Middlesex",
+      "district": "SOUTH RIVER BORO",
+      "general": 2.669,
+      "effective": 1.797
+    },
+    {
+      "county": "Middlesex",
+      "district": "SPOTSWOOD BORO",
+      "general": 3.792,
+      "effective": 2.276
+    },
+    {
+      "county": "Middlesex",
+      "district": "WOODBRIDGE TWP",
+      "general": 12.034,
+      "effective": 2.234
+    },
+    {
+      "county": "Monmouth",
+      "district": "ABERDEEN TWP",
+      "general": 1.824,
+      "effective": 1.949
+    },
+    {
+      "county": "Monmouth",
+      "district": "ALLENHURST BORO",
+      "general": 0.497,
+      "effective": 0.528
+    },
+    {
+      "county": "Monmouth",
+      "district": "ALLENTOWN BORO",
+      "general": 3.547,
+      "effective": 2.36
+    },
+    {
+      "county": "Monmouth",
+      "district": "ASBURY PARK CITY",
+      "general": 1.752,
+      "effective": 1.763
+    },
+    {
+      "county": "Monmouth",
+      "district": "ATLANTIC HIGHLANDS BORO",
+      "general": 1.53,
+      "effective": 1.538
+    },
+    {
+      "county": "Monmouth",
+      "district": "AVON BY THE SEA BORO",
+      "general": 0.923,
+      "effective": 0.71
+    },
+    {
+      "county": "Monmouth",
+      "district": "BELMAR BORO",
+      "general": 1.57,
+      "effective": 0.955
+    },
+    {
+      "county": "Monmouth",
+      "district": "BRADLEY BEACH BORO",
+      "general": 0.885,
+      "effective": 0.915
+    },
+    {
+      "county": "Monmouth",
+      "district": "BRIELLE BORO",
+      "general": 1.203,
+      "effective": 1.284
+    },
+    {
+      "county": "Monmouth",
+      "district": "COLTS NECK TOWNSHIP",
+      "general": 1.394,
+      "effective": 1.489
+    },
+    {
+      "county": "Monmouth",
+      "district": "DEAL BORO",
+      "general": 0.411,
+      "effective": 0.435
+    },
+    {
+      "county": "Monmouth",
+      "district": "EATONTOWN BORO",
+      "general": 1.758,
+      "effective": 1.576
+    },
+    {
+      "county": "Monmouth",
+      "district": "ENGLISHTOWN BORO",
+      "general": 1.799,
+      "effective": 1.93
+    },
+    {
+      "county": "Monmouth",
+      "district": "FAIR HAVEN BORO",
+      "general": 1.427,
+      "effective": 1.454
+    },
+    {
+      "county": "Monmouth",
+      "district": "FARMINGDALE BORO",
+      "general": 1.725,
+      "effective": 1.789
+    },
+    {
+      "county": "Monmouth",
+      "district": "FREEHOLD BORO",
+      "general": 2.005,
+      "effective": 2.141
+    },
+    {
+      "county": "Monmouth",
+      "district": "FREEHOLD TWP",
+      "general": 1.673,
+      "effective": 1.742
+    },
+    {
+      "county": "Monmouth",
+      "district": "HAZLET TWP",
+      "general": 1.933,
+      "effective": 1.956
+    },
+    {
+      "county": "Monmouth",
+      "district": "HIGHLANDS BORO",
+      "general": 1.71,
+      "effective": 1.935
+    },
+    {
+      "county": "Monmouth",
+      "district": "HOLMDEL TWP",
+      "general": 1.539,
+      "effective": 1.657
+    },
+    {
+      "county": "Monmouth",
+      "district": "HOWELL TWP",
+      "general": 1.659,
+      "effective": 1.708
+    },
+    {
+      "county": "Monmouth",
+      "district": "INTERLAKEN BORO",
+      "general": 0.799,
+      "effective": 0.857
+    },
+    {
+      "county": "Monmouth",
+      "district": "KEANSBURG BORO",
+      "general": 2.143,
+      "effective": 2.429
+    },
+    {
+      "county": "Monmouth",
+      "district": "KEYPORT BORO",
+      "general": 1.992,
+      "effective": 2.063
+    },
+    {
+      "county": "Monmouth",
+      "district": "LITTLE SILVER BORO",
+      "general": 1.437,
+      "effective": 1.638
+    },
+    {
+      "county": "Monmouth",
+      "district": "LOCH ARBOUR VILLAGE",
+      "general": 0.379,
+      "effective": 0.412
+    },
+    {
+      "county": "Monmouth",
+      "district": "LONG BRANCH CITY",
+      "general": 1.5,
+      "effective": 1.37
+    },
+    {
+      "county": "Monmouth",
+      "district": "MANALAPAN TWP",
+      "general": 1.645,
+      "effective": 1.671
+    },
+    {
+      "county": "Monmouth",
+      "district": "MANASQUAN BORO",
+      "general": 1.755,
+      "effective": 0.978
+    },
+    {
+      "county": "Monmouth",
+      "district": "MARLBORO TWP",
+      "general": 2.564,
+      "effective": 1.689
+    },
+    {
+      "county": "Monmouth",
+      "district": "MATAWAN BORO",
+      "general": 2.087,
+      "effective": 2.263
+    },
+    {
+      "county": "Monmouth",
+      "district": "MIDDLETOWN TWP",
+      "general": 1.614,
+      "effective": 1.735
+    },
+    {
+      "county": "Monmouth",
+      "district": "MILLSTONE TWP",
+      "general": 2.116,
+      "effective": 1.429
+    },
+    {
+      "county": "Monmouth",
+      "district": "MONMOUTH BEACH BORO",
+      "general": 0.887,
+      "effective": 0.937
+    },
+    {
+      "county": "Monmouth",
+      "district": "NEPTUNE TWP",
+      "general": 1.77,
+      "effective": 1.866
+    },
+    {
+      "county": "Monmouth",
+      "district": "NEPTUNE CITY BORO",
+      "general": 1.767,
+      "effective": 1.868
+    },
+    {
+      "county": "Monmouth",
+      "district": "OCEAN TWP",
+      "general": 1.32,
+      "effective": 1.323
+    },
+    {
+      "county": "Monmouth",
+      "district": "OCEANPORT BORO",
+      "general": 1.475,
+      "effective": 1.452
+    },
+    {
+      "county": "Monmouth",
+      "district": "RED BANK BORO",
+      "general": 1.822,
+      "effective": 1.78
+    },
+    {
+      "county": "Monmouth",
+      "district": "ROOSEVELT BORO",
+      "general": 2.385,
+      "effective": 2.417
+    },
+    {
+      "county": "Monmouth",
+      "district": "RUMSON BORO",
+      "general": 1.049,
+      "effective": 1.107
+    },
+    {
+      "county": "Monmouth",
+      "district": "SEA BRIGHT BORO",
+      "general": 0.855,
+      "effective": 0.872
+    },
+    {
+      "county": "Monmouth",
+      "district": "SEA GIRT BORO",
+      "general": 0.499,
+      "effective": 0.52
+    },
+    {
+      "county": "Monmouth",
+      "district": "SHREWSBURY BORO",
+      "general": 1.661,
+      "effective": 1.787
+    },
+    {
+      "county": "Monmouth",
+      "district": "SHREWSBURY TWP",
+      "general": 1.542,
+      "effective": 1.899
+    },
+    {
+      "county": "Monmouth",
+      "district": "LAKE COMO BORO",
+      "general": 1.002,
+      "effective": 1.109
+    },
+    {
+      "county": "Monmouth",
+      "district": "SPRING LAKE BORO",
+      "general": 0.457,
+      "effective": 0.444
+    },
+    {
+      "county": "Monmouth",
+      "district": "SPRING LAKE HEIGHTS BOR",
+      "general": 1.024,
+      "effective": 1.075
+    },
+    {
+      "county": "Monmouth",
+      "district": "TINTON FALLS BORO",
+      "general": 1.386,
+      "effective": 1.423
+    },
+    {
+      "county": "Monmouth",
+      "district": "UNION BEACH BORO",
+      "general": 2.145,
+      "effective": 2.254
+    },
+    {
+      "county": "Monmouth",
+      "district": "UPPER FREEHOLD TWP",
+      "general": 1.848,
+      "effective": 1.965
+    },
+    {
+      "county": "Monmouth",
+      "district": "WALL TWP",
+      "general": 2.127,
+      "effective": 1.352
+    },
+    {
+      "county": "Monmouth",
+      "district": "WEST LONG BRANCH BORO",
+      "general": 1.266,
+      "effective": 1.302
+    },
+    {
+      "county": "Morris",
+      "district": "BOONTON TOWN",
+      "general": 3.478,
+      "effective": 2.334
+    },
+    {
+      "county": "Morris",
+      "district": "BOONTON TWP",
+      "general": 2.538,
+      "effective": 1.967
+    },
+    {
+      "county": "Morris",
+      "district": "BUTLER BORO",
+      "general": 2.511,
+      "effective": 2.377
+    },
+    {
+      "county": "Morris",
+      "district": "CHATHAM BORO",
+      "general": 1.701,
+      "effective": 1.527
+    },
+    {
+      "county": "Morris",
+      "district": "CHATHAM TWP",
+      "general": 2.104,
+      "effective": 1.518
+    },
+    {
+      "county": "Morris",
+      "district": "CHESTER BORO",
+      "general": 2.328,
+      "effective": 2.221
+    },
+    {
+      "county": "Morris",
+      "district": "CHESTER TWP",
+      "general": 2.587,
+      "effective": 2.053
+    },
+    {
+      "county": "Morris",
+      "district": "DENVILLE TWP",
+      "general": 2.789,
+      "effective": 1.949
+    },
+    {
+      "county": "Morris",
+      "district": "DOVER TOWN",
+      "general": 3.49,
+      "effective": 2.379
+    },
+    {
+      "county": "Morris",
+      "district": "EAST HANOVER TWP",
+      "general": 2.652,
+      "effective": 1.564
+    },
+    {
+      "county": "Morris",
+      "district": "FLORHAM PARK BORO",
+      "general": 1.691,
+      "effective": 1.27
+    },
+    {
+      "county": "Morris",
+      "district": "HANOVER TWP",
+      "general": 2.052,
+      "effective": 1.541
+    },
+    {
+      "county": "Morris",
+      "district": "HARDING TWP",
+      "general": 1.234,
+      "effective": 0.983
+    },
+    {
+      "county": "Morris",
+      "district": "JEFFERSON TWP",
+      "general": 3.003,
+      "effective": 2.431
+    },
+    {
+      "county": "Morris",
+      "district": "KINNELON BORO",
+      "general": 2.985,
+      "effective": 2.418
+    },
+    {
+      "county": "Morris",
+      "district": "LINCOLN PARK BORO",
+      "general": 2.171,
+      "effective": 2.22
+    },
+    {
+      "county": "Morris",
+      "district": "MADISON BORO",
+      "general": 2.254,
+      "effective": 1.535
+    },
+    {
+      "county": "Morris",
+      "district": "MENDHAM BORO",
+      "general": 2.526,
+      "effective": 1.989
+    },
+    {
+      "county": "Morris",
+      "district": "MENDHAM TWP",
+      "general": 1.839,
+      "effective": 1.785
+    },
+    {
+      "county": "Morris",
+      "district": "MINE HILL TWP",
+      "general": 2.82,
+      "effective": 1.902
+    },
+    {
+      "county": "Morris",
+      "district": "MONTVILLE TWP",
+      "general": 2.673,
+      "effective": 1.927
+    },
+    {
+      "county": "Morris",
+      "district": "MORRIS TWP",
+      "general": 1.968,
+      "effective": 1.547
+    },
+    {
+      "county": "Morris",
+      "district": "MORRIS PLAINS BORO",
+      "general": 2.548,
+      "effective": 1.927
+    },
+    {
+      "county": "Morris",
+      "district": "MORRISTOWN TOWN",
+      "general": 1.76,
+      "effective": 1.681
+    },
+    {
+      "county": "Morris",
+      "district": "MOUNTAIN LAKES BORO",
+      "general": 2.299,
+      "effective": 2.096
+    },
+    {
+      "county": "Morris",
+      "district": "MOUNT ARLINGTON BORO",
+      "general": 2.203,
+      "effective": 1.931
+    },
+    {
+      "county": "Morris",
+      "district": "MOUNT OLIVE TWP",
+      "general": 3.366,
+      "effective": 2.378
+    },
+    {
+      "county": "Morris",
+      "district": "NETCONG BORO",
+      "general": 3.447,
+      "effective": 2.836
+    },
+    {
+      "county": "Morris",
+      "district": "PARSIPPANY TR HLS TWP",
+      "general": 3.452,
+      "effective": 2.452
+    },
+    {
+      "county": "Morris",
+      "district": "LONG HILL TWP",
+      "general": 2.201,
+      "effective": 2.104
+    },
+    {
+      "county": "Morris",
+      "district": "PEQUANNOCK TWP",
+      "general": 1.839,
+      "effective": 1.78
+    },
+    {
+      "county": "Morris",
+      "district": "RANDOLPH TWP",
+      "general": 2.932,
+      "effective": 2.263
+    },
+    {
+      "county": "Morris",
+      "district": "RIVERDALE BORO",
+      "general": 1.901,
+      "effective": 1.767
+    },
+    {
+      "county": "Morris",
+      "district": "ROCKAWAY BORO",
+      "general": 3.368,
+      "effective": 2.551
+    },
+    {
+      "county": "Morris",
+      "district": "ROCKAWAY TWP",
+      "general": 2.463,
+      "effective": 2.209
+    },
+    {
+      "county": "Morris",
+      "district": "ROXBURY TWP",
+      "general": 2.821,
+      "effective": 2.004
+    },
+    {
+      "county": "Morris",
+      "district": "VICTORY GARDENS BORO",
+      "general": 3.538,
+      "effective": 2.14
+    },
+    {
+      "county": "Morris",
+      "district": "WASHINGTON TWP",
+      "general": 3.003,
+      "effective": 2.239
+    },
+    {
+      "county": "Morris",
+      "district": "WHARTON BORO",
+      "general": 2.607,
+      "effective": 2.486
+    },
+    {
+      "county": "Ocean",
+      "district": "BARNEGAT TWP",
+      "general": 3.083,
+      "effective": 1.848
+    },
+    {
+      "county": "Ocean",
+      "district": "BARNEGAT LIGHT BORO",
+      "general": 1.107,
+      "effective": 0.594
+    },
+    {
+      "county": "Ocean",
+      "district": "BAY HEAD BORO",
+      "general": 1.105,
+      "effective": 0.646
+    },
+    {
+      "county": "Ocean",
+      "district": "BEACH HAVEN BORO",
+      "general": 1.426,
+      "effective": 0.765
+    },
+    {
+      "county": "Ocean",
+      "district": "BEACHWOOD BORO",
+      "general": 3.187,
+      "effective": 1.789
+    },
+    {
+      "county": "Ocean",
+      "district": "BERKELEY TWP",
+      "general": 2.59,
+      "effective": 1.498
+    },
+    {
+      "county": "Ocean",
+      "district": "BRICK TWP",
+      "general": 2.664,
+      "effective": 1.575
+    },
+    {
+      "county": "Ocean",
+      "district": "TOMS RIVER TWP",
+      "general": 1.902,
+      "effective": 1.523
+    },
+    {
+      "county": "Ocean",
+      "district": "EAGLESWOOD TWP",
+      "general": 2.987,
+      "effective": 2.024
+    },
+    {
+      "county": "Ocean",
+      "district": "HARVEY CEDARS BORO",
+      "general": 1.112,
+      "effective": 0.658
+    },
+    {
+      "county": "Ocean",
+      "district": "ISLAND HEIGHTS BORO",
+      "general": 2.234,
+      "effective": 1.469
+    },
+    {
+      "county": "Ocean",
+      "district": "JACKSON TWP",
+      "general": 1.386,
+      "effective": 1.458
+    },
+    {
+      "county": "Ocean",
+      "district": "LACEY TWP",
+      "general": 2.735,
+      "effective": 1.771
+    },
+    {
+      "county": "Ocean",
+      "district": "LAKEHURST BORO",
+      "general": 2.297,
+      "effective": 2.083
+    },
+    {
+      "county": "Ocean",
+      "district": "LAKEWOOD TWP",
+      "general": 2.462,
+      "effective": 1.378
+    },
+    {
+      "county": "Ocean",
+      "district": "LAVALLETTE BORO",
+      "general": 1.014,
+      "effective": 0.619
+    },
+    {
+      "county": "Ocean",
+      "district": "LITTLE EGG HARBOR TWP",
+      "general": 3.207,
+      "effective": 1.865
+    },
+    {
+      "county": "Ocean",
+      "district": "LONG BEACH TWP",
+      "general": 0.913,
+      "effective": 0.665
+    },
+    {
+      "county": "Ocean",
+      "district": "MANCHESTER TWP",
+      "general": 1.455,
+      "effective": 1.514
+    },
+    {
+      "county": "Ocean",
+      "district": "MANTOLOKING BORO",
+      "general": 0.912,
+      "effective": 0.531
+    },
+    {
+      "county": "Ocean",
+      "district": "OCEAN TWP",
+      "general": 1.578,
+      "effective": 1.567
+    },
+    {
+      "county": "Ocean",
+      "district": "OCEAN GATE BORO",
+      "general": 1.821,
+      "effective": 1.777
+    },
+    {
+      "county": "Ocean",
+      "district": "PINE BEACH BORO",
+      "general": 2.028,
+      "effective": 1.714
+    },
+    {
+      "county": "Ocean",
+      "district": "PLUMSTED TWP",
+      "general": 3.15,
+      "effective": 1.953
+    },
+    {
+      "county": "Ocean",
+      "district": "POINT PLEASANT BORO",
+      "general": 2.424,
+      "effective": 1.437
+    },
+    {
+      "county": "Ocean",
+      "district": "PT PLEASANT BEACH BORO",
+      "general": 1.803,
+      "effective": 1.095
+    },
+    {
+      "county": "Ocean",
+      "district": "SEASIDE HEIGHTS BORO",
+      "general": 1.284,
+      "effective": 1.432
+    },
+    {
+      "county": "Ocean",
+      "district": "SEASIDE PARK BORO",
+      "general": 1.735,
+      "effective": 1.083
+    },
+    {
+      "county": "Ocean",
+      "district": "SHIP BOTTOM BORO",
+      "general": 1.241,
+      "effective": 0.702
+    },
+    {
+      "county": "Ocean",
+      "district": "SOUTH TOMS RIVER BORO",
+      "general": 3.52,
+      "effective": 2.123
+    },
+    {
+      "county": "Ocean",
+      "district": "STAFFORD TWP",
+      "general": 2.623,
+      "effective": 1.465
+    },
+    {
+      "county": "Ocean",
+      "district": "SURF CITY BORO",
+      "general": 1.066,
+      "effective": 0.65
+    },
+    {
+      "county": "Ocean",
+      "district": "TUCKERTON BORO",
+      "general": 3.201,
+      "effective": 1.958
+    },
+    {
+      "county": "Passaic",
+      "district": "BLOOMINGDALE BORO",
+      "general": 4.718,
+      "effective": 2.79
+    },
+    {
+      "county": "Passaic",
+      "district": "CLIFTON CITY",
+      "general": 6.129,
+      "effective": 2.193
+    },
+    {
+      "county": "Passaic",
+      "district": "HALEDON BORO",
+      "general": 5.428,
+      "effective": 2.771
+    },
+    {
+      "county": "Passaic",
+      "district": "HAWTHORNE BORO",
+      "general": 3.144,
+      "effective": 2.316
+    },
+    {
+      "county": "Passaic",
+      "district": "LITTLE FALLS TWP",
+      "general": 3.496,
+      "effective": 2.17
+    },
+    {
+      "county": "Passaic",
+      "district": "NORTH HALEDON BORO",
+      "general": 3.187,
+      "effective": 2.045
+    },
+    {
+      "county": "Passaic",
+      "district": "PASSAIC CITY",
+      "general": 4.258,
+      "effective": 2.113
+    },
+    {
+      "county": "Passaic",
+      "district": "PATERSON CITY",
+      "general": 5.335,
+      "effective": 2.421
+    },
+    {
+      "county": "Passaic",
+      "district": "POMPTON LAKES BORO",
+      "general": 4.131,
+      "effective": 2.533
+    },
+    {
+      "county": "Passaic",
+      "district": "PROSPECT PARK BORO",
+      "general": 6.231,
+      "effective": 2.913
+    },
+    {
+      "county": "Passaic",
+      "district": "RINGWOOD BORO",
+      "general": 4.259,
+      "effective": 2.627
+    },
+    {
+      "county": "Passaic",
+      "district": "TOTOWA BORO",
+      "general": 2.934,
+      "effective": 1.511
+    },
+    {
+      "county": "Passaic",
+      "district": "WANAQUE BORO",
+      "general": 4.541,
+      "effective": 2.642
+    },
+    {
+      "county": "Passaic",
+      "district": "WAYNE TWP",
+      "general": 5.998,
+      "effective": 2.253
+    },
+    {
+      "county": "Passaic",
+      "district": "WEST MILFORD TWP",
+      "general": 4.214,
+      "effective": 2.489
+    },
+    {
+      "county": "Passaic",
+      "district": "WOODLAND PARK BORO",
+      "general": 3.435,
+      "effective": 2.271
+    },
+    {
+      "county": "Salem",
+      "district": "ALLOWAY TOWNSHIP",
+      "general": 3.627,
+      "effective": 2.562
+    },
+    {
+      "county": "Salem",
+      "district": "CARNEYS POINT TOWNSHIP",
+      "general": 2.41,
+      "effective": 2.482
+    },
+    {
+      "county": "Salem",
+      "district": "ELMER BORO",
+      "general": 4.102,
+      "effective": 2.999
+    },
+    {
+      "county": "Salem",
+      "district": "ELSINBORO TWP",
+      "general": 3.172,
+      "effective": 2.581
+    },
+    {
+      "county": "Salem",
+      "district": "LOWER ALLOWAY CREEK TWP",
+      "general": 2.004,
+      "effective": 1.058
+    },
+    {
+      "county": "Salem",
+      "district": "MANNINGTON TWP",
+      "general": 3.604,
+      "effective": 2.984
+    },
+    {
+      "county": "Salem",
+      "district": "OLDMANS TWP",
+      "general": 2.699,
+      "effective": 2.23
+    },
+    {
+      "county": "Salem",
+      "district": "PENNS GROVE BORO",
+      "general": 5.649,
+      "effective": 3.748
+    },
+    {
+      "county": "Salem",
+      "district": "PENNSVILLE TWP",
+      "general": 5.199,
+      "effective": 3.714
+    },
+    {
+      "county": "Salem",
+      "district": "PILESGROVE TWP",
+      "general": 3.746,
+      "effective": 2.74
+    },
+    {
+      "county": "Salem",
+      "district": "PITTSGROVE TWP",
+      "general": 4.123,
+      "effective": 2.773
+    },
+    {
+      "county": "Salem",
+      "district": "QUINTON TWP",
+      "general": 3.841,
+      "effective": 2.656
+    },
+    {
+      "county": "Salem",
+      "district": "SALEM CITY",
+      "general": 8.628,
+      "effective": 4.505
+    },
+    {
+      "county": "Salem",
+      "district": "UPPER PITTSGROVE TWP",
+      "general": 3.098,
+      "effective": 2.395
+    },
+    {
+      "county": "Salem",
+      "district": "WOODSTOWN BORO",
+      "general": 4.153,
+      "effective": 3.184
+    },
+    {
+      "county": "Somerset",
+      "district": "BEDMINSTER TWP",
+      "general": 1.204,
+      "effective": 1.249
+    },
+    {
+      "county": "Somerset",
+      "district": "BERNARDS TWP",
+      "general": 1.688,
+      "effective": 1.711
+    },
+    {
+      "county": "Somerset",
+      "district": "BERNARDSVILLE BORO",
+      "general": 1.898,
+      "effective": 1.947
+    },
+    {
+      "county": "Somerset",
+      "district": "BOUND BROOK BORO",
+      "general": 2.207,
+      "effective": 2.235
+    },
+    {
+      "county": "Somerset",
+      "district": "BRANCHBURG TWP",
+      "general": 1.709,
+      "effective": 1.737
+    },
+    {
+      "county": "Somerset",
+      "district": "BRIDGEWATER TWP",
+      "general": 1.902,
+      "effective": 1.829
+    },
+    {
+      "county": "Somerset",
+      "district": "FAR HILLS BORO",
+      "general": 1.16,
+      "effective": 1.231
+    },
+    {
+      "county": "Somerset",
+      "district": "FRANKLIN TWP",
+      "general": 1.678,
+      "effective": 1.748
+    },
+    {
+      "county": "Somerset",
+      "district": "GREEN BROOK TWP",
+      "general": 2.125,
+      "effective": 2.165
+    },
+    {
+      "county": "Somerset",
+      "district": "HILLSBOROUGH TWP",
+      "general": 2.16,
+      "effective": 2.083
+    },
+    {
+      "county": "Somerset",
+      "district": "MANVILLE BORO",
+      "general": 2.11,
+      "effective": 2.14
+    },
+    {
+      "county": "Somerset",
+      "district": "MILLSTONE BORO",
+      "general": 2.154,
+      "effective": 2.03
+    },
+    {
+      "county": "Somerset",
+      "district": "MONTGOMERY TWP",
+      "general": 3.438,
+      "effective": 2.06
+    },
+    {
+      "county": "Somerset",
+      "district": "NORTH PLAINFIELD BORO",
+      "general": 4.543,
+      "effective": 2.595
+    },
+    {
+      "county": "Somerset",
+      "district": "PEAPACK GLADSTONE BORO",
+      "general": 1.577,
+      "effective": 1.631
+    },
+    {
+      "county": "Somerset",
+      "district": "RARITAN BORO",
+      "general": 3.042,
+      "effective": 2.009
+    },
+    {
+      "county": "Somerset",
+      "district": "ROCKY HILL BORO",
+      "general": 2.081,
+      "effective": 2.071
+    },
+    {
+      "county": "Somerset",
+      "district": "SOMERVILLE BORO",
+      "general": 4.079,
+      "effective": 2.581
+    },
+    {
+      "county": "Somerset",
+      "district": "SO BOUND BROOK BORO",
+      "general": 4.014,
+      "effective": 2.645
+    },
+    {
+      "county": "Somerset",
+      "district": "WARREN TWP",
+      "general": 1.752,
+      "effective": 1.841
+    },
+    {
+      "county": "Somerset",
+      "district": "WATCHUNG BORO",
+      "general": 1.952,
+      "effective": 2.031
+    },
+    {
+      "county": "Sussex",
+      "district": "ANDOVER BORO",
+      "general": 3.3,
+      "effective": 2.364
+    },
+    {
+      "county": "Sussex",
+      "district": "ANDOVER TWP",
+      "general": 4.36,
+      "effective": 2.676
+    },
+    {
+      "county": "Sussex",
+      "district": "BRANCHVILLE BORO",
+      "general": 2.516,
+      "effective": 2.036
+    },
+    {
+      "county": "Sussex",
+      "district": "BYRAM TWP",
+      "general": 4.019,
+      "effective": 2.575
+    },
+    {
+      "county": "Sussex",
+      "district": "FRANKFORD TWP",
+      "general": 3.04,
+      "effective": 2.139
+    },
+    {
+      "county": "Sussex",
+      "district": "FRANKLIN BORO",
+      "general": 2.515,
+      "effective": 2.566
+    },
+    {
+      "county": "Sussex",
+      "district": "FREDON TWP",
+      "general": 3.16,
+      "effective": 2.296
+    },
+    {
+      "county": "Sussex",
+      "district": "GREEN TWP",
+      "general": 2.274,
+      "effective": 2.401
+    },
+    {
+      "county": "Sussex",
+      "district": "HAMBURG BORO",
+      "general": 5.135,
+      "effective": 2.939
+    },
+    {
+      "county": "Sussex",
+      "district": "HAMPTON TWP",
+      "general": 3.495,
+      "effective": 2.143
+    },
+    {
+      "county": "Sussex",
+      "district": "HARDYSTON TWP",
+      "general": 1.929,
+      "effective": 1.936
+    },
+    {
+      "county": "Sussex",
+      "district": "HOPATCONG BORO",
+      "general": 2.214,
+      "effective": 2.111
+    },
+    {
+      "county": "Sussex",
+      "district": "LAFAYETTE TWP",
+      "general": 2.987,
+      "effective": 2.013
+    },
+    {
+      "county": "Sussex",
+      "district": "MONTAGUE TWP",
+      "general": 3.165,
+      "effective": 2.129
+    },
+    {
+      "county": "Sussex",
+      "district": "NEWTON TOWN",
+      "general": 2.662,
+      "effective": 2.732
+    },
+    {
+      "county": "Sussex",
+      "district": "OGDENSBURG BORO",
+      "general": 4.154,
+      "effective": 2.682
+    },
+    {
+      "county": "Sussex",
+      "district": "SANDYSTON TWP",
+      "general": 3.338,
+      "effective": 2.028
+    },
+    {
+      "county": "Sussex",
+      "district": "SPARTA TWP",
+      "general": 3.668,
+      "effective": 2.347
+    },
+    {
+      "county": "Sussex",
+      "district": "STANHOPE BORO",
+      "general": 4.66,
+      "effective": 2.932
+    },
+    {
+      "county": "Sussex",
+      "district": "STILLWATER TWP",
+      "general": 3.771,
+      "effective": 2.265
+    },
+    {
+      "county": "Sussex",
+      "district": "SUSSEX BORO",
+      "general": 3.615,
+      "effective": 2.578
+    },
+    {
+      "county": "Sussex",
+      "district": "VERNON TWP",
+      "general": 2.345,
+      "effective": 2.31
+    },
+    {
+      "county": "Sussex",
+      "district": "WALPACK TWP",
+      "general": 0.502,
+      "effective": 0.429
+    },
+    {
+      "county": "Sussex",
+      "district": "WANTAGE TWP",
+      "general": 3.002,
+      "effective": 2.203
+    },
+    {
+      "county": "Union",
+      "district": "BERKELEY HEIGHTS TWP",
+      "general": 4.401,
+      "effective": 1.82
+    },
+    {
+      "county": "Union",
+      "district": "CLARK TWP",
+      "general": 2.269,
+      "effective": 1.899
+    },
+    {
+      "county": "Union",
+      "district": "CRANFORD TWP",
+      "general": 7.248,
+      "effective": 2.106
+    },
+    {
+      "county": "Union",
+      "district": "ELIZABETH CITY",
+      "general": 2.017,
+      "effective": 2.113
+    },
+    {
+      "county": "Union",
+      "district": "FANWOOD BORO",
+      "general": 3.12,
+      "effective": 2.249
+    },
+    {
+      "county": "Union",
+      "district": "GARWOOD BORO",
+      "general": 2.858,
+      "effective": 2.059
+    },
+    {
+      "county": "Union",
+      "district": "HILLSIDE TWP",
+      "general": 8.899,
+      "effective": 2.279
+    },
+    {
+      "county": "Union",
+      "district": "KENILWORTH BORO",
+      "general": 6.625,
+      "effective": 2.002
+    },
+    {
+      "county": "Union",
+      "district": "LINDEN CITY",
+      "general": 7.345,
+      "effective": 2.037
+    },
+    {
+      "county": "Union",
+      "district": "MOUNTAINSIDE BORO",
+      "general": 2.1,
+      "effective": 1.566
+    },
+    {
+      "county": "Union",
+      "district": "NEW PROVIDENCE BORO",
+      "general": 5.242,
+      "effective": 2.049
+    },
+    {
+      "county": "Union",
+      "district": "PLAINFIELD CITY",
+      "general": 8.926,
+      "effective": 2.46
+    },
+    {
+      "county": "Union",
+      "district": "RAHWAY CITY",
+      "general": 7.584,
+      "effective": 2.542
+    },
+    {
+      "county": "Union",
+      "district": "ROSELLE BORO",
+      "general": 9.147,
+      "effective": 2.819
+    },
+    {
+      "county": "Union",
+      "district": "ROSELLE PARK BORO",
+      "general": 4.506,
+      "effective": 2.521
+    },
+    {
+      "county": "Union",
+      "district": "SCOTCH PLAINS TWP",
+      "general": 12.35,
+      "effective": 2.137
+    },
+    {
+      "county": "Union",
+      "district": "SPRINGFIELD TWP",
+      "general": 2.411,
+      "effective": 2.188
+    },
+    {
+      "county": "Union",
+      "district": "SUMMIT CITY",
+      "general": 4.471,
+      "effective": 1.475
+    },
+    {
+      "county": "Union",
+      "district": "UNION TWP",
+      "general": 23.323,
+      "effective": 2.27
+    },
+    {
+      "county": "Union",
+      "district": "WESTFIELD TOWN",
+      "general": 2.292,
+      "effective": 1.81
+    },
+    {
+      "county": "Union",
+      "district": "WINFIELD TWP",
+      "general": 23.411,
+      "effective": 23.405
+    },
+    {
+      "county": "Warren",
+      "district": "ALLAMUCHY TWP",
+      "general": 3.227,
+      "effective": 1.926
+    },
+    {
+      "county": "Warren",
+      "district": "ALPHA BORO",
+      "general": 3.485,
+      "effective": 2.396
+    },
+    {
+      "county": "Warren",
+      "district": "BELVIDERE TOWN",
+      "general": 3.302,
+      "effective": 2.948
+    },
+    {
+      "county": "Warren",
+      "district": "BLAIRSTOWN TWP",
+      "general": 3.134,
+      "effective": 2.144
+    },
+    {
+      "county": "Warren",
+      "district": "FRANKLIN TWP",
+      "general": 3.129,
+      "effective": 2.337
+    },
+    {
+      "county": "Warren",
+      "district": "FRELINGHUYSEN TWP",
+      "general": 2.858,
+      "effective": 2.202
+    },
+    {
+      "county": "Warren",
+      "district": "GREENWICH TWP",
+      "general": 4.052,
+      "effective": 2.546
+    },
+    {
+      "county": "Warren",
+      "district": "HACKETTSTOWN TOWN",
+      "general": 3.477,
+      "effective": 2.686
+    },
+    {
+      "county": "Warren",
+      "district": "HARDWICK TWP",
+      "general": 3.825,
+      "effective": 2.221
+    },
+    {
+      "county": "Warren",
+      "district": "HARMONY TWP",
+      "general": 2.665,
+      "effective": 1.592
+    },
+    {
+      "county": "Warren",
+      "district": "HOPE TWP",
+      "general": 3.466,
+      "effective": 2.195
+    },
+    {
+      "county": "Warren",
+      "district": "INDEPENDENCE TWP",
+      "general": 3.795,
+      "effective": 2.437
+    },
+    {
+      "county": "Warren",
+      "district": "KNOWLTON TWP",
+      "general": 4.271,
+      "effective": 2.324
+    },
+    {
+      "county": "Warren",
+      "district": "LIBERTY TWP",
+      "general": 3.656,
+      "effective": 2.26
+    },
+    {
+      "county": "Warren",
+      "district": "LOPATCONG TWP",
+      "general": 3.042,
+      "effective": 2.41
+    },
+    {
+      "county": "Warren",
+      "district": "MANSFIELD TWP",
+      "general": 3.563,
+      "effective": 2.483
+    },
+    {
+      "county": "Warren",
+      "district": "OXFORD TWP",
+      "general": 4.827,
+      "effective": 2.727
+    },
+    {
+      "county": "Warren",
+      "district": "PHILLIPSBURG TOWN",
+      "general": 4.675,
+      "effective": 2.955
+    },
+    {
+      "county": "Warren",
+      "district": "POHATCONG TWP",
+      "general": 4.535,
+      "effective": 2.997
+    },
+    {
+      "county": "Warren",
+      "district": "WASHINGTON BORO",
+      "general": 5.89,
+      "effective": 2.975
+    },
+    {
+      "county": "Warren",
+      "district": "WASHINGTON TWP",
+      "general": 4.11,
+      "effective": 2.691
+    },
+    {
+      "county": "Warren",
+      "district": "WHITE TWP",
+      "general": 2.62,
+      "effective": 1.809
+    }
+  ]
+}

@@ -46,6 +46,8 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | ADMIN-001 | Admin blog, leads, and MyHome called Railway from the browser | Blog tab sent the UI password as Bearer; MyHome used a profiles path the API does not serve | Those calls go through /api/admin/proxy; profiles use /api/idx/myhome/admin/profiles |
 | TAX-005 | Appeal form and PDF said Tax Year 2026 against 2027 ratios | Tax Year defaulted to the calendar year and was never set from the analyze API | Form uses API taxYear, else the tax year whose April 1 deadline is next; results label that year |
 | TAX-006 | Multi-unit / Class 4 analysis showed $0–$0 savings and a case badge | API sets savingsSuppressed and zeroes the dollars; the UI still rendered them | Suppressed results hide savings and case strength and show the attorney warning |
+| TAX-007 | No-case homes showed Estimated Overpayment $0–$5,738 and the tax-shock package said overpaying | Savings rendered whenever the API had not suppressed them, including a $0 low and a no-case verdict | Savings and overpayment show only for a strong or moderate case with a positive high; $0 high and other cases use neutral text |
+| VALE-001 | Vale invented Paramus $2.10–$2.30 and Hackensack $2.40–$2.60 and applied them to sale price | No municipal rate source; the model answered from memory | 2025 NJ general and effective rates for all 564 municipalities are injected into Vale, which is told never to state a rate from memory. Price estimates use the equalization ratio or the effective rate |
 
 ### Adding New Bugs
 

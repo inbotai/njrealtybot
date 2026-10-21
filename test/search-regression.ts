@@ -10,7 +10,9 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxYearRatiosLabel } from "../src/lib/tax-display";
+import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
+import { allMunicipalities, findMunicipalities, taxFromMarketValue } from "../src/lib/nj-tax-rates";
+import { canonicalTaxAnswer, finalizeValeReply, isTaxRateQuestion, toValeModelMessage, VALE_TAX_RATE_POLICY } from "../src/lib/vale-tax-context";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
@@ -334,13 +336,125 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
       !suppressed.valeMessage.includes("$0") &&
       !/case strength/i.test(suppressed.valeMessage) &&
       !normal.suppressed &&
-      normal.showSavings &&
+      !normal.showSavings &&
       normal.showCaseStrength &&
       normal.valeMessage.includes("do not support a lower assessment") &&
       shock.includes("appealView?.suppressed") &&
       propertyTaxPage.includes("appealView.showSavings") &&
       propertyTaxPage.includes("appealView.suppressed"),
     suppressed.valeMessage,
+  );
+
+  const noCase = describeTaxAppealResult({
+    address: "123 Bloomfield St",
+    caseStrength: "no_case",
+    overpaymentLow: 0,
+    overpaymentHigh: 5738,
+  });
+  const strong = describeTaxAppealResult({
+    address: "1 Example Ave",
+    caseStrength: "strong",
+    overpaymentLow: 1200,
+    overpaymentHigh: 5738,
+  });
+  const strongZero = describeTaxAppealResult({
+    address: "1 Example Ave",
+    caseStrength: "strong",
+    overpaymentHigh: 0,
+  });
+  const moderate = describeTaxAppealResult({
+    address: "1 Example Ave",
+    caseStrength: "moderate",
+    overpaymentHigh: 800,
+  });
+  const noCaseCopy = taxShockDeliveryCopy({
+    address: "123 Bloomfield St",
+    caseStrength: "no_case",
+    overpaymentLow: 0,
+    overpaymentHigh: 5738,
+    assessedValue: 400000,
+    taxAnnual: 9000,
+  });
+  const strongCopy = taxShockDeliveryCopy({
+    address: "1 Example Ave",
+    caseStrength: "strong",
+    overpaymentLow: 1200,
+    overpaymentHigh: 5738,
+  });
+  const zeroCopy = taxShockDeliveryCopy({
+    address: "1 Example Ave",
+    caseStrength: "moderate",
+    overpaymentLow: 0,
+    overpaymentHigh: 0,
+  });
+  check(
+    "TAX-007",
+    "No-case and $0-high results hide overpayment and savings claims",
+    !noCase.showSavings &&
+      noCase.showCaseStrength &&
+      !/overpaying|\$5,738|\$0/i.test(noCase.valeMessage) &&
+      strong.showSavings &&
+      strong.valeMessage.includes("$5,738") &&
+      !strongZero.showSavings &&
+      !/overpaying|\$0/i.test(strongZero.valeMessage) &&
+      moderate.showSavings &&
+      !/overpaying|Potential Savings|\$5,738/i.test(`${noCaseCopy.message}\n${noCaseCopy.resultsText}`) &&
+      noCaseCopy.message.includes("assessment reviewed") &&
+      strongCopy.message.includes("overpaying") &&
+      strongCopy.resultsText.includes("Potential Savings") &&
+      !/overpaying|Potential Savings/i.test(`${zeroCopy.message}\n${zeroCopy.resultsText}`) &&
+      shock.includes("taxShockDeliveryCopy") &&
+      shock.includes("appealView?.showSavings"),
+    noCaseCopy.message,
+  );
+
+  const paramus = findMunicipalities("Compare Paramus and Hackensack");
+  const south = findMunicipalities("South Hackensack");
+  const fairLawn = findMunicipalities("Fair Lawn");
+  const question = "Compare property taxes in Paramus and Hackensack. What would taxes be on a $500,000 home?";
+  const official = canonicalTaxAnswer(question);
+  const paramusTax = taxFromMarketValue(paramus.find((m) => m.district.startsWith("PARAMUS"))!, 500000).tax;
+  const hackTax = taxFromMarketValue(paramus.find((m) => m.district.startsWith("HACKENSACK"))!, 500000).tax;
+  const grounded = toValeModelMessage(question);
+  const replaced = finalizeValeReply(question, "Paramus is about $2.10–$2.30 per $100 and Hackensack about $2.40–$2.60 per $100. On a $500,000 home that is $7,495 in Paramus.");
+  const overpayingOnly = isTaxRateQuestion("Am I overpaying property taxes?");
+  const chatPage = readFileSync(join(process.cwd(), "src/components/ValeChatPage.tsx"), "utf8");
+  const valeProvider = readFileSync(join(process.cwd(), "src/components/ValeProvider.tsx"), "utf8");
+  check(
+    "VALE-001",
+    "Vale quotes 2025 municipal tax rates from the official table, not memory",
+    allMunicipalities().length === 564 &&
+      paramus.length === 2 &&
+      paramus.some((m) => m.generalRate === 1.499) &&
+      paramus.some((m) => m.generalRate === 3.209) &&
+      south.length === 1 &&
+      south[0].district.startsWith("SO HACKENSACK") &&
+      fairLawn.length === 1 &&
+      fairLawn[0].generalRate === 3.661 &&
+      paramusTax === 7170 &&
+      hackTax === 12635 &&
+      official.includes("1.499") &&
+      official.includes("3.209") &&
+      official.includes("$7,170") &&
+      official.includes("$12,635") &&
+      !official.includes("2.10") &&
+      !official.includes("2.40") &&
+      grounded.includes(VALE_TAX_RATE_POLICY) &&
+      grounded.includes("Never state a New Jersey municipal tax rate") &&
+      grounded.includes("1.499") &&
+      grounded.includes("3.209") &&
+      replaced.includes("1.499") &&
+      replaced.includes("3.209") &&
+      !replaced.includes("2.10") &&
+      !replaced.includes("2.40") &&
+      !replaced.includes("$7,495") &&
+      !overpayingOnly &&
+      chatPage.includes("toValeModelMessage") &&
+      chatPage.includes("finalizeValeReply") &&
+      valeProvider.includes("VALE_TAX_RATE_POLICY") === false &&
+      valeProvider.includes("valeStartBody") &&
+      valeProvider.includes("toValeModelMessage"),
+    `paramus tax ${paramusTax}; hackensack tax ${hackTax}`,
   );
 
   const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;

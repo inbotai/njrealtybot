@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
+import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -26,7 +27,7 @@ export default function ValeHelper({ context, title = "Ask Vale", placeholder = 
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`${IDX_API}/api/idx/chat/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ context }) })
+    fetch(`${IDX_API}/api/idx/chat/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valeStartBody({ context })) })
       .then(r => r.json()).then(d => setSessionId(d.sessionId || d.session_id)).catch(() => {});
   }, [context]);
 
@@ -41,11 +42,11 @@ export default function ValeHelper({ context, title = "Ask Vale", placeholder = 
     try {
       const res = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, message: q }), signal: AbortSignal.timeout(60000),
+        body: JSON.stringify({ sessionId, message: toValeModelMessage(q) }), signal: AbortSignal.timeout(60000),
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.response || data.text || "Let me look into that." }]);
+        setMessages(prev => [...prev, { role: "assistant", text: finalizeValeReply(q, data.reply || data.response || data.text || "Let me look into that.") }]);
       }
     } catch { /* ignore */ }
     setLoading(false);
