@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
+import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -39,7 +40,7 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
     fetch(`${IDX_API}/api/idx/chat/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ listingId, visitorId: vid || undefined }),
+      body: JSON.stringify(valeStartBody({ listingId, visitorId: vid || undefined })),
       signal: AbortSignal.timeout(10000),
     })
       .then(r => { if (!r.ok) throw new Error(`start ${r.status}`); return r.json(); })
@@ -74,13 +75,13 @@ export default function ValeChatInline({ listingId }: { listingId: string }) {
       const r = await fetch(`${IDX_API}/api/idx/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, message: text }),
+        body: JSON.stringify({ sessionId, message: toValeModelMessage(text) }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
       if (!r.ok) throw new Error(`message ${r.status}`);
       const d = await r.json();
-      setMessages(prev => [...prev, { role: "assistant", text: d.reply || d.error || "Something went wrong." }]);
+      setMessages(prev => [...prev, { role: "assistant", text: finalizeValeReply(text, d.reply || d.error || "Something went wrong.") }]);
     } catch (err) {
       console.error("chat/message failed:", err);
       setMessages(prev => [...prev, { role: "assistant", text: "Connection error. Try again." }]);

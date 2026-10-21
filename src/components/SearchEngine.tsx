@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { getPhotoUrl } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
+import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -152,7 +153,7 @@ export default function SearchEngine() {
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => { inputRef.current?.focus(); }, []);
   useEffect(() => {
-    fetch(`${IDX_API}/api/idx/chat/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+    fetch(`${IDX_API}/api/idx/chat/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valeStartBody()) })
       .then(r => r.json()).then(d => setSessionId(d.sessionId || d.session_id)).catch(() => {});
   }, []);
 
@@ -232,11 +233,11 @@ export default function SearchEngine() {
       try {
         const res = await fetch(`${IDX_API}/api/idx/chat/message`, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId, message: q }), signal: AbortSignal.timeout(60000),
+          body: JSON.stringify({ sessionId, message: toValeModelMessage(q) }), signal: AbortSignal.timeout(60000),
         });
         if (!res.ok) return false;
         const data = await res.json();
-        const reply = data.reply || data.response || data.text || "";
+        const reply = finalizeValeReply(q, data.reply || data.response || data.text || "");
         if (!reply) return false;
         // Detect actions from Vale's response too (in case user asks generally)
         const replyActions = actions.length > 0 ? actions : detectActions(reply);
@@ -252,7 +253,7 @@ export default function SearchEngine() {
       if (handled && sessionId) {
         fetch(`${IDX_API}/api/idx/chat/message`, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId, message: q }),
+          body: JSON.stringify({ sessionId, message: toValeModelMessage(q) }),
         }).catch(() => {});
       }
     }

@@ -7,7 +7,7 @@ import LeadGate from "@/components/LeadGate";
 import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
-import { appealTaxYear, assessmentHeadline, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxYearRatiosLabel } from "@/lib/tax-display";
+import { appealTaxYear, assessmentHeadline, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "@/lib/tax-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -176,8 +176,9 @@ export default function TaxShockClient() {
   }
 
 
-  const supportsReduction = !result?.savingsSuppressed && (result?.caseStrength === "strong" || result?.caseStrength === "moderate");
   const appealView = result ? describeTaxAppealResult(result) : null;
+  const supportsReduction = appealView?.showSavings === true;
+  const delivery = result ? taxShockDeliveryCopy(result) : null;
   const waText = !result || !appealView
     ? "Hi Vale! I want to check if I'm overpaying property taxes."
     : appealView.valeMessage;
@@ -259,7 +260,7 @@ export default function TaxShockClient() {
                   <p className="text-amber-800 text-sm uppercase tracking-widest font-bold">Consult a tax appeal attorney</p>
                   <p className="text-lg font-semibold text-navy mt-3 leading-relaxed">{appealView.warning}</p>
                 </div>
-              ) : strength === "strong" || strength === "moderate" ? (
+              ) : appealView?.showSavings ? (
                 <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-8 text-center">
                   <p className="text-emerald-600 text-sm uppercase tracking-widest font-bold">You May Be Overpaying</p>
                   <p className="text-4xl font-extrabold text-emerald-600 mt-3">
@@ -440,8 +441,8 @@ export default function TaxShockClient() {
                       ratioTaxYear: result.ratioTaxYear,
                       savingsSuppressed: result.savingsSuppressed,
                       propertyTypeWarning: result.propertyTypeWarning,
-                      overpaymentLow: appealView?.suppressed ? undefined : result.overpaymentLow,
-                      overpaymentHigh: appealView?.suppressed ? undefined : result.overpaymentHigh,
+                      overpaymentLow: appealView?.showSavings ? result.overpaymentLow : undefined,
+                      overpaymentHigh: appealView?.showSavings ? result.overpaymentHigh : undefined,
                       comparables: result.comparables?.slice(0, 6).map((c: any) => ({
                         address: c.address || "",
                         salePrice: c.salePrice?.toString() || "",
@@ -471,33 +472,8 @@ export default function TaxShockClient() {
                   <LeadGate
                     valueProp="Get Your Tax Appeal Package"
                     source="tax_shock_tool"
-                    message={appealView?.suppressed
-                      ? `Tax Shock: ${result.address} — ${appealView.warning}`
-                      : `Tax Shock: ${result.address} — overpaying ~$${result.overpaymentHigh?.toLocaleString()}/yr`}
-                    resultsText={appealView?.suppressed
-                      ? [
-                          `\u{1F4CA} *Tax Analysis \u2014 ${result.address}*\n`,
-                          `Assessment: $${result.assessedValue?.toLocaleString()}`,
-                          `Annual Taxes: $${result.taxAnnual?.toLocaleString()}`,
-                          appealView.warning,
-                          `Comparable Sales: ${result.comparables?.length || 0}`,
-                          `Filing Deadline: ${result.filingDeadline || "N/A"}\n`,
-                          `Full analysis: gardenstate.ai/tax-shock`,
-                          `\u2014 Garden State AI`,
-                        ].join("\n")
-                      : [
-                          `\u{1F4CA} *Tax Analysis \u2014 ${result.address}*\n`,
-                          `Assessment: $${result.assessedValue?.toLocaleString()}`,
-                          `Market Value: $${result.estimatedMarketValueMid?.toLocaleString()}`,
-                          `Annual Taxes: $${result.taxAnnual?.toLocaleString()}`,
-                          `Case Strength: ${result.caseStrength}`,
-                          `Potential Savings: $${result.overpaymentLow?.toLocaleString()} \u2014 $${result.overpaymentHigh?.toLocaleString()}/yr`,
-                          `Comparable Sales: ${result.comparables?.length || 0}`,
-                          `Filing Deadline: ${result.filingDeadline || "N/A"}\n`,
-                          `Full analysis: gardenstate.ai/tax-shock`,
-                          `Prepare appeal: gardenstate.ai/appeal`,
-                          `\u2014 Garden State AI`,
-                        ].join("\n")}
+                    message={delivery?.message || ""}
+                    resultsText={delivery?.resultsText || ""}
                   />
 
                   {/* Share */}
@@ -536,17 +512,18 @@ export default function TaxShockClient() {
                 toolType="tax_appeal"
                 address={result.address}
                 city={result.city}
-                data={appealView?.suppressed
+                data={appealView?.showSavings
                   ? {
-                      assessed_value: result.assessedValue,
-                      estimated_value: result.estimatedMarketValueMid,
-                      property_type_warning: appealView.warning,
-                    }
-                  : {
                       assessed_value: result.assessedValue,
                       estimated_value: result.estimatedMarketValueMid,
                       overpayment: result.overpaymentHigh,
                       case_strength: result.caseStrength,
+                    }
+                  : {
+                      assessed_value: result.assessedValue,
+                      estimated_value: result.estimatedMarketValueMid,
+                      case_strength: appealView?.suppressed ? undefined : result.caseStrength,
+                      property_type_warning: appealView?.suppressed ? appealView.warning : undefined,
                     }}
               />
             </div>

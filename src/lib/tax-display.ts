@@ -146,7 +146,10 @@ export function suppressedAppealWarning(data?: { propertyTypeWarning?: string | 
 
 /**
  * What the tax screens and Vale follow-ups should show.
- * A normal 1–4 family result keeps savings and case strength even if a property-type note is present.
+ * Savings and overpayment are shown only for a strong or moderate case with a
+ * positive high estimate. A $0 high, a weak or no-case result, and a suppressed
+ * multi-unit analysis do not show a dollar savings figure. Case strength stays
+ * visible unless the API suppressed the analysis.
  */
 export function describeTaxAppealResult(data?: {
   savingsSuppressed?: unknown;
@@ -176,14 +179,83 @@ export function describeTaxAppealResult(data?: {
     };
   }
   const strength = data?.caseStrength;
-  const valeMessage = strength === "strong" || strength === "moderate"
-    ? `Hi Vale! I just found out I may be overpaying $${Number(data?.overpaymentHigh || 0).toLocaleString()}/year in property taxes on ${address}. Can you help me with the appeal process?`
+  const high = Number(data?.overpaymentHigh);
+  const showSavings = (strength === "strong" || strength === "moderate") && Number.isFinite(high) && high > 0;
+  const valeMessage = showSavings
+    ? `Hi Vale! I just found out I may be overpaying $${high.toLocaleString("en-US")}/year in property taxes on ${address}. Can you help me with the appeal process?`
     : `Hi Vale! I checked the property taxes on ${address}. The comparable sales do not support a lower assessment. Can you review it with me?`;
   return {
     suppressed: false,
-    showSavings: true,
+    showSavings,
     showCaseStrength: true,
     warning,
     valeMessage,
+  };
+}
+
+/** WhatsApp / SMS copy for the tax-shock "Get Your Tax Appeal Package" form. */
+export function taxShockDeliveryCopy(data: {
+  address?: string | null;
+  assessedValue?: number | null;
+  estimatedMarketValueMid?: number | null;
+  taxAnnual?: number | null;
+  caseStrength?: string | null;
+  overpaymentLow?: number | null;
+  overpaymentHigh?: number | null;
+  comparables?: unknown[] | null;
+  filingDeadline?: string | null;
+  savingsSuppressed?: unknown;
+  propertyTypeWarning?: string | null;
+  caseStrengthExplanation?: string | null;
+}): { message: string; resultsText: string } {
+  const view = describeTaxAppealResult(data);
+  const address = data.address || "this property";
+  const dollars = (n?: number | null) => `$${Number(n || 0).toLocaleString("en-US")}`;
+  if (view.suppressed) {
+    return {
+      message: `Tax Shock: ${address} — ${view.warning}`,
+      resultsText: [
+        `\u{1F4CA} *Tax Analysis \u2014 ${address}*\n`,
+        `Assessment: ${dollars(data.assessedValue)}`,
+        `Annual Taxes: ${dollars(data.taxAnnual)}`,
+        view.warning,
+        `Comparable Sales: ${data.comparables?.length || 0}`,
+        `Filing Deadline: ${data.filingDeadline || "N/A"}\n`,
+        `Full analysis: gardenstate.ai/tax-shock`,
+        `\u2014 Garden State AI`,
+      ].join("\n"),
+    };
+  }
+  if (!view.showSavings) {
+    return {
+      message: `Tax Shock: ${address} — assessment reviewed`,
+      resultsText: [
+        `\u{1F4CA} *Tax Analysis \u2014 ${address}*\n`,
+        `Assessment: ${dollars(data.assessedValue)}`,
+        `Market Value: ${dollars(data.estimatedMarketValueMid)}`,
+        `Annual Taxes: ${dollars(data.taxAnnual)}`,
+        `Case Strength: ${data.caseStrength || "n/a"}`,
+        `Comparable Sales: ${data.comparables?.length || 0}`,
+        `Filing Deadline: ${data.filingDeadline || "N/A"}\n`,
+        `Full analysis: gardenstate.ai/tax-shock`,
+        `\u2014 Garden State AI`,
+      ].join("\n"),
+    };
+  }
+  return {
+    message: `Tax Shock: ${address} — overpaying ~${dollars(data.overpaymentHigh)}/yr`,
+    resultsText: [
+      `\u{1F4CA} *Tax Analysis \u2014 ${address}*\n`,
+      `Assessment: ${dollars(data.assessedValue)}`,
+      `Market Value: ${dollars(data.estimatedMarketValueMid)}`,
+      `Annual Taxes: ${dollars(data.taxAnnual)}`,
+      `Case Strength: ${data.caseStrength}`,
+      `Potential Savings: ${dollars(data.overpaymentLow)} \u2014 ${dollars(data.overpaymentHigh)}/yr`,
+      `Comparable Sales: ${data.comparables?.length || 0}`,
+      `Filing Deadline: ${data.filingDeadline || "N/A"}\n`,
+      `Full analysis: gardenstate.ai/tax-shock`,
+      `Prepare appeal: gardenstate.ai/appeal`,
+      `\u2014 Garden State AI`,
+    ].join("\n"),
   };
 }

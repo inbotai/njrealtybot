@@ -161,9 +161,16 @@ export default function PropertyTaxAppeal() {
           full_name: leadForm.fullName,
           email: leadForm.email,
           phone: leadForm.phone,
-          message: analysis?.savingsSuppressed
-            ? `Tax appeal interest: ${address}. ${describeTaxAppealResult(analysis).warning}`
-            : `Tax appeal interest: ${address}. Assessed: $${analysis?.assessedValue?.toLocaleString() || "?"}. Overpayment: $${analysis?.overpaymentHigh?.toLocaleString() || "?"}. Likelihood: ${analysis?.appealLikelihood || "?"}`,
+          message: (() => {
+            const view = analysis ? describeTaxAppealResult(analysis) : null;
+            if (view?.suppressed) return `Tax appeal interest: ${address}. ${view.warning}`;
+            const assessed = `Assessed: $${analysis?.assessedValue?.toLocaleString() || "?"}`;
+            const likelihood = `Likelihood: ${analysis?.appealLikelihood || "?"}`;
+            if (view?.showSavings) {
+              return `Tax appeal interest: ${address}. ${assessed}. Overpayment: $${analysis?.overpaymentHigh?.toLocaleString() || "?"}. ${likelihood}`;
+            }
+            return `Tax appeal interest: ${address}. ${assessed}. ${likelihood}`;
+          })(),
           lead_type: "info_request",
           source: "tax_appeal_page",
         }),
@@ -264,7 +271,7 @@ export default function PropertyTaxAppeal() {
               )}
 
               {/* Key numbers */}
-              <div className={`mt-6 grid gap-4 ${appealView.showSavings ? "sm:grid-cols-3" : "sm:grid-cols-1"}`}>
+              <div className={`mt-6 grid gap-4 ${appealView.showSavings ? "sm:grid-cols-3" : appealView.showCaseStrength ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
                 {appealView.showSavings && (
                 <div className="rounded-lg bg-gray-50 p-4">
                   <p className="text-xs font-medium uppercase text-gray-500">Estimated Overpayment</p>
