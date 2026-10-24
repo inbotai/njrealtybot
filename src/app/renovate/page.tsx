@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import RenovateSimulator from "@/components/RenovateSimulator";
+import JsonLd, { breadcrumbList, faqPageSchema, webApplicationSchema } from "@/components/JsonLd";
+
+const renovateFaqs = [
+  { question: "Which renovations add the most value in New Jersey?", answer: "The calculator compares typical New Jersey cost and resale recovery for kitchens, baths, flooring, and other projects so you can see which ones return more of the spend." },
+  { question: "Does a bigger renovation budget always return more?", answer: "No. Spending above the typical budget for a project recovers at a declining rate, so an oversized refinish can show a weak return." },
+];
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Home Renovation ROI Calculator \u2014 What Adds the Most Value? | Garden State AI" },
@@ -30,5 +36,12 @@ export const metadata: Metadata = {
 };
 
 export default function RenovatePage() {
-  return <RenovateSimulator />;
+  return (
+    <>
+      <JsonLd data={breadcrumbList([{ name: "Home", path: "/" }, { name: "Renovation ROI", path: "/renovate" }])} />
+      <JsonLd data={webApplicationSchema({ name: "NJ Renovation ROI Calculator", path: "/renovate", description: "See which New Jersey home improvements return the most value." })} />
+      <JsonLd data={faqPageSchema(renovateFaqs)} />
+      <RenovateSimulator />
+    </>
+  );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import BlogEditor from "@/components/BlogEditor";
 import { adminProxy } from "@/lib/admin-client";
 
-const IDX_API = "https://inbot-idx-api-production.up.railway.app";
+type StatusFilter = "all" | "published" | "draft";
 
 interface BlogArticle {
   id: string;
@@ -29,14 +29,17 @@ export default function BlogManager() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<BlogArticle | null>(null);
   const [creating, setCreating] = useState(false);
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  const [generating, setGenerating] = useState<"article" | "guides" | null>(null);
+  const [notice, setNotice] = useState("");
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${IDX_API}/api/idx/blog/posts?limit=50`);
+      const res = await adminProxy("/api/idx/admin/blog/articles");
       if (res.ok) {
         const data = await res.json();
-        setArticles(Array.isArray(data) ? data : data.posts ?? data.articles ?? []);
+        setArticles(Array.isArray(data) ? data : data.articles ?? data.posts ?? []);
       }
     } catch { /* ignore */ }
     setLoading(false);
@@ -60,16 +63,41 @@ export default function BlogManager() {
     } catch { /* ignore */ }
   }
 
-  async function startEditing(article: BlogArticle) {
-    // Fetch full article with content_html
+  async function generate(kind: "article" | "guides") {
+    setGenerating(kind);
+    setNotice("");
     try {
-      const res = await fetch(`${IDX_API}/api/idx/blog/posts/${article.slug}`);
+      if (kind === "guides") {
+        const dedicated = await adminProxy("/api/idx/admin/blog/generate-city-tax-guides", "POST");
+        if (dedicated.status === 404) {
+          const fallback = await adminProxy("/api/idx/admin/blog/generate", "POST", { type: "city-tax-guides" });
+          if (!fallback.ok) throw new Error("generate failed");
+        } else if (!dedicated.ok) {
+          throw new Error("generate failed");
+        }
+        setNotice("City tax guide generation started.");
+      } else {
+        const res = await adminProxy("/api/idx/admin/blog/generate", "POST");
+        if (!res.ok) throw new Error("generate failed");
+        setNotice("Article generation started.");
+      }
+      await fetchArticles();
+    } catch {
+      setNotice("Generate request failed. Stay signed in and try again.");
+    }
+    setGenerating(null);
+  }
+
+  async function startEditing(article: BlogArticle) {
+    try {
+      const res = await adminProxy(`/api/idx/admin/blog/articles/${article.id}`);
       if (res.ok) {
         const full = await res.json();
-        setEditing({ ...article, ...full });
+        const articleBody = full.article || full;
+        setEditing({ ...article, ...articleBody });
         return;
       }
-    } catch { /* fallback to partial */ }
+    } catch { /* fallback to the list row */ }
     setEditing(article);
   }
 
@@ -95,21 +123,58 @@ export default function BlogManager() {
     );
   }
 
+  const visible = articles.filter((article) => {
+    if (filter === "published") return article.status === "published";
+    if (filter === "draft") return article.status !== "published";
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-extrabold text-navy">Blog Manager</h1>
-            <p className="text-sm text-gray-500 mt-1">{articles.length} articles</p>
+            <p className="text-sm text-gray-500 mt-1">{visible.length} of {articles.length} articles</p>
           </div>
-          <button
-            onClick={() => setCreating(true)}
-            className="rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy hover:bg-yellow-400 transition"
-          >
-            + New Article
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => generate("article")}
+              disabled={generating !== null}
+              className="rounded-lg border border-navy px-4 py-2.5 text-sm font-bold text-navy hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              {generating === "article" ? "Generating..." : "Generate Article"}
+            </button>
+            <button
+              onClick={() => generate("guides")}
+              disabled={generating !== null}
+              className="rounded-lg border border-navy px-4 py-2.5 text-sm font-bold text-navy hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              {generating === "guides" ? "Generating..." : "Generate City Tax Guides"}
+            </button>
+            <button
+              onClick={() => setCreating(true)}
+              className="rounded-lg bg-gold px-5 py-2.5 text-sm font-bold text-navy hover:bg-yellow-400 transition"
+            >
+              + New Article
+            </button>
+          </div>
         </div>
+
+        <div className="mb-4 flex gap-2">
+          {(["all", "published", "draft"] as StatusFilter[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize ${
+                filter === tab ? "bg-navy text-white" : "bg-white text-gray-600 border"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        {notice && <p className="mb-4 text-sm text-gray-600">{notice}</p>}
 
         {loading ? (
           <div className="py-20 text-center text-gray-400">Loading articles...</div>
@@ -127,7 +192,7 @@ export default function BlogManager() {
                 </tr>
               </thead>
               <tbody>
-                {articles.map((a) => (
+                {visible.map((a) => (
                   <tr key={a.id} className="border-b last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-navy max-w-[320px] truncate">
                       {a.title}
@@ -178,7 +243,7 @@ export default function BlogManager() {
                     </td>
                   </tr>
                 ))}
-                {articles.length === 0 && (
+                {visible.length === 0 && (
                   <tr>
                     <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
                       No articles yet. Click &quot;+ New Article&quot; to create one.

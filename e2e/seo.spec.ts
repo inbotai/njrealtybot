@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-const pagesWithMeta = ["/", "/sell", "/tax-shock", "/fsbo", "/news", "/search", "/chat"];
+const pagesWithMeta = ["/", "/sell", "/tax-shock", "/fsbo", "/news", "/search", "/chat", "/property-tax", "/value", "/about", "/privacy", "/terms", "/benefits", "/renovate", "/appeal", "/deals", "/open-houses"];
+
+function expectedCanonical(path: string) {
+  return path === "/" ? "https://gardenstate.ai" : `https://gardenstate.ai${path}`;
+}
 
 test.describe("SEO validation", () => {
   test("homepage has correct title", async ({ page }) => {
@@ -49,7 +53,8 @@ test.describe("SEO validation", () => {
       await page.goto(path);
       const canonical = page.locator("link[rel='canonical']");
       const href = await canonical.getAttribute("href");
-      expect(href, `Missing canonical on ${path}`).toBeTruthy();
+      expect(href, `Canonical on ${path}`).toBe(expectedCanonical(path));
+      expect(href).not.toMatch(/\/$/);
     }
   });
 
@@ -99,10 +104,12 @@ test.describe("SEO validation", () => {
   });
 
   test("robots.txt exists and disallows /admin", async ({ request }) => {
-    const resp = await request.get("https://gardenstate.ai/robots.txt");
+    const resp = await request.get("/robots.txt");
     expect(resp.ok()).toBeTruthy();
     const body = await resp.text();
-    expect(body).toContain("Disallow");
-    expect(body.toLowerCase()).toContain("/admin");
+    expect(body).toContain("Disallow: /admin");
+    expect(body).toContain("User-Agent: GPTBot");
+    expect(body).toContain("Allow: /property-tax");
+    expect(body).toContain("Allow: /value");
   });
 });

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { pageCanonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Garden State AI",
+  title: "Privacy Policy",
+  alternates: pageCanonical("/privacy"),
   description: "How Garden State AI collects, uses, and protects your personal information.",
 };
 

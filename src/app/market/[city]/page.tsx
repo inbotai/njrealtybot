@@ -4,53 +4,120 @@ import { fetchMarketReport, getPhotoUrl } from "@/lib/api";
 import { formatPrice, generateSlug } from "@/lib/utils";
 import IdxGate from "@/components/IdxGate";
 import MarketLeadCapture from "@/components/MarketLeadCapture";
+import CityLeadCapture from "@/components/CityLeadCapture";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import JsonLd, { breadcrumbList, faqPageSchema, webApplicationSchema } from "@/components/JsonLd";
+import { commuteByCity, type CommuteData } from "@/data/nj-commute-data";
+import { cityToSlug, slugToCityName } from "@/lib/place-slug";
+import { pageCanonical, SITE_URL } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ city: string }> };
 
+/** Empty list opts unknown city slugs into on-demand ISR instead of no-store. */
+export function generateStaticParams() {
+  return [];
+}
+
+function commuteFor(name: string): CommuteData | null {
+  if (commuteByCity[name]) return commuteByCity[name];
+  const key = Object.keys(commuteByCity).find((city) => city.toLowerCase() === name.toLowerCase());
+  return key ? commuteByCity[key] : null;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
-  const name = decodeURIComponent(city).replace(/-/g, " ");
+  const name = slugToCityName(city);
+  const slug = cityToSlug(name);
+  const title = `${name} NJ Real Estate Market & Investment Report`;
+  const description = `${name}, NJ: home prices, investment score, tax data, appreciation trends, rental yield, recent sales, and the commute to Midtown. Free AI valuation.`;
   return {
-    title: `${name} NJ Real Estate Market & Investment Report`,
-    description: `${name}, NJ: home prices, investment score, tax data, appreciation trends, rental yield, recent sales. Free AI valuation.`,
+    title,
+    description,
     keywords: [`${name} homes for sale`, `${name} NJ real estate`, `${name} investment report`, `${name} property taxes`, `sell house ${name} NJ`],
+    alternates: pageCanonical(`/market/${slug}`),
+    openGraph: { title, description, url: `${SITE_URL}/market/${slug}` },
   };
 }
 
 export default async function MarketPage({ params }: Props) {
   const { city } = await params;
-  const cityName = decodeURIComponent(city).replace(/-/g, " ");
+  const cityName = slugToCityName(city);
+  const slug = cityToSlug(cityName);
   const report = await fetchMarketReport(cityName);
+  const commute = commuteFor(cityName);
+  const hasStats = Boolean(report && (report.stats.activeCount || report.stats.soldCount));
+  const faqs = [
+    {
+      question: `What is the ${cityName} housing market like?`,
+      answer: hasStats
+        ? `${cityName} has ${report.stats.activeCount} active listings and ${report.stats.soldCount} sales in the last three months. The average sale price is $${Number(report.stats.avgSoldPrice || 0).toLocaleString("en-US")}.`
+        : `${cityName} market stats update from the live MLS feed. Search active listings or request a valuation while the latest sold data loads.`,
+    },
+    {
+      question: `How do I get price alerts in ${cityName}?`,
+      answer: `Use the buyer alert form on this page. Garden State AI sends new listing and price-drop alerts for ${cityName}.`,
+    },
+  ];
 
-  if (!report || (!report.stats.activeCount && !report.stats.soldCount)) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center">
-        <h1 className="text-3xl font-bold text-navy">No Market Data for {cityName}</h1>
-        <p className="mt-3 text-gray-500">Try searching for a different city.</p>
-        <Link href="/search" className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-2 text-white hover:bg-indigo-700">Search All Listings</Link>
-      </div>
-    );
-  }
-
-  const { stats, investment } = report;
-  const trendIcon = stats.trend === "up" ? "📈" : stats.trend === "down" ? "📉" : "➡️";
-  const trendLabel = stats.trend === "up" ? "Prices Trending Up" : stats.trend === "down" ? "Prices Trending Down" : "Prices Stable";
-  const inv = investment || {} as any;
+  const stats = hasStats ? report.stats : null;
+  const inv = (hasStats ? report.investment : {}) || {} as any;
+  const trendIcon = stats?.trend === "up" ? "📈" : stats?.trend === "down" ? "📉" : "➡️";
+  const trendLabel = stats?.trend === "up" ? "Prices Trending Up" : stats?.trend === "down" ? "Prices Trending Down" : "Prices Stable";
 
   return (
     <>
+      <JsonLd data={breadcrumbList([
+        { name: "Home", path: "/" },
+        { name: "Market", path: "/market" },
+        { name: cityName, path: `/market/${slug}` },
+      ])} />
+      <JsonLd data={webApplicationSchema({
+        name: `${cityName} Market Report`,
+        path: `/market/${slug}`,
+        description: `Home prices, taxes, and commute context for ${cityName}, New Jersey.`,
+      })} />
+      <JsonLd data={faqPageSchema(faqs)} />
       {/* Hero */}
       <section className="bg-white py-12">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-navy">{cityName}, NJ</h1>
           <p className="mt-2 text-xl text-gold">Real Estate Market Report</p>
           <p className="mt-2 text-sm text-gray-500">Updated {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
+          <p className="mt-3 text-sm text-gray-500">
+            <Link href={`/property-tax/${slug}`} className="text-indigo-700 hover:underline">{cityName} property tax rate</Link>
+            {" · "}
+            <Link href={`/search?city=${encodeURIComponent(cityName)}`} className="text-indigo-700 hover:underline">Homes for sale</Link>
+          </p>
         </div>
       </section>
 
+      {commute && (
+        <section className="border-b bg-indigo-50 py-8">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="text-2xl font-bold text-navy">NYC commute from {cityName}</h2>
+            <p className="mt-1 text-sm text-gray-600">Peak-hour estimates to Midtown. Times vary by station and schedule.</p>
+            <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {commute.transitLine && <CommuteStat label="Rail, PATH, bus, or ferry" value={commute.transitLine} />}
+              {commute.transitToNYCPenn != null && <CommuteStat label="Transit to Midtown" value={`${commute.transitToNYCPenn} min`} />}
+              {commute.driveToNYCPenn != null && <CommuteStat label="Peak drive to Midtown" value={`${commute.driveToNYCPenn} min`} />}
+              {commute.nearestStation && <CommuteStat label="Nearest station" value={commute.stationDistance ? `${commute.nearestStation} · ${commute.stationDistance} mi` : commute.nearestStation} />}
+            </dl>
+          </div>
+        </section>
+      )}
+
+      {!hasStats && (
+        <section className="border-b py-8">
+          <p className="mx-auto max-w-3xl px-4 text-center text-gray-600">
+            Live sold and active counts for {cityName} are thin in this feed right now. You can still search listings, check the tax rate, or request alerts.
+          </p>
+        </section>
+      )}
+
       {/* Stats grid */}
-      <section className="border-b py-10">
+      {stats && <section className="border-b py-10">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-6 px-4 md:grid-cols-4">
           <StatCard label="Active Listings" value={stats.activeCount} />
           <StatCard label="Sold (3 months)" value={stats.soldCount} />
@@ -66,10 +133,10 @@ export default async function MarketPage({ params }: Props) {
             {parseFloat(stats.absorptionMonths) < 3 ? "Seller's Market" : parseFloat(stats.absorptionMonths) > 6 ? "Buyer's Market" : "Balanced Market"} — {stats.absorptionMonths} months of inventory
           </p>
         )}
-      </section>
+      </section>}
 
       {/* Investment Analysis */}
-      {(inv.investScore || inv.avgTax || inv.appreciation !== null) && (
+      {hasStats && (inv.investScore || inv.avgTax || inv.appreciation !== null) && (
         <section className="border-b py-10 bg-gradient-to-r from-indigo-50 to-white">
           <div className="mx-auto max-w-5xl px-4">
             <h2 className="text-2xl font-bold text-navy text-center">Investment Analysis</h2>
@@ -122,16 +189,17 @@ export default async function MarketPage({ params }: Props) {
 
       {/* Market Alerts Lead Capture */}
       <MarketLeadCapture city={cityName} />
+      <CityLeadCapture city={cityName} source={`market/${slug}`} />
 
       <div className="mx-auto max-w-5xl px-4 py-12">
         {/* Recent Sales — gated behind IDX auth in Phase 1 */}
         <IdxGate>
-        {report.recentSales.length > 0 && (
+        {(report?.recentSales?.length || 0) > 0 && (
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-navy">Recent Sales in {cityName}</h2>
             <p className="mt-1 text-sm text-gray-500">Last 3 months</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {report.recentSales.map((l: any) => (
+              {report!.recentSales.map((l: any) => (
                 <ListingCard key={l.id} listing={l} type="sold" />
               ))}
             </div>
@@ -141,12 +209,12 @@ export default async function MarketPage({ params }: Props) {
 
         {/* Active Listings — gated behind IDX auth in Phase 1 */}
         <IdxGate>
-        {report.activeListings.length > 0 && (
+        {(report?.activeListings?.length || 0) > 0 && (
           <section className="mb-12">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-navy">Homes for Sale in {cityName}</h2>
-                <p className="mt-1 text-sm text-gray-500">{stats.activeCount} active listings</p>
+                <p className="mt-1 text-sm text-gray-500">{stats?.activeCount ?? report?.activeListings?.length ?? 0} active listings</p>
               </div>
               <Link href={`/search?city=${encodeURIComponent(cityName)}`}
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
@@ -154,7 +222,7 @@ export default async function MarketPage({ params }: Props) {
               </Link>
             </div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {report.activeListings.map((l: any) => (
+              {report!.activeListings.map((l: any) => (
                 <ListingCard key={l.id} listing={l} type="active" />
               ))}
             </div>
@@ -176,6 +244,15 @@ export default async function MarketPage({ params }: Props) {
         </section>
       </div>
     </>
+  );
+}
+
+function CommuteStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-white p-4 shadow-sm">
+      <p className="text-xs uppercase text-gray-500">{label}</p>
+      <p className="mt-1 font-semibold text-navy">{value}</p>
+    </div>
   );
 }
 
