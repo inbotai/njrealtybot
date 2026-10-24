@@ -12,9 +12,16 @@ import RequireAuth from "@/components/RequireAuth";
 import DemandBadge from "@/components/DemandBadge";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
 import VerifiedHomeBadge from "@/components/VerifiedHomeBadge";
+import { pageCanonical } from "@/lib/seo";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
+export const revalidate = 300;
+
+/** Empty list opts listing URLs into on-demand ISR instead of no-store. */
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -27,14 +34,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const price = listing.list_price ? formatPrice(listing.list_price) : "";
     const beds = listing.bedrooms_total ?? "?";
     const baths = listing.bathrooms_total ?? "?";
-    const title = `${address} | ${beds} Beds ${baths} Baths | ${price} | Garden State AI`;
+    const title = `${address} | ${beds} Beds ${baths} Baths${price ? ` | ${price}` : ""}`;
     return {
       title,
       description: listing.public_remarks?.slice(0, 160) || `View details for ${address}`,
+      alternates: pageCanonical(`/property/${slug}`),
       openGraph: {
         title,
         description: listing.public_remarks?.slice(0, 160),
         images: listing.primary_photo_url ? [listing.primary_photo_url] : [],
+        url: `https://gardenstate.ai/property/${slug}`,
       },
     };
   } catch {

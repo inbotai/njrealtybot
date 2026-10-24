@@ -167,3 +167,60 @@ export function taxFromMarketValue(muni: NjMunicipality, marketValue: number): {
 export function allMunicipalities(): readonly NjMunicipality[] {
   return MUNICIPALITIES;
 }
+
+function placeSlug(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+/** Short place name without BOROUGH / CITY / TOWNSHIP, title-cased. */
+export function municipalityName(muni: NjMunicipality): string {
+  let short = expandPlaceName(muni.district);
+  for (let i = 0; i < 2; i++) {
+    const suffix = SUFFIXES.find((item) => short.endsWith(` ${item}`));
+    if (!suffix) break;
+    const next = short.slice(0, -suffix.length).trim();
+    if (next.length >= 3) short = next;
+  }
+  return short.toLowerCase().replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+export interface TownTaxPage {
+  slug: string;
+  name: string;
+  county: string;
+  district: string;
+  generalRate: number;
+  effectiveRate: number;
+}
+
+let townPagesCache: TownTaxPage[] | null = null;
+
+/** One indexable URL per municipality. Duplicate names include the county. */
+export function townTaxPages(): TownTaxPage[] {
+  if (townPagesCache) return townPagesCache;
+  const bases = MUNICIPALITIES.map((muni) => placeSlug(municipalityName(muni)));
+  const counts = new Map<string, number>();
+  for (const base of bases) counts.set(base, (counts.get(base) || 0) + 1);
+  townPagesCache = MUNICIPALITIES.map((muni, index) => {
+    const base = bases[index];
+    const collided = (counts.get(base) || 0) > 1;
+    const fullName = expandPlaceName(muni.district)
+      .toLowerCase()
+      .replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+    const slug = collided ? `${placeSlug(fullName)}-${placeSlug(muni.county)}` : base;
+    return {
+      slug,
+      name: collided ? fullName : municipalityName(muni),
+      county: muni.county,
+      district: muni.district,
+      generalRate: muni.generalRate,
+      effectiveRate: muni.effectiveRate,
+    };
+  });
+  return townPagesCache;
+}
+
+export function townTaxPageBySlug(slug: string): TownTaxPage | null {
+  const key = decodeURIComponent(slug).toLowerCase();
+  return townTaxPages().find((town) => town.slug === key) || null;
+}

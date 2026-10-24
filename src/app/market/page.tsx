@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchMarketCities } from "@/lib/api";
+import { cityToSlug } from "@/lib/place-slug";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Real Estate Market Intelligence \u2014 Trends & Demand | Garden State AI" },
@@ -45,7 +48,7 @@ export default async function MarketIndexPage() {
       <div className="mx-auto max-w-5xl px-4 py-12">
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {cities.map((c) => (
-            <Link key={c.city} href={`/market/${encodeURIComponent(c.city)}`}
+            <Link key={c.city} href={`/market/${cityToSlug(c.city)}`}
               className="flex items-center justify-between rounded-lg border bg-white px-4 py-3 text-sm transition hover:border-indigo-300 hover:shadow-sm">
               <span className="font-medium text-navy">{c.city}</span>
               <span className="text-xs text-gray-400">{c.count} listings</span>

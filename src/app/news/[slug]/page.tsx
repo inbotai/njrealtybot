@@ -9,7 +9,11 @@ import ShareButtons from "@/components/ShareButtons";
 import TwitterWidgetLoader from "@/components/TwitterWidgetLoader";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+function documentTitle(title: string): string {
+  return title.replace(/\s*\|\s*Garden State AI\s*$/i, "");
+}
 
 type Props = { params: Promise<{ slug: string }> };
 const BASE_URL = "https://gardenstate.ai";
@@ -26,8 +30,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!title) return { title: "Post Not Found" };
 
   const url = `${BASE_URL}/news/${slug}`;
+  const pageTitle = documentTitle(title);
   return {
-    title,
+    title: pageTitle,
     description: excerpt,
     openGraph: {
       title, description: excerpt, type: "article", url,

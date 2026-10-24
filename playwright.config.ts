@@ -8,7 +8,7 @@ export default defineConfig({
   reporter: [["html", { open: "never" }], ["list"]],
 
   use: {
-    baseURL: "https://gardenstate.ai",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "https://gardenstate.ai",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     trace: "retain-on-failure",

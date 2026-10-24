@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   formatCurrency,
   formatPercent,
@@ -56,12 +57,15 @@ const DISCLAIMER =
   "and does not represent the taxpayer.";
 
 export default function PropertyTaxAppeal() {
-  const [address, setAddress] = useState("");
+  const searchParams = useSearchParams();
+  const initialAddress = searchParams.get("address") || "";
+  const [address, setAddress] = useState(initialAddress);
   const [stage, setStage] = useState<LadderStage>("diagnose");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<TaxAnalysisResult | null>(null);
   const [loadingNote, setLoadingNote] = useState("Looking up the public assessment…");
+  const autoRan = useRef(false);
 
   useEffect(() => {
     if (!loading) return;
@@ -86,9 +90,10 @@ export default function PropertyTaxAppeal() {
 
   // ── Rung 1: Diagnose ──────────────────────────────────────────
 
-  async function handleDiagnose(e: React.FormEvent) {
-    e.preventDefault();
-    if (!address.trim()) return;
+  async function runAnalysis(raw: string) {
+    const query = raw.trim();
+    if (!query) return;
+    setAddress(query);
     setLoading(true);
     setError(null);
     setAnalysis(null);
@@ -97,7 +102,7 @@ export default function PropertyTaxAppeal() {
       const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: address.trim() }),
+        body: JSON.stringify({ address: query }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -114,6 +119,17 @@ export default function PropertyTaxAppeal() {
       setLoading(false);
     }
   }
+
+  function handleDiagnose(e: React.FormEvent) {
+    e.preventDefault();
+    void runAnalysis(address);
+  }
+
+  useEffect(() => {
+    if (!initialAddress || autoRan.current) return;
+    autoRan.current = true;
+    void runAnalysis(initialAddress);
+  }, [initialAddress]);
 
   // ── Rung 2: Equip (generate packet) ───────────────────────────
 
