@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
+import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
 
 const PUBLIC_ALLOW = [
   "/",
+  INDEXNOW_KEY_PATH,
   "/search",
   "/market",
   "/news",
@@ -41,8 +43,8 @@ export default function robots(): MetadataRoute.Robots {
         allow: PUBLIC_ALLOW,
         disallow: ["/admin", "/my-home", "/api/"],
       })),
-      { userAgent: "CCBot", disallow: ["/"] },
-      { userAgent: "Bytespider", disallow: ["/"] },
+      { userAgent: "CCBot", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
+      { userAgent: "Bytespider", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
     ],
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };

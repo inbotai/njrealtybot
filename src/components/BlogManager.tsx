@@ -31,6 +31,7 @@ export default function BlogManager() {
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [generating, setGenerating] = useState<"article" | "guides" | null>(null);
+  const [pinging, setPinging] = useState(false);
   const [notice, setNotice] = useState("");
 
   const fetchArticles = useCallback(async () => {
@@ -47,10 +48,44 @@ export default function BlogManager() {
 
   useEffect(() => { fetchArticles(); }, [fetchArticles]);
 
+  async function pingIndexNow(body: { urls?: string[]; allSitemap?: boolean }) {
+    try {
+      const res = await fetch("/api/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) return `IndexNow failed (${res.status}).`;
+      const failed = Array.isArray(json.results) ? json.results.filter((row: { ok?: boolean }) => !row.ok) : [];
+      if (failed.length) return `IndexNow responded ${failed.map((row: { status: number }) => row.status).join(", ")}.`;
+      return `IndexNow accepted ${json.submitted ?? 0} URL${json.submitted === 1 ? "" : "s"}.`;
+    } catch {
+      return "IndexNow request failed.";
+    }
+  }
+
+  function newsUrlsFrom(json: unknown): string[] {
+    if (!json || typeof json !== "object") return [];
+    const record = json as { slug?: string; article?: { slug?: string }; articles?: { slug?: string }[]; posts?: { slug?: string }[] };
+    const rows = [
+      ...(record.slug ? [record] : []),
+      ...(record.article?.slug ? [record.article] : []),
+      ...(Array.isArray(record.articles) ? record.articles : []),
+      ...(Array.isArray(record.posts) ? record.posts : []),
+      ...(Array.isArray(json) ? json as { slug?: string }[] : []),
+    ];
+    return rows.filter((row) => row.slug).map((row) => `https://gardenstate.ai/news/${row.slug}`);
+  }
+
   async function togglePublish(article: BlogArticle) {
     const action = article.status === "published" ? "unpublish" : "publish";
     try {
       await adminProxy(`/api/idx/admin/blog/articles/${article.id}/${action}`, "POST");
+      if (action === "publish") {
+        const ping = await pingIndexNow({ urls: [`https://gardenstate.ai/news/${article.slug}`] });
+        setNotice(`Published. ${ping}`);
+      }
       await fetchArticles();
     } catch { /* ignore */ }
   }
@@ -75,11 +110,14 @@ export default function BlogManager() {
         } else if (!dedicated.ok) {
           throw new Error("generate failed");
         }
-        setNotice("City tax guide generation started.");
+        const ping = await pingIndexNow({ allSitemap: true });
+        setNotice(`City tax guide generation started. ${ping}`);
       } else {
         const res = await adminProxy("/api/idx/admin/blog/generate", "POST");
         if (!res.ok) throw new Error("generate failed");
-        setNotice("Article generation started.");
+        const created = newsUrlsFrom(await res.json().catch(() => null));
+        const ping = await pingIndexNow(created.length ? { urls: created } : { urls: ["https://gardenstate.ai/news"] });
+        setNotice(`Article generation started. ${ping}`);
       }
       await fetchArticles();
     } catch {
@@ -105,6 +143,14 @@ export default function BlogManager() {
     setEditing(null);
     setCreating(false);
     fetchArticles();
+  }
+
+  async function submitSitemap() {
+    setPinging(true);
+    setNotice("");
+    const ping = await pingIndexNow({ allSitemap: true });
+    setNotice(ping);
+    setPinging(false);
   }
 
   if (editing || creating) {
@@ -139,15 +185,22 @@ export default function BlogManager() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button
+              onClick={submitSitemap}
+              disabled={pinging || generating !== null}
+              className="rounded-lg border border-navy px-4 py-2.5 text-sm font-bold text-navy hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              {pinging ? "Submitting..." : "Ping IndexNow (Submit Sitemap)"}
+            </button>
+            <button
               onClick={() => generate("article")}
-              disabled={generating !== null}
+              disabled={generating !== null || pinging}
               className="rounded-lg border border-navy px-4 py-2.5 text-sm font-bold text-navy hover:bg-navy hover:text-white disabled:opacity-50"
             >
               {generating === "article" ? "Generating..." : "Generate Article"}
             </button>
             <button
               onClick={() => generate("guides")}
-              disabled={generating !== null}
+              disabled={generating !== null || pinging}
               className="rounded-lg border border-navy px-4 py-2.5 text-sm font-bold text-navy hover:bg-navy hover:text-white disabled:opacity-50"
             >
               {generating === "guides" ? "Generating..." : "Generate City Tax Guides"}
