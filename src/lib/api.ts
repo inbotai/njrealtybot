@@ -151,8 +151,7 @@ export async function fetchListing(id: string): Promise<{
 }> {
   const res = await fetch(`${IDX_API}/api/idx/listings/${id}`, {
     next: { revalidate: 300 },
-    signal: AbortSignal.timeout(8000),
-  } as any);
+  });
   if (!res.ok) throw new Error("Failed to fetch listing");
   return res.json();
 }

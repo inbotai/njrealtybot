@@ -15,6 +15,11 @@ export const revalidate = 3600;
 
 type Props = { params: Promise<{ city: string }> };
 
+/** Empty list opts unknown city slugs into on-demand ISR instead of no-store. */
+export function generateStaticParams() {
+  return [];
+}
+
 function commuteFor(name: string): CommuteData | null {
   if (commuteByCity[name]) return commuteByCity[name];
   const key = Object.keys(commuteByCity).find((city) => city.toLowerCase() === name.toLowerCase());

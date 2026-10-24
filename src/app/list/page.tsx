@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ListingOnboardingWizard from "@/components/ListingOnboardingWizard";
 import ValeHelper from "@/components/ValeHelper";
 import SocialProofSlot from "@/components/SocialProofSlot";
@@ -38,7 +39,9 @@ export default function ListPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 max-w-3xl">
-          <ListingOnboardingWizard />
+          <Suspense fallback={<div className="py-16 text-center text-gray-400">Loading listing form...</div>}>
+            <ListingOnboardingWizard />
+          </Suspense>
         </div>
         <div className="lg:w-80 shrink-0">
           <ValeHelper

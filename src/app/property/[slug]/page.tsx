@@ -18,6 +18,11 @@ import { pageCanonical } from "@/lib/seo";
 export const maxDuration = 30;
 export const revalidate = 300;
 
+/** Empty list opts listing URLs into on-demand ISR instead of no-store. */
+export function generateStaticParams() {
+  return [];
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
