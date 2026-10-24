@@ -43,6 +43,13 @@ const nextConfig: NextConfig = {
 
   headers: async () => [
     {
+      source: "/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt",
+      headers: [
+        { key: "Content-Type", value: "text/plain; charset=utf-8" },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+      ],
+    },
+    {
       source: "/(.*)",
       headers: [
         // Prevent embedding in iframes by competitors

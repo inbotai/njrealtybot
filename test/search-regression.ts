@@ -13,6 +13,7 @@ import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
 import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
 import { allMunicipalities, findMunicipalities, taxFromMarketValue, townTaxPageBySlug, townTaxPages } from "../src/lib/nj-tax-rates";
 import { cityToSlug } from "../src/lib/place-slug";
+import { INDEXNOW_KEY, INDEXNOW_KEY_LOCATION, INDEXNOW_KEY_PATH, chunkUrls, indexNowBody, indexNowUrls, submitIndexNow } from "../src/lib/indexnow";
 import { canonicalTaxAnswer, finalizeValeReply, isTaxRateQuestion, toValeModelMessage, VALE_TAX_RATE_POLICY } from "../src/lib/vale-tax-context";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
@@ -246,7 +247,7 @@ function walkSource(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-function runLocalTests(): { id: string; description: string; pass: boolean; detail: string }[] {
+async function runLocalTests(): Promise<{ id: string; description: string; pass: boolean; detail: string }[]> {
   const results: { id: string; description: string; pass: boolean; detail: string }[] = [];
   const check = (id: string, description: string, pass: boolean, detail: string) => {
     results.push({ id, description, pass, detail });
@@ -566,6 +567,47 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
     `towns ${towns.length} unique ${slugs.size} fortLee ${fortLee?.name || "missing"} washington ${washington?.slug || "missing"}`,
   );
 
+  const keyFile = readFileSync(join(process.cwd(), `public${INDEXNOW_KEY_PATH}`), "utf8");
+  const middleware = readFileSync(join(process.cwd(), "src/middleware.ts"), "utf8");
+  const indexRoute = readFileSync(join(process.cwd(), "src/app/api/indexnow/route.ts"), "utf8");
+  const many = Array.from({ length: 10001 }, (_, i) => `https://gardenstate.ai/property/${i}`);
+  const chunks = chunkUrls(indexNowUrls([...many, "https://evil.example/x", many[0]]));
+  const calls: { url: string; size: number; key: string; host: string; keyLocation: string }[] = [];
+  const submitted = await submitIndexNow([...many, "https://evil.example/nope"], async (url, init) => {
+    const body = JSON.parse(String(init?.body));
+    calls.push({ url: String(url), size: body.urlList.length, key: body.key, host: body.host, keyLocation: body.keyLocation });
+    return new Response(null, { status: 202 });
+  });
+  const payload = indexNowBody(chunks[0]);
+  check(
+    "INDEXNOW-001",
+    "IndexNow key file is the raw key and sitemap URLs submit in 10,000-URL batches",
+    keyFile === INDEXNOW_KEY &&
+      robots.includes("INDEXNOW_KEY_PATH") &&
+      middleware.includes(INDEXNOW_KEY_PATH) &&
+      chunks.length === 2 &&
+      chunks[0].length === 10000 &&
+      chunks[1].length === 1 &&
+      payload.host === "gardenstate.ai" &&
+      payload.key === INDEXNOW_KEY &&
+      payload.keyLocation === INDEXNOW_KEY_LOCATION &&
+      payload.urlList.length === 10000 &&
+      submitted.submitted === 10001 &&
+      submitted.batches === 2 &&
+      calls.length === 4 &&
+      calls.every((call) => call.size <= 10000 && call.key === INDEXNOW_KEY && call.host === "gardenstate.ai" && call.keyLocation === INDEXNOW_KEY_LOCATION) &&
+      calls.filter((call) => call.url === "https://api.indexnow.org/indexnow").length === 2 &&
+      calls.filter((call) => call.url === "https://www.bing.com/indexnow").length === 2 &&
+      submitted.results.every((row) => row.ok && (row.status === 200 || row.status === 202)) &&
+      indexRoute.includes("allSitemap") &&
+      indexRoute.includes('mode !== "sitemap"') &&
+      indexRoute.includes("verifySession") &&
+      blogManager.includes("Ping IndexNow (Submit Sitemap)") &&
+      blogManager.includes("pingIndexNow({ allSitemap: true })") &&
+      blogManager.includes("https://gardenstate.ai/news/${article.slug}"),
+    `chunks ${chunks.map((chunk) => chunk.length).join("+")} calls ${calls.length} keyBytes ${keyFile.length}`,
+  );
+
   return results;
 }
 
@@ -577,7 +619,7 @@ async function main() {
   let passed = 0;
   let failed = 0;
 
-  for (const test of runLocalTests()) {
+  for (const test of await runLocalTests()) {
     if (test.pass) {
       console.log(`  ✅ ${test.id}: ${test.description}`);
       console.log(`     → ${test.detail}`);
@@ -612,7 +654,7 @@ async function main() {
   }
 
   console.log(`\n═══════════════════════════════════════════════════`);
-  console.log(`  Results: ${passed} passed, ${failed} failed, ${TESTS.length + runLocalTests().length} total`);
+  console.log(`  Results: ${passed} passed, ${failed} failed, ${passed + failed} total`);
   console.log(`═══════════════════════════════════════════════════`);
 
   if (failed > 0) process.exit(1);

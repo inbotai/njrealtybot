@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
 
 /**
  * Middleware: route requests based on hostname.
@@ -24,6 +25,11 @@ export function middleware(req: NextRequest) {
   const isIdx = IDX_HOSTS.some((h) => host.startsWith(h));
   const { pathname } = req.nextUrl;
 
+  // IndexNow key file is a public text file. Never redirect or rewrite it.
+  if (pathname === INDEXNOW_KEY_PATH) {
+    return NextResponse.next();
+  }
+
   // IDX subdomain: block main-only routes
   if (isIdx && MAIN_ONLY_ROUTES.some((r) => pathname.startsWith(r))) {
     return NextResponse.redirect(new URL("/", req.url));
@@ -46,5 +52,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|favicon.ico|.*\\..*).*)"],
+  matcher: [
+    "/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt",
+    "/((?!_next|api|favicon.ico|.*\\..*).*)",
+  ],
 };
