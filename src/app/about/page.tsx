@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageCanonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About Us",
+  alternates: pageCanonical("/about"),
   description:
     "Learn about Garden State AI and how we use AI to help you find your perfect home in New Jersey.",
 };

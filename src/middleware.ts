@@ -36,11 +36,11 @@ export function middleware(req: NextRequest) {
     // This allows admin users to still access these routes on the main domain
   }
 
-  // Tag the request with the subdomain flag + pathname so layout can read them
+  // Host-only cookie on the IDX subdomain. The main site does not set a cookie,
+  // so public HTML can stay cacheable. The cookie is not shared across hosts.
   const res = NextResponse.next();
-  res.headers.set("x-next-pathname", pathname);
   if (isIdx) {
-    res.headers.set("x-idx-subdomain", "true");
+    res.cookies.set("gsai_idx", "1", { path: "/", sameSite: "lax" });
   }
   return res;
 }

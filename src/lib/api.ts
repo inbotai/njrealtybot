@@ -379,7 +379,7 @@ export async function fetchBlogPosts(filters?: {
     if (filters?.town) params.set("town", filters.town);
     if (filters?.articleType) params.set("article_type", filters.articleType);
     const res = await fetch(`${IDX_API}/api/idx/blog/posts?${params}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -390,7 +390,7 @@ export async function fetchBlogPosts(filters?: {
 export async function fetchBlogPost(slug: string): Promise<BlogPostAPI | null> {
   try {
     const res = await fetch(`${IDX_API}/api/idx/blog/posts/${slug}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
     return await res.json();

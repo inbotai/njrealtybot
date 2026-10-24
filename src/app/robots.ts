@@ -1,38 +1,48 @@
 import type { MetadataRoute } from "next";
 
+const PUBLIC_ALLOW = [
+  "/",
+  "/search",
+  "/market",
+  "/news",
+  "/property",
+  "/property-tax",
+  "/value",
+  "/appeal",
+  "/deals",
+  "/open-houses",
+  "/sell",
+  "/tax-shock",
+  "/benefits",
+  "/renovate",
+];
+
+const PRIVATE = ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"];
+
+const AI_SEARCH_BOTS = [
+  "GPTBot",
+  "OAI-SearchBot",
+  "ClaudeBot",
+  "anthropic-ai",
+  "Google-Extended",
+  "PerplexityBot",
+];
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/search", "/market", "/news", "/sell", "/tax-shock", "/benefits", "/renovate"],
-        disallow: ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"],
+        allow: PUBLIC_ALLOW,
+        disallow: PRIVATE,
       },
-      // Block AI training crawlers (best-effort policy statement, not security)
-      {
-        userAgent: "GPTBot",
-        disallow: ["/"],
-      },
-      {
-        userAgent: "CCBot",
-        disallow: ["/"],
-      },
-      {
-        userAgent: "ClaudeBot",
-        disallow: ["/"],
-      },
-      {
-        userAgent: "Bytespider",
-        disallow: ["/"],
-      },
-      {
-        userAgent: "anthropic-ai",
-        disallow: ["/"],
-      },
-      {
-        userAgent: "Google-Extended",
-        disallow: ["/"],
-      },
+      ...AI_SEARCH_BOTS.map((userAgent) => ({
+        userAgent,
+        allow: PUBLIC_ALLOW,
+        disallow: ["/admin", "/my-home", "/api/"],
+      })),
+      { userAgent: "CCBot", disallow: ["/"] },
+      { userAgent: "Bytespider", disallow: ["/"] },
     ],
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };

@@ -1,25 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import NavbarIdx from "@/components/NavbarIdx";
-import Footer from "@/components/Footer";
-import FooterIdx from "@/components/FooterIdx";
 import ValeProvider from "@/components/ValeProvider";
-import ValeSidePanel from "@/components/ValeSidePanel";
-import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { AdminProvider } from "@/components/AdminAuth";
-import TrackingPixels from "@/components/TrackingPixels";
-import { Suspense } from "react";
-import ActivityTracker from "@/components/ActivityTracker";
-import ExitIntent from "@/components/ExitIntent";
-import AppSidebar from "@/components/AppSidebar";
-import MyHomeLogCTA from "@/components/MyHomeLogCTA";
+import SiteShell from "@/components/SiteShell";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://gardenstate.ai"),
   title: {
     default: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     template: "%s | Garden State AI",
@@ -34,9 +23,6 @@ export const metadata: Metadata = {
     "Garden State real estate",
     "Vale AI assistant NJ",
   ],
-  alternates: {
-    canonical: "https://gardenstate.ai/",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -44,13 +30,15 @@ export const metadata: Metadata = {
     title: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     description:
       "Enter your address \u2014 get your home's value, your property-tax verdict, and your best time to sell. Free, in 30 seconds. Powered by real MLS, tax, and municipal data.",
-    url: "https://gardenstate.ai/",
+    url: "https://gardenstate.ai",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Garden State AI — NJ Real Estate, Property Tax Appeal, Home Valuation and AI Search" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Garden State AI \u2014 Home Value, Property Tax & Selling Intelligence for NJ Homeowners",
     description:
       "Enter your address \u2014 get your home's value, your property-tax verdict, and your best time to sell. Free, in 30 seconds. Powered by real MLS, tax, and municipal data.",
+    images: ["/opengraph-image"],
   },
   icons: {
     icon: "/icon.svg",
@@ -58,32 +46,17 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const hdrs = await headers();
-  const isIdx = hdrs.get("x-idx-subdomain") === "true";
-  const pathname = hdrs.get("x-next-pathname") || hdrs.get("x-invoke-path") || "";
-  const isV2 = pathname === "/v2";
-  const isPropertyPage = pathname.startsWith("/property/");
-
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-white text-gray-900">
         <AdminProvider>
           <ValeProvider>
-            {!isV2 && (isIdx ? <NavbarIdx /> : <Navbar />)}
-            {!isV2 && !isIdx && <AppSidebar />}
-            {!isV2 && <MyHomeLogCTA />}
-            <main className="flex-1">{children}</main>
-            {!isV2 && (isIdx ? <FooterIdx /> : <Footer />)}
-            {!isV2 && !isPropertyPage && <ValeSidePanel />}
-            {!isIdx && !isV2 && <WhatsAppWidget />}
-            {!isV2 && <ExitIntent />}
-            <TrackingPixels />
-            <Suspense><ActivityTracker /></Suspense>
+            <SiteShell>{children}</SiteShell>
           </ValeProvider>
         </AdminProvider>
       </body>

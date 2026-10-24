@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { pageCanonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Garden State AI",
+  title: "Terms of Service",
+  alternates: pageCanonical("/terms"),
   description: "Terms and conditions for using Garden State AI real estate services.",
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MyHomeLogLanding from "@/components/MyHomeLogLanding";
 
 export const metadata: Metadata = {
-  title: "MyHome Log — Track Your Home's Value, Taxes & Improvements | Garden State AI",
+  title: { absolute: "MyHome Log — Track Your Home's Value, Taxes & Improvements | Garden State AI" },
   description:
     "Free digital vault for NJ homeowners. Track every valuation, tax analysis, renovation, and market insight. Auto-saves when you use any tool. Your home's story, in one place.",
   keywords: [

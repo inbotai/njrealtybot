@@ -11,7 +11,8 @@ import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
 import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
-import { allMunicipalities, findMunicipalities, taxFromMarketValue } from "../src/lib/nj-tax-rates";
+import { allMunicipalities, findMunicipalities, taxFromMarketValue, townTaxPageBySlug, townTaxPages } from "../src/lib/nj-tax-rates";
+import { cityToSlug } from "../src/lib/place-slug";
 import { canonicalTaxAnswer, finalizeValeReply, isTaxRateQuestion, toValeModelMessage, VALE_TAX_RATE_POLICY } from "../src/lib/vale-tax-context";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
@@ -520,6 +521,49 @@ function runLocalTests(): { id: string; description: string; pass: boolean; deta
       proxyAllowsBlogWrites &&
       !adminFiles.some(({ text }) => text.includes("Bearer")),
     directAdmin.map((f) => f.file).join(", ") || `proxied profiles=${proxyAllowsProfiles} blog=${proxyAllowsBlogWrites}`,
+  );
+
+  const layout = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf8");
+  const home = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
+  const sitemap = readFileSync(join(process.cwd(), "src/app/sitemap.ts"), "utf8");
+  const robots = readFileSync(join(process.cwd(), "src/app/robots.ts"), "utf8");
+  const propertyMeta = readFileSync(join(process.cwd(), "src/app/property/[slug]/page.tsx"), "utf8");
+  const blogManager = readFileSync(join(process.cwd(), "src/components/BlogManager.tsx"), "utf8");
+  const towns = townTaxPages();
+  const slugs = new Set(towns.map((town) => town.slug));
+  const fortLee = townTaxPageBySlug("fort-lee");
+  const washington = towns.find((town) => town.slug === "washington-township-bergen");
+  const gptBlocked = /userAgent:\s*"GPTBot"[\s\S]{0,120}disallow:\s*\["\/"\]/.test(robots);
+  check(
+    "SEO-001",
+    "Canonicals are self-referencing, sitemap lists news and town pages, and AI search bots can crawl",
+    !layout.includes('canonical: "https://gardenstate.ai/"') &&
+      !layout.includes("headers()") &&
+      layout.includes('metadataBase: new URL("https://gardenstate.ai")') &&
+      home.includes('pageCanonical("/")') &&
+      sitemap.includes("/news/${post.slug}") &&
+      !sitemap.includes("/blog/") &&
+      sitemap.includes("sitemap-listings") &&
+      sitemap.includes("townTaxPages") &&
+      sitemap.includes("fetchMarketCities") &&
+      robots.includes("GPTBot") &&
+      robots.includes("OAI-SearchBot") &&
+      robots.includes("PerplexityBot") &&
+      robots.includes('"/property-tax"') &&
+      robots.includes('"/admin"') &&
+      !gptBlocked &&
+      towns.length === 564 &&
+      slugs.size === 564 &&
+      fortLee?.name === "Fort Lee" &&
+      washington?.county === "Bergen" &&
+      cityToSlug("Fort Lee") === "fort-lee" &&
+      cityToSlug("Bayonne") === "bayonne" &&
+      propertyMeta.includes("pageCanonical(`/property/${slug}`)") &&
+      !propertyMeta.includes("| Garden State AI`") &&
+      blogManager.includes("/api/idx/admin/blog/articles") &&
+      blogManager.includes("Generate City Tax Guides") &&
+      !blogManager.includes("/api/idx/blog/posts"),
+    `towns ${towns.length} unique ${slugs.size} fortLee ${fortLee?.name || "missing"} washington ${washington?.slug || "missing"}`,
   );
 
   return results;

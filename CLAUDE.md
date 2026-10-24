@@ -48,6 +48,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | TAX-006 | Multi-unit / Class 4 analysis showed $0–$0 savings and a case badge | API sets savingsSuppressed and zeroes the dollars; the UI still rendered them | Suppressed results hide savings and case strength and show the attorney warning |
 | TAX-007 | No-case homes showed Estimated Overpayment $0–$5,738 and the tax-shock package said overpaying | Savings rendered whenever the API had not suppressed them, including a $0 low and a no-case verdict | Savings and overpayment show only for a strong or moderate case with a positive high; $0 high and other cases use neutral text |
 | VALE-001 | Vale invented Paramus $2.10–$2.30 and Hackensack $2.40–$2.60 and applied them to sale price | No municipal rate source; the model answered from memory | 2025 NJ general and effective rates for all 564 municipalities are injected into Vale, which is told never to state a rate from memory. Price estimates use the equalization ratio or the effective rate |
+| SEO-001 | Every public URL advertised the homepage canonical, so Google would not index property, market, tax, and tool pages | Root layout set `alternates.canonical` to the homepage and child routes did not override it; `headers()` also forced `no-store` | Homepage canonical lives on `/` only. Each public route sets its own canonical. Layout no longer reads headers. Sitemap lists `/news`, market cities, 564 town tax pages, and active listings. Named AI search bots may crawl public tools |
 
 ### Adding New Bugs
 
