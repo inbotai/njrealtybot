@@ -13,6 +13,7 @@ import DemandBadge from "@/components/DemandBadge";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
 import VerifiedHomeBadge from "@/components/VerifiedHomeBadge";
 import { pageCanonical } from "@/lib/seo";
+import { positiveAmount } from "@/lib/sqft-display";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
@@ -99,7 +100,8 @@ export default async function PropertyPage({ params }: Props) {
   const pr = listing.public_records;
 
   // ── Key details grid ──────────────────────────────────────
-  const validSqft = listing.living_area && listing.living_area >= 200 ? listing.living_area : null;
+  const measuredSqft = positiveAmount(listing.living_area);
+  const validSqft = measuredSqft != null && measuredSqft >= 200 ? measuredSqft : null;
   const lotSqft = (listing.lot_size_area && listing.lot_size_area >= 100 ? listing.lot_size_area : null) || pr?.lot_sqft;
   const lotDisplay = pr?.lot_acres
     ? `${pr.lot_acres} acres (${Number(pr.lot_sqft).toLocaleString()} sqft)`
@@ -284,7 +286,7 @@ export default async function PropertyPage({ params }: Props) {
                     <p className="text-2xl font-bold text-navy">{formatPrice(aiEstimate.estimatedValue)}</p>
                     <p className="text-[10px] text-gray-400">{formatPrice(aiEstimate.lowRange)} — {formatPrice(aiEstimate.highRange)}</p>
                   </div>
-                  {aiEstimate.pricePerSqft > 0 && (
+                  {positiveAmount(aiEstimate.pricePerSqft) != null && (
                     <div className="text-center">
                       <p className="text-xs font-medium text-gray-500">$/Sqft</p>
                       <p className="text-lg font-bold text-navy">${aiEstimate.pricePerSqft}</p>

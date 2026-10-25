@@ -4,6 +4,7 @@ import { fetchListing, fetchListings, getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import OpenHouseForm from "@/components/OpenHouseForm";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
+import { positiveAmount } from "@/lib/sqft-display";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -77,6 +78,7 @@ export default async function OpenHouseLandingPage({ params }: Props) {
 
   const { listing } = data;
   const address = formatAddress(listing);
+  const sqft = positiveAmount(listing.living_area);
   const photo = listing.primary_photo_url
     || (listing.photo_count !== 0 ? getPhotoUrl(listing.mls_number) : null);
 
@@ -129,9 +131,9 @@ export default async function OpenHouseLandingPage({ params }: Props) {
                 <span className="ml-1 text-gray-500">Baths</span>
               </div>
             )}
-            {listing.living_area != null && (
+            {sqft != null && (
               <div className="text-center">
-                <span className="font-bold text-navy">{listing.living_area.toLocaleString()}</span>
+                <span className="font-bold text-navy">{sqft.toLocaleString()}</span>
                 <span className="ml-1 text-gray-500">Sqft</span>
               </div>
             )}

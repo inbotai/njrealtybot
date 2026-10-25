@@ -10,6 +10,7 @@ import JsonLd, { breadcrumbList, faqPageSchema, webApplicationSchema } from "@/c
 import { commuteByCity, type CommuteData } from "@/data/nj-commute-data";
 import { cityToSlug, slugToCityName } from "@/lib/place-slug";
 import { pageCanonical, SITE_URL } from "@/lib/seo";
+import { sqftLabel } from "@/lib/sqft-display";
 
 export const revalidate = 3600;
 
@@ -304,7 +305,7 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
         <div className="mt-1 flex gap-2 text-xs text-gray-500">
           {listing.bedrooms_total && <span>{listing.bedrooms_total} Beds</span>}
           {baths > 0 && <span>{baths} Baths</span>}
-          {listing.living_area && listing.living_area > 100 && <span>{listing.living_area.toLocaleString()} Sqft</span>}
+          {sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" }) && <span>{sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" })}</span>}
           {listing.year_built && listing.year_built < 9999 && <span>Built {listing.year_built}</span>}
         </div>
         {type === "sold" && listing.close_date && (

@@ -7,7 +7,7 @@
  * Tests the full pipeline: hero parse → API search → results
  */
 
-import { readFileSync, readdirSync, statSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
 import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
@@ -18,6 +18,8 @@ import { canonicalTaxAnswer, finalizeValeReply, isTaxRateQuestion, toValeModelMe
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
+import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
+import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -606,6 +608,114 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       blogManager.includes("pingIndexNow({ allSitemap: true })") &&
       blogManager.includes("https://gardenstate.ai/news/${article.slug}"),
     `chunks ${chunks.map((chunk) => chunk.length).join("+")} calls ${calls.length} keyBytes ${keyFile.length}`,
+  );
+
+  const euclidPrice = pricingEstimateView({
+    estimatedValue: 930020,
+    lowRange: 818418,
+    highRange: 1004422,
+    pricePerSqft: 0,
+  });
+  const euclidTax = taxMarketView({
+    estimatedMarketValueLow: 690000,
+    estimatedMarketValueHigh: 850000,
+    estimatedMarketValueMid: 734425,
+    impliedMarketValue: 702216,
+  });
+  const valueClient = readFileSync(join(process.cwd(), "src/components/ValuePageClient.tsx"), "utf8");
+  const homeTool = readFileSync(join(process.cwd(), "src/components/HomeValuationTool.tsx"), "utf8");
+  const sellScore = readFileSync(join(process.cwd(), "src/components/SellScoreResult.tsx"), "utf8");
+  const searchEngine = readFileSync(join(process.cwd(), "src/components/SearchEngine.tsx"), "utf8");
+  const listingCard = readFileSync(join(process.cwd(), "src/components/ListingCard.tsx"), "utf8");
+  check(
+    "SQFT-001",
+    "Missing square footage does not render as $0/sqft or 0 sqft",
+    positiveAmount(0) == null &&
+      positiveAmount(null) == null &&
+      positiveAmount(undefined) == null &&
+      positiveAmount("") == null &&
+      positiveAmount("0") == null &&
+      positiveAmount("0.00") == null &&
+      sqftLabel(0) == null &&
+      sqftLabel(null) == null &&
+      pricePerSqftLabel(0) == null &&
+      pricePerSqftLabel("0") == null &&
+      pricePerSqftLabel(0.4) == null &&
+      sqftLabel(1500) === "1,500 sqft" &&
+      pricePerSqftLabel(246) === "$246/sqft" &&
+      sqftLabel(50, { minExclusive: 100 }) == null &&
+      sqftLabel(1800, { minExclusive: 100, unit: "Sqft" }) === "1,800 Sqft" &&
+      euclidPrice.pricePerSqft == null &&
+      homeTool.includes("pricePerSqftLabel") &&
+      !homeTool.includes("Avg ${estimate.pricePerSqft}/sqft") &&
+      sellScore.includes("positiveAmount(result.pricePerSqft)") &&
+      !searchEngine.includes("living_area != null") &&
+      searchEngine.includes("sqftLabel") &&
+      listingCard.includes("sqftLabel") &&
+      propertyTax.includes("positiveAmount(comp.livingAreaSqft)") &&
+      taxShock.includes("sqftLabel(c.livingAreaSqft)") &&
+      !walkSource(join(process.cwd(), "src")).some((file) => /living_area\s*!=\s*null/.test(readFileSync(file, "utf8"))),
+    `label ${sqftLabel(1500)} perSqft ${pricePerSqftLabel(246)} zero ${String(pricePerSqftLabel(0))}`,
+  );
+
+  check(
+    "VAL-001",
+    "Value and tax pages keep the backend market-value estimate",
+    euclidPrice.estimatedValue === 930020 &&
+      euclidPrice.lowRange === 818418 &&
+      euclidPrice.highRange === 1004422 &&
+      euclidPrice.estimatedValue !== euclidTax.estimatedMarketValueMid &&
+      euclidTax.estimatedMarketValueLow === 690000 &&
+      euclidTax.estimatedMarketValueHigh === 850000 &&
+      euclidTax.estimatedMarketValueMid === 734425 &&
+      euclidTax.impliedMarketValue === 702216 &&
+      taxMarketView({
+        estimatedMarketValueMid: 734425,
+        impliedMarketValue: 702216,
+        estimatedMarketValueLow: 690000,
+        estimatedMarketValueHigh: 850000,
+      }).estimatedMarketValueMid === 734425 &&
+      valueClient.includes("pricingEstimateView") &&
+      valueClient.includes("estimatedValue: priced.estimatedValue") &&
+      valueClient.includes("/api/idx/pricing/estimate") &&
+      !valueClient.includes("impliedMarketValue") &&
+      !valueClient.includes("zestimate") &&
+      propertyTax.includes("taxMarketView") &&
+      propertyTax.includes("/api/idx/tax-appeal/analyze") &&
+      taxShock.includes("taxMarketView") &&
+      taxShock.includes("/api/idx/tax-appeal/analyze") &&
+      !propertyTax.includes("estimatedMarketValueMid: data.estimatedValue") &&
+      !taxShock.includes("estimatedMarketValueMid: data.estimatedValue"),
+    `value ${euclidPrice.estimatedValue} taxMid ${euclidTax.estimatedMarketValueMid} implied ${euclidTax.impliedMarketValue}`,
+  );
+
+  const monitored = ["scripts", "src/app/api", ".github"]
+    .map((dir) => join(process.cwd(), dir))
+    .filter((dir) => existsSync(dir))
+    .flatMap((dir) => walkSource(dir));
+  const addressHit = monitored.filter((file) => /119\s*W\s*21|155\s*W\s*3rd/i.test(readFileSync(file, "utf8")));
+  const paidLoop = monitored.filter((file) => {
+    const text = readFileSync(file, "utf8");
+    return /tax-appeal\/analyze|pricing\/estimate/.test(text);
+  });
+  const health = readFileSync(join(process.cwd(), "scripts/health-check.ts"), "utf8");
+  const repoHits = walkSource(process.cwd()).filter((file) => {
+    if (file.endsWith(`${join("test", "search-regression.ts")}`)) return false;
+    return /119\s*W\s*21|155\s*W\s*3rd/i.test(readFileSync(file, "utf8"));
+  });
+  check(
+    "MONITOR-001",
+    "No scheduled job values the Bayonne health-check addresses",
+    addressHit.length === 0 &&
+      paidLoop.length === 0 &&
+      repoHits.length === 0 &&
+      !existsSync(join(process.cwd(), "vercel.json")) &&
+      health.includes("30 * 60_000") &&
+      !health.includes("tax-appeal") &&
+      !health.includes("pricing/estimate") &&
+      !health.includes("119 W 21") &&
+      !health.includes("155 W 3rd"),
+    `address files ${addressHit.length} paid files ${paidLoop.length} repo hits ${repoHits.length}`,
   );
 
   return results;

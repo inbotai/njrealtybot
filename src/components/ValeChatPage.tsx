@@ -9,6 +9,7 @@ import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import VoiceButton from "./VoiceButton";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
 import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
+import { sqftLabel } from "@/lib/sqft-display";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -24,6 +25,7 @@ function ChatListingCard({ listing }: { listing: Listing }) {
     listing.photo_count > 0
       ? getPhotoUrl(listing.mls_number)
       : listing.primary_photo_url;
+  const sqft = sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" });
 
   return (
     <Link
@@ -56,9 +58,7 @@ function ChatListingCard({ listing }: { listing: Listing }) {
           {listing.bathrooms_total != null && (
             <span>{listing.bathrooms_total} Baths</span>
           )}
-          {listing.living_area != null && listing.living_area > 100 && (
-            <span>{listing.living_area.toLocaleString()} Sqft</span>
-          )}
+          {sqft && <span>{sqft}</span>}
         </div>
         <span className="mt-1 text-[10px] font-medium text-indigo-600">
           View Details &rarr;

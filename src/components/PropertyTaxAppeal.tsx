@@ -12,6 +12,8 @@ import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
 import type { LadderStage } from "@/lib/service-ladder/types";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import { positiveAmount } from "@/lib/sqft-display";
+import { taxMarketView } from "@/lib/valuation-display";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -111,7 +113,7 @@ export default function PropertyTaxAppeal() {
         return;
       }
       const result: TaxAnalysisResult = await res.json();
-      setAnalysis(result);
+      setAnalysis({ ...result, ...taxMarketView(result) });
       setStage("diagnose");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -408,7 +410,7 @@ export default function PropertyTaxAppeal() {
                                 <td className="py-2 pr-4">{formatCurrency(comp.salePrice)}</td>
                                 <td className="py-2 pr-4">{comp.saleDate}</td>
                                 {showSqft && (
-                                  <td className="py-2 pr-4">{(comp.livingAreaSqft ?? 0) > 0 ? comp.livingAreaSqft!.toLocaleString() : "Not in MLS"}</td>
+                                  <td className="py-2 pr-4">{positiveAmount(comp.livingAreaSqft)?.toLocaleString() ?? "Not in MLS"}</td>
                                 )}
                                 <td className="py-2 pr-4">{comp.bedrooms ?? "—"}</td>
                                 {showDistance && (
