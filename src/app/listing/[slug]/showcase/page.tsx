@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchListing, getPhotoUrl } from "@/lib/api";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import MortgageCalculator from "@/components/MortgageCalculator";
+import { sqftLabel } from "@/lib/sqft-display";
 
 export const maxDuration = 30;
 
@@ -52,7 +53,7 @@ export default async function ShowcasePage({ params }: Props) {
             <div className="mt-2 flex gap-4 text-lg">
               {listing.bedrooms_total && <span>{listing.bedrooms_total} Beds</span>}
               {listing.bathrooms_total && <span>{listing.bathrooms_total} Baths</span>}
-              {listing.living_area && listing.living_area > 100 && <span>{listing.living_area.toLocaleString()} Sqft</span>}
+              {sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" }) && <span>{sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" })}</span>}
               {listing.lot_size_area && <span>{listing.lot_size_area > 100 ? (listing.lot_size_area / 43560).toFixed(2) : listing.lot_size_area} Acres</span>}
             </div>
           </div>

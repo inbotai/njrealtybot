@@ -3,6 +3,7 @@
 import { useState } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
+import { positiveAmount } from "@/lib/sqft-display";
 
 interface ValuationResult {
   address: string;
@@ -43,6 +44,7 @@ function scoreRingColor(score: number) {
 export default function SellScoreResult({ result, onReset }: { result: ValuationResult; onReset: () => void }) {
   const [shared, setShared] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
+  const pricePerSqft = positiveAmount(result.pricePerSqft);
 
   const shareUrl = `https://gardenstate.ai/value`;
   const shareText = `My home's Sell Score is ${result.sellScore}/100! Find out yours free at Garden State AI`;
@@ -154,10 +156,10 @@ export default function SellScoreResult({ result, onReset }: { result: Valuation
                     <span className="font-semibold text-navy">{fmt(result.taxAmount)}</span>
                   </div>
                 )}
-                {result.pricePerSqft && (
+                {pricePerSqft != null && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Price per Sq Ft</span>
-                    <span className="font-semibold text-navy">{fmt(result.pricePerSqft)}</span>
+                    <span className="font-semibold text-navy">{fmt(pricePerSqft)}</span>
                   </div>
                 )}
                 {result.yearBuilt && (

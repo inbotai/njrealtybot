@@ -7,6 +7,7 @@ import { formatPrice, formatAddress, generateSlug } from "@/lib/utils";
 import ListingActions from "@/components/ListingActions";
 import { EstTotalMonthlyCost } from "@/components/TotalCostCard";
 import { CommuteBadge } from "@/components/CommuteCard";
+import { sqftLabel } from "@/lib/sqft-display";
 
 const statusColors: Record<string, string> = {
   "For Sale": "bg-green-600",
@@ -20,6 +21,7 @@ const statusColors: Record<string, string> = {
 export default function ListingCard({ listing }: { listing: Listing }) {
   const photo = listing.primary_photo_url || (listing.photo_count !== 0 ? getPhotoUrl(listing.mls_number) : null);
   const statusColor = statusColors[listing.mls_status] || "bg-gray-600";
+  const sqft = sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" });
 
   return (
     <Link
@@ -97,8 +99,8 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           {listing.bathrooms_total != null && (
             <span className="font-medium">{listing.bathrooms_total} Baths</span>
           )}
-          {listing.living_area != null && listing.living_area > 100 && (
-            <span className="font-medium">{listing.living_area.toLocaleString()} Sqft</span>
+          {sqft && (
+            <span className="font-medium">{sqft}</span>
           )}
         </div>
 

@@ -12,6 +12,7 @@
 const API = process.env.IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const LOOP = process.argv.includes("--loop");
 const INTERVAL = 30 * 60_000; // 30 minutes
+// Search and market checks only. Do not add address lookups that bill outside data vendors.
 
 interface TestResult {
   name: string;

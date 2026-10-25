@@ -8,6 +8,7 @@ import { getPhotoUrl } from "@/lib/api";
 import VoiceButton from "./VoiceButton";
 import { renderChatMarkdown } from "@/lib/chat-markdown";
 import { finalizeValeReply, toValeModelMessage, valeStartBody } from "@/lib/vale-tax-context";
+import { positiveAmount, sqftLabel } from "@/lib/sqft-display";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -419,7 +420,7 @@ export default function SearchEngine() {
                 {[
                   { label: "Beds", value: detail.bedrooms_total },
                   { label: "Baths", value: detail.bathrooms_total },
-                  { label: "Sqft", value: detail.living_area?.toLocaleString() },
+                  { label: "Sqft", value: positiveAmount(detail.living_area)?.toLocaleString() ?? null },
                   { label: "Lot", value: detail.lot_size_area ? `${detail.lot_size_area} acres` : null },
                   { label: "Year Built", value: detail.year_built },
                   { label: "Type", value: detail.property_type },
@@ -558,7 +559,7 @@ export default function SearchEngine() {
                                       <div className="mt-1 flex gap-3 text-[11px] text-gray-400">
                                         {listing.bedrooms_total != null && <span>{listing.bedrooms_total} Beds</span>}
                                         {listing.bathrooms_total != null && <span>{listing.bathrooms_total} Baths</span>}
-                                        {listing.living_area != null && <span>{listing.living_area.toLocaleString()} sqft</span>}
+                                        {sqftLabel(listing.living_area) && <span>{sqftLabel(listing.living_area)}</span>}
                                       </div>
                                     </div>
                                   </button>

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import VoiceButton from "./VoiceButton";
 import SellScoreResult from "./SellScoreResult";
 import { splitStreetAndCity } from "@/lib/address";
+import { pricingEstimateView } from "@/lib/valuation-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -121,14 +122,15 @@ export default function ValuePageClient() {
       }
 
       const data = await res.json();
+      const priced = pricingEstimateView(data);
       const confidence = typeof data.confidence === "string" ? data.confidence.toLowerCase() : "";
-      const { score, label, season } = computeSellScore({ ...data, confidence });
+      const { score, label, season } = computeSellScore({ ...data, confidence, estimatedValue: priced.estimatedValue });
 
       setResult({
         address: data.address || addr,
-        estimatedValue: data.estimatedValue || 0,
-        lowRange: data.lowRange || 0,
-        highRange: data.highRange || 0,
+        estimatedValue: priced.estimatedValue,
+        lowRange: priced.lowRange,
+        highRange: priced.highRange,
         assessedValue: data.assessedValue || 0,
         taxAmount: data.taxAmount || 0,
         sellScore: score,
@@ -136,7 +138,7 @@ export default function ValuePageClient() {
         seasonFactor: season,
         equityEstimate: data.equityEstimate || null,
         city: data.city || city,
-        pricePerSqft: data.pricePerSqft || null,
+        pricePerSqft: priced.pricePerSqft,
         yearBuilt: data.yearBuilt || null,
         methodology: data.methodology || null,
         confidence: data.confidence || null,
