@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchListing, fetchListings } from "@/lib/api";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import PrintButton from "@/components/PrintButton";
+import { sqftLabel } from "@/lib/sqft-display";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -57,6 +58,7 @@ export default async function OpenHouseQRPage({ params }: Props) {
 
   const { listing } = data;
   const address = formatAddress(listing);
+  const sqft = sqftLabel(listing.living_area, { unit: "Sqft" });
   const landingUrl = `https://gardenstate.ai/open-house/${listing.mls_number}`;
   const qrUrl = getQrImageUrl(landingUrl, 400);
 
@@ -82,7 +84,7 @@ export default async function OpenHouseQRPage({ params }: Props) {
         <div className="mt-1 flex justify-center gap-4 text-sm text-gray-600">
           {listing.bedrooms_total != null && <span>{listing.bedrooms_total} Beds</span>}
           {listing.bathrooms_total != null && <span>{listing.bathrooms_total} Baths</span>}
-          {listing.living_area != null && <span>{listing.living_area.toLocaleString()} Sqft</span>}
+          {sqft && <span>{sqft}</span>}
         </div>
 
         {/* QR Code */}

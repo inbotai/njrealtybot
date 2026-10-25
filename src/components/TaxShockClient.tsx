@@ -8,6 +8,8 @@ import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
 import { appealTaxYear, assessmentHeadline, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "@/lib/tax-display";
+import { positiveAmount, sqftLabel } from "@/lib/sqft-display";
+import { taxMarketView } from "@/lib/valuation-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 const WA_NUMBER = "12015281095";
@@ -166,7 +168,7 @@ export default function TaxShockClient() {
       }
 
       const data = await res.json();
-      setResult(data);
+      setResult({ ...data, ...taxMarketView(data) });
       setLoading(false);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch {
@@ -375,7 +377,7 @@ export default function TaxShockClient() {
                             )}
                             {c.bedrooms && <span>{c.bedrooms}bd</span>}
                             {c.bathrooms && <span>{c.bathrooms}ba</span>}
-                            {c.livingAreaSqft && <span>{c.livingAreaSqft.toLocaleString()} sqft</span>}
+                            {sqftLabel(c.livingAreaSqft) && <span>{sqftLabel(c.livingAreaSqft)}</span>}
                             {c.saleDate && <span>Sold {new Date(c.saleDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>}
                           </div>
                         </div>
@@ -449,7 +451,7 @@ export default function TaxShockClient() {
                         saleDate: c.saleDate || "",
                         beds: c.bedrooms?.toString() || "",
                         baths: c.bathrooms?.toString() || "",
-                        sqft: c.livingAreaSqft?.toString() || "",
+                        sqft: positiveAmount(c.livingAreaSqft)?.toString() || "",
                       })),
                     }));
                     window.location.href = "/appeal";

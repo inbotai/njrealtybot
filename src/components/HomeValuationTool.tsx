@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { fetchPricingEstimate, fetchCMA, type PricingEstimate } from "@/lib/api";
+import { pricePerSqftLabel } from "@/lib/sqft-display";
 
 export default function HomeValuationTool() {
   const [city, setCity] = useState("");
@@ -61,7 +62,9 @@ export default function HomeValuationTool() {
 
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 
-      {estimate && (
+      {estimate && (() => {
+        const perSqft = pricePerSqftLabel(estimate.pricePerSqft);
+        return (
         <div className="mt-5 rounded-lg bg-indigo-50 p-4">
           <p className="text-sm font-medium text-indigo-800">Estimated Value</p>
           <p className="text-3xl font-bold text-indigo-900">${estimate.estimatedValue.toLocaleString()}</p>
@@ -69,10 +72,12 @@ export default function HomeValuationTool() {
             Range: ${estimate.lowRange.toLocaleString()} — ${estimate.highRange.toLocaleString()}
           </p>
           <p className="mt-1 text-xs text-indigo-500">
-            Confidence: {estimate.confidence} | Based on {estimate.comparables} recent sales | Avg ${estimate.pricePerSqft}/sqft
+            Confidence: {estimate.confidence} | Based on {estimate.comparables} recent sales
+            {perSqft ? ` | Avg ${perSqft}` : ""}
           </p>
         </div>
-      )}
+        );
+      })()}
 
       {cma && (
         <details className="mt-4">

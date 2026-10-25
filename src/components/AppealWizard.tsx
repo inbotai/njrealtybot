@@ -5,6 +5,7 @@ import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
 import { appealTaxYear, describeTaxAppealResult, nextAppealTaxYear } from "@/lib/tax-display";
+import { positiveAmount } from "@/lib/sqft-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
 
@@ -231,7 +232,7 @@ export default function AppealWizard() {
           const loaded = data.comparables.slice(0, 6).map((c: any) => ({
             address: c.address || "", salePrice: c.salePrice?.toString() || "",
             saleDate: c.saleDate || "", beds: c.bedrooms?.toString() || "",
-            baths: c.bathrooms?.toString() || "", sqft: c.livingAreaSqft?.toString() || "",
+            baths: c.bathrooms?.toString() || "", sqft: positiveAmount(c.livingAreaSqft)?.toString() || "",
           }));
           update("comps", loaded);
           update("useGSAIComps", true);
