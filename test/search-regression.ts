@@ -10,11 +10,12 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, compsSupportMessage, describeTaxAppealResult, formatRatio, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
+import { appealTaxYear, assessmentHeadline, chapter123Display, compsSupportMessage, describeTaxAppealResult, formatRatio, ratioRelationshipCopy, reconcileExplanation, taxAppealErrorMessage, taxShockDeliveryCopy, taxYearRatiosLabel } from "../src/lib/tax-display";
 import { allMunicipalities, findMunicipalities, taxFromMarketValue, townTaxPageBySlug, townTaxPages } from "../src/lib/nj-tax-rates";
+import { isRevaluationYear } from "../src/lib/nj-revaluations";
 import { cityToSlug } from "../src/lib/place-slug";
 import { INDEXNOW_KEY, INDEXNOW_KEY_LOCATION, INDEXNOW_KEY_PATH, chunkUrls, indexNowBody, indexNowUrls, submitIndexNow } from "../src/lib/indexnow";
-import { canonicalTaxAnswer, finalizeValeReply, isTaxRateQuestion, toValeModelMessage, VALE_TAX_RATE_POLICY } from "../src/lib/vale-tax-context";
+import { canonicalAppealAnswer, canonicalTaxAnswer, finalizeValeReply, isAppealProcedureQuestion, isTaxRateQuestion, toValeModelMessage, VALE_TAX_RATE_POLICY } from "../src/lib/vale-tax-context";
 import { calcRoi, renovationTypes } from "../src/lib/renovate-roi";
 import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
@@ -459,6 +460,144 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       valeProvider.includes("valeStartBody") &&
       valeProvider.includes("toValeModelMessage"),
     `paramus tax ${paramusTax}; hackensack tax ${hackTax}`,
+  );
+
+  const unitPrompt = "This building has multiple units. Please include your unit number (for example, Unit 6F).";
+  const genericMiss = "We couldn't find that address.";
+  check(
+    "TAX-008",
+    "A missing condo unit shows the API error instead of a generic miss",
+    taxAppealErrorMessage({ error: unitPrompt, needsUnit: true }, genericMiss) === unitPrompt &&
+      taxAppealErrorMessage({ error: "  " }, genericMiss) === genericMiss &&
+      taxAppealErrorMessage(null, genericMiss) === genericMiss &&
+      taxShock.includes("taxAppealErrorMessage") &&
+      propertyTax.includes("taxAppealErrorMessage") &&
+      wizard.includes("taxAppealErrorMessage") &&
+      !/setError\(\s*["']We couldn't find that address/.test(taxShock),
+    unitPrompt,
+  );
+
+  const hackTown = findMunicipalities("Hackensack").find((town) => town.district === "HACKENSACK CITY")!;
+  const bayTown = findMunicipalities("Bayonne")[0];
+  const paramusTown = findMunicipalities("Paramus").find((town) => town.district === "PARAMUS BORO")!;
+  const asOf = new Date(2026, 9, 31);
+  const hackChapter = chapter123Display({
+    chapter123Applies: false,
+    chapter123Explanation: "Tax year 2027 is a revaluation or reassessment year, so Chapter 123 does not apply and the common level range is not the test.",
+    commonLevelRangeLow: 59.46,
+    commonLevelRangeHigh: 80.44,
+    appealRiskWarning: "This town is in a revaluation or reassessment year, so Chapter 123 does not apply.",
+  });
+  const bayChapter = chapter123Display({
+    chapter123Applies: true,
+    commonLevelRangeLow: 53.52,
+    commonLevelRangeHigh: 72.42,
+    chapter123Explanation: "Your Estimated Property Ratio (47.76%) is below the Lower Limit (53.52%).",
+  });
+  const hackHeadline = assessmentHeadline({
+    propertyRatio: 70.4,
+    equalization: 69.95,
+    rangeLow: 59.46,
+    rangeHigh: 80.44,
+    chapter123Applies: false,
+  });
+  const bayHeadline = assessmentHeadline({
+    propertyRatio: 47.76,
+    equalization: 62.97,
+    rangeLow: 53.52,
+    rangeHigh: 72.42,
+    chapter123Applies: true,
+  });
+  const hackRatioCopy = ratioRelationshipCopy({
+    propertyRatio: 70.4,
+    equalization: 69.95,
+    rangeLow: 59.46,
+    rangeHigh: 80.44,
+    chapter123Applies: false,
+  });
+  const revalHome = describeTaxAppealResult({
+    savingsSuppressed: true,
+    chapter123Applies: false,
+    caseStrength: "no_case",
+    overpaymentHigh: 0,
+    propertyTypeWarning: null,
+    address: "160 OVERLOOK AVE.",
+  });
+  check(
+    "TAX-009",
+    "Revaluation years say Chapter 123 does not apply and hide the common level range",
+    isRevaluationYear(hackTown, 2027) &&
+      !isRevaluationYear(hackTown, 2026) &&
+      isRevaluationYear(paramusTown, 2026) &&
+      !isRevaluationYear(paramusTown, 2027) &&
+      !isRevaluationYear(bayTown, 2027) &&
+      !hackChapter.applies &&
+      !hackChapter.showCommonLevelRange &&
+      hackChapter.rangeLabel === null &&
+      hackChapter.headline === "Chapter 123 does not apply this year." &&
+      bayChapter.applies &&
+      bayChapter.showCommonLevelRange &&
+      bayChapter.rangeLabel === "53.52% – 72.42%" &&
+      hackHeadline === "Chapter 123 does not apply this year" &&
+      !/common level range/i.test(hackHeadline) &&
+      !hackRatioCopy.includes("59.46") &&
+      !hackRatioCopy.includes("80.44") &&
+      hackRatioCopy.includes("does not apply") &&
+      /common level range/i.test(bayHeadline) &&
+      !revalHome.suppressed &&
+      !revalHome.showSavings &&
+      taxShock.includes("chapter123Display") &&
+      taxShock.includes("showCommonLevelRange") &&
+      taxShock.includes("Chapter 123 does not apply this year.") &&
+      propertyTax.includes("chapter123Display") &&
+      propertyTax.includes("showCommonLevelRange") &&
+      propertyTax.includes("Chapter 123 does not apply this year."),
+    `hack range ${hackChapter.rangeLabel}; bay range ${bayChapter.rangeLabel}`,
+  );
+
+  const appealQuestion = "How do I appeal my property taxes at 160 Overlook Avenue in Hackensack?";
+  const appealGrounding = toValeModelMessage(appealQuestion, asOf);
+  const badVenue = "Go to the Hackensack tax board of appeals and schedule a hearing with the tax assessor. You can also file in county court.";
+  const corrected = finalizeValeReply(appealQuestion, badVenue, asOf);
+  const procedure = "File with the Bergen County Board of Taxation. A further appeal is to the Tax Court of New Jersey. Chapter 123 does not apply this year in Hackensack, so compare the assessment to market value.";
+  const keptProcedure = finalizeValeReply(appealQuestion, procedure, asOf);
+  const rateOnly = "Hackensack's 2025 general tax rate is 3.209 per $100 and the effective rate is 2.527.";
+  const procedureNotRates = finalizeValeReply(appealQuestion, rateOnly, asOf);
+  const bayAppeal = toValeModelMessage("How do I appeal property taxes in Bayonne?", asOf);
+  const paramusRate = toValeModelMessage("What is the tax rate in Paramus?", asOf);
+  const badVenuePattern = /tax board of appeals|county court|tax assessor/i;
+  check(
+    "VALE-002",
+    "Appeal answers name the county board and Tax Court, and revaluation years omit Chapter 123 ratios",
+    isAppealProcedureQuestion(appealQuestion) &&
+      !isAppealProcedureQuestion("What is the tax rate in Hackensack?") &&
+      appealGrounding.includes("Bergen County Board of Taxation") &&
+      appealGrounding.includes("Tax Court of New Jersey") &&
+      appealGrounding.includes("2025") &&
+      appealGrounding.includes("3.209") &&
+      appealGrounding.includes("Chapter 123 does not apply") &&
+      appealGrounding.includes("Do not state an equalization ratio") &&
+      !appealGrounding.includes("78.75") &&
+      !badVenuePattern.test(appealGrounding) &&
+      corrected.includes("Bergen County Board of Taxation") &&
+      corrected.includes("Tax Court of New Jersey") &&
+      corrected.includes("Chapter 123 does not apply") &&
+      corrected.includes("2025") &&
+      corrected.includes("3.209") &&
+      !corrected.includes("78.75") &&
+      !badVenuePattern.test(corrected) &&
+      keptProcedure === procedure &&
+      procedureNotRates.includes("Bergen County Board of Taxation") &&
+      procedureNotRates.includes("Tax Court of New Jersey") &&
+      procedureNotRates !== rateOnly &&
+      !procedureNotRates.startsWith("Hackensack's 2025 general tax rate") &&
+      bayAppeal.includes("Hudson County Board of Taxation") &&
+      bayAppeal.includes("Tax Court of New Jersey") &&
+      paramusRate.includes("2025") &&
+      paramusRate.includes("1.499") &&
+      paramusRate.includes("equalization ratio") &&
+      canonicalAppealAnswer(appealQuestion, undefined, asOf).includes("Bergen County Board of Taxation"),
+    corrected.slice(0, 180),
   );
 
   const hardwood = renovationTypes.find((r) => r.id === "hardwood")!;
