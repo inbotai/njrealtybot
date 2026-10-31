@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ALLOWED_BOTS, TRAINING_CRAWLERS } from "@/lib/crawler-policy";
 import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
 
 const PUBLIC_ALLOW = [
@@ -21,30 +22,24 @@ const PUBLIC_ALLOW = [
 
 const PRIVATE = ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"];
 
-const AI_SEARCH_BOTS = [
-  "GPTBot",
-  "OAI-SearchBot",
-  "ClaudeBot",
-  "anthropic-ai",
-  "Google-Extended",
-  "PerplexityBot",
-];
-
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
+      {
+        userAgent: [...TRAINING_CRAWLERS],
+        allow: [INDEXNOW_KEY_PATH],
+        disallow: ["/"],
+      },
+      {
+        userAgent: [...ALLOWED_BOTS],
+        allow: PUBLIC_ALLOW,
+        disallow: PRIVATE,
+      },
       {
         userAgent: "*",
         allow: PUBLIC_ALLOW,
         disallow: PRIVATE,
       },
-      ...AI_SEARCH_BOTS.map((userAgent) => ({
-        userAgent,
-        allow: PUBLIC_ALLOW,
-        disallow: ["/admin", "/my-home", "/api/"],
-      })),
-      { userAgent: "CCBot", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
-      { userAgent: "Bytespider", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
     ],
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };
