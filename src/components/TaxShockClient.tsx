@@ -7,7 +7,7 @@ import LeadGate from "@/components/LeadGate";
 import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
-import { appealTaxYear, assessmentHeadline, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxShockDeliveryCopy, taxYearRatiosLabel } from "@/lib/tax-display";
+import { appealTaxYear, assessmentHeadline, chapter123Display, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxAppealErrorMessage, taxShockDeliveryCopy, taxYearRatiosLabel } from "@/lib/tax-display";
 import { positiveAmount, sqftLabel } from "@/lib/sqft-display";
 import { taxMarketView } from "@/lib/valuation-display";
 
@@ -26,6 +26,8 @@ interface TaxResult {
   overpaymentHigh: number;
   isOverAssessed: boolean;
   chapter123Result: string;
+  chapter123Applies?: boolean;
+  chapter123Explanation?: string | null;
   appealLikelihood: string;
   filingDeadline: string;
   taxYear?: number;
@@ -161,13 +163,13 @@ export default function TaxShockClient() {
         body: JSON.stringify({ address: addr }),
       });
 
-      if (!res.ok) {
-        setError("We couldn't find that address. Try including the city (e.g. '123 Main St, Jersey City')");
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || (typeof data.error === "string" && data.error.trim())) {
+        setError(taxAppealErrorMessage(data, "We couldn't find that address. Try including the city (e.g. '123 Main St, Jersey City')"));
         setLoading(false);
         return;
       }
 
-      const data = await res.json();
       setResult({ ...data, ...taxMarketView(data) });
       setLoading(false);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -179,6 +181,7 @@ export default function TaxShockClient() {
 
 
   const appealView = result ? describeTaxAppealResult(result) : null;
+  const chapter = result ? chapter123Display(result) : null;
   const supportsReduction = appealView?.showSavings === true;
   const delivery = result ? taxShockDeliveryCopy(result) : null;
   const waText = !result || !appealView
@@ -283,6 +286,7 @@ export default function TaxShockClient() {
                     equalization: result.eqRatio,
                     rangeLow: result.commonLevelRangeLow,
                     rangeHigh: result.commonLevelRangeHigh,
+                    chapter123Applies: result.chapter123Applies,
                   })}</p>
                   <p className="text-gray-500 mt-2">Potential savings would be small. An appeal carries risk.</p>
                 </div>
@@ -294,15 +298,17 @@ export default function TaxShockClient() {
                     equalization: result.eqRatio,
                     rangeLow: result.commonLevelRangeLow,
                     rangeHigh: result.commonLevelRangeHigh,
+                    chapter123Applies: result.chapter123Applies,
                   })}</p>
                   <p className="text-gray-500 mt-2">Filing an appeal is not recommended at this time</p>
                 </div>
               )}
 
-              {/* Appeal risk warning — always shown */}
+              {result.appealRiskWarning && (
               <div className="rounded-xl bg-red-50 border border-red-200 p-4 mt-4 text-xs text-red-600">
                 <span className="font-bold">&#x26A0; Important:</span> {result.appealRiskWarning}
               </div>
+              )}
             </div>
 
             {/* Step 5: Case Strength (from backend). Hidden when the API suppressed the estimate. */}
@@ -321,24 +327,44 @@ export default function TaxShockClient() {
                   equalization: result.eqRatio,
                   rangeHigh: result.commonLevelRangeHigh,
                 })}</p>
-                <p className="mt-3 text-xs font-medium text-gray-500">{taxYearRatiosLabel(appealTaxYear(result))}</p>
-                <p className="mt-1 text-xs leading-relaxed text-gray-500">
-                  {ratioRelationshipCopy({
-                    propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
-                    equalization: result.eqRatio,
-                    rangeLow: result.commonLevelRangeLow,
-                    rangeHigh: result.commonLevelRangeHigh,
-                  })}
-                </p>
                 <div className="mt-4 space-y-2 text-sm">
-                  {result.chapter123Result === "over_assessed" && <p className="text-emerald-600">&#x2705; Chapter 123: Over-assessed</p>}
-                  {result.chapter123Result === "within_range" && <p className="text-gray-500">&#x2796; Chapter 123: Within range</p>}
-                  {result.chapter123Result === "under_assessed" && <p className="text-red-600">&#x274C; Chapter 123: Under-assessed — do NOT appeal</p>}
                   {result.comparables?.length >= 3 && <p className="text-emerald-600">&#x2705; {result.comparables.length} comparable sales analyzed</p>}
                   {result.filingDeadline && <p className="text-gray-400">&#x1F4C5; Filing deadline: {result.filingDeadline}</p>}
                 </div>
               </div>
             </div>}
+
+            {chapter && (
+              chapter.applies ? (
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-6">
+                  <p className="text-gray-400 text-sm">Chapter 123</p>
+                  <p className="mt-1 text-xs font-medium text-gray-500">{taxYearRatiosLabel(appealTaxYear(result))}</p>
+                  {chapter.showCommonLevelRange && (
+                    <p className="mt-3 text-lg font-bold text-navy">Common level range: {chapter.rangeLabel}</p>
+                  )}
+                  <p className="mt-2 text-xs leading-relaxed text-gray-500">
+                    {ratioRelationshipCopy({
+                      propertyRatio: result.estimatedPropertyRatio ?? (result.estimatedMarketValueMid ? result.assessedValue / result.estimatedMarketValueMid : NaN),
+                      equalization: result.eqRatio,
+                      rangeLow: result.commonLevelRangeLow,
+                      rangeHigh: result.commonLevelRangeHigh,
+                      chapter123Applies: true,
+                    })}
+                  </p>
+                  <div className="mt-4 space-y-2 text-sm">
+                    {result.chapter123Result === "over_assessed" && <p className="text-emerald-600">&#x2705; Chapter 123: Over-assessed</p>}
+                    {result.chapter123Result === "within_range" && <p className="text-gray-500">&#x2796; Chapter 123: Within range</p>}
+                    {result.chapter123Result === "under_assessed" && <p className="text-red-600">&#x274C; Chapter 123: Under-assessed — do NOT appeal</p>}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
+                  <p className="font-bold">Chapter 123 does not apply this year.</p>
+                  <p className="mt-1 text-xs font-medium text-amber-800">{taxYearRatiosLabel(appealTaxYear(result))}</p>
+                  {chapter.detail && <p className="mt-2 leading-relaxed">{chapter.detail}</p>}
+                </div>
+              )
+            )}
 
             {/* Step 6: Comparable Properties */}
             {result.comparables?.length > 0 && (
@@ -436,6 +462,8 @@ export default function TaxShockClient() {
                       conservativeEstimate: result.conservativeEstimate,
                       eqRatio: result.eqRatio,
                       chapter123Result: result.chapter123Result,
+                      chapter123Applies: result.chapter123Applies,
+                      chapter123Explanation: result.chapter123Explanation,
                       caseStrength: result.caseStrength,
                       caseStrengthExplanation: result.caseStrengthExplanation,
                       filingDeadline: result.filingDeadline,
@@ -567,7 +595,7 @@ export default function TaxShockClient() {
                 </button>
               )}
             </div>
-            {error && <p className="mt-3 text-red-500 text-sm">{error}</p>}
+            {error && <p className="mt-3 text-red-500 text-sm" role="alert">{error}</p>}
             <p className="mt-3 text-sm text-gray-400">Works for any property in New Jersey</p>
           </form>
         </div>

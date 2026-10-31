@@ -50,7 +50,9 @@ export function assessmentHeadline(input: {
   equalization: number;
   rangeLow?: number | null;
   rangeHigh?: number | null;
+  chapter123Applies?: boolean;
 }): string {
+  if (input.chapter123Applies === false) return "Chapter 123 does not apply this year";
   const p = toPercentPoints(input.propertyRatio);
   const e = toPercentPoints(input.equalization);
   const lo = input.rangeLow == null ? null : toPercentPoints(input.rangeLow);
@@ -88,7 +90,11 @@ export function ratioRelationshipCopy(input: {
   equalization: number;
   rangeLow?: number | null;
   rangeHigh?: number | null;
+  chapter123Applies?: boolean;
 }): string {
+  if (input.chapter123Applies === false) {
+    return "Chapter 123 does not apply this year. Compare the assessment directly to market value.";
+  }
   const p = toPercentPoints(input.propertyRatio);
   const e = toPercentPoints(input.equalization);
   const lo = input.rangeLow == null ? null : toPercentPoints(input.rangeLow);
@@ -135,8 +141,65 @@ export function taxYearRatiosLabel(year: number): string {
   return `Tax year ${year} ratios`;
 }
 
-export function isSavingsSuppressed(data?: { savingsSuppressed?: unknown } | null): boolean {
-  return data?.savingsSuppressed === true;
+/**
+ * The attorney banner is for a suppressed multi-unit or Class 4 analysis, which
+ * sends savingsSuppressed plus a property-type warning. A no-case home can also
+ * set the flag with no warning; dollar savings stay hidden through case strength.
+ */
+export function isSavingsSuppressed(data?: { savingsSuppressed?: unknown; propertyTypeWarning?: unknown } | null): boolean {
+  if (data?.savingsSuppressed !== true) return false;
+  return typeof data.propertyTypeWarning === "string" && data.propertyTypeWarning.trim().length > 0;
+}
+
+/** Prefer the analyze API's error text, including a missing-unit prompt. */
+export function taxAppealErrorMessage(
+  body: { error?: unknown } | null | undefined,
+  fallback: string,
+): string {
+  const message = typeof body?.error === "string" ? body.error.trim() : "";
+  return message || fallback;
+}
+
+export interface Chapter123Display {
+  applies: boolean;
+  headline: string;
+  showCommonLevelRange: boolean;
+  rangeLabel: string | null;
+  detail: string;
+}
+
+/**
+ * Chapter 123 is the appeal test only when the API says it applies.
+ * A revaluation or reassessment year sets chapter123Applies to false and still
+ * returns the county range; that range must not be shown as the test.
+ */
+export function chapter123Display(data?: {
+  chapter123Applies?: unknown;
+  chapter123Explanation?: string | null;
+  appealRiskWarning?: string | null;
+  commonLevelRangeLow?: number | null;
+  commonLevelRangeHigh?: number | null;
+} | null): Chapter123Display {
+  const detail = (data?.chapter123Explanation || data?.appealRiskWarning || "").trim();
+  if (data?.chapter123Applies === false) {
+    return {
+      applies: false,
+      headline: "Chapter 123 does not apply this year.",
+      showCommonLevelRange: false,
+      rangeLabel: null,
+      detail,
+    };
+  }
+  const lo = typeof data?.commonLevelRangeLow === "number" ? data.commonLevelRangeLow : NaN;
+  const hi = typeof data?.commonLevelRangeHigh === "number" ? data.commonLevelRangeHigh : NaN;
+  const showCommonLevelRange = Number.isFinite(lo) && Number.isFinite(hi) && lo > 0 && hi > lo;
+  return {
+    applies: true,
+    headline: "Chapter 123 common level range",
+    showCommonLevelRange,
+    rangeLabel: showCommonLevelRange ? `${formatRatio(lo)} – ${formatRatio(hi)}` : null,
+    detail,
+  };
 }
 
 /** Attorney notice for a suppressed multi-unit / Class 4 analysis. Empty when the API did not send one. */

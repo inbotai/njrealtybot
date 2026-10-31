@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import LeadGate from "@/components/LeadGate";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import { formatPercent } from "@/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, describeTaxAppealResult, nextAppealTaxYear } from "@/lib/tax-display";
+import { appealTaxYear, chapter123Display, describeTaxAppealResult, nextAppealTaxYear, taxAppealErrorMessage } from "@/lib/tax-display";
 import { positiveAmount } from "@/lib/sqft-display";
 
 const IDX_API = process.env.NEXT_PUBLIC_IDX_API || "https://inbot-idx-api-production.up.railway.app";
@@ -108,6 +108,7 @@ export default function AppealWizard() {
   const [step, setStep] = useState(0); // 0 = landing, 1-5 = form steps, 6 = review, 7 = done
   const [form, setForm] = useState<FormData>({ ...initialForm });
   const [loadingComps, setLoadingComps] = useState(false);
+  const [lookupError, setLookupError] = useState("");
   const [generating, setGenerating] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -147,9 +148,16 @@ export default function AppealWizard() {
         }
 
         const appealView = describeTaxAppealResult(data);
+        const chapter = chapter123Display(data);
         if (appealView.suppressed) {
           updated.appealReasons = [];
           updated.appealNarrative = appealView.warning;
+        } else if (!chapter.applies) {
+          updated.appealReasons = [];
+          const parts = [chapter.headline];
+          if (chapter.detail) parts.push(chapter.detail);
+          if (data.caseStrengthExplanation) parts.push(data.caseStrengthExplanation);
+          updated.appealNarrative = parts.join("\n\n");
         } else {
           // Pre-select appeal reasons
           updated.appealReasons = ["Assessment exceeds true market value", "Assessment is not in line with comparable properties"];
@@ -219,14 +227,17 @@ export default function AppealWizard() {
   async function loadGSAIComps() {
     if (!form.propertyAddress || !form.propertyCity) return;
     setLoadingComps(true);
+    setLookupError("");
     try {
       const res = await fetch(`${IDX_API}/api/idx/tax-appeal/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address: `${form.propertyAddress}, ${form.propertyCity}` }),
       });
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || (typeof data.error === "string" && data.error.trim())) {
+        setLookupError(taxAppealErrorMessage(data, "We couldn't find that address. Include the city and the unit number if the building has more than one."));
+      } else if (data) {
         update("taxYear", appealTaxYear(data).toString());
         if (data.comparables?.length) {
           const loaded = data.comparables.slice(0, 6).map((c: any) => ({
@@ -246,7 +257,9 @@ export default function AppealWizard() {
           }
         }
       }
-    } catch { /* best effort */ }
+    } catch {
+      setLookupError(taxAppealErrorMessage(null, "We couldn't find that address. Include the city and the unit number if the building has more than one."));
+    }
     setLoadingComps(false);
   }
 
@@ -627,6 +640,7 @@ export default function AppealWizard() {
                 "\uD83D\uDD0D Use My Comparables from Garden State AI"
               )}
             </button>
+            {lookupError && <p className="text-sm text-red-300" role="alert">{lookupError}</p>}
 
             <p className="text-xs text-gray-500 text-center">Or enter your own comparable sales below</p>
 

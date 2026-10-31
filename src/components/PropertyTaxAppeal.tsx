@@ -6,7 +6,7 @@ import {
   formatCurrency,
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
-import { appealTaxYear, describeTaxAppealResult, ratioRelationshipCopy, taxYearRatiosLabel } from "@/lib/tax-display";
+import { appealTaxYear, chapter123Display, describeTaxAppealResult, ratioRelationshipCopy, taxAppealErrorMessage, taxYearRatiosLabel } from "@/lib/tax-display";
 import AnalysisWait from "./AnalysisWait";
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
@@ -28,6 +28,9 @@ interface TaxAnalysisResult {
   estimatedPropertyRatio?: number;
   commonLevelRangeLow: number;
   commonLevelRangeHigh: number;
+  chapter123Applies?: boolean;
+  chapter123Explanation?: string | null;
+  appealRiskWarning?: string | null;
   impliedMarketValue: number;
   estimatedMarketValueLow: number;
   estimatedMarketValueHigh: number;
@@ -106,13 +109,13 @@ export default function PropertyTaxAppeal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address: query }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error || "We couldn't find that property. Try the full street address with city (e.g. \"123 Maple St, Montclair, NJ\").");
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || (typeof data.error === "string" && data.error.trim())) {
+        setError(taxAppealErrorMessage(data, "We couldn't find that property. Try the full street address with city (e.g. \"123 Maple St, Montclair, NJ\")."));
         setLoading(false);
         return;
       }
-      const result: TaxAnalysisResult = await res.json();
+      const result: TaxAnalysisResult = data;
       setAnalysis({ ...result, ...taxMarketView(result) });
       setStage("diagnose");
     } catch {
@@ -240,7 +243,7 @@ export default function PropertyTaxAppeal() {
             </button>
           </form>
           {error && (
-            <p className="mt-3 text-sm text-red-600">{error}</p>
+            <p className="mt-3 text-sm text-red-600" role="alert">{error}</p>
           )}
         </div>
       </section>
@@ -250,6 +253,8 @@ export default function PropertyTaxAppeal() {
       {/* Results */}
       {analysis && (() => {
         const appealView = describeTaxAppealResult(analysis);
+        const chapter = chapter123Display(analysis);
+        const propertyRatio = analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN);
         return (
         <section className="pb-16">
           <div className="mx-auto max-w-4xl px-4">
@@ -259,7 +264,7 @@ export default function PropertyTaxAppeal() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Your Analysis</h2>
                   <p className="mt-1 text-sm text-gray-500">
-                    NJ Chapter 123 Common Level Ratio Analysis
+                    {chapter.applies ? "NJ Chapter 123 Common Level Ratio Analysis" : "Chapter 123 does not apply this year."}
                   </p>
                 </div>
                 {appealView.showCaseStrength && (
@@ -327,14 +332,18 @@ export default function PropertyTaxAppeal() {
                     <dt className="text-gray-600">Current Assessment</dt>
                     <dd className="font-medium">{formatCurrency(analysis.assessedValue)}</dd>
                   </div>
+                  {chapter.applies && (
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">County Equalization Ratio</dt>
                     <dd className="font-medium">{formatPercent(analysis.eqRatioEffective || analysis.eqRatio)}</dd>
                   </div>
+                  )}
+                  {chapter.applies && (
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Your Property Ratio</dt>
-                    <dd className="font-medium">{formatPercent(analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN))}</dd>
+                    <dd className="font-medium">{formatPercent(propertyRatio)}</dd>
                   </div>
+                  )}
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Implied Market Value</dt>
                     <dd className="font-medium">{formatCurrency(analysis.impliedMarketValue)}</dd>
@@ -351,12 +360,18 @@ export default function PropertyTaxAppeal() {
                       <dd className="font-semibold text-emerald-700">{formatCurrency(analysis.zestimate)}</dd>
                     </div>
                   )}
+                  {chapter.showCommonLevelRange && (
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Common Level Range</dt>
-                    <dd className="font-medium">
-                      {formatPercent(analysis.commonLevelRangeLow)} – {formatPercent(analysis.commonLevelRangeHigh)}
-                    </dd>
+                    <dd className="font-medium">{chapter.rangeLabel}</dd>
                   </div>
+                  )}
+                  {!chapter.applies && (
+                  <div className="rounded bg-amber-50 px-3 py-2 sm:col-span-2">
+                    <p className="font-semibold text-amber-950">Chapter 123 does not apply this year.</p>
+                    {chapter.detail && <p className="mt-1 leading-relaxed text-amber-950">{chapter.detail}</p>}
+                  </div>
+                  )}
                   <div className="flex justify-between rounded bg-gray-50 px-3 py-2">
                     <dt className="text-gray-600">Over-Assessed?</dt>
                     <dd className={`font-medium ${analysis.isOverAssessed ? "text-red-600" : "text-green-600"}`}>
@@ -364,14 +379,17 @@ export default function PropertyTaxAppeal() {
                     </dd>
                   </div>
                 </dl>
+                {chapter.applies && (
                 <p className="mt-3 text-xs leading-relaxed text-gray-500">
                   {ratioRelationshipCopy({
-                    propertyRatio: analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN),
+                    propertyRatio,
                     equalization: analysis.eqRatioEffective || analysis.eqRatio,
                     rangeLow: analysis.commonLevelRangeLow,
                     rangeHigh: analysis.commonLevelRangeHigh,
+                    chapter123Applies: true,
                   })}
                 </p>
+                )}
               </div>
 
               {/* Comps table */}
@@ -463,7 +481,10 @@ export default function PropertyTaxAppeal() {
 
                 {/* Valuation argument */}
                 <div className="mt-6 rounded-lg bg-gray-50 p-4">
-                  <h3 className="text-sm font-semibold text-gray-700">Chapter 123 Valuation Argument</h3>
+                  <h3 className="text-sm font-semibold text-gray-700">
+                    {chapter.applies ? "Chapter 123 Valuation Argument" : "Chapter 123 does not apply this year."}
+                  </h3>
+                  {chapter.applies ? (
                   <p className="mt-2 text-sm text-gray-700 leading-relaxed">
                     Based on {analysis.comparables.length} comparable sales in the immediate area,
                     the true market value of this property is estimated at{" "}
@@ -484,8 +505,14 @@ export default function PropertyTaxAppeal() {
                       ),
                     )}
                     , placing the property&apos;s individual ratio above the Common Level Range upper
-                    bound of {formatPercent(analysis.commonLevelRangeHigh)}.
+                    bound of {chapter.rangeLabel || formatPercent(analysis.commonLevelRangeHigh)}.
                   </p>
+                  ) : (
+                  <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+                    Chapter 123 does not apply this year. The common level range is not the appeal test.
+                    {chapter.detail ? ` ${chapter.detail}` : ""}
+                  </p>
+                  )}
                 </div>
 
                 {/* Filing checklist */}
