@@ -55,6 +55,13 @@ export function generateSlug(listing: Listing): string {
   return `${listing.id}-${slug}`;
 }
 
+const LISTING_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Postgres listing ids are UUIDs. Anything else is not a listing. */
+export function isListingId(value: string): boolean {
+  return LISTING_ID.test(value);
+}
+
 export function parseSlug(slug: string): string {
   // UUID is 36 chars
   return slug.substring(0, 36);
