@@ -1,4 +1,9 @@
-import { listingFromResponse, ListingUnavailableError, type ListingPayload } from "./listing-fetch";
+import {
+  listingFromResponse,
+  ListingUnavailableError,
+  parseRetryAfter,
+  type ListingPayload,
+} from "./listing-fetch";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -161,8 +166,11 @@ export async function fetchListing(id: string): Promise<ListingPayload> {
     throw new ListingUnavailableError(`Listing service is unreachable (${reason})`);
   }
 
+  const retryAfter = parseRetryAfter(res.headers.get("retry-after"));
+  // `X-Idx-Data: stale` is a saved listing, not a miss and not an empty body.
+  void (res.headers.get("x-idx-data") || "").trim().toLowerCase();
   let body: unknown = null;
-  if (res.status !== 404) {
+  if (res.status !== 404 && res.status !== 503) {
     try {
       body = await res.json();
     } catch {
@@ -170,10 +178,11 @@ export async function fetchListing(id: string): Promise<ListingPayload> {
         res.ok
           ? "Listing service returned invalid JSON"
           : `Listing service returned HTTP ${res.status}`,
+        retryAfter,
       );
     }
   }
-  return listingFromResponse(res.status, body);
+  return listingFromResponse(res.status, body, retryAfter);
 }
 
 export async function fetchAutocomplete(

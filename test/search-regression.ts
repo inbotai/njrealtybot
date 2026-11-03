@@ -22,8 +22,9 @@ import { splitStreetAndCity } from "../src/lib/address";
 import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
 import { fetchListing, type Listing } from "../src/lib/api";
-import { isListingNotFound, isListingUnavailable, listingFromResponse } from "../src/lib/listing-fetch";
+import { isListingNotFound, isListingUnavailable, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
 import { propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
+import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -941,7 +942,7 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
 
     globalThis.fetch = (async () => new Response("upstream down", {
       status: 503,
-      headers: { "content-type": "text/plain" },
+      headers: { "content-type": "text/plain", "retry-after": "45" },
     })) as typeof fetch;
     await classify("http-503", () => fetchListing("down-id"));
 
@@ -953,8 +954,8 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
     globalThis.fetch = (async () => new Response(JSON.stringify({
       listing: { id: "land-1", unparsed_address: "19 Rae Avenue", bedrooms_total: null },
       openHouses: [],
-    }), { status: 200, headers: { "content-type": "application/json" } })) as typeof fetch;
-    await classify("land", () => fetchListing("land-1"));
+    }), { status: 200, headers: { "content-type": "application/json", "x-idx-data": "stale" } })) as typeof fetch;
+    await classify("stale-200", () => fetchListing("land-1"));
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -967,6 +968,39 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       return isListingUnavailable(error) && !isListingNotFound(error) ? "unavailable" : "other";
     }
   })();
+  let retryAfter = -1;
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "unavailable" }), {
+    status: 503,
+    headers: { "content-type": "application/json", "retry-after": "45" },
+  })) as typeof fetch;
+  try {
+    await fetchListing("retry-check");
+  } catch (error) {
+    if (isListingUnavailable(error) && "retryAfter" in error) retryAfter = Number(error.retryAfter);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  const retryDate = parseRetryAfter("Wed, 21 Oct 2015 07:28:00 GMT", Date.parse("Wed, 21 Oct 2015 07:28:00 GMT") - 15_000);
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "down" }), {
+    status: 503,
+    headers: { "content-type": "application/json", "retry-after": "30" },
+  })) as typeof fetch;
+  const outage = await listingOutageResponse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  const outageText = outage ? await outage.text() : "";
+  globalThis.fetch = (async () => new Response(JSON.stringify({
+    listing: { id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", unparsed_address: "1 Main" },
+  }), {
+    status: 200,
+    headers: { "content-type": "application/json", "x-idx-data": "stale" },
+  })) as typeof fetch;
+  const stalePass = await listingOutageResponse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "Listing not found" }), {
+    status: 404,
+    headers: { "content-type": "application/json" },
+  })) as typeof fetch;
+  const missingPass = await listingOutageResponse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+  globalThis.fetch = originalFetch;
+
   const direct404 = (() => {
     try {
       listingFromResponse(404, { error: "Listing not found" });
@@ -990,6 +1024,7 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   const propertyError = readFileSync(join(src, "app/property/[slug]/error.tsx"), "utf8");
   const globalError = readFileSync(join(src, "app/global-error.tsx"), "utf8");
   const notice = readFileSync(join(src, "components/ListingUnavailableNotice.tsx"), "utf8");
+  const unavailableHttp = readFileSync(join(src, "lib/unavailable-http.ts"), "utf8");
   const questionMarks = walkSource(src).filter((file) => readFileSync(file, "utf8").includes('?? "?"'));
   check(
     "PROP-001",
@@ -998,7 +1033,17 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       kinds["missing"] === "not_found" &&
       kinds["http-503"] === "unavailable" &&
       kinds["network"] === "unavailable" &&
-      kinds["land"] === "ok" &&
+      kinds["stale-200"] === "ok" &&
+      retryAfter === 45 &&
+      retryDate === 15 &&
+      outage?.status === 503 &&
+      outage?.headers.get("retry-after") === "30" &&
+      outage?.headers.get("cache-control")?.includes("no-store") === true &&
+      outageText.includes("temporarily unavailable") &&
+      stalePass === null &&
+      missingPass === null &&
+      singleListingId("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-main-st") === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" &&
+      singleListingId("/open-house/2518234") === null &&
       directNull === "unavailable" &&
       direct404 === "not_found" &&
       cacheModes.includes("no-store") &&
@@ -1023,6 +1068,11 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       propertyError.includes("temporarily unavailable") &&
       globalError.includes("noindex, nofollow") &&
       notice.includes("temporarily unavailable") &&
+      middleware.includes("listingOutageResponse") &&
+      unavailableHttp.includes("status: 503") &&
+      unavailableHttp.includes('"Retry-After"') &&
+      fetchListingSource.includes("retry-after") &&
+      fetchListingSource.includes("x-idx-data") &&
       questionMarks.length === 0,
     `kinds ${JSON.stringify(kinds)} direct ${directNull}/${direct404} cache ${cacheModes.join(",")}`,
   );
