@@ -51,6 +51,12 @@ export interface ListingPayload {
   compliance?: Record<string, string>;
 }
 
+function isInvalidUuidBody(body: unknown): boolean {
+  if (!body || typeof body !== "object") return false;
+  const message = (body as { error?: unknown }).error;
+  return typeof message === "string" && /invalid input syntax for type uuid/i.test(message);
+}
+
 function isListingRecord(value: unknown): value is Listing {
   if (!value || typeof value !== "object") return false;
   const id = (value as { id?: unknown }).id;
@@ -68,7 +74,7 @@ export function listingFromResponse(
   body: unknown,
   retryAfter = 60,
 ): ListingPayload {
-  if (status === 404) throw new ListingNotFoundError();
+  if (status === 404 || isInvalidUuidBody(body)) throw new ListingNotFoundError();
   if (status < 200 || status >= 300) {
     throw new ListingUnavailableError(`Listing service returned HTTP ${status}`, retryAfter);
   }

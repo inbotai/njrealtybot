@@ -23,7 +23,7 @@ import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-di
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
 import { fetchListing, type Listing } from "../src/lib/api";
 import { isListingNotFound, isListingUnavailable, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
-import { propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
+import { isListingId, parseSlug, propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
 import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
@@ -1075,6 +1075,38 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       fetchListingSource.includes("x-idx-data") &&
       questionMarks.length === 0,
     `kinds ${JSON.stringify(kinds)} direct ${directNull}/${direct404} cache ${cacheModes.join(",")}`,
+  );
+
+  const uuid500 = (() => {
+    try {
+      listingFromResponse(500, { error: 'invalid input syntax for type uuid: "does-not-exist-123"' });
+      return "ok";
+    } catch (error) {
+      return isListingNotFound(error) ? "not_found" : "other";
+    }
+  })();
+  const db500 = (() => {
+    try {
+      listingFromResponse(500, { error: "database unavailable" });
+      return "ok";
+    } catch (error) {
+      return isListingUnavailable(error) ? "unavailable" : "other";
+    }
+  })();
+  const realId = "fc776462-fb9e-4f88-ab55-6da2f290a355";
+  check(
+    "PROP-003",
+    "A garbage property slug is a 404, and a database 500 is still an outage",
+    !isListingId("does-not-exist-123") &&
+      !isListingId("zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz") &&
+      isListingId(realId) &&
+      isListingId(parseSlug(`${realId}-19-rae-avenue-mahwah-nj`)) &&
+      parseSlug("does-not-exist-123") === "does-not-exist-123" &&
+      !isListingId(parseSlug("does-not-exist-123")) &&
+      uuid500 === "not_found" &&
+      db500 === "unavailable" &&
+      listingServer.includes("if (!isListingId(id)) notFound()"),
+    `uuid500 ${uuid500} db500 ${db500}`,
   );
 
   return results;

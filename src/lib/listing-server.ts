@@ -8,7 +8,7 @@ import {
   ListingUnavailableError,
   type ListingPayload,
 } from "./listing-fetch";
-import { parseSlug } from "./utils";
+import { isListingId, parseSlug } from "./utils";
 
 export type CachedListing =
   | { ok: true; data: ListingPayload }
@@ -42,6 +42,9 @@ export const getCachedListing = cache((id: string) => readCachedListing(id));
 
 /** Render a listing, 404 a confirmed miss, or throw when the service is down. */
 export async function loadListingForPage(id: string): Promise<ListingPayload> {
+  // A garbage slug is not a listing. The API answers that with a Postgres 500
+  // ("invalid input syntax for type uuid"), which must not become an outage page.
+  if (!isListingId(id)) notFound();
   const cached = await getCachedListing(id);
   if (!cached.ok) notFound();
   return cached.data;
