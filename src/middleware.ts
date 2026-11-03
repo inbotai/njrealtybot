@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
+import { listingOutageResponse, singleListingId } from "@/lib/unavailable-http";
 
 /**
  * Middleware: route requests based on hostname.
@@ -20,7 +21,15 @@ const IDX_ONLY_ROUTES = ["/search", "/property", "/deals", "/open-houses"];
 // Routes that ONLY exist on the main domain
 const MAIN_ONLY_ROUTES = ["/staging", "/sell", "/admin"];
 
-export function middleware(req: NextRequest) {
+function isDocumentGet(req: NextRequest): boolean {
+  if (req.method !== "GET" && req.method !== "HEAD") return false;
+  if (req.headers.get("rsc") === "1") return false;
+  if (req.headers.get("next-router-prefetch")) return false;
+  if (req.headers.get("next-router-segment-prefetch")) return false;
+  return true;
+}
+
+export async function middleware(req: NextRequest) {
   const host = req.headers.get("host") || "";
   const isIdx = IDX_HOSTS.some((h) => host.startsWith(h));
   const { pathname } = req.nextUrl;
@@ -40,6 +49,16 @@ export function middleware(req: NextRequest) {
   if (!isIdx && IDX_ONLY_ROUTES.some((r) => pathname.startsWith(r))) {
     // Let the request through — RequireAuth client component handles the gate
     // This allows admin users to still access these routes on the main domain
+  }
+
+  // A full page load for one listing. 503 here is the never-cached outage response.
+  // A found listing and a 404 fall through so the page can render or 404.
+  if (isDocumentGet(req)) {
+    const listingId = singleListingId(pathname);
+    if (listingId) {
+      const outage = await listingOutageResponse(listingId);
+      if (outage) return outage;
+    }
   }
 
   // Host-only cookie on the IDX subdomain. The main site does not set a cookie,

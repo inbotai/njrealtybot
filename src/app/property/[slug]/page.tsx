@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { fetchListing, fetchListings } from "@/lib/api";
+import { fetchListings } from "@/lib/api";
+import { loadListingForPage } from "@/lib/listing-server";
 import PhotoGallery from "@/components/PhotoGallery";
-import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
+import { formatPrice, formatAddress, parseSlug, propertyListingDescription, propertyListingTitle } from "@/lib/utils";
 import ListingCard from "@/components/ListingCard";
 import ValeChatInline from "@/components/ValeChatInline";
 import TotalCostCard from "@/components/TotalCostCard";
@@ -28,42 +28,26 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const id = parseSlug(slug);
-  try {
-    const { listing } = await fetchListing(id);
-    const address = formatAddress(listing);
-    const price = listing.list_price ? formatPrice(listing.list_price) : "";
-    const beds = listing.bedrooms_total ?? "?";
-    const baths = listing.bathrooms_total ?? "?";
-    const title = `${address} | ${beds} Beds ${baths} Baths${price ? ` | ${price}` : ""}`;
-    return {
+  const { listing } = await loadListingForPage(parseSlug(slug));
+  const title = propertyListingTitle(listing);
+  const description = propertyListingDescription(listing);
+  return {
+    title,
+    description,
+    alternates: pageCanonical(`/property/${slug}`),
+    openGraph: {
       title,
-      description: listing.public_remarks?.slice(0, 160) || `View details for ${address}`,
-      alternates: pageCanonical(`/property/${slug}`),
-      openGraph: {
-        title,
-        description: listing.public_remarks?.slice(0, 160),
-        images: listing.primary_photo_url ? [listing.primary_photo_url] : [],
-        url: `https://gardenstate.ai/property/${slug}`,
-      },
-    };
-  } catch {
-    return { title: "Property Not Found" };
-  }
+      description,
+      images: listing.primary_photo_url ? [listing.primary_photo_url] : [],
+      url: `https://gardenstate.ai/property/${slug}`,
+    },
+  };
 }
 
 export default async function PropertyPage({ params }: Props) {
   const { slug } = await params;
   const id = parseSlug(slug);
-
-  let data;
-  try {
-    data = await fetchListing(id);
-  } catch {
-    notFound();
-  }
-
-  const { listing, openHouses = [], compliance } = data;
+  const { listing, openHouses = [] } = await loadListingForPage(id);
   const address = formatAddress(listing);
   const isSold = listing.mls_status === "Sold";
 

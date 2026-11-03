@@ -56,6 +56,8 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | MONITOR-001 | A repeating check was suspected of valuing 119 W 21st St and 155 W 3rd St in Bayonne | Those lookups bill Perplexity and Bright Data | No cron, workflow, or health check calls a valuation or tax-appeal lookup. The 30-minute script only hits search and market endpoints. The Bayonne addresses remain only in an in-memory tax fixture |
 | SQFT-001 | $0/sqft and 0 sqft appeared when area was missing | pricePerSqft 0 and living_area 0 were rendered as real measurements | Zero, blank, and null area or price per square foot are omitted on /value, tax pages, and listing cards |
 | VAL-001 | /value and the tax pages could drift from the API market value | A missing price per square foot could be filled in from another estimate | /value shows the pricing API estimatedValue. /property-tax and /tax-shock show the tax-appeal API market value and do not copy the pricing estimate or a zestimate over it |
+| PROP-001 | Property pages crashed with `unparsed_address` of null during the Nov 2 database outage | A HTTP 200 body with `listing: null` was treated as a listing, and every fetch failure became `notFound()` | A confirmed 404 calls `notFound()`. HTTP 503, an empty listing, or a network failure is not cached over the last good page. A 200 with `X-Idx-Data: stale` still renders. A never-cached outage is HTTP 503 with Retry-After |
+| PROP-002 | Property titles showed "? Beds" when the bedroom count was missing | Missing `bedrooms_total` was replaced with "?" | Title and description include beds or baths only when the count is a real number |
 
 ### Adding New Bugs
 

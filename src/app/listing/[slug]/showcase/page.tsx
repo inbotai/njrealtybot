@@ -1,41 +1,36 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { fetchListing, getPhotoUrl } from "@/lib/api";
+import { getPhotoUrl } from "@/lib/api";
+import { loadListingForPage } from "@/lib/listing-server";
 import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import { sqftLabel } from "@/lib/sqft-display";
 
 export const maxDuration = 30;
+export const revalidate = 300;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const id = parseSlug(slug);
-  try {
-    const { listing } = await fetchListing(id);
-    const address = formatAddress(listing);
-    const price = listing.list_price ? formatPrice(listing.list_price) : "";
-    return {
-      title: `${address} | ${price}`,
-      description: listing.public_remarks?.slice(0, 160) || `Property for sale: ${address}`,
-      openGraph: {
-        title: `${address} — ${price}`,
-        description: listing.public_remarks?.slice(0, 160),
-        images: listing.primary_photo_url ? [listing.primary_photo_url] : [],
-      },
-    };
-  } catch { return { title: "Property Showcase" }; }
+  const { listing } = await loadListingForPage(parseSlug(slug));
+  const address = formatAddress(listing);
+  const price = listing.list_price ? formatPrice(listing.list_price) : "";
+  const title = price ? `${address} | ${price}` : address;
+  return {
+    title,
+    description: listing.public_remarks?.slice(0, 160) || `Property for sale: ${address}`,
+    openGraph: {
+      title: price ? `${address} — ${price}` : address,
+      description: listing.public_remarks?.slice(0, 160),
+      images: listing.primary_photo_url ? [listing.primary_photo_url] : [],
+    },
+  };
 }
 
 export default async function ShowcasePage({ params }: Props) {
   const { slug } = await params;
   const id = parseSlug(slug);
-
-  let data;
-  try { data = await fetchListing(id); } catch { notFound(); }
-
-  const { listing, openHouses = [] } = data;
+  const { listing, openHouses = [] } = await loadListingForPage(id);
   const address = formatAddress(listing);
   const photoCount = listing.photo_count || 0;
   const photos = Array.from({ length: Math.min(photoCount, 20) }, (_, i) => getPhotoUrl(listing.mls_number, i));
