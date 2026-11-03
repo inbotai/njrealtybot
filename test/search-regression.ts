@@ -21,6 +21,9 @@ import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
 import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
+import { fetchListing, type Listing } from "../src/lib/api";
+import { isListingNotFound, isListingUnavailable, listingFromResponse } from "../src/lib/listing-fetch";
+import { propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -855,6 +858,173 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       !health.includes("119 W 21") &&
       !health.includes("155 W 3rd"),
     `address files ${addressHit.length} paid files ${paidLoop.length} repo hits ${repoHits.length}`,
+  );
+
+  const weehawken = {
+    unparsed_address: "899 Boulevard East 8E",
+    street_number: "899",
+    street_name: "Boulevard East",
+    city: "Weehawken",
+    state_or_province: "NJ",
+    postal_code: "07086",
+    bedrooms_total: null,
+    bathrooms_total: 1,
+    list_price: 749000,
+    public_remarks: null,
+  } as Listing;
+  const missingBedsTitle = propertyListingTitle(weehawken);
+  const missingBedsDescription = propertyListingDescription(weehawken);
+  const complete = propertyListingTitle({
+    ...weehawken,
+    unparsed_address: "1 Main St",
+    city: "Hoboken",
+    postal_code: "07030",
+    bedrooms_total: 3,
+    bathrooms_total: 2,
+    list_price: 500000,
+  } as Listing);
+  const remarksDescription = propertyListingDescription({
+    ...weehawken,
+    bedrooms_total: 3,
+    bathrooms_total: 2,
+    public_remarks: "Sunny corner unit with a river view.",
+  } as Listing);
+  const noCounts = propertyListingTitle({
+    ...weehawken,
+    bedrooms_total: null,
+    bathrooms_total: null,
+    list_price: null,
+  } as Listing);
+  check(
+    "PROP-002",
+    "Property titles omit missing bed and bath counts",
+    missingBedsTitle === "899 Boulevard East 8E, Weehawken, NJ, 07086 | 1 Baths | $749,000" &&
+      !missingBedsTitle.includes("?") &&
+      !missingBedsTitle.includes("Beds") &&
+      missingBedsDescription === "View details for 899 Boulevard East 8E, Weehawken, NJ, 07086. 1 Baths · $749,000" &&
+      !missingBedsDescription.includes("?") &&
+      !missingBedsDescription.includes("Beds") &&
+      complete === "1 Main St, Hoboken, NJ, 07030 | 3 Beds 2 Baths | $500,000" &&
+      remarksDescription === "Sunny corner unit with a river view." &&
+      noCounts === "899 Boulevard East 8E, Weehawken, NJ, 07086" &&
+      propertyListingTitle({ ...weehawken, bedrooms_total: 0, bathrooms_total: 1 } as Listing).includes("0 Beds 1 Baths") &&
+      !propertyListingTitle({ ...weehawken, bedrooms_total: Number.NaN, bathrooms_total: null, list_price: null } as Listing).includes("Beds"),
+    missingBedsTitle,
+  );
+
+  const originalFetch = globalThis.fetch;
+  const kinds: Record<string, string> = {};
+  const cacheModes: string[] = [];
+  const classify = async (name: string, run: () => Promise<unknown>) => {
+    try {
+      await run();
+      kinds[name] = "ok";
+    } catch (error) {
+      kinds[name] = isListingNotFound(error) ? "not_found" : isListingUnavailable(error) ? "unavailable" : "other";
+    }
+  };
+  try {
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      cacheModes.push(String(init?.cache));
+      return new Response(JSON.stringify({ listing: null, openHouses: [], compliance: {} }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    await classify("null-listing", () => fetchListing("outage-id"));
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({ error: "Listing not found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    })) as typeof fetch;
+    await classify("missing", () => fetchListing("missing-id"));
+
+    globalThis.fetch = (async () => new Response("upstream down", {
+      status: 503,
+      headers: { "content-type": "text/plain" },
+    })) as typeof fetch;
+    await classify("http-503", () => fetchListing("down-id"));
+
+    globalThis.fetch = (async () => {
+      throw new Error("connect ECONNREFUSED");
+    }) as typeof fetch;
+    await classify("network", () => fetchListing("down-id"));
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+      listing: { id: "land-1", unparsed_address: "19 Rae Avenue", bedrooms_total: null },
+      openHouses: [],
+    }), { status: 200, headers: { "content-type": "application/json" } })) as typeof fetch;
+    await classify("land", () => fetchListing("land-1"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  const directNull = (() => {
+    try {
+      listingFromResponse(200, { listing: null });
+      return "ok";
+    } catch (error) {
+      return isListingUnavailable(error) && !isListingNotFound(error) ? "unavailable" : "other";
+    }
+  })();
+  const direct404 = (() => {
+    try {
+      listingFromResponse(404, { error: "Listing not found" });
+      return "ok";
+    } catch (error) {
+      return isListingNotFound(error) ? "not_found" : "other";
+    }
+  })();
+
+  const src = join(process.cwd(), "src");
+  const propertyPage = readFileSync(join(src, "app/property/[slug]/page.tsx"), "utf8");
+  const listingServer = readFileSync(join(src, "lib/listing-server.ts"), "utf8");
+  const apiSource = readFileSync(join(src, "lib/api.ts"), "utf8");
+  const fetchListingSource = apiSource.slice(
+    apiSource.indexOf("export async function fetchListing("),
+    apiSource.indexOf("export async function fetchAutocomplete"),
+  );
+  const showcase = readFileSync(join(src, "app/listing/[slug]/showcase/page.tsx"), "utf8");
+  const openHouse = readFileSync(join(src, "app/open-house/[slug]/page.tsx"), "utf8");
+  const openHouseQr = readFileSync(join(src, "app/open-house/qr/[slug]/page.tsx"), "utf8");
+  const propertyError = readFileSync(join(src, "app/property/[slug]/error.tsx"), "utf8");
+  const globalError = readFileSync(join(src, "app/global-error.tsx"), "utf8");
+  const notice = readFileSync(join(src, "components/ListingUnavailableNotice.tsx"), "utf8");
+  const questionMarks = walkSource(src).filter((file) => readFileSync(file, "utf8").includes('?? "?"'));
+  check(
+    "PROP-001",
+    "A null listing is a temporary failure, and a 404 is a real miss",
+    kinds["null-listing"] === "unavailable" &&
+      kinds["missing"] === "not_found" &&
+      kinds["http-503"] === "unavailable" &&
+      kinds["network"] === "unavailable" &&
+      kinds["land"] === "ok" &&
+      directNull === "unavailable" &&
+      direct404 === "not_found" &&
+      cacheModes.includes("no-store") &&
+      fetchListingSource.includes('cache: "no-store"') &&
+      !fetchListingSource.includes("revalidate") &&
+      listingServer.includes("unstable_cache") &&
+      listingServer.includes('reason: "not_found"') &&
+      listingServer.includes("if (isListingUnavailable(error)) throw error") &&
+      listingServer.includes("if (!cached.ok) notFound()") &&
+      propertyPage.includes("loadListingForPage") &&
+      propertyPage.includes("propertyListingTitle") &&
+      propertyPage.includes("export const revalidate = 300") &&
+      !propertyPage.includes("notFound()") &&
+      showcase.includes("loadListingForPage") &&
+      showcase.includes("export const revalidate = 300") &&
+      !showcase.includes("notFound()") &&
+      openHouse.includes("resolveOpenHouseListing") &&
+      !openHouse.includes("fall through") &&
+      openHouseQr.includes("resolveOpenHouseListing") &&
+      !openHouseQr.includes("fall through") &&
+      propertyError.includes("noindex, nofollow") &&
+      propertyError.includes("temporarily unavailable") &&
+      globalError.includes("noindex, nofollow") &&
+      notice.includes("temporarily unavailable") &&
+      questionMarks.length === 0,
+    `kinds ${JSON.stringify(kinds)} direct ${directNull}/${direct404} cache ${cacheModes.join(",")}`,
   );
 
   return results;

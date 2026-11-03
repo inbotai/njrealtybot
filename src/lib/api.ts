@@ -1,3 +1,5 @@
+import { listingFromResponse, ListingUnavailableError, type ListingPayload } from "./listing-fetch";
+
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
 /** Build photo URL for a listing via the MLS proxy */
@@ -144,16 +146,34 @@ export async function fetchListings(
   };
 }
 
-export async function fetchListing(id: string): Promise<{
-  listing: Listing;
-  openHouses: OpenHouse[];
-  compliance: Record<string, string>;
-}> {
-  const res = await fetch(`${IDX_API}/api/idx/listings/${id}`, {
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch listing");
-  return res.json();
+export async function fetchListing(id: string): Promise<ListingPayload> {
+  // no-store: Next's fetch cache writes every HTTP 200, including `{ listing: null }`
+  // during a database outage. Server pages cache a good payload via getCachedListing.
+  const url = `${IDX_API}/api/idx/listings/${encodeURIComponent(id)}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(12_000),
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "network error";
+    throw new ListingUnavailableError(`Listing service is unreachable (${reason})`);
+  }
+
+  let body: unknown = null;
+  if (res.status !== 404) {
+    try {
+      body = await res.json();
+    } catch {
+      throw new ListingUnavailableError(
+        res.ok
+          ? "Listing service returned invalid JSON"
+          : `Listing service returned HTTP ${res.status}`,
+      );
+    }
+  }
+  return listingFromResponse(res.status, body);
 }
 
 export async function fetchAutocomplete(

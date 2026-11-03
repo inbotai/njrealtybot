@@ -1,55 +1,24 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchListing, fetchListings, getPhotoUrl } from "@/lib/api";
-import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
+import { getPhotoUrl } from "@/lib/api";
+import { resolveOpenHouseListing } from "@/lib/listing-server";
+import { formatPrice, formatAddress } from "@/lib/utils";
 import OpenHouseForm from "@/components/OpenHouseForm";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import { positiveAmount } from "@/lib/sqft-display";
+
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * Resolve a listing from the slug.
- * The slug can be:
- *   1. A standard listing slug (UUID-address)
- *   2. An MLS number (e.g., "2518234")
- */
-async function resolveListing(slug: string) {
-  // Try as standard slug first (UUID prefix)
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-  if (uuidPattern.test(slug)) {
-    const id = parseSlug(slug);
-    try {
-      const data = await fetchListing(id);
-      return data;
-    } catch {
-      /* fall through */
-    }
-  }
-
-  // Try as MLS number — search for it
-  try {
-    const result = await fetchListings({ mls_number: slug, pageSize: "1" });
-    const listings = result.listings || result.data || [];
-    if (listings.length > 0) {
-      const data = await fetchListing(listings[0].id);
-      return data;
-    }
-  } catch {
-    /* fall through */
-  }
-
-  return null;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const data = await resolveListing(slug);
+  const data = await resolveOpenHouseListing(slug);
 
   if (!data) {
-    return { title: "Open House Sign-In" };
+    return { title: "Open House Sign-In", robots: { index: false, follow: false } };
   }
 
   const { listing } = data;
@@ -70,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function OpenHouseLandingPage({ params }: Props) {
   const { slug } = await params;
-  const data = await resolveListing(slug);
+  const data = await resolveOpenHouseListing(slug);
 
   if (!data) {
     notFound();
