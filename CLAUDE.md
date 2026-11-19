@@ -59,6 +59,8 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | PROP-001 | Property pages crashed with `unparsed_address` of null during the Nov 2 database outage | A HTTP 200 body with `listing: null` was treated as a listing, and every fetch failure became `notFound()` | A confirmed 404 calls `notFound()`. HTTP 503, an empty listing, or a network failure is not cached over the last good page. A 200 with `X-Idx-Data: stale` still renders. A never-cached outage is HTTP 503 with Retry-After |
 | PROP-003 | `/property/does-not-exist-123` returned HTTP 500 | The slug is not a UUID, so Postgres answered 500 and the page treated that as an outage | Non-UUID slugs 404 before the API call. An "invalid input syntax for type uuid" body is a miss, not an outage |
 | PROP-002 | Property titles showed "? Beds" when the bedroom count was missing | Missing `bedrooms_total` was replaced with "?" | Title and description include beds or baths only when the count is a real number |
+| PROP-004 | `/property/[slug]` threw ListingUnavailableError and middleware logged OUTAGE_503 when the IDX API returned HTTP 429 | A rate limit was handled like an outage, so a cached page was replaced with 503 | A 429 keeps the last listing (ISR stale-while-revalidate) and waits out Retry-After. 503 is only for a miss with no cache, and it is not logged as an outage |
+| TAX-010 | A town effective tax rate sat next to a per-property rate without saying which was which | Hackensack's municipal effective rate and the home's own tax/assessment rate were unlabeled | The town-wide effective rate and this property's own rate are labeled separately |
 
 ### Adding New Bugs
 

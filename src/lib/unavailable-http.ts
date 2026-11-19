@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { fetchListing } from "./api";
-import { isListingNotFound, isListingUnavailable } from "./listing-fetch";
+import { recallListing } from "./listing-cache";
+import { isListingNotFound, isListingUnavailable, isRateLimited } from "./listing-fetch";
+
+/** Set on a 429 response that has no cached listing. Middleware must not treat it as an outage. */
+export const LISTING_RATE_LIMIT_HEADER = "x-listing-rate-limited";
 
 const UUID_AT_START = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
@@ -18,11 +22,14 @@ export function singleListingId(pathname: string): string | null {
 }
 
 /**
- * 503 page when the listing API is down.
+ * Decide whether a document request should render or return 503.
+ *
  * A found listing and a confirmed 404 return null so the page can render.
- * This runs in middleware, before the page. A fresh ISR hit is served by the
- * cache without this lookup. A stale page is still served when the page render
- * keeps the last good copy; this response is what a never-cached URL receives.
+ * HTTP 429 and other transient failures return null when a listing is already
+ * cached, so ISR stale-while-revalidate can serve it. They return 503 with
+ * Retry-After only when nothing is cached. A 429 is not an outage and does
+ * not log OUTAGE_503. Middleware lets that 429 response fall through so a
+ * previously rendered page is not replaced.
  */
 export async function listingOutageResponse(id: string): Promise<Response | null> {
   try {
@@ -30,6 +37,10 @@ export async function listingOutageResponse(id: string): Promise<Response | null
     return null;
   } catch (error) {
     if (isListingNotFound(error)) return null;
+    if (isListingUnavailable(error) && recallListing(id)) return null;
+    if (isRateLimited(error)) {
+      return unavailablePageResponse(error.retryAfter, { rateLimited: true });
+    }
     if (isListingUnavailable(error)) {
       console.error("OUTAGE_503", id, error.retryAfter);
       return unavailablePageResponse(error.retryAfter);
@@ -39,7 +50,10 @@ export async function listingOutageResponse(id: string): Promise<Response | null
 }
 
 /** HTML document for a listing that cannot be loaded right now. Not cached. */
-export function unavailablePageResponse(retryAfterSeconds = 60): Response {
+export function unavailablePageResponse(
+  retryAfterSeconds = 60,
+  options?: { rateLimited?: boolean },
+): Response {
   const retryAfter = String(Math.min(86400, Math.max(0, Math.ceil(retryAfterSeconds))));
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -65,6 +79,7 @@ export function unavailablePageResponse(retryAfterSeconds = 60): Response {
       "Cache-Control": "private, no-store",
       "Retry-After": retryAfter,
       "X-Robots-Tag": "noindex, nofollow",
+      ...(options?.rateLimited ? { [LISTING_RATE_LIMIT_HEADER]: "1" } : {}),
     },
   });
 }

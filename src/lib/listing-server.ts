@@ -2,6 +2,7 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { fetchListing, fetchListings } from "./api";
+import { recallListing } from "./listing-cache";
 import {
   isListingNotFound,
   isListingUnavailable,
@@ -40,12 +41,28 @@ const readCachedListing = unstable_cache(readListingForCache, ["idx-listing"], {
 
 export const getCachedListing = cache((id: string) => readCachedListing(id));
 
-/** Render a listing, 404 a confirmed miss, or throw when the service is down. */
+/**
+ * Read the ISR/data-cache entry. On a 429 or other transient error, return the
+ * last good listing instead of failing the page. Throw only when nothing is cached
+ * so a revalidation error does not replace a previously rendered route.
+ */
+async function listingOrStale(id: string): Promise<CachedListing> {
+  try {
+    return await getCachedListing(id);
+  } catch (error) {
+    unstable_rethrow(error);
+    const stale = recallListing(id);
+    if (stale && isListingUnavailable(error)) return { ok: true, data: stale };
+    throw error;
+  }
+}
+
+/** Render a listing, 404 a confirmed miss, or throw when the service is down and nothing is cached. */
 export async function loadListingForPage(id: string): Promise<ListingPayload> {
   // A garbage slug is not a listing. The API answers that with a Postgres 500
   // ("invalid input syntax for type uuid"), which must not become an outage page.
   if (!isListingId(id)) notFound();
-  const cached = await getCachedListing(id);
+  const cached = await listingOrStale(id);
   if (!cached.ok) notFound();
   return cached.data;
 }
@@ -58,7 +75,7 @@ const UUID_PREFIX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
  */
 export async function resolveOpenHouseListing(slug: string): Promise<ListingPayload | null> {
   if (UUID_PREFIX.test(slug)) {
-    const cached = await getCachedListing(parseSlug(slug));
+    const cached = await listingOrStale(parseSlug(slug));
     if (cached.ok) return cached.data;
   }
 
@@ -73,6 +90,6 @@ export async function resolveOpenHouseListing(slug: string): Promise<ListingPayl
   const listings = result.listings || result.data || [];
   const id = listings[0]?.id;
   if (!id) return null;
-  const cached = await getCachedListing(id);
+  const cached = await listingOrStale(id);
   return cached.ok ? cached.data : null;
 }

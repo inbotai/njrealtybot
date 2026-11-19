@@ -51,12 +51,16 @@ export async function middleware(req: NextRequest) {
     // This allows admin users to still access these routes on the main domain
   }
 
-  // A full page load for one listing. 503 here is the never-cached outage response.
-  // A found listing and a 404 fall through so the page can render or 404.
+  // A full page load for one listing. 503 here is a never-cached outage.
+  // A found listing, a 404, and a 429 fall through. Falling through on 429 lets
+  // ISR stale-while-revalidate serve the last HTML instead of replacing it.
   if (isDocumentGet(req)) {
     const listingId = singleListingId(pathname);
     if (listingId) {
       const outage = await listingOutageResponse(listingId);
+      if (outage?.headers.get("x-listing-rate-limited") === "1") {
+        return NextResponse.next();
+      }
       if (outage) return outage;
     }
   }

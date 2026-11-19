@@ -7,6 +7,8 @@ import {
   formatPercent,
 } from "@/lib/service-ladder/property-tax/calc";
 import { appealTaxYear, chapter123Display, describeTaxAppealResult, ratioRelationshipCopy, taxAppealErrorMessage, taxYearRatiosLabel } from "@/lib/tax-display";
+import { taxRateComparisonForCity } from "@/lib/tax-rate-labels";
+import TaxRatePair from "@/components/TaxRatePair";
 import AnalysisWait from "./AnalysisWait";
 import SmsConsent from "./SmsConsent";
 import type { TaxAppealLead } from "@/lib/service-ladder/property-tax/types";
@@ -255,6 +257,11 @@ export default function PropertyTaxAppeal() {
         const appealView = describeTaxAppealResult(analysis);
         const chapter = chapter123Display(analysis);
         const propertyRatio = analysis.estimatedPropertyRatio ?? (analysis.estimatedMarketValueMid ? analysis.assessedValue / analysis.estimatedMarketValueMid : NaN);
+        const ratePair = taxRateComparisonForCity({
+          city: analysis.city,
+          annualTax: analysis.taxAnnual,
+          assessedValue: analysis.assessedValue,
+        });
         return (
         <section className="pb-16">
           <div className="mx-auto max-w-4xl px-4">
@@ -379,6 +386,7 @@ export default function PropertyTaxAppeal() {
                     </dd>
                   </div>
                 </dl>
+                {ratePair && <TaxRatePair pair={ratePair} />}
                 {chapter.applies && (
                 <p className="mt-3 text-xs leading-relaxed text-gray-500">
                   {ratioRelationshipCopy({
