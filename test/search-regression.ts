@@ -22,9 +22,11 @@ import { splitStreetAndCity } from "../src/lib/address";
 import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
 import { fetchListing, type Listing } from "../src/lib/api";
-import { isListingNotFound, isListingUnavailable, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
+import { resetListingCache } from "../src/lib/listing-cache";
+import { isListingNotFound, isListingUnavailable, isRateLimited, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
 import { isListingId, parseSlug, propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
 import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
+import { taxRateComparisonForCity } from "../src/lib/tax-rate-labels";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -1107,6 +1109,142 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       db500 === "unavailable" &&
       listingServer.includes("if (!isListingId(id)) notFound()"),
     `uuid500 ${uuid500} db500 ${db500}`,
+  );
+
+  resetListingCache();
+  const rateLogs: string[] = [];
+  const previousError = console.error;
+  console.error = (...args: unknown[]) => {
+    rateLogs.push(args.map((item) => String(item)).join(" "));
+  };
+  let rateFetches = 0;
+  const cachedId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+  try {
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ listing: { id: cachedId, unparsed_address: "1 Main St" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    await fetchListing(cachedId);
+
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ error: "unavailable" }), {
+        status: 503,
+        headers: { "content-type": "application/json", "retry-after": "30" },
+      });
+    }) as typeof fetch;
+    const transientCached = await listingOutageResponse(cachedId);
+
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ error: "slow down" }), {
+        status: 429,
+        headers: { "content-type": "application/json", "retry-after": "42" },
+      });
+    }) as typeof fetch;
+    let limited = false;
+    try {
+      await fetchListing(cachedId);
+    } catch (error) {
+      limited = isRateLimited(error) && isListingUnavailable(error) && error.retryAfter === 42;
+    }
+    const rateCached = await listingOutageResponse(cachedId);
+    const fetchesAtBackoff = rateFetches;
+    const rateCachedAgain = await listingOutageResponse(cachedId);
+    const skippedDuringBackoff = rateFetches === fetchesAtBackoff;
+    const cachedLogged = rateLogs.some((line) => line.includes("OUTAGE_503"));
+
+    resetListingCache();
+    rateLogs.length = 0;
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response("slow down", {
+        status: 429,
+        headers: { "content-type": "text/plain", "retry-after": "17" },
+      });
+    }) as typeof fetch;
+    const rateMiss = await listingOutageResponse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    const rateMissLogged = rateLogs.some((line) => line.includes("OUTAGE_503"));
+    const fetchesAtMiss = rateFetches;
+    const rateMissAgain = await listingOutageResponse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    const missBackedOff = rateFetches === fetchesAtMiss;
+
+    const direct429 = (() => {
+      try {
+        listingFromResponse(429, { error: "slow down" }, 42);
+        return "ok";
+      } catch (error) {
+        return isRateLimited(error) ? "rate_limit" : "other";
+      }
+    })();
+    const direct503 = (() => {
+      try {
+        listingFromResponse(503, { error: "down" }, 30);
+        return "ok";
+      } catch (error) {
+        return isRateLimited(error) ? "rate_limit" : isListingUnavailable(error) ? "transient" : "other";
+      }
+    })();
+
+    check(
+      "PROP-004",
+      "A 429 serves a cached listing and is not an outage",
+      limited &&
+        transientCached === null &&
+        !cachedLogged &&
+        rateCached === null &&
+        rateCachedAgain === null &&
+        skippedDuringBackoff &&
+        direct429 === "rate_limit" &&
+        direct503 === "transient" &&
+        rateMiss?.status === 503 &&
+        rateMiss?.headers.get("retry-after") === "17" &&
+        rateMiss?.headers.get("x-listing-rate-limited") === "1" &&
+        !rateMissLogged &&
+        rateMissAgain?.status === 503 &&
+        rateMissAgain?.headers.get("x-listing-rate-limited") === "1" &&
+        missBackedOff &&
+        middleware.includes("listingOutageResponse") &&
+        middleware.includes('headers.get("x-listing-rate-limited") === "1"') &&
+        middleware.includes("NextResponse.next()") &&
+        listingServer.includes("recallListing") &&
+        propertyPage.includes("export const revalidate = 300"),
+      `fetches ${rateFetches} limited ${limited} cached ${rateCached === null} miss ${rateMiss?.status} logged ${rateMissLogged}`,
+    );
+  } finally {
+    console.error = previousError;
+    globalThis.fetch = originalFetch;
+    resetListingCache();
+  }
+
+  const hackPair = taxRateComparisonForCity({
+    city: "Hackensack",
+    annualTax: 11075,
+    assessedValue: 362400,
+  });
+  const ownRate = ((11075 / 362400) * 100).toFixed(3);
+  const townTaxSource = readFileSync(join(process.cwd(), "src/app/property-tax/[town]/page.tsx"), "utf8");
+  check(
+    "TAX-010",
+    "Hackensack's town-wide effective rate is labeled apart from the property's own rate",
+    hackPair?.townLabel === "Hackensack town-wide effective tax rate" &&
+      hackPair.townValue === "2.527 per $100 of market value" &&
+      hackPair.propertyLabel === "This property's own tax rate" &&
+      hackPair.propertyValue === `${ownRate} per $100 of assessed value` &&
+      hackPair.townValue !== hackPair.propertyValue &&
+      hackPair.note.includes("town-wide") &&
+      hackPair.note.includes("own rate") &&
+      taxRateComparisonForCity({ city: "South Hackensack", annualTax: 5000, assessedValue: 200000 })?.townLabel.startsWith("South Hackensack town-wide") === true &&
+      taxRateComparisonForCity({ city: "", annualTax: 1, assessedValue: 1 }) === null &&
+      townTaxSource.includes("Town-wide effective tax rate") &&
+      townTaxSource.includes("Town-wide general tax rate") &&
+      propertyPage.includes("TaxRatePair") &&
+      taxShock.includes("TaxRatePair") &&
+      propertyTax.includes("TaxRatePair"),
+    hackPair ? `${hackPair.townValue} vs ${hackPair.propertyValue}` : "no pair",
   );
 
   return results;

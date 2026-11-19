@@ -13,17 +13,26 @@ export class ListingNotFoundError extends Error {
 
 /**
  * The listing API was unreachable or returned a degraded body, including HTTP 200
- * with `listing: null` (the Nov 2, 2026 database outage) and HTTP 503. Callers must
- * throw this rather than call notFound(), so Next.js does not store a 404 or an
- * error page over the last good ISR render.
+ * with `listing: null` (the Nov 2, 2026 database outage), HTTP 429, and HTTP 503.
+ * Callers must throw this rather than call notFound(), so Next.js does not store
+ * a 404 or an error page over the last good ISR render.
+ *
+ * `kind: "rate_limit"` is HTTP 429. That is not an outage: serve a cached listing
+ * when one exists, and only answer 503 when nothing is cached.
  */
 export class ListingUnavailableError extends Error {
   readonly retryAfter: number;
+  readonly kind: "rate_limit" | "transient";
 
-  constructor(message = "Listing temporarily unavailable", retryAfter = 60) {
+  constructor(
+    message = "Listing temporarily unavailable",
+    retryAfter = 60,
+    kind: "rate_limit" | "transient" = "transient",
+  ) {
     super(message);
     this.name = "ListingUnavailableError";
     this.retryAfter = retryAfter;
+    this.kind = kind;
   }
 }
 
@@ -43,6 +52,11 @@ export function isListingNotFound(error: unknown): boolean {
 
 export function isListingUnavailable(error: unknown): error is ListingUnavailableError {
   return error instanceof ListingUnavailableError || (error instanceof Error && error.name === "ListingUnavailableError");
+}
+
+/** HTTP 429. A rate limit is not an upstream outage. */
+export function isRateLimited(error: unknown): error is ListingUnavailableError {
+  return isListingUnavailable(error) && error.kind === "rate_limit";
 }
 
 export interface ListingPayload {
@@ -65,18 +79,22 @@ function isListingRecord(value: unknown): value is Listing {
 
 /**
  * Turn an upstream listing response into a payload or a typed error.
- * HTTP 404 is a confirmed miss. HTTP 503 (and any other failure, including a 200
- * with a null listing) is a transient failure. A 200 listing is usable even when
- * `X-Idx-Data: stale` — that header means the backend served a saved copy.
+ * HTTP 404 is a confirmed miss. HTTP 429 is a rate limit, not an outage.
+ * HTTP 503 (and any other failure, including a 200 with a null listing) is a
+ * transient failure. A 200 listing is usable even when `X-Idx-Data: stale` —
+ * that header means the backend served a saved copy.
  */
 export function listingFromResponse(
   status: number,
   body: unknown,
   retryAfter = 60,
 ): ListingPayload {
+  if (status === 429) {
+    throw new ListingUnavailableError("Listing service returned HTTP 429", retryAfter, "rate_limit");
+  }
   if (status === 404 || isInvalidUuidBody(body)) throw new ListingNotFoundError();
   if (status < 200 || status >= 300) {
-    throw new ListingUnavailableError(`Listing service returned HTTP ${status}`, retryAfter);
+    throw new ListingUnavailableError(`Listing service returned HTTP ${status}`, retryAfter, "transient");
   }
   if (!body || typeof body !== "object" || !isListingRecord((body as { listing?: unknown }).listing)) {
     throw new ListingUnavailableError("Listing service returned an empty listing", retryAfter);

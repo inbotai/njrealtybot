@@ -8,6 +8,8 @@ import SaveToLogCTA from "./SaveToLogCTA";
 import AiToolDisclaimer from "@/components/AiToolDisclaimer";
 import AnalysisWait from "./AnalysisWait";
 import { appealTaxYear, assessmentHeadline, chapter123Display, compsSupportMessage, describeTaxAppealResult, ratioRelationshipCopy, reconcileExplanation, taxAppealErrorMessage, taxShockDeliveryCopy, taxYearRatiosLabel } from "@/lib/tax-display";
+import { taxRateComparisonForCity } from "@/lib/tax-rate-labels";
+import TaxRatePair from "@/components/TaxRatePair";
 import { positiveAmount, sqftLabel } from "@/lib/sqft-display";
 import { taxMarketView } from "@/lib/valuation-display";
 
@@ -194,6 +196,11 @@ export default function TaxShockClient() {
     const savingsLow = result.conservativeSavingsLow || 0;
     const savingsHigh = result.conservativeSavingsHigh || 0;
     const savings5yr = savingsHigh * 5;
+    const ratePair = taxRateComparisonForCity({
+      city: result.city,
+      annualTax: result.taxAnnual,
+      assessedValue: result.assessedValue,
+    });
 
     return (
       <>
@@ -224,6 +231,7 @@ export default function TaxShockClient() {
                   <AnimCounter target={result.assessedValue} />
                 </p>
                 <p className="text-gray-500 mt-1">Annual Taxes: <AnimCounter target={result.taxAnnual} />/yr</p>
+                {ratePair && <TaxRatePair pair={ratePair} />}
               </div>
             </div>
 

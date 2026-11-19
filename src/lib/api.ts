@@ -1,4 +1,6 @@
+import { noteRetryBackoff, rememberListing, retryBackoffRemaining } from "./listing-cache";
 import {
+  isRateLimited,
   listingFromResponse,
   ListingUnavailableError,
   parseRetryAfter,
@@ -152,6 +154,16 @@ export async function fetchListings(
 }
 
 export async function fetchListing(id: string): Promise<ListingPayload> {
+  // Honor Retry-After from a 429 before opening another connection.
+  const remaining = retryBackoffRemaining();
+  if (remaining > 0) {
+    throw new ListingUnavailableError(
+      "Listing service rate limit is still in effect",
+      remaining,
+      "rate_limit",
+    );
+  }
+
   // no-store: Next's fetch cache writes every HTTP 200, including `{ listing: null }`
   // during a database outage. Server pages cache a good payload via getCachedListing.
   const url = `${IDX_API}/api/idx/listings/${encodeURIComponent(id)}`;
@@ -163,14 +175,14 @@ export async function fetchListing(id: string): Promise<ListingPayload> {
     });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "network error";
-    throw new ListingUnavailableError(`Listing service is unreachable (${reason})`);
+    throw new ListingUnavailableError(`Listing service is unreachable (${reason})`, 60, "transient");
   }
 
   const retryAfter = parseRetryAfter(res.headers.get("retry-after"));
   // `X-Idx-Data: stale` is a saved listing, not a miss and not an empty body.
   void (res.headers.get("x-idx-data") || "").trim().toLowerCase();
   let body: unknown = null;
-  if (res.status !== 404 && res.status !== 503) {
+  if (res.status !== 404 && res.status !== 503 && res.status !== 429) {
     try {
       body = await res.json();
     } catch {
@@ -179,10 +191,18 @@ export async function fetchListing(id: string): Promise<ListingPayload> {
           ? "Listing service returned invalid JSON"
           : `Listing service returned HTTP ${res.status}`,
         retryAfter,
+        "transient",
       );
     }
   }
-  return listingFromResponse(res.status, body, retryAfter);
+  try {
+    const payload = listingFromResponse(res.status, body, retryAfter);
+    rememberListing(id, payload);
+    return payload;
+  } catch (error) {
+    if (isRateLimited(error)) noteRetryBackoff(error.retryAfter);
+    throw error;
+  }
 }
 
 export async function fetchAutocomplete(

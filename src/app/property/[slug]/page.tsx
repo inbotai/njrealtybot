@@ -14,6 +14,8 @@ import MatchScoreBadge from "@/components/MatchScoreBadge";
 import VerifiedHomeBadge from "@/components/VerifiedHomeBadge";
 import { pageCanonical } from "@/lib/seo";
 import { positiveAmount } from "@/lib/sqft-display";
+import { taxRateComparisonForCity } from "@/lib/tax-rate-labels";
+import TaxRatePair from "@/components/TaxRatePair";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
@@ -136,6 +138,13 @@ export default async function PropertyPage({ params }: Props) {
   // ── Tax & Financial info ──────────────────────────────────
   // Use public records tax (authoritative) if available, fall back to MLS
   const annualTax = pr?.tax_annual || ((listing.tax_annual_amount ?? 0) > 0 ? listing.tax_annual_amount : null) || null;
+  const ratePair = listing.city
+    ? taxRateComparisonForCity({
+        city: listing.city,
+        annualTax: Number(annualTax) || 0,
+        assessedValue: Number(pr?.assessed_value) || 0,
+      })
+    : null;
   const taxSource = pr?.tax_annual ? "NJ Public Records" : listing.tax_year ? `${listing.tax_year}` : null;
 
   const financials = [
@@ -325,6 +334,7 @@ export default async function PropertyPage({ params }: Props) {
                     </tbody>
                   </table>
                 </div>
+                {ratePair && <TaxRatePair pair={ratePair} />}
               </div>
             )}
 
