@@ -6,7 +6,13 @@ import MortgageCalculator from "@/components/MortgageCalculator";
 import { sqftLabel } from "@/lib/sqft-display";
 
 export const maxDuration = 30;
-export const revalidate = 300;
+// Same 12-hour window as /property/[slug]. The listing cache uses that lifetime.
+export const revalidate = 43200;
+
+/** Empty list opts showcase URLs into on-demand ISR instead of a dynamic render. */
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = { params: Promise<{ slug: string }> };
 

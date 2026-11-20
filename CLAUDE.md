@@ -61,6 +61,7 @@ This suite contains every bug found and fixed. If any test fails, DO NOT deploy 
 | PROP-002 | Property titles showed "? Beds" when the bedroom count was missing | Missing `bedrooms_total` was replaced with "?" | Title and description include beds or baths only when the count is a real number |
 | PROP-004 | `/property/[slug]` threw ListingUnavailableError and middleware logged OUTAGE_503 when the IDX API returned HTTP 429 | A rate limit was handled like an outage, so a cached page was replaced with 503 | A 429 keeps the last listing (ISR stale-while-revalidate) and waits out Retry-After. 503 is only for a miss with no cache, and it is not logged as an outage |
 | TAX-010 | A town effective tax rate sat next to a per-property rate without saying which was which | Hackensack's municipal effective rate and the home's own tax/assessment rate were unlabeled | The town-wide effective rate and this property's own rate are labeled separately |
+| CACHE-001 | Crawlers rebuilt listing and market pages every few minutes and each rebuild wrote a new ISR entry | revalidate was 5 minutes for listings and 1 hour for markets, and the HTML included the current time | Listing pages revalidate every 12 hours, market and tax pages every 24 hours, clock values stay out of the HTML, and the CDN keeps a stale copy while one refresh runs |
 
 ### Adding New Bugs
 

@@ -16,10 +16,18 @@ import { pageCanonical } from "@/lib/seo";
 import { positiveAmount } from "@/lib/sqft-display";
 import { taxRateComparisonForCity } from "@/lib/tax-rate-labels";
 import TaxRatePair from "@/components/TaxRatePair";
+import DaysOnMarket from "@/components/DaysOnMarket";
+import { LISTING_PAGE_REVALIDATE } from "@/lib/cache-policy";
+import { listingStatusPresentation } from "@/lib/listing-status";
+import { formatUtcDate } from "@/lib/stable-date";
 
 // Vercel free tier: 10s default. Property pages need more for API enrichment.
 export const maxDuration = 30;
-export const revalidate = 300;
+// 12 hours. Five minutes rebuilt every crawled listing all day. A price or
+// status change still shows up the same day. The HTML must not include the
+// clock: a new timestamp is a new ISR write even when the listing did not change.
+// A shorter fetch revalidate in this file would pull this window back down.
+export const revalidate = 43200;
 
 /** Empty list opts listing URLs into on-demand ISR instead of no-store. */
 export function generateStaticParams() {
@@ -51,11 +59,9 @@ export default async function PropertyPage({ params }: Props) {
   const id = parseSlug(slug);
   const { listing, openHouses = [] } = await loadListingForPage(id);
   const address = formatAddress(listing);
-  const isSold = listing.mls_status === "Sold";
-
-  // Days on market
-  const daysOnMarket = listing.list_date
-    ? Math.floor((Date.now() - new Date(listing.list_date).getTime()) / 86400_000) : null;
+  const statusView = listingStatusPresentation(listing.mls_status);
+  const isSold = statusView.tone === "sold";
+  const statusClass = isSold ? "bg-red-600" : statusView.tone === "active" ? "bg-green-600" : "bg-gray-600";
   // Price reduced?
   const priceReduced = listing.original_list_price && listing.list_price
     && listing.original_list_price > listing.list_price;
@@ -74,7 +80,10 @@ export default async function PropertyPage({ params }: Props) {
   // Use listing.photo_count directly (fetchPhotoCount was 2s per call)
   const realPhotoCount = listing.photo_count || 0;
   const similarRes = listing.city
-    ? await fetchListings({ city: listing.city, status: "Active", limit: "5" }).catch(() => ({ data: [] as any[] }))
+    ? await fetchListings(
+        { city: listing.city, status: "Active", limit: "5" },
+        LISTING_PAGE_REVALIDATE,
+      ).catch(() => ({ data: [] as any[] }))
     : { data: [] as any[] };
 
   let similar: import("@/lib/api").Listing[] = [];
@@ -176,13 +185,13 @@ export default async function PropertyPage({ params }: Props) {
       label: "Sold Price",
       value: formatPrice(listing.close_price),
     },
-    isSold && listing.close_date && {
+    isSold && listing.close_date && formatUtcDate(listing.close_date) && {
       label: "Sold Date",
-      value: new Date(listing.close_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+      value: formatUtcDate(listing.close_date),
     },
-    listing.list_date && {
+    listing.list_date && formatUtcDate(listing.list_date) && {
       label: "Listed",
-      value: new Date(listing.list_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+      value: formatUtcDate(listing.list_date),
     },
   ].filter(Boolean) as { label: string; value: string }[];
 
@@ -251,14 +260,10 @@ export default async function PropertyPage({ params }: Props) {
                 <p className="mt-1 text-sm text-gray-400">MLS# {listing.mls_number}</p>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
-                <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${isSold ? "bg-red-600" : "bg-green-600"}`}>
-                  {listing.mls_status}
+                <span className={`rounded-full px-4 py-1 text-sm font-bold text-white ${statusClass}`}>
+                  {statusView.label}
                 </span>
-                {daysOnMarket !== null && !isSold && (
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                    {daysOnMarket === 0 ? "New today" : `${daysOnMarket}d on market`}
-                  </span>
-                )}
+                {listing.list_date && !isSold && <DaysOnMarket listDate={listing.list_date} />}
                 {priceReduced && (
                   <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600">
                     Price Reduced {priceDropPct}%
@@ -414,9 +419,9 @@ export default async function PropertyPage({ params }: Props) {
                       <p className="text-xs text-gray-400">Agent info will be available after next sync</p>
                     )}
                   </div>
-                  {listing.close_date && (
+                  {listing.close_date && formatUtcDate(listing.close_date) && (
                     <p className="sm:col-span-2 text-sm text-gray-600">
-                      <span className="font-semibold">Closing Date:</span> {new Date(listing.close_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      <span className="font-semibold">Closing Date:</span> {formatUtcDate(listing.close_date)}
                     </p>
                   )}
                 </div>
@@ -439,8 +444,8 @@ export default async function PropertyPage({ params }: Props) {
               <p className="mt-3 text-xs text-gray-400">
                 Information deemed reliable but not guaranteed. Data provided for consumer&apos;s
                 personal, non-commercial use only.
-                {listing.mls_modification_timestamp && (
-                  <> Last updated: {new Date(listing.mls_modification_timestamp).toLocaleDateString("en-US")}.</>
+                {listing.mls_modification_timestamp && formatUtcDate(listing.mls_modification_timestamp, "numeric") && (
+                  <> Last updated: {formatUtcDate(listing.mls_modification_timestamp, "numeric")}.</>
                 )}
               </p>
             </div>
@@ -478,7 +483,7 @@ export default async function PropertyPage({ params }: Props) {
         )}
       </div>
 
-      <MLSDisclaimer />
+      <MLSDisclaimer dataUpdatedOn={listing.mls_modification_timestamp} />
     </>
     </RequireAuth>
   );

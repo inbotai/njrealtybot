@@ -136,11 +136,12 @@ export interface ListingsResponse {
 }
 
 export async function fetchListings(
-  params: Record<string, string>
+  params: Record<string, string>,
+  revalidate = 300,
 ): Promise<ListingsResponse> {
   const qs = new URLSearchParams(params).toString();
   const res = await fetch(`${IDX_API}/api/idx/listings?${qs}`, {
-    next: { revalidate: 300 },
+    next: { revalidate },
   });
   if (!res.ok) throw new Error("Failed to fetch listings");
   const json = await res.json();
@@ -332,18 +333,18 @@ export async function fetchPricingEstimate(params: {
 }
 
 /** Fetch market report for a city */
-export async function fetchMarketReport(city: string): Promise<any> {
+export async function fetchMarketReport(city: string, revalidate = 3600): Promise<any> {
   const res = await fetch(`${IDX_API}/api/idx/market/${encodeURIComponent(city)}`, {
-    next: { revalidate: 3600 },
+    next: { revalidate },
   });
   if (!res.ok) return null;
   return res.json();
 }
 
 /** Fetch list of cities with market data */
-export async function fetchMarketCities(): Promise<{ city: string; count: number }[]> {
+export async function fetchMarketCities(revalidate = 3600): Promise<{ city: string; count: number }[]> {
   const res = await fetch(`${IDX_API}/api/idx/market-cities`, {
-    next: { revalidate: 3600 },
+    next: { revalidate },
   });
   if (!res.ok) return [];
   const data = await res.json();

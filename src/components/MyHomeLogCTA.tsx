@@ -40,6 +40,7 @@ export default function MyHomeLogCTA() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/my-home/log"
+              prefetch={false}
               className="rounded-lg bg-white px-4 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition shadow-sm"
             >
               Start Free

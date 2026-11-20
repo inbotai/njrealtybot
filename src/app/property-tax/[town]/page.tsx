@@ -7,6 +7,7 @@ import { equalizationRatio, taxFromMarketValue, townTaxPageBySlug, townTaxPages,
 import { cityToSlug } from "@/lib/place-slug";
 import { pageCanonical, SITE_URL } from "@/lib/seo";
 
+// 24 hours. The page is the annual Division of Taxation table, not a live feed.
 export const revalidate = 86400;
 
 type Props = { params: Promise<{ town: string }> };
