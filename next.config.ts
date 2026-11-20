@@ -1,4 +1,24 @@
 import type { NextConfig } from "next";
+import {
+  cdnCacheControl,
+  LISTING_PAGE_REVALIDATE,
+  MARKET_PAGE_REVALIDATE,
+  OPEN_HOUSE_PAGE_REVALIDATE,
+  SHELL_PAGE_REVALIDATE,
+  TAX_PAGE_REVALIDATE,
+} from "./src/lib/cache-policy";
+
+function cdnHeaders(sMaxAge: number) {
+  // CDN-Cache-Control / Vercel-CDN-Cache-Control tell the Vercel CDN the TTL
+  // and include stale-while-revalidate so a refresh does not invoke the function
+  // for every visitor. They are separate from the browser Cache-Control header
+  // Next sets for ISR. Do not also set Cache-Control here: that can override Next's own header.
+  const value = cdnCacheControl(sMaxAge);
+  return [
+    { key: "CDN-Cache-Control", value },
+    { key: "Vercel-CDN-Cache-Control", value },
+  ];
+}
 
 const nextConfig: NextConfig = {
   // NEVER expose source maps in production
@@ -42,6 +62,38 @@ const nextConfig: NextConfig = {
   ],
 
   headers: async () => [
+    {
+      source: "/property/:path*",
+      headers: cdnHeaders(LISTING_PAGE_REVALIDATE),
+    },
+    {
+      source: "/listing/:path*",
+      headers: cdnHeaders(LISTING_PAGE_REVALIDATE),
+    },
+    {
+      source: "/open-house/:path*",
+      headers: cdnHeaders(OPEN_HOUSE_PAGE_REVALIDATE),
+    },
+    {
+      source: "/market",
+      headers: cdnHeaders(MARKET_PAGE_REVALIDATE),
+    },
+    {
+      source: "/market/:path*",
+      headers: cdnHeaders(MARKET_PAGE_REVALIDATE),
+    },
+    {
+      source: "/property-tax",
+      headers: cdnHeaders(TAX_PAGE_REVALIDATE),
+    },
+    {
+      source: "/property-tax/:path*",
+      headers: cdnHeaders(TAX_PAGE_REVALIDATE),
+    },
+    {
+      source: "/my-home/log",
+      headers: cdnHeaders(SHELL_PAGE_REVALIDATE),
+    },
     {
       source: "/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt",
       headers: [

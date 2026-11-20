@@ -7,7 +7,14 @@ import OpenHouseForm from "@/components/OpenHouseForm";
 import MLSDisclaimer from "@/components/MLSDisclaimer";
 import { positiveAmount } from "@/lib/sqft-display";
 
-export const revalidate = 300;
+// 6 hours. Open houses are same-day, so this is shorter than a listing page.
+// The listing lookup uses this same lifetime and must not fall back to 5 minutes.
+export const revalidate = 21600;
+
+/** Empty list opts sign-in URLs into on-demand ISR instead of a dynamic render. */
+export function generateStaticParams() {
+  return [];
+}
 
 interface Props {
   params: Promise<{ slug: string }>;

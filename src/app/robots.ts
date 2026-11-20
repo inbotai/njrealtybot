@@ -21,6 +21,17 @@ const PUBLIC_ALLOW = [
 
 const PRIVATE = ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"];
 
+// Google, Bing, DuckDuckGo, Apple, and Yahoo. Explicit groups so a later
+// change to the `*` rule cannot quietly block the indexes we want.
+const SEARCH_ENGINES = ["Googlebot", "Bingbot", "DuckDuckBot", "Applebot", "Slurp"];
+
+// Documented assistant and AI-search crawlers opened on purpose (SEO-001).
+// GPTBot and ClaudeBot are the vendors' stable training crawlers. OAI-SearchBot
+// and PerplexityBot are search products and can cite these pages. Google-Extended
+// is Google's AI training crawler, separate from Googlebot; blocking it would
+// not change Google Search. anthropic-ai is Anthropic's other published agent.
+// They are not rotating scrapers. CCBot stays blocked: Common Crawl is a bulk
+// dataset, not a search index.
 const AI_SEARCH_BOTS = [
   "GPTBot",
   "OAI-SearchBot",
@@ -28,6 +39,18 @@ const AI_SEARCH_BOTS = [
   "anthropic-ai",
   "Google-Extended",
   "PerplexityBot",
+];
+
+// SEO and scrape bots that do not send buyers. Bytespider was already blocked.
+const LOW_VALUE_BOTS = [
+  "AhrefsBot",
+  "SemrushBot",
+  "Bytespider",
+  "MJ12bot",
+  "DotBot",
+  "PetalBot",
+  "DataForSeoBot",
+  "BLEXBot",
 ];
 
 export default function robots(): MetadataRoute.Robots {
@@ -38,13 +61,22 @@ export default function robots(): MetadataRoute.Robots {
         allow: PUBLIC_ALLOW,
         disallow: PRIVATE,
       },
+      ...SEARCH_ENGINES.map((userAgent) => ({
+        userAgent,
+        allow: PUBLIC_ALLOW,
+        disallow: PRIVATE,
+      })),
       ...AI_SEARCH_BOTS.map((userAgent) => ({
         userAgent,
         allow: PUBLIC_ALLOW,
         disallow: ["/admin", "/my-home", "/api/"],
       })),
       { userAgent: "CCBot", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
-      { userAgent: "Bytespider", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
+      ...LOW_VALUE_BOTS.map((userAgent) => ({
+        userAgent,
+        allow: [INDEXNOW_KEY_PATH],
+        disallow: ["/"],
+      })),
     ],
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };

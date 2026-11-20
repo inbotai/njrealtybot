@@ -11,8 +11,13 @@ import { commuteByCity, type CommuteData } from "@/data/nj-commute-data";
 import { cityToSlug, slugToCityName } from "@/lib/place-slug";
 import { pageCanonical, SITE_URL } from "@/lib/seo";
 import { sqftLabel } from "@/lib/sqft-display";
+import { MARKET_PAGE_REVALIDATE } from "@/lib/cache-policy";
+import { formatUtcDate } from "@/lib/stable-date";
 
-export const revalidate = 3600;
+// 24 hours. City stats do not need an hourly rebuild, and the HTML must not
+// include today's date or the page is rewritten on every regeneration.
+// The market fetch below uses the same lifetime so it cannot shorten this.
+export const revalidate = 86400;
 
 type Props = { params: Promise<{ city: string }> };
 
@@ -46,7 +51,7 @@ export default async function MarketPage({ params }: Props) {
   const { city } = await params;
   const cityName = slugToCityName(city);
   const slug = cityToSlug(cityName);
-  const report = await fetchMarketReport(cityName);
+  const report = await fetchMarketReport(cityName, MARKET_PAGE_REVALIDATE);
   const commute = commuteFor(cityName);
   const hasStats = Boolean(report && (report.stats.activeCount || report.stats.soldCount));
   const faqs = [
@@ -85,7 +90,7 @@ export default async function MarketPage({ params }: Props) {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-navy">{cityName}, NJ</h1>
           <p className="mt-2 text-xl text-gold">Real Estate Market Report</p>
-          <p className="mt-2 text-sm text-gray-500">Updated {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
+          <p className="mt-2 text-sm text-gray-500">Prices, sales, and inventory from the MLS feed.</p>
           <p className="mt-3 text-sm text-gray-500">
             <Link href={`/property-tax/${slug}`} className="text-indigo-700 hover:underline">{cityName} property tax rate</Link>
             {" · "}
@@ -308,8 +313,8 @@ function ListingCard({ listing, type }: { listing: any; type: "sold" | "active" 
           {sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" }) && <span>{sqftLabel(listing.living_area, { minExclusive: 100, unit: "Sqft" })}</span>}
           {listing.year_built && listing.year_built < 9999 && <span>Built {listing.year_built}</span>}
         </div>
-        {type === "sold" && listing.close_date && (
-          <p className="mt-1 text-xs text-gray-400">Sold: {new Date(listing.close_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+        {type === "sold" && listing.close_date && formatUtcDate(listing.close_date, "short") && (
+          <p className="mt-1 text-xs text-gray-400">Sold: {formatUtcDate(listing.close_date, "short")}</p>
         )}
         {type === "sold" ? (
           <div className="mt-1 space-y-0.5 text-xs text-gray-400">

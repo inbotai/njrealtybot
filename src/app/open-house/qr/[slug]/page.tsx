@@ -5,7 +5,13 @@ import { formatPrice, formatAddress } from "@/lib/utils";
 import PrintButton from "@/components/PrintButton";
 import { sqftLabel } from "@/lib/sqft-display";
 
-export const revalidate = 300;
+// 6 hours, same as the open-house sign-in page.
+export const revalidate = 21600;
+
+/** Empty list opts QR URLs into on-demand ISR instead of a dynamic render. */
+export function generateStaticParams() {
+  return [];
+}
 
 interface Props {
   params: Promise<{ slug: string }>;

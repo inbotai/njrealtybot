@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
+import { retryBackoffRemaining } from "@/lib/listing-cache";
 import { listingOutageResponse, singleListingId } from "@/lib/unavailable-http";
 
 /**
@@ -9,8 +10,11 @@ import { listingOutageResponse, singleListingId } from "@/lib/unavailable-http";
  * gardenstate.ai → AI services portal (valuations, staging, Vale, market)
  * idxlistings.gardenstate.ai → IDX property search with brokerage branding
  *
- * The IDX subdomain is detected by hostname and flagged via a header
- * that the layout reads to swap Navbar/Footer/branding.
+ * The IDX subdomain is detected by hostname and flagged via a cookie
+ * that the client shell reads to swap Navbar/Footer/branding. Public ISR
+ * pages are not in the matcher: a CDN hit must not invoke this function.
+ * The shell also checks window.location.hostname, so a listing URL on the
+ * IDX host still gets the brokerage chrome when this function does not run.
  */
 
 const IDX_HOSTS = ["idxlistings.gardenstate.ai", "idxlistings.localhost"];
@@ -20,6 +24,22 @@ const IDX_ONLY_ROUTES = ["/search", "/property", "/deals", "/open-houses"];
 
 // Routes that ONLY exist on the main domain
 const MAIN_ONLY_ROUTES = ["/staging", "/sell", "/admin"];
+
+/**
+ * True when this request needs a per-request decision (host routing, or a
+ * listing URL that is not served as ISR). Static files, images, sitemap,
+ * robots, and the public ISR pages return false and are left out of `config.matcher`.
+ */
+export function shouldRunMiddleware(pathname: string): boolean {
+  if (pathname === INDEXNOW_KEY_PATH) return true;
+  if (pathname.startsWith("/_next")) return false;
+  if (pathname === "/api" || pathname.startsWith("/api/")) return false;
+  if (pathname === "/favicon.ico" || pathname.includes(".")) return false;
+  if (pathname === "/my-home/log" || pathname === "/my-home/log/") return false;
+  const skipped = ["/property", "/market", "/property-tax", "/listing", "/open-house"];
+  if (skipped.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) return false;
+  return true;
+}
 
 function isDocumentGet(req: NextRequest): boolean {
   if (req.method !== "GET" && req.method !== "HEAD") return false;
@@ -51,12 +71,14 @@ export async function middleware(req: NextRequest) {
     // This allows admin users to still access these routes on the main domain
   }
 
-  // A full page load for one listing. 503 here is a never-cached outage.
-  // A found listing, a 404, and a 429 fall through. Falling through on 429 lets
-  // ISR stale-while-revalidate serve the last HTML instead of replacing it.
+  // Listing HTML is excluded from the matcher, so a CDN hit never gets here
+  // and never calls the listing API. If a listing path is matched again, only
+  // an isolate already inside Retry-After spends the check. fetchListing then
+  // fails closed without a new connection. A 429 falls through so ISR
+  // stale-while-revalidate can serve the last HTML instead of replacing it.
   if (isDocumentGet(req)) {
     const listingId = singleListingId(pathname);
-    if (listingId) {
+    if (listingId && retryBackoffRemaining() > 0) {
       const outage = await listingOutageResponse(listingId);
       if (outage?.headers.get("x-listing-rate-limited") === "1") {
         return NextResponse.next();
@@ -77,6 +99,9 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt",
-    "/((?!_next|api|favicon.ico|.*\\..*).*)",
+    // Skip Next internals, API routes, any path with a file extension
+    // (images, sitemap.xml, robots.txt, fonts), the MyHome Log shell, and
+    // ISR pages. Those are served from the CDN without this function.
+    "/((?!_next|api(?:/|$)|favicon\\.ico|.*\\..*|my-home/log(?:/|$)|property(?:/|$)|market(?:/|$)|property-tax(?:/|$)|listing(?:/|$)|open-house(?:/|$)).*)",
   ],
 };

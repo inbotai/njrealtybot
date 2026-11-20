@@ -27,6 +27,11 @@ import { isListingNotFound, isListingUnavailable, isRateLimited, listingFromResp
 import { isListingId, parseSlug, propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
 import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
 import { taxRateComparisonForCity } from "../src/lib/tax-rate-labels";
+import { LISTING_PAGE_REVALIDATE, MARKET_PAGE_REVALIDATE, OPEN_HOUSE_PAGE_REVALIDATE, SHELL_PAGE_REVALIDATE, TAX_PAGE_REVALIDATE, cdnCacheControl } from "../src/lib/cache-policy";
+import { listingStatusPresentation } from "../src/lib/listing-status";
+import { formatUtcDate } from "../src/lib/stable-date";
+import { shouldRunMiddleware } from "../src/middleware";
+import robotsConfig from "../src/app/robots";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -1057,10 +1062,10 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       listingServer.includes("if (!cached.ok) notFound()") &&
       propertyPage.includes("loadListingForPage") &&
       propertyPage.includes("propertyListingTitle") &&
-      propertyPage.includes("export const revalidate = 300") &&
+      propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
       !propertyPage.includes("notFound()") &&
       showcase.includes("loadListingForPage") &&
-      showcase.includes("export const revalidate = 300") &&
+      showcase.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
       !showcase.includes("notFound()") &&
       openHouse.includes("resolveOpenHouseListing") &&
       !openHouse.includes("fall through") &&
@@ -1211,7 +1216,7 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
         middleware.includes('headers.get("x-listing-rate-limited") === "1"') &&
         middleware.includes("NextResponse.next()") &&
         listingServer.includes("recallListing") &&
-        propertyPage.includes("export const revalidate = 300"),
+        propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`),
       `fetches ${rateFetches} limited ${limited} cached ${rateCached === null} miss ${rateMiss?.status} logged ${rateMissLogged}`,
     );
   } finally {
@@ -1245,6 +1250,117 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       taxShock.includes("TaxRatePair") &&
       propertyTax.includes("TaxRatePair"),
     hackPair ? `${hackPair.townValue} vs ${hackPair.propertyValue}` : "no pair",
+  );
+
+  const marketCity = readFileSync(join(process.cwd(), "src/app/market/[city]/page.tsx"), "utf8");
+  const marketIndex = readFileSync(join(process.cwd(), "src/app/market/page.tsx"), "utf8");
+  const townTax = readFileSync(join(process.cwd(), "src/app/property-tax/[town]/page.tsx"), "utf8");
+  const myHomeLog = readFileSync(join(process.cwd(), "src/app/my-home/log/page.tsx"), "utf8");
+  const disclaimer = readFileSync(join(process.cwd(), "src/components/MLSDisclaimer.tsx"), "utf8");
+  const navbar = readFileSync(join(process.cwd(), "src/components/Navbar.tsx"), "utf8");
+  const logCta = readFileSync(join(process.cwd(), "src/components/MyHomeLogCTA.tsx"), "utf8");
+  const nextConfig = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+  const openHousePage = readFileSync(join(process.cwd(), "src/app/open-house/[slug]/page.tsx"), "utf8");
+  const robotsRules = robotsConfig().rules;
+  const ruleList = Array.isArray(robotsRules) ? robotsRules : [robotsRules];
+  const ruleFor = (agent: string) => ruleList.find((rule) => rule.userAgent === agent);
+  const disallowed = (agent: string) => {
+    const rule = ruleFor(agent);
+    const list = rule ? (Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow]) : [];
+    return list.includes("/");
+  };
+  const allowedPath = (agent: string, path: string) => {
+    const rule = ruleFor(agent);
+    const list = rule ? (Array.isArray(rule.allow) ? rule.allow : [rule.allow]) : [];
+    return list.includes(path);
+  };
+  const lowValueBots = ["AhrefsBot", "SemrushBot", "Bytespider", "MJ12bot", "DotBot", "PetalBot", "DataForSeoBot", "BLEXBot"];
+  const searchEngines = ["Googlebot", "Bingbot", "DuckDuckBot", "Applebot"];
+  const aiBots = ["GPTBot", "OAI-SearchBot", "ClaudeBot", "anthropic-ai", "Google-Extended", "PerplexityBot"];
+  const removed = listingStatusPresentation("Removed");
+  const sold = listingStatusPresentation("Sold");
+  const active = listingStatusPresentation("Active");
+  const stamped = formatUtcDate("2026-03-15T00:00:00.000Z");
+  const cacheHeader = cdnCacheControl(LISTING_PAGE_REVALIDATE);
+  check(
+    "CACHE-001",
+    "Listing and market HTML stays on the CDN, and scrapers are blocked",
+    LISTING_PAGE_REVALIDATE === 43200 &&
+      MARKET_PAGE_REVALIDATE === 86400 &&
+      TAX_PAGE_REVALIDATE === 86400 &&
+      OPEN_HOUSE_PAGE_REVALIDATE === 21600 &&
+      SHELL_PAGE_REVALIDATE === 86400 &&
+      propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      propertyPage.includes("LISTING_PAGE_REVALIDATE") &&
+      !propertyPage.includes("Date.now") &&
+      !propertyPage.includes("toLocaleDateString") &&
+      !propertyPage.includes("new Date(") &&
+      showcase.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      marketCity.includes(`export const revalidate = ${MARKET_PAGE_REVALIDATE}`) &&
+      marketCity.includes("MARKET_PAGE_REVALIDATE") &&
+      !marketCity.includes("new Date(") &&
+      !marketCity.includes("Date.now") &&
+      marketIndex.includes(`export const revalidate = ${MARKET_PAGE_REVALIDATE}`) &&
+      marketIndex.includes("MARKET_PAGE_REVALIDATE") &&
+      townTax.includes(`export const revalidate = ${TAX_PAGE_REVALIDATE}`) &&
+      openHousePage.includes(`export const revalidate = ${OPEN_HOUSE_PAGE_REVALIDATE}`) &&
+      myHomeLog.includes(`export const revalidate = ${SHELL_PAGE_REVALIDATE}`) &&
+      navbar.includes('href="/my-home/log" prefetch={false}') &&
+      logCta.includes('href="/my-home/log"') &&
+      logCta.includes("prefetch={false}") &&
+      !disclaimer.includes("const now = new Date()") &&
+      !disclaimer.includes("toLocaleDateString") &&
+      disclaimer.includes("formatUtcDate") &&
+      stamped === "March 15, 2026" &&
+      formatUtcDate("2026-03-15T00:00:00.000Z") === formatUtcDate("2026-03-15T00:00:00.000Z", "long") &&
+      formatUtcDate("not-a-date") === "" &&
+      sold.tone === "sold" &&
+      sold.label === "Sold" &&
+      active.tone === "active" &&
+      removed.tone === "inactive" &&
+      removed.label === "Removed" &&
+      listingStatusPresentation("Withdrawn").tone === "inactive" &&
+      listingStatusPresentation("Expired").label === "Expired" &&
+      listingStatusPresentation("").label === "Unknown" &&
+      listingStatusPresentation(null).tone === "inactive" &&
+      propertyPage.includes("listingStatusPresentation") &&
+      !layout.includes("cookies()") &&
+      !layout.includes("headers()") &&
+      nextConfig.includes("Vercel-CDN-Cache-Control") &&
+      nextConfig.includes("stale-while-revalidate") &&
+      nextConfig.includes("cdnCacheControl") &&
+      cacheHeader.includes("s-maxage=43200") &&
+      cacheHeader.includes("stale-while-revalidate=604800") &&
+      !shouldRunMiddleware("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") &&
+      !shouldRunMiddleware("/market/hackensack") &&
+      !shouldRunMiddleware("/market") &&
+      !shouldRunMiddleware("/property-tax/hackensack") &&
+      !shouldRunMiddleware("/listing/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/showcase") &&
+      !shouldRunMiddleware("/open-house/saturday") &&
+      !shouldRunMiddleware("/my-home/log") &&
+      !shouldRunMiddleware("/sitemap.xml") &&
+      !shouldRunMiddleware("/robots.txt") &&
+      !shouldRunMiddleware("/njmls-idx-logo.jpg") &&
+      !shouldRunMiddleware("/_next/static/chunk.js") &&
+      !shouldRunMiddleware("/_next/image") &&
+      !shouldRunMiddleware("/api/admin/login") &&
+      shouldRunMiddleware("/") &&
+      shouldRunMiddleware("/sell") &&
+      shouldRunMiddleware("/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt") &&
+      middleware.includes("property(?:/|$)") &&
+      middleware.includes("market(?:/|$)") &&
+      middleware.includes("property-tax(?:/|$)") &&
+      middleware.includes(".*\\\\..*") &&
+      middleware.includes("my-home/log") &&
+      middleware.includes("listingOutageResponse") &&
+      lowValueBots.every(disallowed) &&
+      disallowed("CCBot") &&
+      searchEngines.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      aiBots.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      !disallowed("*") &&
+      allowedPath("*", "/property") &&
+      robots.includes("https://gardenstate.ai/sitemap.xml"),
+    `listing ${LISTING_PAGE_REVALIDATE}s market ${MARKET_PAGE_REVALIDATE}s header ${cacheHeader}`,
   );
 
   return results;

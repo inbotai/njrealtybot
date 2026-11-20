@@ -9,6 +9,7 @@ import {
   ListingUnavailableError,
   type ListingPayload,
 } from "./listing-fetch";
+import { LISTING_PAGE_REVALIDATE, OPEN_HOUSE_PAGE_REVALIDATE } from "./cache-policy";
 import { isListingId, parseSlug } from "./utils";
 
 export type CachedListing =
@@ -20,7 +21,7 @@ export type CachedListing =
  *
  * `fetchListing` uses `cache: "no-store"` so a HTTP 200 body of `{ listing: null }`
  * never enters Next's fetch cache (that cache stores 200 responses). This wrapper
- * stores the successful result for 5 minutes. A throw is not stored, and a stale
+ * stores the successful result for the listing page lifetime (12 hours). A throw is not stored, and a stale
  * cached listing is kept when a refresh fails, so an outage cannot replace a good page.
  */
 async function readListingForCache(id: string): Promise<CachedListing> {
@@ -36,7 +37,7 @@ async function readListingForCache(id: string): Promise<CachedListing> {
 }
 
 const readCachedListing = unstable_cache(readListingForCache, ["idx-listing"], {
-  revalidate: 300,
+  revalidate: LISTING_PAGE_REVALIDATE,
 });
 
 export const getCachedListing = cache((id: string) => readCachedListing(id));
@@ -81,7 +82,7 @@ export async function resolveOpenHouseListing(slug: string): Promise<ListingPayl
 
   let result;
   try {
-    result = await fetchListings({ mls_number: slug, pageSize: "1" });
+    result = await fetchListings({ mls_number: slug, pageSize: "1" }, OPEN_HOUSE_PAGE_REVALIDATE);
   } catch (error) {
     unstable_rethrow(error);
     throw new ListingUnavailableError(error instanceof Error ? error.message : "listing search failed");
