@@ -72,13 +72,14 @@ export async function middleware(req: NextRequest) {
   }
 
   // Listing HTML is excluded from the matcher, so a CDN hit never gets here
-  // and never calls the listing API. If a listing path is matched again, only
-  // an isolate already inside Retry-After spends the check. fetchListing then
-  // fails closed without a new connection. A 429 falls through so ISR
+  // and never calls the listing API. Property stays out of the matcher on
+  // purpose: matching it would run this function on every hit. If a listing
+  // path is matched again, only that listing id already inside Retry-After
+  // spends the check. Other ids still call zeus. A 429 falls through so ISR
   // stale-while-revalidate can serve the last HTML instead of replacing it.
   if (isDocumentGet(req)) {
     const listingId = singleListingId(pathname);
-    if (listingId && retryBackoffRemaining() > 0) {
+    if (listingId && retryBackoffRemaining(listingId) > 0) {
       const outage = await listingOutageResponse(listingId);
       if (outage?.headers.get("x-listing-rate-limited") === "1") {
         return NextResponse.next();
@@ -102,6 +103,7 @@ export const config = {
     // Skip Next internals, API routes, any path with a file extension
     // (images, sitemap.xml, robots.txt, fonts), the MyHome Log shell, and
     // ISR pages. Those are served from the CDN without this function.
+    // /property stays excluded: matching it would invoke this function on every listing hit.
     "/((?!_next|api(?:/|$)|favicon\\.ico|.*\\..*|my-home/log(?:/|$)|property(?:/|$)|market(?:/|$)|property-tax(?:/|$)|listing(?:/|$)|open-house(?:/|$)).*)",
   ],
 };
