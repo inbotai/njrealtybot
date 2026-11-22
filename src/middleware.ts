@@ -1,20 +1,27 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isTrainingCrawler } from "@/lib/crawler-policy";
 import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
 import { retryBackoffRemaining } from "@/lib/listing-cache";
 import { listingOutageResponse, singleListingId } from "@/lib/unavailable-http";
 
 /**
- * Middleware: route requests based on hostname.
+ * Middleware: refuse AI training crawlers, then route by hostname.
  *
  * gardenstate.ai → AI services portal (valuations, staging, Vale, market)
  * idxlistings.gardenstate.ai → IDX property search with brokerage branding
  *
  * The IDX subdomain is detected by hostname and flagged via a cookie
  * that the client shell reads to swap Navbar/Footer/branding. Public ISR
- * pages are not in the matcher: a CDN hit must not invoke this function.
+ * pages do not get that cookie, so the CDN can keep storing their HTML.
  * The shell also checks window.location.hostname, so a listing URL on the
- * IDX host still gets the brokerage chrome when this function does not run.
+ * IDX host still gets the brokerage chrome.
+ *
+ * The matcher includes /property. ShapBot and other training crawlers were
+ * fetching those pages and exhausting the listing API. A path-only matcher
+ * cannot vary by user agent, so the 403 runs for every visitor and normal
+ * requests continue. A listing id already inside Retry-After still takes
+ * the per-id backoff check. Other ids are not blocked.
  */
 
 const IDX_HOSTS = ["idxlistings.gardenstate.ai", "idxlistings.localhost"];
@@ -26,9 +33,21 @@ const IDX_ONLY_ROUTES = ["/search", "/property", "/deals", "/open-houses"];
 const MAIN_ONLY_ROUTES = ["/staging", "/sell", "/admin"];
 
 /**
- * True when this request needs a per-request decision (host routing, or a
- * listing URL that is not served as ISR). Static files, images, sitemap,
- * robots, and the public ISR pages return false and are left out of `config.matcher`.
+ * Paths the hostname router handled before the crawler gate also covered
+ * API routes and public files. Those extra paths stay out of host routing.
+ */
+export function isHostRoutedPath(pathname: string): boolean {
+  const rest = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  if (rest.startsWith("_next") || rest.startsWith("api") || rest.startsWith("favicon.ico")) return false;
+  if (rest.includes(".")) return false;
+  return true;
+}
+
+/**
+ * True when this request should take hostname routing and may set the IDX cookie.
+ * Static files, API routes, and public ISR pages return false so those
+ * responses are not given a Set-Cookie. The crawler gate still runs for
+ * them: `config.matcher` is wider because it cannot vary by user agent.
  */
 export function shouldRunMiddleware(pathname: string): boolean {
   if (pathname === INDEXNOW_KEY_PATH) return true;
@@ -50,14 +69,31 @@ function isDocumentGet(req: NextRequest): boolean {
 }
 
 export async function middleware(req: NextRequest) {
-  const host = req.headers.get("host") || "";
-  const isIdx = IDX_HOSTS.some((h) => host.startsWith(h));
   const { pathname } = req.nextUrl;
 
-  // IndexNow key file is a public text file. Never redirect or rewrite it.
-  if (pathname === INDEXNOW_KEY_PATH) {
+  // robots.txt states the policy and must stay readable to every agent.
+  // The IndexNow key file is a public text file. Never redirect, rewrite, or block it.
+  if (pathname === "/robots.txt" || pathname === INDEXNOW_KEY_PATH) {
     return NextResponse.next();
   }
+
+  if (isTrainingCrawler(req.headers.get("user-agent"))) {
+    return new NextResponse("Forbidden", {
+      status: 403,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "private, no-store",
+        "Vary": "User-Agent",
+      },
+    });
+  }
+
+  if (!isHostRoutedPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  const host = req.headers.get("host") || "";
+  const isIdx = IDX_HOSTS.some((h) => host.startsWith(h));
 
   // IDX subdomain: block main-only routes
   if (isIdx && MAIN_ONLY_ROUTES.some((r) => pathname.startsWith(r))) {
@@ -71,11 +107,8 @@ export async function middleware(req: NextRequest) {
     // This allows admin users to still access these routes on the main domain
   }
 
-  // Listing HTML is excluded from the matcher, so a CDN hit never gets here
-  // and never calls the listing API. Property stays out of the matcher on
-  // purpose: matching it would run this function on every hit. If a listing
-  // path is matched again, only that listing id already inside Retry-After
-  // spends the check. Other ids still call zeus. A 429 falls through so ISR
+  // Only a listing id already inside Retry-After spends this check.
+  // Other ids still call zeus from the page. A 429 falls through so ISR
   // stale-while-revalidate can serve the last HTML instead of replacing it.
   if (isDocumentGet(req)) {
     const listingId = singleListingId(pathname);
@@ -88,10 +121,10 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Host-only cookie on the IDX subdomain. The main site does not set a cookie,
-  // so public HTML can stay cacheable. The cookie is not shared across hosts.
+  // Host-only cookie on the IDX subdomain, and not on ISR HTML. The main
+  // site does not set a cookie, so public HTML can stay cacheable.
   const res = NextResponse.next();
-  if (isIdx) {
+  if (isIdx && shouldRunMiddleware(pathname)) {
     res.cookies.set("gsai_idx", "1", { path: "/", sameSite: "lax" });
   }
   return res;
@@ -99,11 +132,10 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    // Keep the key file on the matcher even if the pattern below changes.
     "/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt",
-    // Skip Next internals, API routes, any path with a file extension
-    // (images, sitemap.xml, robots.txt, fonts), the MyHome Log shell, and
-    // ISR pages. Those are served from the CDN without this function.
-    // /property stays excluded: matching it would invoke this function on every listing hit.
-    "/((?!_next|api(?:/|$)|favicon\\.ico|.*\\..*|my-home/log(?:/|$)|property(?:/|$)|market(?:/|$)|property-tax(?:/|$)|listing(?:/|$)|open-house(?:/|$)).*)",
+    // Pages, API routes, and public files, including listing HTML and the favicon.
+    // Skip Next.js build assets; those are not page content.
+    "/((?!_next/static|_next/image).*)",
   ],
 };

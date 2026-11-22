@@ -7,6 +7,7 @@
  * Tests the full pipeline: hero parse → API search → results
  */
 
+import "./install-async-local-storage";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
@@ -21,6 +22,10 @@ import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
 import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
+import buildRobots from "../src/app/robots";
+import { ALLOWED_BOTS, TRAINING_CRAWLERS, isTrainingCrawler } from "../src/lib/crawler-policy";
+import { resolveRobots } from "next/dist/build/webpack/loaders/metadata/resolve-route-data.js";
+import { runCrawlerMiddlewareChecks } from "./crawler-middleware-check";
 import { fetchListing, fetchListings, LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS, type Listing } from "../src/lib/api";
 import { noteRetryBackoff, resetListingCache, retryBackoffRemaining } from "../src/lib/listing-cache";
 import { listingAutoRetryDelaySeconds, LISTING_AUTO_RETRY_DELAYS_SEC, LISTING_AUTO_RETRY_MAX } from "../src/lib/listing-retry";
@@ -32,7 +37,6 @@ import { LISTING_PAGE_REVALIDATE, MARKET_PAGE_REVALIDATE, OPEN_HOUSE_PAGE_REVALI
 import { listingStatusPresentation } from "../src/lib/listing-status";
 import { formatUtcDate } from "../src/lib/stable-date";
 import { shouldRunMiddleware } from "../src/middleware";
-import robotsConfig from "../src/app/robots";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -687,10 +691,38 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   const slugs = new Set(towns.map((town) => town.slug));
   const fortLee = townTaxPageBySlug("fort-lee");
   const washington = towns.find((town) => town.slug === "washington-township-bergen");
-  const gptBlocked = /userAgent:\s*"GPTBot"[\s\S]{0,120}disallow:\s*\["\/"\]/.test(robots);
+  const robotsText = resolveRobots(buildRobots());
+  const robotsGroup = (agent: string) =>
+    robotsText.split("\n\n").find((block) =>
+      block.split("\n").some((line) => line.toLowerCase() === `user-agent: ${agent.toLowerCase()}`)
+    ) || "";
+  const hasLine = (block: string, line: string) => block.split("\n").includes(line);
+  const directives = (block: string, kind: "Allow" | "Disallow") =>
+    block.split("\n").filter((line) => line.startsWith(`${kind}: `)).sort().join("|");
+  const searchGroup = robotsGroup("Googlebot");
+  const starGroup = robotsGroup("*");
+  const searchBotsAllowed = [
+    "Googlebot",
+    "Bingbot",
+    "OAI-SearchBot",
+    "ChatGPT-User",
+    "Claude-SearchBot",
+    "Claude-User",
+    "Perplexity-User",
+    "DuckDuckBot",
+    "Applebot",
+    "facebookexternalhit",
+    "Twitterbot",
+  ].every((agent) => {
+    const block = robotsGroup(agent);
+    return hasLine(block, "Allow: /") &&
+      hasLine(block, "Disallow: /admin") &&
+      hasLine(block, "Disallow: /api/") &&
+      !hasLine(block, "Disallow: /");
+  });
   check(
     "SEO-001",
-    "Canonicals are self-referencing, sitemap lists news and town pages, and AI search bots can crawl",
+    "Canonicals are self-referencing, sitemap lists news and town pages, and search bots can crawl",
     !layout.includes('canonical: "https://gardenstate.ai/"') &&
       !layout.includes("headers()") &&
       layout.includes('metadataBase: new URL("https://gardenstate.ai")') &&
@@ -700,12 +732,12 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       sitemap.includes("sitemap-listings") &&
       sitemap.includes("townTaxPages") &&
       sitemap.includes("fetchMarketCities") &&
-      robots.includes("GPTBot") &&
-      robots.includes("OAI-SearchBot") &&
-      robots.includes("PerplexityBot") &&
       robots.includes('"/property-tax"') &&
       robots.includes('"/admin"') &&
-      !gptBlocked &&
+      searchBotsAllowed &&
+      directives(searchGroup, "Allow") === directives(starGroup, "Allow") &&
+      directives(searchGroup, "Disallow") === directives(starGroup, "Disallow") &&
+      robotsText.includes("Sitemap: https://gardenstate.ai/sitemap.xml") &&
       towns.length === 564 &&
       slugs.size === 564 &&
       fortLee?.name === "Fort Lee" &&
@@ -723,6 +755,56 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   const keyFile = readFileSync(join(process.cwd(), `public${INDEXNOW_KEY_PATH}`), "utf8");
   const middleware = readFileSync(join(process.cwd(), "src/middleware.ts"), "utf8");
   const indexRoute = readFileSync(join(process.cwd(), "src/app/api/indexnow/route.ts"), "utf8");
+  const trainingGroup = robotsGroup("GPTBot");
+  const allowedNames = [...ALLOWED_BOTS];
+  const trainingNames = [...TRAINING_CRAWLERS];
+  const trainingListed = trainingNames.every((agent) => hasLine(trainingGroup, `User-Agent: ${agent}`));
+  const allowedSeparate = allowedNames.every((agent) => {
+    const block = robotsGroup(agent);
+    return block.length > 0 && block !== trainingGroup && hasLine(block, "Allow: /") && !hasLine(block, "Disallow: /");
+  });
+  const tokenSafe = allowedNames.every((name) => !isTrainingCrawler(name)) &&
+    trainingNames.every((name) => isTrainingCrawler(name)) &&
+    allowedNames.every((allowed) => !trainingNames.some((name) => allowed.toLowerCase().includes(name.toLowerCase())));
+  const realisticUas =
+    isTrainingCrawler("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)") &&
+    isTrainingCrawler("Mozilla/5.0 (compatible; ShapBot/0.1.0)") &&
+    !isTrainingCrawler("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)") &&
+    !isTrainingCrawler("Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)") &&
+    !isTrainingCrawler("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot") &&
+    !isTrainingCrawler("Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)") &&
+    !isTrainingCrawler("Claude-SearchBot/1.0") &&
+    !isTrainingCrawler("Claude-User/1.0") &&
+    isTrainingCrawler("ClaudeBot/1.0") &&
+    isTrainingCrawler("anthropic-ai") &&
+    !isTrainingCrawler("Perplexity-User") &&
+    isTrainingCrawler("PerplexityBot/1.0") &&
+    !isTrainingCrawler("Mozilla/5.0 (Applebot/0.1; +http://www.apple.com/go/applebot)") &&
+    isTrainingCrawler("Applebot-Extended") &&
+    !isTrainingCrawler("facebookexternalhit/1.1") &&
+    !isTrainingCrawler(null) &&
+    !isTrainingCrawler("");
+  const gate = await runCrawlerMiddlewareChecks();
+  check(
+    "CRAWL-001",
+    "Training crawlers, including ShapBot, are disallowed in robots.txt and refused with HTTP 403",
+    trainingListed &&
+      allowedSeparate &&
+      hasLine(trainingGroup, "Disallow: /") &&
+      hasLine(trainingGroup, `Allow: ${INDEXNOW_KEY_PATH}`) &&
+      !hasLine(trainingGroup, "Allow: /") &&
+      hasLine(starGroup, `Allow: ${INDEXNOW_KEY_PATH}`) &&
+      robotsText.trimEnd().endsWith("Sitemap: https://gardenstate.ai/sitemap.xml") &&
+      tokenSafe &&
+      realisticUas &&
+      gate.pass &&
+      middleware.includes("isTrainingCrawler") &&
+      middleware.includes('pathname === "/robots.txt"') &&
+      middleware.includes("status: 403") &&
+      middleware.includes("idxlistings.gardenstate.ai") &&
+      middleware.includes('"/((?!_next/static|_next/image).*)"'),
+    gate.pass ? `training ${trainingNames.length} allowed ${allowedNames.length}` : gate.detail,
+  );
   const many = Array.from({ length: 10001 }, (_, i) => `https://gardenstate.ai/property/${i}`);
   const chunks = chunkUrls(indexNowUrls([...many, "https://evil.example/x", many[0]]));
   const calls: { url: string; size: number; key: string; host: string; keyLocation: string }[] = [];
@@ -1420,7 +1502,8 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
         notice.includes("Try again") &&
         notice.includes("data-listing-retry-countdown") &&
         !shouldRunMiddleware("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") &&
-        middleware.includes("property(?:/|$)") &&
+        middleware.includes("isTrainingCrawler") &&
+        middleware.includes('"/((?!_next/static|_next/image).*)"') &&
         middleware.includes("retryBackoffRemaining(listingId)"),
       `a ${aLimited} b ${bFetchedDuringABackoff} skipA ${secondADidNotFetch} key ${serverKeyOnListing}/${serverKeyOnSearch} browser ${omittedInBrowser} short ${retriedShort} ${shortElapsed}ms long ${noLongRetry} ${longElapsed}ms zero ${retriedZero} keyFiles ${keyFiles.length}`,
     );
@@ -1469,9 +1552,12 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   const logCta = readFileSync(join(process.cwd(), "src/components/MyHomeLogCTA.tsx"), "utf8");
   const nextConfig = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
   const openHousePage = readFileSync(join(process.cwd(), "src/app/open-house/[slug]/page.tsx"), "utf8");
-  const robotsRules = robotsConfig().rules;
+  const robotsRules = buildRobots().rules;
   const ruleList = Array.isArray(robotsRules) ? robotsRules : [robotsRules];
-  const ruleFor = (agent: string) => ruleList.find((rule) => rule.userAgent === agent);
+  const ruleFor = (agent: string) => ruleList.find((rule) => {
+    const names = Array.isArray(rule.userAgent) ? rule.userAgent : [rule.userAgent];
+    return names.includes(agent);
+  });
   const disallowed = (agent: string) => {
     const rule = ruleFor(agent);
     const list = rule ? (Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow]) : [];
@@ -1484,7 +1570,8 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   };
   const lowValueBots = ["AhrefsBot", "SemrushBot", "Bytespider", "MJ12bot", "DotBot", "PetalBot", "DataForSeoBot", "BLEXBot"];
   const searchEngines = ["Googlebot", "Bingbot", "DuckDuckBot", "Applebot"];
-  const aiBots = ["GPTBot", "OAI-SearchBot", "ClaudeBot", "anthropic-ai", "Google-Extended", "PerplexityBot"];
+  const answerBots = ["OAI-SearchBot"];
+  const blockedTrainingBots = ["GPTBot", "ClaudeBot", "anthropic-ai", "Google-Extended", "PerplexityBot", "ShapBot"];
   const removed = listingStatusPresentation("Removed");
   const sold = listingStatusPresentation("Sold");
   const active = listingStatusPresentation("Active");
@@ -1555,16 +1642,16 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       shouldRunMiddleware("/") &&
       shouldRunMiddleware("/sell") &&
       shouldRunMiddleware("/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt") &&
-      middleware.includes("property(?:/|$)") &&
-      middleware.includes("market(?:/|$)") &&
-      middleware.includes("property-tax(?:/|$)") &&
-      middleware.includes(".*\\\\..*") &&
+      middleware.includes('"/((?!_next/static|_next/image).*)"') &&
+      middleware.includes("isTrainingCrawler") &&
       middleware.includes("my-home/log") &&
       middleware.includes("listingOutageResponse") &&
+      middleware.includes("retryBackoffRemaining(listingId)") &&
       lowValueBots.every(disallowed) &&
       disallowed("CCBot") &&
       searchEngines.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
-      aiBots.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      answerBots.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      blockedTrainingBots.every((agent) => disallowed(agent) && !allowedPath(agent, "/property")) &&
       !disallowed("*") &&
       allowedPath("*", "/property") &&
       robots.includes("https://gardenstate.ai/sitemap.xml"),

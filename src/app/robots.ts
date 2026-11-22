@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ALLOWED_BOTS, TRAINING_CRAWLERS } from "@/lib/crawler-policy";
 import { INDEXNOW_KEY_PATH } from "@/lib/indexnow";
 
 const PUBLIC_ALLOW = [
@@ -21,58 +22,47 @@ const PUBLIC_ALLOW = [
 
 const PRIVATE = ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"];
 
-// Google, Bing, DuckDuckGo, Apple, and Yahoo. Explicit groups so a later
-// change to the `*` rule cannot quietly block the indexes we want.
-const SEARCH_ENGINES = ["Googlebot", "Bingbot", "DuckDuckBot", "Applebot", "Slurp"];
+// Yahoo's crawler is not in the shared allow list. Give it the same public
+// rules as the other search engines so a later change to `*` cannot hide it.
+const EXTRA_SEARCH_ENGINES = ["Slurp"];
 
-// Documented assistant and AI-search crawlers opened on purpose (SEO-001).
-// GPTBot and ClaudeBot are the vendors' stable training crawlers. OAI-SearchBot
-// and PerplexityBot are search products and can cite these pages. Google-Extended
-// is Google's AI training crawler, separate from Googlebot; blocking it would
-// not change Google Search. anthropic-ai is Anthropic's other published agent.
-// They are not rotating scrapers. CCBot stays blocked: Common Crawl is a bulk
-// dataset, not a search index.
-const AI_SEARCH_BOTS = [
-  "GPTBot",
-  "OAI-SearchBot",
-  "ClaudeBot",
-  "anthropic-ai",
-  "Google-Extended",
-  "PerplexityBot",
-];
-
-// SEO and scrape bots that do not send buyers. Bytespider was already blocked.
+// High-volume SEO crawlers. Names already in TRAINING_CRAWLERS are refused
+// by that group and are not repeated here.
 const LOW_VALUE_BOTS = [
   "AhrefsBot",
   "SemrushBot",
-  "Bytespider",
   "MJ12bot",
   "DotBot",
-  "PetalBot",
   "DataForSeoBot",
   "BLEXBot",
 ];
+
+const trainingNames = new Set<string>(TRAINING_CRAWLERS);
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
+        userAgent: [...TRAINING_CRAWLERS],
+        allow: [INDEXNOW_KEY_PATH],
+        disallow: ["/"],
+      },
+      {
+        userAgent: [...ALLOWED_BOTS],
+        allow: PUBLIC_ALLOW,
+        disallow: PRIVATE,
+      },
+      {
         userAgent: "*",
         allow: PUBLIC_ALLOW,
         disallow: PRIVATE,
       },
-      ...SEARCH_ENGINES.map((userAgent) => ({
+      ...EXTRA_SEARCH_ENGINES.filter((userAgent) => !trainingNames.has(userAgent)).map((userAgent) => ({
         userAgent,
         allow: PUBLIC_ALLOW,
         disallow: PRIVATE,
       })),
-      ...AI_SEARCH_BOTS.map((userAgent) => ({
-        userAgent,
-        allow: PUBLIC_ALLOW,
-        disallow: ["/admin", "/my-home", "/api/"],
-      })),
-      { userAgent: "CCBot", allow: [INDEXNOW_KEY_PATH], disallow: ["/"] },
-      ...LOW_VALUE_BOTS.map((userAgent) => ({
+      ...LOW_VALUE_BOTS.filter((userAgent) => !trainingNames.has(userAgent)).map((userAgent) => ({
         userAgent,
         allow: [INDEXNOW_KEY_PATH],
         disallow: ["/"],
