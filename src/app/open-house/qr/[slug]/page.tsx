@@ -1,39 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchListing, fetchListings } from "@/lib/api";
-import { formatPrice, formatAddress, parseSlug } from "@/lib/utils";
+import { resolveOpenHouseListing } from "@/lib/listing-server";
+import { formatPrice, formatAddress } from "@/lib/utils";
 import PrintButton from "@/components/PrintButton";
 import { sqftLabel } from "@/lib/sqft-display";
 
-interface Props {
-  params: Promise<{ slug: string }>;
+// 6 hours, same as the open-house sign-in page.
+export const revalidate = 21600;
+
+/** Empty list opts QR URLs into on-demand ISR instead of a dynamic render. */
+export function generateStaticParams() {
+  return [];
 }
 
-/**
- * Resolve a listing from the slug — same logic as the landing page.
- */
-async function resolveListing(slug: string) {
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-  if (uuidPattern.test(slug)) {
-    const id = parseSlug(slug);
-    try {
-      return await fetchListing(id);
-    } catch {
-      /* fall through */
-    }
-  }
-
-  try {
-    const result = await fetchListings({ mls_number: slug, pageSize: "1" });
-    const listings = result.listings || result.data || [];
-    if (listings.length > 0) {
-      return await fetchListing(listings[0].id);
-    }
-  } catch {
-    /* fall through */
-  }
-
-  return null;
+interface Props {
+  params: Promise<{ slug: string }>;
 }
 
 function getQrImageUrl(url: string, size = 400): string {
@@ -50,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function OpenHouseQRPage({ params }: Props) {
   const { slug } = await params;
-  const data = await resolveListing(slug);
+  const data = await resolveOpenHouseListing(slug);
 
   if (!data) {
     notFound();

@@ -22,6 +22,23 @@ const PUBLIC_ALLOW = [
 
 const PRIVATE = ["/admin", "/my-home", "/favorites", "/match", "/staging", "/api/"];
 
+// Yahoo's crawler is not in the shared allow list. Give it the same public
+// rules as the other search engines so a later change to `*` cannot hide it.
+const EXTRA_SEARCH_ENGINES = ["Slurp"];
+
+// High-volume SEO crawlers. Names already in TRAINING_CRAWLERS are refused
+// by that group and are not repeated here.
+const LOW_VALUE_BOTS = [
+  "AhrefsBot",
+  "SemrushBot",
+  "MJ12bot",
+  "DotBot",
+  "DataForSeoBot",
+  "BLEXBot",
+];
+
+const trainingNames = new Set<string>(TRAINING_CRAWLERS);
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -40,6 +57,16 @@ export default function robots(): MetadataRoute.Robots {
         allow: PUBLIC_ALLOW,
         disallow: PRIVATE,
       },
+      ...EXTRA_SEARCH_ENGINES.filter((userAgent) => !trainingNames.has(userAgent)).map((userAgent) => ({
+        userAgent,
+        allow: PUBLIC_ALLOW,
+        disallow: PRIVATE,
+      })),
+      ...LOW_VALUE_BOTS.filter((userAgent) => !trainingNames.has(userAgent)).map((userAgent) => ({
+        userAgent,
+        allow: [INDEXNOW_KEY_PATH],
+        disallow: ["/"],
+      })),
     ],
     sitemap: "https://gardenstate.ai/sitemap.xml",
   };

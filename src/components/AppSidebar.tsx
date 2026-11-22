@@ -122,6 +122,7 @@ export default function AppSidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={item.href === "/my-home/log" ? false : undefined}
                   className={`flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition whitespace-nowrap ${
                     active
                       ? "bg-navy/10 text-navy font-medium"

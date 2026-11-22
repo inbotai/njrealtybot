@@ -65,6 +65,7 @@ export const TRAINING_CRAWLERS = [
   "KimiBot",
   "MistralAI-Index",
   "ICC-Crawler",
+  "ShapBot",
 ] as const;
 
 const TRAINING_TOKENS = TRAINING_CRAWLERS.map((name) => name.toLowerCase());

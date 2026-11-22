@@ -1,7 +1,10 @@
-export default function MLSDisclaimer() {
-  const now = new Date();
-  const lastUpdated = now.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
-  const year = now.getFullYear();
+import { formatUtcDate } from "@/lib/stable-date";
+
+export default function MLSDisclaimer({ dataUpdatedOn }: { dataUpdatedOn?: string | null }) {
+  // The copyright year is stable for the whole calendar year. The "last
+  // updated" line uses the listing timestamp when we have one, never today's date.
+  const year = new Date().getUTCFullYear();
+  const lastUpdated = dataUpdatedOn ? formatUtcDate(dataUpdatedOn, "numeric") : "";
 
   return (
     <section className="bg-gray-900 text-gray-400">
@@ -31,7 +34,7 @@ export default function MLSDisclaimer() {
 
         {/* Accuracy + Copyright + Last Updated */}
         <div className="mt-4 space-y-1 text-[10px] text-gray-500">
-          <p>Information deemed reliable but not guaranteed. Last date updated: {lastUpdated}.</p>
+          <p>Information deemed reliable but not guaranteed.{lastUpdated ? ` Last date updated: ${lastUpdated}.` : ""}</p>
           <p>&copy; {year} New Jersey Multiple Listing Service, Inc. All rights reserved.</p>
         </div>
 

@@ -15,8 +15,13 @@ import ExitIntent from "@/components/ExitIntent";
 import AppSidebar from "@/components/AppSidebar";
 import MyHomeLogCTA from "@/components/MyHomeLogCTA";
 
+const IDX_HOST_NAMES = ["idxlistings.gardenstate.ai", "idxlistings.localhost"];
+
 function isIdxHost(): boolean {
-  if (typeof document === "undefined") return false;
+  if (typeof window === "undefined") return false;
+  // Hostname, not only the cookie. Middleware does not run on cached listing,
+  // market, or tax pages, so those responses do not set gsai_idx.
+  if (IDX_HOST_NAMES.some((name) => window.location.hostname === name)) return true;
   return document.cookie.split("; ").some((part) => part.startsWith("gsai_idx=1"));
 }
 

@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchMarketCities } from "@/lib/api";
 import { cityToSlug } from "@/lib/place-slug";
+import { MARKET_PAGE_REVALIDATE } from "@/lib/cache-policy";
 
-export const revalidate = 3600;
+// 24 hours, same as a city report. The cities fetch uses this lifetime so a
+// 1-hour data cache cannot pull the page back down.
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: { absolute: "NJ Real Estate Market Intelligence \u2014 Trends & Demand | Garden State AI" },
@@ -34,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketIndexPage() {
-  const cities = await fetchMarketCities();
+  const cities = await fetchMarketCities(MARKET_PAGE_REVALIDATE);
 
   return (
     <>

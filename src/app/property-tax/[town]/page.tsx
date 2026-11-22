@@ -7,6 +7,7 @@ import { equalizationRatio, taxFromMarketValue, townTaxPageBySlug, townTaxPages,
 import { cityToSlug } from "@/lib/place-slug";
 import { pageCanonical, SITE_URL } from "@/lib/seo";
 
+// 24 hours. The page is the annual Division of Taxation table, not a live feed.
 export const revalidate = 86400;
 
 type Props = { params: Promise<{ town: string }> };
@@ -95,12 +96,12 @@ export default async function TownTaxPage({ params }: Props) {
           </p>
           <dl className="mt-8 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border bg-gray-50 p-4">
-              <dt className="text-xs uppercase text-gray-500">General tax rate</dt>
+              <dt className="text-xs uppercase text-gray-500">Town-wide general tax rate</dt>
               <dd className="mt-1 text-2xl font-bold text-navy">{town.generalRate.toFixed(3)}</dd>
               <p className="text-xs text-gray-500">per $100 assessed</p>
             </div>
             <div className="rounded-xl border bg-gray-50 p-4">
-              <dt className="text-xs uppercase text-gray-500">Effective tax rate</dt>
+              <dt className="text-xs uppercase text-gray-500">Town-wide effective tax rate</dt>
               <dd className="mt-1 text-2xl font-bold text-navy">{town.effectiveRate.toFixed(3)}</dd>
               <p className="text-xs text-gray-500">per $100 market value</p>
             </div>

@@ -86,7 +86,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2">
               {toolLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-xs text-gray-500 hover:text-indigo-600 transition">{l.label}</Link>
+                  <Link href={l.href} prefetch={l.href === "/my-home/log" ? false : undefined} className="text-xs text-gray-500 hover:text-indigo-600 transition">{l.label}</Link>
                 </li>
               ))}
             </ul>

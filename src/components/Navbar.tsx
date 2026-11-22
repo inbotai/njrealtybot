@@ -67,6 +67,11 @@ const NAV_GROUPS: NavGroup[] = [
 
 // ── Logo SVG ─────────────────────────────────────────────────
 
+/** MyHome Log is a heavy client page. Do not prefetch it from the global nav. */
+function linkPrefetch(href: string): false | undefined {
+  return href === "/my-home/log" ? false : undefined;
+}
+
 function Logo() {
   return (
     <svg viewBox="0 0 200 200" className="h-9 w-9">
@@ -124,6 +129,7 @@ function NavDropdown({
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={linkPrefetch(item.href)}
                 onClick={onClose}
                 className={`block px-4 py-2 text-sm transition ${
                   active
@@ -190,7 +196,7 @@ export default function Navbar() {
             </button>
           ) : (
             <span className="text-xs text-gray-400">
-              <Link href="/my-home/log" className="hover:text-indigo-600 transition">Sign In</Link>
+              <Link href="/my-home/log" prefetch={false} className="hover:text-indigo-600 transition">Sign In</Link>
             </span>
           )}
         </div>
@@ -216,6 +222,7 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    prefetch={linkPrefetch(item.href)}
                     onClick={() => setMobileOpen(false)}
                     className={`block px-6 py-2.5 text-sm ${
                       active ? "text-indigo-600 font-medium bg-indigo-50" : "text-gray-700 hover:bg-gray-50"
@@ -235,7 +242,7 @@ export default function Navbar() {
                 Logout
               </button>
             ) : (
-              <Link href="/my-home/log" onClick={() => setMobileOpen(false)}
+              <Link href="/my-home/log" prefetch={false} onClick={() => setMobileOpen(false)}
                 className="block px-4 py-2.5 text-sm text-indigo-600 font-medium">
                 Sign In
               </Link>

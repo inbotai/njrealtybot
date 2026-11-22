@@ -7,6 +7,7 @@
  * Tests the full pipeline: hero parse → API search → results
  */
 
+import "./install-async-local-storage";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { formatPercent } from "../src/lib/service-ladder/property-tax/calc";
@@ -25,6 +26,17 @@ import buildRobots from "../src/app/robots";
 import { ALLOWED_BOTS, TRAINING_CRAWLERS, isTrainingCrawler } from "../src/lib/crawler-policy";
 import { resolveRobots } from "next/dist/build/webpack/loaders/metadata/resolve-route-data.js";
 import { runCrawlerMiddlewareChecks } from "./crawler-middleware-check";
+import { fetchListing, fetchListings, LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS, type Listing } from "../src/lib/api";
+import { noteRetryBackoff, resetListingCache, retryBackoffRemaining } from "../src/lib/listing-cache";
+import { listingAutoRetryDelaySeconds, LISTING_AUTO_RETRY_DELAYS_SEC, LISTING_AUTO_RETRY_MAX } from "../src/lib/listing-retry";
+import { isListingNotFound, isListingUnavailable, isRateLimited, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
+import { isListingId, parseSlug, propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
+import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
+import { taxRateComparisonForCity } from "../src/lib/tax-rate-labels";
+import { LISTING_PAGE_REVALIDATE, MARKET_PAGE_REVALIDATE, OPEN_HOUSE_PAGE_REVALIDATE, SHELL_PAGE_REVALIDATE, TAX_PAGE_REVALIDATE, cdnCacheControl } from "../src/lib/cache-policy";
+import { listingStatusPresentation } from "../src/lib/listing-status";
+import { formatUtcDate } from "../src/lib/stable-date";
+import { shouldRunMiddleware } from "../src/middleware";
 
 const IDX_API = "https://inbot-idx-api-production.up.railway.app";
 
@@ -756,6 +768,7 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
     allowedNames.every((allowed) => !trainingNames.some((name) => allowed.toLowerCase().includes(name.toLowerCase())));
   const realisticUas =
     isTrainingCrawler("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)") &&
+    isTrainingCrawler("Mozilla/5.0 (compatible; ShapBot/0.1.0)") &&
     !isTrainingCrawler("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)") &&
     !isTrainingCrawler("Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)") &&
     !isTrainingCrawler("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot") &&
@@ -774,7 +787,7 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
   const gate = await runCrawlerMiddlewareChecks();
   check(
     "CRAWL-001",
-    "Training crawlers are disallowed in robots.txt and refused with HTTP 403",
+    "Training crawlers, including ShapBot, are disallowed in robots.txt and refused with HTTP 403",
     trainingListed &&
       allowedSeparate &&
       hasLine(trainingGroup, "Disallow: /") &&
@@ -936,6 +949,713 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
       !health.includes("119 W 21") &&
       !health.includes("155 W 3rd"),
     `address files ${addressHit.length} paid files ${paidLoop.length} repo hits ${repoHits.length}`,
+  );
+
+  const weehawken = {
+    unparsed_address: "899 Boulevard East 8E",
+    street_number: "899",
+    street_name: "Boulevard East",
+    city: "Weehawken",
+    state_or_province: "NJ",
+    postal_code: "07086",
+    bedrooms_total: null,
+    bathrooms_total: 1,
+    list_price: 749000,
+    public_remarks: null,
+  } as Listing;
+  const missingBedsTitle = propertyListingTitle(weehawken);
+  const missingBedsDescription = propertyListingDescription(weehawken);
+  const complete = propertyListingTitle({
+    ...weehawken,
+    unparsed_address: "1 Main St",
+    city: "Hoboken",
+    postal_code: "07030",
+    bedrooms_total: 3,
+    bathrooms_total: 2,
+    list_price: 500000,
+  } as Listing);
+  const remarksDescription = propertyListingDescription({
+    ...weehawken,
+    bedrooms_total: 3,
+    bathrooms_total: 2,
+    public_remarks: "Sunny corner unit with a river view.",
+  } as Listing);
+  const noCounts = propertyListingTitle({
+    ...weehawken,
+    bedrooms_total: null,
+    bathrooms_total: null,
+    list_price: null,
+  } as Listing);
+  check(
+    "PROP-002",
+    "Property titles omit missing bed and bath counts",
+    missingBedsTitle === "899 Boulevard East 8E, Weehawken, NJ, 07086 | 1 Baths | $749,000" &&
+      !missingBedsTitle.includes("?") &&
+      !missingBedsTitle.includes("Beds") &&
+      missingBedsDescription === "View details for 899 Boulevard East 8E, Weehawken, NJ, 07086. 1 Baths · $749,000" &&
+      !missingBedsDescription.includes("?") &&
+      !missingBedsDescription.includes("Beds") &&
+      complete === "1 Main St, Hoboken, NJ, 07030 | 3 Beds 2 Baths | $500,000" &&
+      remarksDescription === "Sunny corner unit with a river view." &&
+      noCounts === "899 Boulevard East 8E, Weehawken, NJ, 07086" &&
+      propertyListingTitle({ ...weehawken, bedrooms_total: 0, bathrooms_total: 1 } as Listing).includes("0 Beds 1 Baths") &&
+      !propertyListingTitle({ ...weehawken, bedrooms_total: Number.NaN, bathrooms_total: null, list_price: null } as Listing).includes("Beds"),
+    missingBedsTitle,
+  );
+
+  const originalFetch = globalThis.fetch;
+  const kinds: Record<string, string> = {};
+  const cacheModes: string[] = [];
+  const classify = async (name: string, run: () => Promise<unknown>) => {
+    try {
+      await run();
+      kinds[name] = "ok";
+    } catch (error) {
+      kinds[name] = isListingNotFound(error) ? "not_found" : isListingUnavailable(error) ? "unavailable" : "other";
+    }
+  };
+  try {
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      cacheModes.push(String(init?.cache));
+      return new Response(JSON.stringify({ listing: null, openHouses: [], compliance: {} }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    await classify("null-listing", () => fetchListing("outage-id"));
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({ error: "Listing not found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    })) as typeof fetch;
+    await classify("missing", () => fetchListing("missing-id"));
+
+    globalThis.fetch = (async () => new Response("upstream down", {
+      status: 503,
+      headers: { "content-type": "text/plain", "retry-after": "45" },
+    })) as typeof fetch;
+    await classify("http-503", () => fetchListing("down-id"));
+
+    globalThis.fetch = (async () => {
+      throw new Error("connect ECONNREFUSED");
+    }) as typeof fetch;
+    await classify("network", () => fetchListing("down-id"));
+
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+      listing: { id: "land-1", unparsed_address: "19 Rae Avenue", bedrooms_total: null },
+      openHouses: [],
+    }), { status: 200, headers: { "content-type": "application/json", "x-idx-data": "stale" } })) as typeof fetch;
+    await classify("stale-200", () => fetchListing("land-1"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  const directNull = (() => {
+    try {
+      listingFromResponse(200, { listing: null });
+      return "ok";
+    } catch (error) {
+      return isListingUnavailable(error) && !isListingNotFound(error) ? "unavailable" : "other";
+    }
+  })();
+  let retryAfter = -1;
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "unavailable" }), {
+    status: 503,
+    headers: { "content-type": "application/json", "retry-after": "45" },
+  })) as typeof fetch;
+  try {
+    await fetchListing("retry-check");
+  } catch (error) {
+    if (isListingUnavailable(error) && "retryAfter" in error) retryAfter = Number(error.retryAfter);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  const retryDate = parseRetryAfter("Wed, 21 Oct 2015 07:28:00 GMT", Date.parse("Wed, 21 Oct 2015 07:28:00 GMT") - 15_000);
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "down" }), {
+    status: 503,
+    headers: { "content-type": "application/json", "retry-after": "30" },
+  })) as typeof fetch;
+  const outage = await listingOutageResponse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  const outageText = outage ? await outage.text() : "";
+  globalThis.fetch = (async () => new Response(JSON.stringify({
+    listing: { id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", unparsed_address: "1 Main" },
+  }), {
+    status: 200,
+    headers: { "content-type": "application/json", "x-idx-data": "stale" },
+  })) as typeof fetch;
+  const stalePass = await listingOutageResponse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  globalThis.fetch = (async () => new Response(JSON.stringify({ error: "Listing not found" }), {
+    status: 404,
+    headers: { "content-type": "application/json" },
+  })) as typeof fetch;
+  const missingPass = await listingOutageResponse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+  globalThis.fetch = originalFetch;
+
+  const direct404 = (() => {
+    try {
+      listingFromResponse(404, { error: "Listing not found" });
+      return "ok";
+    } catch (error) {
+      return isListingNotFound(error) ? "not_found" : "other";
+    }
+  })();
+
+  const src = join(process.cwd(), "src");
+  const propertyPage = readFileSync(join(src, "app/property/[slug]/page.tsx"), "utf8");
+  const listingServer = readFileSync(join(src, "lib/listing-server.ts"), "utf8");
+  const apiSource = readFileSync(join(src, "lib/api.ts"), "utf8");
+  const fetchListingSource = apiSource.slice(
+    apiSource.indexOf("export async function fetchListing("),
+    apiSource.indexOf("export async function fetchAutocomplete"),
+  );
+  const showcase = readFileSync(join(src, "app/listing/[slug]/showcase/page.tsx"), "utf8");
+  const openHouse = readFileSync(join(src, "app/open-house/[slug]/page.tsx"), "utf8");
+  const openHouseQr = readFileSync(join(src, "app/open-house/qr/[slug]/page.tsx"), "utf8");
+  const propertyError = readFileSync(join(src, "app/property/[slug]/error.tsx"), "utf8");
+  const globalError = readFileSync(join(src, "app/global-error.tsx"), "utf8");
+  const notice = readFileSync(join(src, "components/ListingUnavailableNotice.tsx"), "utf8");
+  const unavailableHttp = readFileSync(join(src, "lib/unavailable-http.ts"), "utf8");
+  const questionMarks = walkSource(src).filter((file) => readFileSync(file, "utf8").includes('?? "?"'));
+  check(
+    "PROP-001",
+    "A null listing is a temporary failure, and a 404 is a real miss",
+    kinds["null-listing"] === "unavailable" &&
+      kinds["missing"] === "not_found" &&
+      kinds["http-503"] === "unavailable" &&
+      kinds["network"] === "unavailable" &&
+      kinds["stale-200"] === "ok" &&
+      retryAfter === 45 &&
+      retryDate === 15 &&
+      outage?.status === 503 &&
+      outage?.headers.get("retry-after") === "30" &&
+      outage?.headers.get("cache-control")?.includes("no-store") === true &&
+      outageText.includes("temporarily unavailable") &&
+      stalePass === null &&
+      missingPass === null &&
+      singleListingId("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-main-st") === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" &&
+      singleListingId("/open-house/2518234") === null &&
+      directNull === "unavailable" &&
+      direct404 === "not_found" &&
+      cacheModes.includes("no-store") &&
+      fetchListingSource.includes('cache: "no-store"') &&
+      !fetchListingSource.includes("revalidate") &&
+      listingServer.includes("unstable_cache") &&
+      listingServer.includes('reason: "not_found"') &&
+      listingServer.includes("if (isListingUnavailable(error)) throw error") &&
+      listingServer.includes("if (!cached.ok) notFound()") &&
+      propertyPage.includes("loadListingForPage") &&
+      propertyPage.includes("propertyListingTitle") &&
+      propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      !propertyPage.includes("notFound()") &&
+      showcase.includes("loadListingForPage") &&
+      showcase.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      !showcase.includes("notFound()") &&
+      openHouse.includes("resolveOpenHouseListing") &&
+      !openHouse.includes("fall through") &&
+      openHouseQr.includes("resolveOpenHouseListing") &&
+      !openHouseQr.includes("fall through") &&
+      propertyError.includes("noindex, nofollow") &&
+      propertyError.includes("temporarily unavailable") &&
+      globalError.includes("noindex, nofollow") &&
+      notice.includes("temporarily unavailable") &&
+      middleware.includes("listingOutageResponse") &&
+      unavailableHttp.includes("status: 503") &&
+      unavailableHttp.includes('"Retry-After"') &&
+      fetchListingSource.includes("retry-after") &&
+      fetchListingSource.includes("x-idx-data") &&
+      questionMarks.length === 0,
+    `kinds ${JSON.stringify(kinds)} direct ${directNull}/${direct404} cache ${cacheModes.join(",")}`,
+  );
+
+  const uuid500 = (() => {
+    try {
+      listingFromResponse(500, { error: 'invalid input syntax for type uuid: "does-not-exist-123"' });
+      return "ok";
+    } catch (error) {
+      return isListingNotFound(error) ? "not_found" : "other";
+    }
+  })();
+  const db500 = (() => {
+    try {
+      listingFromResponse(500, { error: "database unavailable" });
+      return "ok";
+    } catch (error) {
+      return isListingUnavailable(error) ? "unavailable" : "other";
+    }
+  })();
+  const realId = "fc776462-fb9e-4f88-ab55-6da2f290a355";
+  check(
+    "PROP-003",
+    "A garbage property slug is a 404, and a database 500 is still an outage",
+    !isListingId("does-not-exist-123") &&
+      !isListingId("zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz") &&
+      isListingId(realId) &&
+      isListingId(parseSlug(`${realId}-19-rae-avenue-mahwah-nj`)) &&
+      parseSlug("does-not-exist-123") === "does-not-exist-123" &&
+      !isListingId(parseSlug("does-not-exist-123")) &&
+      uuid500 === "not_found" &&
+      db500 === "unavailable" &&
+      listingServer.includes("if (!isListingId(id)) notFound()"),
+    `uuid500 ${uuid500} db500 ${db500}`,
+  );
+
+  resetListingCache();
+  const rateLogs: string[] = [];
+  const previousError = console.error;
+  console.error = (...args: unknown[]) => {
+    rateLogs.push(args.map((item) => String(item)).join(" "));
+  };
+  let rateFetches = 0;
+  const cachedId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+  try {
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ listing: { id: cachedId, unparsed_address: "1 Main St" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    await fetchListing(cachedId);
+
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ error: "unavailable" }), {
+        status: 503,
+        headers: { "content-type": "application/json", "retry-after": "30" },
+      });
+    }) as typeof fetch;
+    const transientCached = await listingOutageResponse(cachedId);
+
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response(JSON.stringify({ error: "slow down" }), {
+        status: 429,
+        headers: { "content-type": "application/json", "retry-after": "42" },
+      });
+    }) as typeof fetch;
+    let limited = false;
+    try {
+      await fetchListing(cachedId);
+    } catch (error) {
+      limited = isRateLimited(error) && isListingUnavailable(error) && error.retryAfter === 42;
+    }
+    const rateCached = await listingOutageResponse(cachedId);
+    const fetchesAtBackoff = rateFetches;
+    const rateCachedAgain = await listingOutageResponse(cachedId);
+    const skippedDuringBackoff = rateFetches === fetchesAtBackoff;
+    const cachedLogged = rateLogs.some((line) => line.includes("OUTAGE_503"));
+
+    resetListingCache();
+    rateLogs.length = 0;
+    globalThis.fetch = (async () => {
+      rateFetches += 1;
+      return new Response("slow down", {
+        status: 429,
+        headers: { "content-type": "text/plain", "retry-after": "17" },
+      });
+    }) as typeof fetch;
+    const rateMiss = await listingOutageResponse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    const rateMissLogged = rateLogs.some((line) => line.includes("OUTAGE_503"));
+    const fetchesAtMiss = rateFetches;
+    const rateMissAgain = await listingOutageResponse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    const missBackedOff = rateFetches === fetchesAtMiss;
+
+    const direct429 = (() => {
+      try {
+        listingFromResponse(429, { error: "slow down" }, 42);
+        return "ok";
+      } catch (error) {
+        return isRateLimited(error) ? "rate_limit" : "other";
+      }
+    })();
+    const direct503 = (() => {
+      try {
+        listingFromResponse(503, { error: "down" }, 30);
+        return "ok";
+      } catch (error) {
+        return isRateLimited(error) ? "rate_limit" : isListingUnavailable(error) ? "transient" : "other";
+      }
+    })();
+
+    check(
+      "PROP-004",
+      "A 429 serves a cached listing and is not an outage",
+      limited &&
+        transientCached === null &&
+        !cachedLogged &&
+        rateCached === null &&
+        rateCachedAgain === null &&
+        skippedDuringBackoff &&
+        direct429 === "rate_limit" &&
+        direct503 === "transient" &&
+        rateMiss?.status === 503 &&
+        rateMiss?.headers.get("retry-after") === "17" &&
+        rateMiss?.headers.get("x-listing-rate-limited") === "1" &&
+        !rateMissLogged &&
+        rateMissAgain?.status === 503 &&
+        rateMissAgain?.headers.get("x-listing-rate-limited") === "1" &&
+        missBackedOff &&
+        middleware.includes("listingOutageResponse") &&
+        middleware.includes('headers.get("x-listing-rate-limited") === "1"') &&
+        middleware.includes("NextResponse.next()") &&
+        listingServer.includes("recallListing") &&
+        propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`),
+      `fetches ${rateFetches} limited ${limited} cached ${rateCached === null} miss ${rateMiss?.status} logged ${rateMissLogged}`,
+    );
+  } finally {
+    console.error = previousError;
+    globalThis.fetch = originalFetch;
+    resetListingCache();
+  }
+
+  const previousServerKey = process.env.IDX_SERVER_KEY;
+  const hadWindow = Object.prototype.hasOwnProperty.call(globalThis, "window");
+  const previousWindow = (globalThis as { window?: unknown }).window;
+  const headerOf = (init?: RequestInit) => new Headers(init?.headers).get("x-idx-server-key");
+  const headerCalls: { url: string; key: string | null }[] = [];
+  const idA = "listing-a";
+  const idB = "listing-b";
+  const idC = "listing-c";
+  const idD = "listing-d";
+  const idE = "listing-e";
+  let aLimited = false;
+  let bFetchedDuringABackoff = false;
+  let secondABlocked = false;
+  let secondADidNotFetch = false;
+  let serverKeyOnListing = false;
+  let serverKeyOnSearch = false;
+  let omittedWhenUnset = false;
+  let omittedWhenBlank = false;
+  let trimmedKey = false;
+  let omittedInBrowser = false;
+  let retriedShort = false;
+  let noLongRetry = false;
+  let retriedZero = false;
+  let shortElapsed = -1;
+  let longElapsed = -1;
+  try {
+    resetListingCache();
+    const backoffAt = 1_000_000;
+    noteRetryBackoff(idA, 60, backoffAt);
+    noteRetryBackoff(idA, 5, backoffAt);
+    const sameIdWaits = retryBackoffRemaining(idA, backoffAt) === 60;
+    const otherIdOpen = retryBackoffRemaining(idB, backoffAt) === 0;
+    resetListingCache();
+
+    process.env.IDX_SERVER_KEY = "canary-server-key";
+    let aHits = 0;
+    globalThis.fetch = (async (url: unknown, init?: RequestInit) => {
+      const href = String(url);
+      headerCalls.push({ url: href, key: headerOf(init) });
+      if (href.includes(idA)) {
+        aHits += 1;
+        return new Response(JSON.stringify({ error: "slow down" }), {
+          status: 429,
+          headers: { "retry-after": "60", "content-type": "application/json" },
+        });
+      }
+      if (href.includes("/api/idx/listings?")) {
+        return new Response(JSON.stringify({ listings: [], total: 0, page: 1, pageSize: 12 }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      const id = href.includes(idB) ? idB : "other";
+      return new Response(JSON.stringify({ listing: { id, unparsed_address: "2 Main St" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    try {
+      await fetchListing(idA);
+    } catch (error) {
+      aLimited = isRateLimited(error) && error.retryAfter === 60;
+    }
+    const callsAfterA = headerCalls.length;
+    const loadedB = await fetchListing(idB);
+    bFetchedDuringABackoff = headerCalls.length === callsAfterA + 1 && headerCalls[headerCalls.length - 1]?.url.includes(idB) === true && loadedB.listing.id === idB;
+    const callsBeforeSecondA = headerCalls.length;
+    try {
+      await fetchListing(idA);
+    } catch (error) {
+      secondABlocked = isRateLimited(error);
+    }
+    secondADidNotFetch = headerCalls.length === callsBeforeSecondA && aHits === 1;
+    serverKeyOnListing = headerCalls[0]?.key === "canary-server-key" && headerCalls[1]?.key === "canary-server-key";
+
+    headerCalls.length = 0;
+    await fetchListings({ city: "Hackensack", limit: "1" });
+    serverKeyOnSearch = headerCalls.length === 1 && headerCalls[0]?.key === "canary-server-key" && headerCalls[0].url.includes("/api/idx/listings?");
+
+    delete process.env.IDX_SERVER_KEY;
+    resetListingCache();
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedWhenUnset = headerCalls[0]?.key == null;
+
+    process.env.IDX_SERVER_KEY = "   ";
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedWhenBlank = headerCalls[0]?.key == null;
+
+    process.env.IDX_SERVER_KEY = "  canary-server-key  ";
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    trimmedKey = headerCalls[0]?.key === "canary-server-key";
+
+    process.env.IDX_SERVER_KEY = "canary-server-key";
+    (globalThis as { window?: unknown }).window = {};
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedInBrowser = headerCalls[0]?.key == null;
+    delete (globalThis as { window?: unknown }).window;
+
+    resetListingCache();
+    let cHits = 0;
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      cHits += 1;
+      headerCalls.push({ url: String(_url), key: headerOf(init) });
+      if (cHits === 1) return new Response("slow down", { status: 429, headers: { "retry-after": "2" } });
+      return new Response(JSON.stringify({ listing: { id: idC, unparsed_address: "3 Main" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    const shortStart = Date.now();
+    const recovered = await fetchListing(idC);
+    shortElapsed = Date.now() - shortStart;
+    retriedShort = cHits === 2 && recovered.listing.id === idC && shortElapsed >= 1500 && headerCalls.slice(-2).every((call) => call.key === "canary-server-key");
+
+    resetListingCache();
+    let dHits = 0;
+    globalThis.fetch = (async () => {
+      dHits += 1;
+      return new Response("slow down", { status: 429, headers: { "retry-after": "3" } });
+    }) as typeof fetch;
+    const longStart = Date.now();
+    let longLimited = false;
+    try {
+      await fetchListing(idD);
+    } catch (error) {
+      longLimited = isRateLimited(error);
+    }
+    longElapsed = Date.now() - longStart;
+    noLongRetry = dHits === 1 && longLimited && longElapsed < 800;
+
+    resetListingCache();
+    let eHits = 0;
+    globalThis.fetch = (async () => {
+      eHits += 1;
+      if (eHits === 1) return new Response("slow down", { status: 429, headers: { "retry-after": "0" } });
+      return new Response(JSON.stringify({ listing: { id: idE, unparsed_address: "5 Main" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    const zeroStart = Date.now();
+    const zeroRecovered = await fetchListing(idE);
+    const zeroElapsed = Date.now() - zeroStart;
+    retriedZero = eHits === 2 && zeroRecovered.listing.id === idE && zeroElapsed < 800;
+
+    const keyFiles = walkSource(src).filter((file) => readFileSync(file, "utf8").includes("IDX_SERVER_KEY"));
+    const headerModule = keyFiles.length === 1 ? readFileSync(keyFiles[0], "utf8") : "";
+    const nextConfigSource = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    check(
+      "PROP-005",
+      "One 429 does not block every listing, and the server key stays off the browser",
+      sameIdWaits &&
+        otherIdOpen &&
+        aLimited &&
+        bFetchedDuringABackoff &&
+        secondABlocked &&
+        secondADidNotFetch &&
+        serverKeyOnListing &&
+        serverKeyOnSearch &&
+        omittedWhenUnset &&
+        omittedWhenBlank &&
+        trimmedKey &&
+        omittedInBrowser &&
+        retriedShort &&
+        noLongRetry &&
+        retriedZero &&
+        LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS === 2 &&
+        listingAutoRetryDelaySeconds(0) === 20 &&
+        listingAutoRetryDelaySeconds(1) === 40 &&
+        listingAutoRetryDelaySeconds(2) === 80 &&
+        listingAutoRetryDelaySeconds(3) === null &&
+        LISTING_AUTO_RETRY_DELAYS_SEC.join(",") === "20,40,80" &&
+        LISTING_AUTO_RETRY_MAX === 3 &&
+        keyFiles.length === 1 &&
+        keyFiles[0].endsWith("idx-server-headers.ts") &&
+        headerModule.includes("process.env.IDX_SERVER_KEY") &&
+        headerModule.includes("globalThis.window") &&
+        headerModule.includes('process.env.NEXT_RUNTIME === ""') &&
+        !headerModule.includes("NEXT_PUBLIC_") &&
+        !nextConfigSource.includes("IDX_SERVER_KEY") &&
+        propertyError.includes("noindex, nofollow") &&
+        propertyError.includes("unstable_retry") &&
+        propertyError.includes("listingAutoRetryDelaySeconds") &&
+        propertyError.includes("sessionStorage") &&
+        propertyError.includes("Trying again in") &&
+        notice.includes("countdownRef") &&
+        notice.includes("Try again") &&
+        notice.includes("data-listing-retry-countdown") &&
+        !shouldRunMiddleware("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") &&
+        middleware.includes("isTrainingCrawler") &&
+        middleware.includes('"/((?!_next/static|_next/image).*)"') &&
+        middleware.includes("retryBackoffRemaining(listingId)"),
+      `a ${aLimited} b ${bFetchedDuringABackoff} skipA ${secondADidNotFetch} key ${serverKeyOnListing}/${serverKeyOnSearch} browser ${omittedInBrowser} short ${retriedShort} ${shortElapsed}ms long ${noLongRetry} ${longElapsed}ms zero ${retriedZero} keyFiles ${keyFiles.length}`,
+    );
+  } finally {
+    if (previousServerKey === undefined) delete process.env.IDX_SERVER_KEY;
+    else process.env.IDX_SERVER_KEY = previousServerKey;
+    if (hadWindow) (globalThis as { window?: unknown }).window = previousWindow;
+    else delete (globalThis as { window?: unknown }).window;
+    globalThis.fetch = originalFetch;
+    resetListingCache();
+  }
+
+  const hackPair = taxRateComparisonForCity({
+    city: "Hackensack",
+    annualTax: 11075,
+    assessedValue: 362400,
+  });
+  const ownRate = ((11075 / 362400) * 100).toFixed(3);
+  const townTaxSource = readFileSync(join(process.cwd(), "src/app/property-tax/[town]/page.tsx"), "utf8");
+  check(
+    "TAX-010",
+    "Hackensack's town-wide effective rate is labeled apart from the property's own rate",
+    hackPair?.townLabel === "Hackensack town-wide effective tax rate" &&
+      hackPair.townValue === "2.527 per $100 of market value" &&
+      hackPair.propertyLabel === "This property's own tax rate" &&
+      hackPair.propertyValue === `${ownRate} per $100 of assessed value` &&
+      hackPair.townValue !== hackPair.propertyValue &&
+      hackPair.note.includes("town-wide") &&
+      hackPair.note.includes("own rate") &&
+      taxRateComparisonForCity({ city: "South Hackensack", annualTax: 5000, assessedValue: 200000 })?.townLabel.startsWith("South Hackensack town-wide") === true &&
+      taxRateComparisonForCity({ city: "", annualTax: 1, assessedValue: 1 }) === null &&
+      townTaxSource.includes("Town-wide effective tax rate") &&
+      townTaxSource.includes("Town-wide general tax rate") &&
+      propertyPage.includes("TaxRatePair") &&
+      taxShock.includes("TaxRatePair") &&
+      propertyTax.includes("TaxRatePair"),
+    hackPair ? `${hackPair.townValue} vs ${hackPair.propertyValue}` : "no pair",
+  );
+
+  const marketCity = readFileSync(join(process.cwd(), "src/app/market/[city]/page.tsx"), "utf8");
+  const marketIndex = readFileSync(join(process.cwd(), "src/app/market/page.tsx"), "utf8");
+  const townTax = readFileSync(join(process.cwd(), "src/app/property-tax/[town]/page.tsx"), "utf8");
+  const myHomeLog = readFileSync(join(process.cwd(), "src/app/my-home/log/page.tsx"), "utf8");
+  const disclaimer = readFileSync(join(process.cwd(), "src/components/MLSDisclaimer.tsx"), "utf8");
+  const navbar = readFileSync(join(process.cwd(), "src/components/Navbar.tsx"), "utf8");
+  const logCta = readFileSync(join(process.cwd(), "src/components/MyHomeLogCTA.tsx"), "utf8");
+  const nextConfig = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+  const openHousePage = readFileSync(join(process.cwd(), "src/app/open-house/[slug]/page.tsx"), "utf8");
+  const robotsRules = buildRobots().rules;
+  const ruleList = Array.isArray(robotsRules) ? robotsRules : [robotsRules];
+  const ruleFor = (agent: string) => ruleList.find((rule) => {
+    const names = Array.isArray(rule.userAgent) ? rule.userAgent : [rule.userAgent];
+    return names.includes(agent);
+  });
+  const disallowed = (agent: string) => {
+    const rule = ruleFor(agent);
+    const list = rule ? (Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow]) : [];
+    return list.includes("/");
+  };
+  const allowedPath = (agent: string, path: string) => {
+    const rule = ruleFor(agent);
+    const list = rule ? (Array.isArray(rule.allow) ? rule.allow : [rule.allow]) : [];
+    return list.includes(path);
+  };
+  const lowValueBots = ["AhrefsBot", "SemrushBot", "Bytespider", "MJ12bot", "DotBot", "PetalBot", "DataForSeoBot", "BLEXBot"];
+  const searchEngines = ["Googlebot", "Bingbot", "DuckDuckBot", "Applebot"];
+  const answerBots = ["OAI-SearchBot"];
+  const blockedTrainingBots = ["GPTBot", "ClaudeBot", "anthropic-ai", "Google-Extended", "PerplexityBot", "ShapBot"];
+  const removed = listingStatusPresentation("Removed");
+  const sold = listingStatusPresentation("Sold");
+  const active = listingStatusPresentation("Active");
+  const stamped = formatUtcDate("2026-03-15T00:00:00.000Z");
+  const cacheHeader = cdnCacheControl(LISTING_PAGE_REVALIDATE);
+  check(
+    "CACHE-001",
+    "Listing and market HTML stays on the CDN, and scrapers are blocked",
+    LISTING_PAGE_REVALIDATE === 43200 &&
+      MARKET_PAGE_REVALIDATE === 86400 &&
+      TAX_PAGE_REVALIDATE === 86400 &&
+      OPEN_HOUSE_PAGE_REVALIDATE === 21600 &&
+      SHELL_PAGE_REVALIDATE === 86400 &&
+      propertyPage.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      propertyPage.includes("LISTING_PAGE_REVALIDATE") &&
+      !propertyPage.includes("Date.now") &&
+      !propertyPage.includes("toLocaleDateString") &&
+      !propertyPage.includes("new Date(") &&
+      showcase.includes(`export const revalidate = ${LISTING_PAGE_REVALIDATE}`) &&
+      marketCity.includes(`export const revalidate = ${MARKET_PAGE_REVALIDATE}`) &&
+      marketCity.includes("MARKET_PAGE_REVALIDATE") &&
+      !marketCity.includes("new Date(") &&
+      !marketCity.includes("Date.now") &&
+      marketIndex.includes(`export const revalidate = ${MARKET_PAGE_REVALIDATE}`) &&
+      marketIndex.includes("MARKET_PAGE_REVALIDATE") &&
+      townTax.includes(`export const revalidate = ${TAX_PAGE_REVALIDATE}`) &&
+      openHousePage.includes(`export const revalidate = ${OPEN_HOUSE_PAGE_REVALIDATE}`) &&
+      myHomeLog.includes(`export const revalidate = ${SHELL_PAGE_REVALIDATE}`) &&
+      navbar.includes('href="/my-home/log" prefetch={false}') &&
+      logCta.includes('href="/my-home/log"') &&
+      logCta.includes("prefetch={false}") &&
+      !disclaimer.includes("const now = new Date()") &&
+      !disclaimer.includes("toLocaleDateString") &&
+      disclaimer.includes("formatUtcDate") &&
+      stamped === "March 15, 2026" &&
+      formatUtcDate("2026-03-15T00:00:00.000Z") === formatUtcDate("2026-03-15T00:00:00.000Z", "long") &&
+      formatUtcDate("not-a-date") === "" &&
+      sold.tone === "sold" &&
+      sold.label === "Sold" &&
+      active.tone === "active" &&
+      removed.tone === "inactive" &&
+      removed.label === "Removed" &&
+      listingStatusPresentation("Withdrawn").tone === "inactive" &&
+      listingStatusPresentation("Expired").label === "Expired" &&
+      listingStatusPresentation("").label === "Unknown" &&
+      listingStatusPresentation(null).tone === "inactive" &&
+      propertyPage.includes("listingStatusPresentation") &&
+      !layout.includes("cookies()") &&
+      !layout.includes("headers()") &&
+      nextConfig.includes("Vercel-CDN-Cache-Control") &&
+      nextConfig.includes("stale-while-revalidate") &&
+      nextConfig.includes("cdnCacheControl") &&
+      cacheHeader.includes("s-maxage=43200") &&
+      cacheHeader.includes("stale-while-revalidate=604800") &&
+      !shouldRunMiddleware("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") &&
+      !shouldRunMiddleware("/market/hackensack") &&
+      !shouldRunMiddleware("/market") &&
+      !shouldRunMiddleware("/property-tax/hackensack") &&
+      !shouldRunMiddleware("/listing/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/showcase") &&
+      !shouldRunMiddleware("/open-house/saturday") &&
+      !shouldRunMiddleware("/my-home/log") &&
+      !shouldRunMiddleware("/sitemap.xml") &&
+      !shouldRunMiddleware("/robots.txt") &&
+      !shouldRunMiddleware("/njmls-idx-logo.jpg") &&
+      !shouldRunMiddleware("/_next/static/chunk.js") &&
+      !shouldRunMiddleware("/_next/image") &&
+      !shouldRunMiddleware("/api/admin/login") &&
+      shouldRunMiddleware("/") &&
+      shouldRunMiddleware("/sell") &&
+      shouldRunMiddleware("/6f8a9d2e4b1c7f305a8e9c4d2b7f1a6e.txt") &&
+      middleware.includes('"/((?!_next/static|_next/image).*)"') &&
+      middleware.includes("isTrainingCrawler") &&
+      middleware.includes("my-home/log") &&
+      middleware.includes("listingOutageResponse") &&
+      middleware.includes("retryBackoffRemaining(listingId)") &&
+      lowValueBots.every(disallowed) &&
+      disallowed("CCBot") &&
+      searchEngines.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      answerBots.every((agent) => !disallowed(agent) && allowedPath(agent, "/property")) &&
+      blockedTrainingBots.every((agent) => disallowed(agent) && !allowedPath(agent, "/property")) &&
+      !disallowed("*") &&
+      allowedPath("*", "/property") &&
+      robots.includes("https://gardenstate.ai/sitemap.xml"),
+    `listing ${LISTING_PAGE_REVALIDATE}s market ${MARKET_PAGE_REVALIDATE}s header ${cacheHeader}`,
   );
 
   return results;
