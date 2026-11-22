@@ -1,3 +1,4 @@
+import { idxServerHeaders } from "./idx-server-headers";
 import { noteRetryBackoff, rememberListing, retryBackoffRemaining } from "./listing-cache";
 import {
   isRateLimited,
@@ -141,6 +142,7 @@ export async function fetchListings(
 ): Promise<ListingsResponse> {
   const qs = new URLSearchParams(params).toString();
   const res = await fetch(`${IDX_API}/api/idx/listings?${qs}`, {
+    headers: idxServerHeaders(),
     next: { revalidate },
   });
   if (!res.ok) throw new Error("Failed to fetch listings");
@@ -154,9 +156,18 @@ export async function fetchListings(
   };
 }
 
+/** One extra attempt inside the same request when Retry-After is this many seconds or less. */
+export const LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS = 2;
+
+function sleep(ms: number): Promise<void> {
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function fetchListing(id: string): Promise<ListingPayload> {
-  // Honor Retry-After from a 429 before opening another connection.
-  const remaining = retryBackoffRemaining();
+  // Honor Retry-After for this listing before opening another connection.
+  // Other ids are not blocked: zeus can still serve them from its own cache.
+  const remaining = retryBackoffRemaining(id);
   if (remaining > 0) {
     throw new ListingUnavailableError(
       "Listing service rate limit is still in effect",
@@ -167,42 +178,55 @@ export async function fetchListing(id: string): Promise<ListingPayload> {
 
   // no-store: Next's fetch cache writes every HTTP 200, including `{ listing: null }`
   // during a database outage. Server pages cache a good payload via getCachedListing.
-  const url = `${IDX_API}/api/idx/listings/${encodeURIComponent(id)}`;
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(12_000),
-    });
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : "network error";
-    throw new ListingUnavailableError(`Listing service is unreachable (${reason})`, 60, "transient");
-  }
-
-  const retryAfter = parseRetryAfter(res.headers.get("retry-after"));
-  // `X-Idx-Data: stale` is a saved listing, not a miss and not an empty body.
-  void (res.headers.get("x-idx-data") || "").trim().toLowerCase();
-  let body: unknown = null;
-  if (res.status !== 404 && res.status !== 503 && res.status !== 429) {
+  let inlineRetryLeft = 1;
+  while (true) {
+    const url = `${IDX_API}/api/idx/listings/${encodeURIComponent(id)}`;
+    let res: Response;
     try {
-      body = await res.json();
-    } catch {
-      throw new ListingUnavailableError(
-        res.ok
-          ? "Listing service returned invalid JSON"
-          : `Listing service returned HTTP ${res.status}`,
-        retryAfter,
-        "transient",
-      );
+      res = await fetch(url, {
+        cache: "no-store",
+        headers: idxServerHeaders(),
+        signal: AbortSignal.timeout(12_000),
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "network error";
+      throw new ListingUnavailableError(`Listing service is unreachable (${reason})`, 60, "transient");
     }
-  }
-  try {
-    const payload = listingFromResponse(res.status, body, retryAfter);
-    rememberListing(id, payload);
-    return payload;
-  } catch (error) {
-    if (isRateLimited(error)) noteRetryBackoff(error.retryAfter);
-    throw error;
+
+    const retryAfter = parseRetryAfter(res.headers.get("retry-after"));
+    // `X-Idx-Data: stale` is a saved listing, not a miss and not an empty body.
+    void (res.headers.get("x-idx-data") || "").trim().toLowerCase();
+    let body: unknown = null;
+    if (res.status !== 404 && res.status !== 503 && res.status !== 429) {
+      try {
+        body = await res.json();
+      } catch {
+        throw new ListingUnavailableError(
+          res.ok
+            ? "Listing service returned invalid JSON"
+            : `Listing service returned HTTP ${res.status}`,
+          retryAfter,
+          "transient",
+        );
+      }
+    }
+    try {
+      const payload = listingFromResponse(res.status, body, retryAfter);
+      rememberListing(id, payload);
+      return payload;
+    } catch (error) {
+      if (
+        isRateLimited(error) &&
+        inlineRetryLeft > 0 &&
+        error.retryAfter <= LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS
+      ) {
+        inlineRetryLeft -= 1;
+        await sleep(error.retryAfter * 1000);
+        continue;
+      }
+      if (isRateLimited(error)) noteRetryBackoff(id, error.retryAfter);
+      throw error;
+    }
   }
 }
 

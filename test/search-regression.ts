@@ -21,8 +21,9 @@ import { renderChatMarkdown } from "../src/lib/chat-markdown";
 import { splitStreetAndCity } from "../src/lib/address";
 import { positiveAmount, pricePerSqftLabel, sqftLabel } from "../src/lib/sqft-display";
 import { pricingEstimateView, taxMarketView } from "../src/lib/valuation-display";
-import { fetchListing, type Listing } from "../src/lib/api";
-import { resetListingCache } from "../src/lib/listing-cache";
+import { fetchListing, fetchListings, LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS, type Listing } from "../src/lib/api";
+import { noteRetryBackoff, resetListingCache, retryBackoffRemaining } from "../src/lib/listing-cache";
+import { listingAutoRetryDelaySeconds, LISTING_AUTO_RETRY_DELAYS_SEC, LISTING_AUTO_RETRY_MAX } from "../src/lib/listing-retry";
 import { isListingNotFound, isListingUnavailable, isRateLimited, listingFromResponse, parseRetryAfter } from "../src/lib/listing-fetch";
 import { isListingId, parseSlug, propertyListingDescription, propertyListingTitle } from "../src/lib/utils";
 import { listingOutageResponse, singleListingId } from "../src/lib/unavailable-http";
@@ -1221,6 +1222,213 @@ async function runLocalTests(): Promise<{ id: string; description: string; pass:
     );
   } finally {
     console.error = previousError;
+    globalThis.fetch = originalFetch;
+    resetListingCache();
+  }
+
+  const previousServerKey = process.env.IDX_SERVER_KEY;
+  const hadWindow = Object.prototype.hasOwnProperty.call(globalThis, "window");
+  const previousWindow = (globalThis as { window?: unknown }).window;
+  const headerOf = (init?: RequestInit) => new Headers(init?.headers).get("x-idx-server-key");
+  const headerCalls: { url: string; key: string | null }[] = [];
+  const idA = "listing-a";
+  const idB = "listing-b";
+  const idC = "listing-c";
+  const idD = "listing-d";
+  const idE = "listing-e";
+  let aLimited = false;
+  let bFetchedDuringABackoff = false;
+  let secondABlocked = false;
+  let secondADidNotFetch = false;
+  let serverKeyOnListing = false;
+  let serverKeyOnSearch = false;
+  let omittedWhenUnset = false;
+  let omittedWhenBlank = false;
+  let trimmedKey = false;
+  let omittedInBrowser = false;
+  let retriedShort = false;
+  let noLongRetry = false;
+  let retriedZero = false;
+  let shortElapsed = -1;
+  let longElapsed = -1;
+  try {
+    resetListingCache();
+    const backoffAt = 1_000_000;
+    noteRetryBackoff(idA, 60, backoffAt);
+    noteRetryBackoff(idA, 5, backoffAt);
+    const sameIdWaits = retryBackoffRemaining(idA, backoffAt) === 60;
+    const otherIdOpen = retryBackoffRemaining(idB, backoffAt) === 0;
+    resetListingCache();
+
+    process.env.IDX_SERVER_KEY = "canary-server-key";
+    let aHits = 0;
+    globalThis.fetch = (async (url: unknown, init?: RequestInit) => {
+      const href = String(url);
+      headerCalls.push({ url: href, key: headerOf(init) });
+      if (href.includes(idA)) {
+        aHits += 1;
+        return new Response(JSON.stringify({ error: "slow down" }), {
+          status: 429,
+          headers: { "retry-after": "60", "content-type": "application/json" },
+        });
+      }
+      if (href.includes("/api/idx/listings?")) {
+        return new Response(JSON.stringify({ listings: [], total: 0, page: 1, pageSize: 12 }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      const id = href.includes(idB) ? idB : "other";
+      return new Response(JSON.stringify({ listing: { id, unparsed_address: "2 Main St" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    try {
+      await fetchListing(idA);
+    } catch (error) {
+      aLimited = isRateLimited(error) && error.retryAfter === 60;
+    }
+    const callsAfterA = headerCalls.length;
+    const loadedB = await fetchListing(idB);
+    bFetchedDuringABackoff = headerCalls.length === callsAfterA + 1 && headerCalls[headerCalls.length - 1]?.url.includes(idB) === true && loadedB.listing.id === idB;
+    const callsBeforeSecondA = headerCalls.length;
+    try {
+      await fetchListing(idA);
+    } catch (error) {
+      secondABlocked = isRateLimited(error);
+    }
+    secondADidNotFetch = headerCalls.length === callsBeforeSecondA && aHits === 1;
+    serverKeyOnListing = headerCalls[0]?.key === "canary-server-key" && headerCalls[1]?.key === "canary-server-key";
+
+    headerCalls.length = 0;
+    await fetchListings({ city: "Hackensack", limit: "1" });
+    serverKeyOnSearch = headerCalls.length === 1 && headerCalls[0]?.key === "canary-server-key" && headerCalls[0].url.includes("/api/idx/listings?");
+
+    delete process.env.IDX_SERVER_KEY;
+    resetListingCache();
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedWhenUnset = headerCalls[0]?.key == null;
+
+    process.env.IDX_SERVER_KEY = "   ";
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedWhenBlank = headerCalls[0]?.key == null;
+
+    process.env.IDX_SERVER_KEY = "  canary-server-key  ";
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    trimmedKey = headerCalls[0]?.key === "canary-server-key";
+
+    process.env.IDX_SERVER_KEY = "canary-server-key";
+    (globalThis as { window?: unknown }).window = {};
+    headerCalls.length = 0;
+    await fetchListing(idB);
+    omittedInBrowser = headerCalls[0]?.key == null;
+    delete (globalThis as { window?: unknown }).window;
+
+    resetListingCache();
+    let cHits = 0;
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      cHits += 1;
+      headerCalls.push({ url: String(_url), key: headerOf(init) });
+      if (cHits === 1) return new Response("slow down", { status: 429, headers: { "retry-after": "2" } });
+      return new Response(JSON.stringify({ listing: { id: idC, unparsed_address: "3 Main" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    const shortStart = Date.now();
+    const recovered = await fetchListing(idC);
+    shortElapsed = Date.now() - shortStart;
+    retriedShort = cHits === 2 && recovered.listing.id === idC && shortElapsed >= 1500 && headerCalls.slice(-2).every((call) => call.key === "canary-server-key");
+
+    resetListingCache();
+    let dHits = 0;
+    globalThis.fetch = (async () => {
+      dHits += 1;
+      return new Response("slow down", { status: 429, headers: { "retry-after": "3" } });
+    }) as typeof fetch;
+    const longStart = Date.now();
+    let longLimited = false;
+    try {
+      await fetchListing(idD);
+    } catch (error) {
+      longLimited = isRateLimited(error);
+    }
+    longElapsed = Date.now() - longStart;
+    noLongRetry = dHits === 1 && longLimited && longElapsed < 800;
+
+    resetListingCache();
+    let eHits = 0;
+    globalThis.fetch = (async () => {
+      eHits += 1;
+      if (eHits === 1) return new Response("slow down", { status: 429, headers: { "retry-after": "0" } });
+      return new Response(JSON.stringify({ listing: { id: idE, unparsed_address: "5 Main" } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+    const zeroStart = Date.now();
+    const zeroRecovered = await fetchListing(idE);
+    const zeroElapsed = Date.now() - zeroStart;
+    retriedZero = eHits === 2 && zeroRecovered.listing.id === idE && zeroElapsed < 800;
+
+    const keyFiles = walkSource(src).filter((file) => readFileSync(file, "utf8").includes("IDX_SERVER_KEY"));
+    const headerModule = keyFiles.length === 1 ? readFileSync(keyFiles[0], "utf8") : "";
+    const nextConfigSource = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    check(
+      "PROP-005",
+      "One 429 does not block every listing, and the server key stays off the browser",
+      sameIdWaits &&
+        otherIdOpen &&
+        aLimited &&
+        bFetchedDuringABackoff &&
+        secondABlocked &&
+        secondADidNotFetch &&
+        serverKeyOnListing &&
+        serverKeyOnSearch &&
+        omittedWhenUnset &&
+        omittedWhenBlank &&
+        trimmedKey &&
+        omittedInBrowser &&
+        retriedShort &&
+        noLongRetry &&
+        retriedZero &&
+        LISTING_RATE_LIMIT_INLINE_RETRY_SECONDS === 2 &&
+        listingAutoRetryDelaySeconds(0) === 20 &&
+        listingAutoRetryDelaySeconds(1) === 40 &&
+        listingAutoRetryDelaySeconds(2) === 80 &&
+        listingAutoRetryDelaySeconds(3) === null &&
+        LISTING_AUTO_RETRY_DELAYS_SEC.join(",") === "20,40,80" &&
+        LISTING_AUTO_RETRY_MAX === 3 &&
+        keyFiles.length === 1 &&
+        keyFiles[0].endsWith("idx-server-headers.ts") &&
+        headerModule.includes("process.env.IDX_SERVER_KEY") &&
+        headerModule.includes("globalThis.window") &&
+        headerModule.includes('process.env.NEXT_RUNTIME === ""') &&
+        !headerModule.includes("NEXT_PUBLIC_") &&
+        !nextConfigSource.includes("IDX_SERVER_KEY") &&
+        propertyError.includes("noindex, nofollow") &&
+        propertyError.includes("unstable_retry") &&
+        propertyError.includes("listingAutoRetryDelaySeconds") &&
+        propertyError.includes("sessionStorage") &&
+        propertyError.includes("Trying again in") &&
+        notice.includes("countdownRef") &&
+        notice.includes("Try again") &&
+        notice.includes("data-listing-retry-countdown") &&
+        !shouldRunMiddleware("/property/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") &&
+        middleware.includes("property(?:/|$)") &&
+        middleware.includes("retryBackoffRemaining(listingId)"),
+      `a ${aLimited} b ${bFetchedDuringABackoff} skipA ${secondADidNotFetch} key ${serverKeyOnListing}/${serverKeyOnSearch} browser ${omittedInBrowser} short ${retriedShort} ${shortElapsed}ms long ${noLongRetry} ${longElapsed}ms zero ${retriedZero} keyFiles ${keyFiles.length}`,
+    );
+  } finally {
+    if (previousServerKey === undefined) delete process.env.IDX_SERVER_KEY;
+    else process.env.IDX_SERVER_KEY = previousServerKey;
+    if (hadWindow) (globalThis as { window?: unknown }).window = previousWindow;
+    else delete (globalThis as { window?: unknown }).window;
     globalThis.fetch = originalFetch;
     resetListingCache();
   }
